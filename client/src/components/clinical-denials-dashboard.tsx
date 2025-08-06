@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   AlertCircle, 
   FileText, 
@@ -22,10 +23,17 @@ import {
   Download,
   Eye,
   Edit,
-  RefreshCw
+  RefreshCw,
+  Gavel,
+  Stethoscope,
+  Shield,
+  ExternalLink
 } from "lucide-react";
 import { DenialTrendsChart, DenialCategoryChart } from "./charts/denial-trends-chart";
 import { DenialReasonAnalysis, PayerDenialPatterns } from "./charts/denial-reason-analysis";
+import { AppealGenerationDashboard } from "./appeal-generation-dashboard";
+import { ClinicalDecisionDashboard } from "./clinical-decision-dashboard";
+import { PreAuthorizationDashboard } from "./pre-authorization-dashboard";
 
 const clinicalMetrics = [
   {
@@ -256,6 +264,8 @@ export function ClinicalDenialsDashboard() {
   const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
   const [selectedPayer, setSelectedPayer] = useState("All Payers");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDenialForRFP, setSelectedDenialForRFP] = useState<any>(null);
+  const [activeRFPModule, setActiveRFPModule] = useState<string | null>(null);
 
   const filteredDenials = activeDenials.filter(denial => {
     const matchesSearch = searchTerm === "" || 
@@ -266,6 +276,56 @@ export function ClinicalDenialsDashboard() {
     
     return matchesSearch && matchesDepartment && matchesPayer;
   });
+
+  // Helper functions for contextual RFP module integration
+  const getContextualActions = (denial: any) => {
+    const actions = [];
+
+    // Appeal Generation - for appealable denials
+    if (denial.daysToAppeal > 0 && denial.status !== "Upheld" && denial.status !== "Closed") {
+      actions.push({
+        type: "appeal",
+        label: "Generate Appeal",
+        icon: Gavel,
+        color: "bg-purple-600 hover:bg-purple-700",
+        description: "AI-powered appeal letter generation"
+      });
+    }
+
+    // Clinical Decision Support - for medical necessity and documentation denials
+    if (denial.category === "Medical Necessity" || denial.category === "Documentation") {
+      actions.push({
+        type: "clinical",
+        label: "Clinical Review",
+        icon: Stethoscope,
+        color: "bg-blue-600 hover:bg-blue-700",
+        description: "Medical record analysis and recommendations"
+      });
+    }
+
+    // Pre-Authorization Check - for authorization-related denials
+    if (denial.category === "Authorization" || denial.denialReason.includes("authorization")) {
+      actions.push({
+        type: "preauth",
+        label: "Check Pre-Auth",
+        icon: Shield,
+        color: "bg-green-600 hover:bg-green-700",
+        description: "Pre-authorization status and requirements"
+      });
+    }
+
+    return actions;
+  };
+
+  const handleRFPModuleOpen = (denial: any, moduleType: string) => {
+    setSelectedDenialForRFP(denial);
+    setActiveRFPModule(moduleType);
+  };
+
+  const closeRFPModule = () => {
+    setSelectedDenialForRFP(null);
+    setActiveRFPModule(null);
+  };
 
   return (
     <main className="flex-1 p-6 overflow-y-auto bg-white">
@@ -486,7 +546,8 @@ export function ClinicalDenialsDashboard() {
                         </div>
                       </div>
 
-                      <div className="flex space-x-2">
+                      <div className="flex flex-wrap gap-2">
+                        {/* Standard Action Buttons */}
                         <Button 
                           size="sm" 
                           className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -503,6 +564,32 @@ export function ClinicalDenialsDashboard() {
                           <Users className="h-4 w-4 mr-2" />
                           Assign Reviewer
                         </Button>
+                        
+                        {/* Contextual RFP Module Actions */}
+                        {getContextualActions(denial).length > 0 && (
+                          <div className="border-l border-gray-300 pl-2 ml-2 flex gap-2">
+                            {getContextualActions(denial).map((action, actionIndex) => {
+                              const IconComponent = action.icon;
+                              return (
+                                <Dialog key={actionIndex}>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      className={`text-white ${action.color}`}
+                                      title={action.description}
+                                      data-testid={`button-${action.type}-${denial.denialId}`}
+                                      onClick={() => handleRFPModuleOpen(denial, action.type)}
+                                    >
+                                      <IconComponent className="h-4 w-4 mr-1" />
+                                      {action.label}
+                                      <ExternalLink className="h-3 w-3 ml-1" />
+                                    </Button>
+                                  </DialogTrigger>
+                                </Dialog>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -605,6 +692,130 @@ export function ClinicalDenialsDashboard() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* RFP Module Modals */}
+        {selectedDenialForRFP && (
+          <>
+            {/* Appeal Generation Modal */}
+            <Dialog open={activeRFPModule === "appeal"} onOpenChange={closeRFPModule}>
+              <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center space-x-2">
+                    <Gavel className="h-5 w-5 text-purple-600" />
+                    <span>Appeal Generation - {selectedDenialForRFP.denialId}</span>
+                    <Badge className="ml-2 bg-purple-100 text-purple-800">
+                      {selectedDenialForRFP.patientName}
+                    </Badge>
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="mt-4">
+                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 className="font-medium text-gray-900 mb-2">Denial Context</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Denial Reason:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.denialReason}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Denied Amount:</span>
+                        <span className="ml-2 font-medium">${selectedDenialForRFP.deniedAmount?.toLocaleString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Category:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.category}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Days to Appeal:</span>
+                        <span className={`ml-2 font-medium ${getDaysToAppealColor(selectedDenialForRFP.daysToAppeal)}`}>
+                          {selectedDenialForRFP.daysToAppeal} days
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <AppealGenerationDashboard />
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Clinical Decision Support Modal */}
+            <Dialog open={activeRFPModule === "clinical"} onOpenChange={closeRFPModule}>
+              <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center space-x-2">
+                    <Stethoscope className="h-5 w-5 text-blue-600" />
+                    <span>Clinical Decision Support - {selectedDenialForRFP.denialId}</span>
+                    <Badge className="ml-2 bg-blue-100 text-blue-800">
+                      {selectedDenialForRFP.patientName}
+                    </Badge>
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="mt-4">
+                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 className="font-medium text-gray-900 mb-2">Medical Necessity Review Context</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Denial Reason:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.denialReason}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Department:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.department}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Provider:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.provider}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Service Date:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.serviceDate}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <ClinicalDecisionDashboard />
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Pre-Authorization Check Modal */}
+            <Dialog open={activeRFPModule === "preauth"} onOpenChange={closeRFPModule}>
+              <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center space-x-2">
+                    <Shield className="h-5 w-5 text-green-600" />
+                    <span>Pre-Authorization Analysis - {selectedDenialForRFP.denialId}</span>
+                    <Badge className="ml-2 bg-green-100 text-green-800">
+                      {selectedDenialForRFP.patientName}
+                    </Badge>
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="mt-4">
+                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 className="font-medium text-gray-900 mb-2">Authorization Context</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Payer:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.payerName}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Denial Reason:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.denialReason}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Service Date:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.serviceDate}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Procedure:</span>
+                        <span className="ml-2 font-medium">{selectedDenialForRFP.procedureCode || "N/A"}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <PreAuthorizationDashboard />
+                </div>
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
       </div>
     </main>
   );
