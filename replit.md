@@ -43,6 +43,7 @@ The application manages multiple comprehensive entities:
 7. **Statistical Process Control**: AR trend analysis with changepoint detection and control limits
 8. **Collections Management**: Discharge location analysis, payer class balances, aging subcategories, and high-priority account tracking
 9. **Timely Filing Management**: Claims deadline tracking, risk assessment, department performance monitoring, and automated alerts for filing deadlines
+10. **Clinical Denials Management**: Comprehensive denial review workflows, appeal tracking, clinical reviewer performance monitoring, and denial reason analysis
 
 ## Component Architecture
 The dashboard implements a modular component structure:
@@ -52,7 +53,8 @@ The dashboard implements a modular component structure:
 - **ArManagementDashboard**: Comprehensive AR analysis with statistical process control
 - **CollectionsDashboard**: Collections management with discharge location performance and aging analysis
 - **TimelyFilingDashboard**: Claims filing deadline management with risk assessment and department performance tracking
-- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts, discharge location performance, payer class breakdowns, filing trends, department performance)
+- **ClinicalDenialsDashboard**: Clinical denial management with review workflows, appeal tracking, and reason analysis
+- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts, discharge location performance, payer class breakdowns, filing trends, department performance, denial trends, reason analysis)
 - **DataTables**: Interactive tables with sorting, filtering, and action buttons
 - **AI Components**: OpenAI-powered recommendation engine and pattern analysis
 
