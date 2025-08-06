@@ -291,6 +291,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Appeal Generation routes
+  app.get("/api/appeal-cases", async (req, res) => {
+    try {
+      const { appealCases } = await import("./appeal-data");
+      // Filter for high-probability appeals (>70%)
+      const highProbabilityAppeals = appealCases.filter(appeal => appeal.appealProbability > 70);
+      res.json(highProbabilityAppeals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch appeal cases" });
+    }
+  });
+
+  app.get("/api/challenge-letters/:appealId", async (req, res) => {
+    try {
+      const { appealId } = req.params;
+      const { appealCases, challengeLetterTemplate } = await import("./appeal-data");
+      const appealCase = appealCases.find(appeal => appeal.id === appealId);
+      
+      if (!appealCase) {
+        return res.status(404).json({ message: "Appeal case not found" });
+      }
+
+      // Generate challenge letter with specific clinical evidence
+      const challengeLetter = generateChallengeLetter(appealCase, challengeLetterTemplate);
+      
+      res.json({
+        appealCase,
+        challengeLetter,
+        clinicalEvidence: appealCase.clinicalEvidence,
+        appealProbability: appealCase.appealProbability
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate challenge letter" });
+    }
+  });
+
   // Clinical decision routes
   app.get("/api/clinical-decisions", async (req, res) => {
     try {
@@ -368,4 +403,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// Helper function to generate challenge letters
+function generateChallengeLetter(appealCase: any, template: any): string {
+  const currentDate = new Date().toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
+  // Extract key clinical findings based on appeal type
+  let keyClinicalFindings = [];
+  if (appealCase.clinicalEvidence.vitalSigns) {
+    keyClinicalFindings.push(...appealCase.clinicalEvidence.vitalSigns.findings);
+  }
+  if (appealCase.clinicalEvidence.medications) {
+    keyClinicalFindings.push(...appealCase.clinicalEvidence.medications.findings);
+  }
+  if (appealCase.clinicalEvidence.respiratorySupport) {
+    keyClinicalFindings.push(...appealCase.clinicalEvidence.respiratorySupport.findings);
+  }
+
+  // Build the complete letter
+  let challengeLetter = template.header.template
+    .replace('[Date]', currentDate)
+    .replace('[Insurance Company Name]', appealCase.payer)
+    .replace('[Patient Name]', appealCase.patientName)
+    .replace('[Patient ID]', appealCase.patientId)
+    .replace('[Claim ID]', appealCase.claimId)
+    .replace('[Service Date]', new Date(appealCase.createdAt).toLocaleDateString())
+    .replace('[Attending Physician]', appealCase.attendingPhysician);
+
+  challengeLetter += template.introduction.template;
+
+  let clinicalSummary = template.clinicalSummary.template
+    .replace('[Patient Name]', appealCase.patientName.split(',')[0])
+    .replace('[primary diagnosis]', appealCase.denialReason.toLowerCase())
+    .replace('[Key Clinical Finding 1]', keyClinicalFindings[0] || 'Clinical instability documented')
+    .replace('[Key Clinical Finding 2]', keyClinicalFindings[1] || 'Intensive monitoring required')
+    .replace('[Key Clinical Finding 3]', keyClinicalFindings[2] || 'IV medications necessary')
+    .replace('[Key Clinical Finding 4]', keyClinicalFindings[3] || 'Complex medical management needed');
+
+  challengeLetter += clinicalSummary;
+
+  // Customize medical necessity section based on case type
+  let medicalNecessity = template.medicalNecessity.template;
+  if (appealCase.denialReason.includes('heart failure')) {
+    medicalNecessity = medicalNecessity
+      .replace('[Clinical evidence of severity]', 'Acute decompensated heart failure with BNP >1000 and hypoxia (O2 sat 88%)')
+      .replace('[IV medications, monitoring needs]', 'IV diuretic therapy required (Furosemide 40mg IV BID) with hemodynamic monitoring')
+      .replace('[Vital sign abnormalities, instability]', 'Tachycardia (HR 110), hypertension (165/95), and respiratory distress')
+      .replace('[Duration and complexity of care]', 'Required 72+ hours of intensive cardiac monitoring and IV therapy');
+  } else if (appealCase.denialReason.includes('COPD')) {
+    medicalNecessity = medicalNecessity
+      .replace('[Clinical evidence of severity]', 'Severe COPD exacerbation with respiratory failure (O2 sat 85%)')
+      .replace('[IV medications, monitoring needs]', 'BiPAP support and IV steroid therapy (Methylprednisolone 40mg q8h)')
+      .replace('[Vital sign abnormalities, instability]', 'Severe hypoxia, tachypnea (RR 28), and fever (100.8°F)')
+      .replace('[Duration and complexity of care]', 'Required 48+ hours of intensive respiratory support and monitoring');
+  }
+
+  challengeLetter += medicalNecessity;
+
+  let regulatorySupport = template.regulatorySupport.template;
+  if (appealCase.insurerCriteria.supportingGuidelines) {
+    const guidelines = appealCase.insurerCriteria.supportingGuidelines.join('\n• ');
+    regulatorySupport = regulatorySupport
+      .replace('[Relevant LCD/NCD References]', guidelines.split('\n')[0])
+      .replace('[Professional Society Guidelines]', guidelines.split('\n')[1] || 'American College of Cardiology Guidelines')
+      .replace('[CMS Coverage Determinations]', guidelines.split('\n')[2] || 'CMS Manual System Guidelines');
+  }
+
+  challengeLetter += regulatorySupport;
+
+  challengeLetter += template.conclusion.template
+    .replace('[Physician Name, MD]', appealCase.attendingPhysician)
+    .replace('[Title]', 'Attending Physician')
+    .replace('[Department]', appealCase.department)
+    .replace('[Contact Information]', 'medical.records@hospital.org | (555) 123-4567')
+    .replace('[phone]', '(555) 123-4567');
+
+  return challengeLetter;
 }

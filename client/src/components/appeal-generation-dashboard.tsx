@@ -1,578 +1,444 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  FileText, 
-  Zap, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle,
-  Eye,
-  Download,
-  Send,
-  Brain,
-  BarChart3
-} from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { AlertTriangle, TrendingUp, FileText, Clock, CheckCircle, Target, Stethoscope, Activity, TestTube, Pill } from "lucide-react";
 
-// Sample appeal data
-const appealData = [
-  {
-    id: "app-001",
-    claimId: "CLM-2024-001",
-    patientName: "Robert Johnson",
-    payer: "Blue Cross Blue Shield",
-    denialReason: "Inappropriate inpatient status",
-    denialCode: "CO-119",
-    denialDate: "2024-08-05",
-    claimAmount: 45000,
-    successProbability: 0.85,
-    priorityScore: 92,
-    status: "generated",
-    appealDeadline: "2024-09-04",
-    daysUntilDeadline: 25,
-    appealType: "written_appeal",
-    appealLevel: "first_level"
-  },
-  {
-    id: "app-002", 
-    claimId: "CLM-2024-002",
-    patientName: "Sarah Davis",
-    payer: "Medicare",
-    denialReason: "Medical necessity not established",
-    denialCode: "CO-50",
-    denialDate: "2024-08-03",
-    claimAmount: 28000,
-    successProbability: 0.72,
-    priorityScore: 88,
-    status: "pending_generation",
-    appealDeadline: "2024-09-02",
-    daysUntilDeadline: 23,
-    appealType: "peer_to_peer",
-    appealLevel: "first_level"
-  },
-  {
-    id: "app-003",
-    claimId: "CLM-2024-003", 
-    patientName: "Michael Chen",
-    payer: "Aetna",
-    denialReason: "DRG mismatch - coding error",
-    denialCode: "CO-197",
-    denialDate: "2024-07-28",
-    claimAmount: 15000,
-    successProbability: 0.91,
-    priorityScore: 95,
-    status: "submitted",
-    appealDeadline: "2024-08-27",
-    daysUntilDeadline: 17,
-    appealType: "written_appeal",
-    appealLevel: "first_level"
-  }
-];
-
-// Appeal success metrics
-const successMetrics = [
-  { month: "Feb", firstLevel: 78, secondLevel: 65, external: 45 },
-  { month: "Mar", firstLevel: 82, secondLevel: 68, external: 48 },
-  { month: "Apr", firstLevel: 85, secondLevel: 72, external: 52 },
-  { month: "May", firstLevel: 79, secondLevel: 69, external: 49 },
-  { month: "Jun", firstLevel: 87, secondLevel: 75, external: 54 },
-  { month: "Jul", firstLevel: 89, secondLevel: 73, external: 51 }
-];
-
-// Denial reason analysis
-const denialReasonData = [
-  { reason: "Medical Necessity", count: 45, successRate: 85, color: "#3b82f6" },
-  { reason: "Inappropriate Status", count: 32, successRate: 78, color: "#f59e0b" },
-  { reason: "DRG Mismatch", count: 28, successRate: 92, color: "#22c55e" },
-  { reason: "Prior Auth Missing", count: 18, successRate: 65, color: "#ef4444" },
-  { reason: "Documentation Gap", count: 15, successRate: 88, color: "#8b5cf6" }
-];
-
-// Template performance data
-const templatePerformance = [
-  { name: "Heart Failure - Inpatient Status", usage: 24, successRate: 0.87, lastUpdated: "2024-07-15" },
-  { name: "Medical Necessity - Surgery", usage: 18, successRate: 0.91, lastUpdated: "2024-07-20" },
-  { name: "DRG Mismatch - General", usage: 15, successRate: 0.94, lastUpdated: "2024-07-10" },
-  { name: "Prior Auth - Commercial", usage: 12, successRate: 0.72, lastUpdated: "2024-07-25" }
-];
-
-function StatusBadge({ status }: { status: string }) {
-  const variants = {
-    pending_generation: "bg-yellow-100 text-yellow-800",
-    generated: "bg-blue-100 text-blue-800",
-    reviewed: "bg-purple-100 text-purple-800",
-    submitted: "bg-green-100 text-green-800",
-    approved: "bg-green-200 text-green-900",
-    denied: "bg-red-100 text-red-800",
-    withdrawn: "bg-gray-100 text-gray-800"
+interface AppealCase {
+  id: string;
+  patientName: string;
+  patientId: string;
+  payer: string;
+  denialReason: string;
+  denialAmount: string;
+  appealProbability: number;
+  department: string;
+  attendingPhysician: string;
+  clinicalEvidence: {
+    vitalSigns?: {
+      findings: string[];
+      supportingDocumentation: string;
+    };
+    labResults?: {
+      findings: string[];
+      supportingDocumentation: string;
+    };
+    medications?: {
+      findings: string[];
+      supportingDocumentation: string;
+    };
+    imaging?: {
+      findings: string[];
+      supportingDocumentation: string;
+    };
+    respiratorySupport?: {
+      findings: string[];
+      supportingDocumentation: string;
+    };
   };
-  
-  return (
-    <Badge className={variants[status as keyof typeof variants] || "bg-gray-100 text-gray-800"}>
-      {status.replace(/_/g, ' ')}
-    </Badge>
-  );
+  appealStrength: {
+    strongPoints: string[];
+    medicalJustification: string;
+    regulatorySupport: string;
+  };
+  status: string;
+  createdAt: string;
 }
 
-function PriorityBadge({ score }: { score: number }) {
-  if (score >= 90) return <Badge className="bg-red-100 text-red-800">Critical</Badge>;
-  if (score >= 80) return <Badge className="bg-orange-100 text-orange-800">High</Badge>;
-  if (score >= 70) return <Badge className="bg-yellow-100 text-yellow-800">Medium</Badge>;
-  return <Badge className="bg-blue-100 text-blue-800">Low</Badge>;
+interface ChallengeLetterResponse {
+  appealCase: AppealCase;
+  challengeLetter: string;
+  clinicalEvidence: any;
+  appealProbability: number;
 }
 
 export function AppealGenerationDashboard() {
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showGenerationModal, setShowGenerationModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedAppeal, setSelectedAppeal] = useState<string | null>(null);
 
-  const filteredAppeals = appealData.filter(appeal => {
-    const matchesFilter = selectedFilter === "all" || appeal.status === selectedFilter;
-    const matchesSearch = appeal.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         appeal.denialReason.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         appeal.payer.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
+  // Fetch high-probability appeal cases
+  const { data: appealCases = [], isLoading: isLoadingCases } = useQuery({
+    queryKey: ["/api/appeal-cases"],
   });
 
-  return (
-    <div className="p-6 space-y-6" data-testid="appeal-generation-dashboard">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Automated Appeal Generation</h1>
-          <p className="text-gray-600 mt-2">AI-powered challenge letter generation and appeal management</p>
+  // Fetch challenge letter for selected appeal
+  const { data: challengeLetterData, isLoading: isLoadingLetter } = useQuery<ChallengeLetterResponse>({
+    queryKey: ["/api/challenge-letters", selectedAppeal],
+    enabled: !!selectedAppeal,
+  });
+
+  const filteredCases = appealCases.filter((appealCase: AppealCase) =>
+    appealCase.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    appealCase.denialReason.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    appealCase.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    appealCase.payer.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getProbabilityBadge = (probability: number) => {
+    if (probability >= 90) return <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">Excellent ({probability}%)</Badge>;
+    if (probability >= 80) return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">Very High ({probability}%)</Badge>;
+    if (probability >= 70) return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">High ({probability}%)</Badge>;
+    return <Badge variant="secondary">Below Threshold ({probability}%)</Badge>;
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "generated":
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"><CheckCircle className="w-3 h-3 mr-1" />Generated</Badge>;
+      case "pending_generation":
+        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+      case "not_recommended":
+        return <Badge variant="destructive"><AlertTriangle className="w-3 h-3 mr-1" />Not Recommended</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  if (isLoadingCases) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-16 bg-gray-200 rounded"></div>
+            ))}
+          </div>
         </div>
-        <Button 
-          className="bg-purple-600 hover:bg-purple-700" 
-          onClick={() => setShowGenerationModal(true)}
-          data-testid="button-generate-appeal"
-        >
-          <Zap className="mr-2 h-4 w-4" />
-          Generate Appeal
-        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Automated Appeal Generation</h2>
+        <p className="text-muted-foreground">
+          AI-powered challenge letter generation for high-probability appeals (&gt;70% success rate)
+        </p>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Appeals Generated</p>
-                <p className="text-2xl font-bold text-purple-600">127</p>
-                <p className="text-xs text-green-600 mt-1">↑ 18% this month</p>
-              </div>
-              <Brain className="h-8 w-8 text-purple-600" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">High-Probability Cases</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {filteredCases.filter((c: AppealCase) => c.appealProbability > 70).length}
             </div>
+            <p className="text-xs text-muted-foreground">Cases &gt;70% success rate</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Success Rate</p>
-                <p className="text-2xl font-bold text-green-600">89.2%</p>
-                <p className="text-xs text-green-600 mt-1">Above 70% target</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-green-600" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Average Success Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {Math.round(filteredCases.reduce((sum: number, c: AppealCase) => sum + c.appealProbability, 0) / filteredCases.length || 0)}%
             </div>
+            <p className="text-xs text-muted-foreground">Predicted win rate</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Avg Generation Time</p>
-                <p className="text-2xl font-bold text-blue-600">3.2 min</p>
-                <p className="text-xs text-green-600 mt-1">85% faster than manual</p>
-              </div>
-              <Clock className="h-8 w-8 text-blue-600" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Generated Letters</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">
+              {filteredCases.filter((c: AppealCase) => c.status === "generated").length}
             </div>
+            <p className="text-xs text-muted-foreground">Ready for submission</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Revenue Recovered</p>
-                <p className="text-2xl font-bold text-green-600">$2.1M</p>
-                <p className="text-xs text-green-600 mt-1">↑ 15% this quarter</p>
-              </div>
-              <BarChart3 className="h-8 w-8 text-green-600" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Appeal Value</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              ${filteredCases.reduce((sum: number, c: AppealCase) => 
+                sum + parseFloat(c.denialAmount.replace(/[$,]/g, '')), 0
+              ).toLocaleString()}
             </div>
+            <p className="text-xs text-muted-foreground">Denied amount to recover</p>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="appeals" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="appeals">Active Appeals</TabsTrigger>
-          <TabsTrigger value="templates">Letter Templates</TabsTrigger>
-          <TabsTrigger value="analytics">Success Analytics</TabsTrigger>
-          <TabsTrigger value="patterns">Denial Patterns</TabsTrigger>
-        </TabsList>
+      {/* Search and Filters */}
+      <div className="flex items-center space-x-4">
+        <Input
+          placeholder="Search by patient, denial reason, department, or payer..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+          data-testid="input-search-appeals"
+        />
+        <Badge variant="outline" className="text-green-600 border-green-600">
+          <Target className="w-3 h-3 mr-1" />
+          Showing High-Probability Cases (&gt;70%)
+        </Badge>
+      </div>
 
-        <TabsContent value="appeals" className="space-y-6">
-          {/* Filters */}
-          <div className="flex gap-4 items-center">
-            <Input
-              placeholder="Search appeals..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
-              data-testid="input-search-appeals"
-            />
-            <Select value={selectedFilter} onValueChange={setSelectedFilter}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending_generation">Pending Generation</SelectItem>
-                <SelectItem value="generated">Generated</SelectItem>
-                <SelectItem value="reviewed">Reviewed</SelectItem>
-                <SelectItem value="submitted">Submitted</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Appeals Table */}
-          <Card>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Denial Reason</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Success Probability</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deadline</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredAppeals.map((appeal) => (
-                      <tr key={appeal.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{appeal.patientName}</div>
-                            <div className="text-sm text-gray-500">{appeal.claimId}</div>
-                            <div className="text-sm text-gray-500">{appeal.payer}</div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{appeal.denialReason}</div>
-                            <div className="text-sm text-gray-500">{appeal.denialCode}</div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          ${appeal.claimAmount.toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="text-sm font-medium text-gray-900">
-                              {(appeal.successProbability * 100).toFixed(0)}%
-                            </div>
-                            <div 
-                              className={`ml-2 h-2 w-8 rounded ${
-                                appeal.successProbability >= 0.8 ? 'bg-green-400' : 
-                                appeal.successProbability >= 0.7 ? 'bg-yellow-400' : 'bg-red-400'
-                              }`}
-                            />
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <PriorityBadge score={appeal.priorityScore} />
-                        </td>
-                        <td className="px-6 py-4">
-                          <StatusBadge status={appeal.status} />
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <div className="text-sm text-gray-900">{appeal.appealDeadline}</div>
-                            <div className={`text-sm ${
-                              appeal.daysUntilDeadline <= 7 ? 'text-red-600' : 
-                              appeal.daysUntilDeadline <= 14 ? 'text-orange-600' : 'text-gray-500'
-                            }`}>
-                              {appeal.daysUntilDeadline} days left
+      {/* Appeals Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>High-Probability Appeal Cases</CardTitle>
+          <CardDescription>
+            Cases with &gt;70% probability of successful appeal based on clinical evidence analysis
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Patient</TableHead>
+                <TableHead>Payer</TableHead>
+                <TableHead>Denial Reason</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Success Probability</TableHead>
+                <TableHead>Department</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredCases.map((appealCase: AppealCase) => (
+                <TableRow key={appealCase.id}>
+                  <TableCell className="font-medium">
+                    <div>
+                      <div>{appealCase.patientName}</div>
+                      <div className="text-sm text-muted-foreground">{appealCase.patientId}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{appealCase.payer}</TableCell>
+                  <TableCell className="max-w-xs">
+                    <div className="truncate" title={appealCase.denialReason}>
+                      {appealCase.denialReason}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium text-red-600">
+                    {appealCase.denialAmount}
+                  </TableCell>
+                  <TableCell>
+                    {getProbabilityBadge(appealCase.appealProbability)}
+                  </TableCell>
+                  <TableCell>{appealCase.department}</TableCell>
+                  <TableCell>
+                    {getStatusBadge(appealCase.status)}
+                  </TableCell>
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedAppeal(appealCase.id)}
+                          data-testid={`button-view-appeal-${appealCase.id}`}
+                        >
+                          <FileText className="w-4 h-4 mr-1" />
+                          Generate Letter
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl max-h-[80vh]">
+                        <DialogHeader>
+                          <DialogTitle>
+                            Appeal Challenge Letter - {appealCase.patientName}
+                          </DialogTitle>
+                          <DialogDescription>
+                            AI-generated challenge letter with clinical evidence extraction
+                          </DialogDescription>
+                        </DialogHeader>
+                        
+                        {isLoadingLetter ? (
+                          <div className="animate-pulse space-y-4 p-4">
+                            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                            <div className="space-y-2">
+                              {[...Array(10)].map((_, i) => (
+                                <div key={i} className="h-3 bg-gray-200 rounded"></div>
+                              ))}
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 space-x-2">
-                          <Button variant="outline" size="sm" data-testid={`button-view-${appeal.id}`}>
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                          {appeal.status === "generated" && (
-                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                              <Download className="h-4 w-4 mr-1" />
-                              Download
-                            </Button>
-                          )}
-                          {appeal.status === "reviewed" && (
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                              <Send className="h-4 w-4 mr-1" />
-                              Submit
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                        ) : challengeLetterData ? (
+                          <Tabs defaultValue="letter" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2">
+                              <TabsTrigger value="letter">Challenge Letter</TabsTrigger>
+                              <TabsTrigger value="evidence">Clinical Evidence</TabsTrigger>
+                            </TabsList>
+                            
+                            <TabsContent value="letter" className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className="font-semibold">Success Probability: {challengeLetterData.appealProbability}%</h4>
+                                  <p className="text-sm text-muted-foreground">Based on clinical evidence strength</p>
+                                </div>
+                                <Button className="bg-green-600 hover:bg-green-700">
+                                  <FileText className="w-4 h-4 mr-1" />
+                                  Submit Appeal
+                                </Button>
+                              </div>
+                              
+                              <ScrollArea className="h-96 w-full rounded-md border p-4">
+                                <pre className="text-sm whitespace-pre-wrap font-mono">
+                                  {challengeLetterData.challengeLetter}
+                                </pre>
+                              </ScrollArea>
+                            </TabsContent>
+                            
+                            <TabsContent value="evidence" className="space-y-4">
+                              <ScrollArea className="h-96 w-full">
+                                <div className="space-y-6">
+                                  {/* Vital Signs Evidence */}
+                                  {challengeLetterData.clinicalEvidence.vitalSigns && (
+                                    <div className="space-y-2">
+                                      <div className="flex items-center space-x-2">
+                                        <Activity className="h-4 w-4 text-red-500" />
+                                        <h4 className="font-semibold">Critical Vital Signs</h4>
+                                      </div>
+                                      <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                                        {challengeLetterData.clinicalEvidence.vitalSigns.findings.map((finding: string, index: number) => (
+                                          <div key={index} className="flex items-start space-x-2">
+                                            <AlertTriangle className="h-3 w-3 text-red-500 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{finding}</span>
+                                          </div>
+                                        ))}
+                                        <p className="text-xs text-muted-foreground mt-2">
+                                          Source: {challengeLetterData.clinicalEvidence.vitalSigns.supportingDocumentation}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
 
-        <TabsContent value="templates" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Appeal Letter Templates</CardTitle>
-              <p className="text-sm text-gray-600">
-                Manage and optimize AI-powered appeal letter templates
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {templatePerformance.map((template, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{template.name}</h4>
-                      <div className="flex items-center gap-4 mt-1">
-                        <span className="text-sm text-gray-500">Used {template.usage} times</span>
-                        <span className="text-sm text-green-600">
-                          {(template.successRate * 100).toFixed(0)}% success rate
-                        </span>
-                        <span className="text-sm text-gray-500">Updated {template.lastUpdated}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        View Stats
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6">
-                <Button className="bg-purple-600 hover:bg-purple-700">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Create New Template
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                                  {/* IV Medications Evidence */}
+                                  {challengeLetterData.clinicalEvidence.medications && (
+                                    <div className="space-y-2">
+                                      <div className="flex items-center space-x-2">
+                                        <Pill className="h-4 w-4 text-blue-500" />
+                                        <h4 className="font-semibold">IV Medication Requirements</h4>
+                                      </div>
+                                      <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                                        {challengeLetterData.clinicalEvidence.medications.findings.map((finding: string, index: number) => (
+                                          <div key={index} className="flex items-start space-x-2">
+                                            <Pill className="h-3 w-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{finding}</span>
+                                          </div>
+                                        ))}
+                                        <p className="text-xs text-muted-foreground mt-2">
+                                          Source: {challengeLetterData.clinicalEvidence.medications.supportingDocumentation}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
 
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Success Rate Trends */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Appeal Success Trends</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={successMetrics}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="firstLevel" stroke="#3b82f6" name="First Level" />
-                      <Line type="monotone" dataKey="secondLevel" stroke="#f59e0b" name="Second Level" />
-                      <Line type="monotone" dataKey="external" stroke="#ef4444" name="External Review" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+                                  {/* Lab Results Evidence */}
+                                  {challengeLetterData.clinicalEvidence.labResults && (
+                                    <div className="space-y-2">
+                                      <div className="flex items-center space-x-2">
+                                        <TestTube className="h-4 w-4 text-purple-500" />
+                                        <h4 className="font-semibold">Laboratory Evidence</h4>
+                                      </div>
+                                      <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                                        {challengeLetterData.clinicalEvidence.labResults.findings.map((finding: string, index: number) => (
+                                          <div key={index} className="flex items-start space-x-2">
+                                            <TestTube className="h-3 w-3 text-purple-500 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{finding}</span>
+                                          </div>
+                                        ))}
+                                        <p className="text-xs text-muted-foreground mt-2">
+                                          Source: {challengeLetterData.clinicalEvidence.labResults.supportingDocumentation}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
 
-            {/* Revenue Impact */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Monthly Revenue Recovery</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="text-center p-6 border rounded bg-green-50">
-                    <div className="text-3xl font-bold text-green-600 mb-2">$2.1M</div>
-                    <div className="text-lg text-green-800 mb-1">Total Recovered</div>
-                    <div className="text-sm text-green-600">↑ 15% vs last quarter</div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 border rounded">
-                      <div className="text-xl font-semibold text-gray-900">$387K</div>
-                      <div className="text-sm text-gray-600">This Month</div>
-                    </div>
-                    <div className="text-center p-4 border rounded">
-                      <div className="text-xl font-semibold text-gray-900">$42K</div>
-                      <div className="text-sm text-gray-600">Avg per Appeal</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                                  {/* Respiratory Support Evidence */}
+                                  {challengeLetterData.clinicalEvidence.respiratorySupport && (
+                                    <div className="space-y-2">
+                                      <div className="flex items-center space-x-2">
+                                        <Stethoscope className="h-4 w-4 text-green-500" />
+                                        <h4 className="font-semibold">Respiratory Support Requirements</h4>
+                                      </div>
+                                      <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                                        {challengeLetterData.clinicalEvidence.respiratorySupport.findings.map((finding: string, index: number) => (
+                                          <div key={index} className="flex items-start space-x-2">
+                                            <Stethoscope className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{finding}</span>
+                                          </div>
+                                        ))}
+                                        <p className="text-xs text-muted-foreground mt-2">
+                                          Source: {challengeLetterData.clinicalEvidence.respiratorySupport.supportingDocumentation}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
 
-          {/* Performance Indicators */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Key Performance Indicators</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="text-center p-4 border rounded">
-                  <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-gray-900">127</div>
-                  <div className="text-sm text-gray-600">Appeals Generated</div>
-                  <div className="text-xs text-green-600 mt-1">100% within 5 days</div>
-                </div>
-                <div className="text-center p-4 border rounded">
-                  <Clock className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-gray-900">3.2 min</div>
-                  <div className="text-sm text-gray-600">Avg Generation Time</div>
-                  <div className="text-xs text-green-600 mt-1">vs 4 hours manual</div>
-                </div>
-                <div className="text-center p-4 border rounded">
-                  <TrendingUp className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-gray-900">89.2%</div>
-                  <div className="text-sm text-gray-600">Success Rate</div>
-                  <div className="text-xs text-green-600 mt-1">Above 70% target</div>
-                </div>
-                <div className="text-center p-4 border rounded">
-                  <AlertTriangle className="h-8 w-8 text-orange-500 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-gray-900">23%</div>
-                  <div className="text-sm text-gray-600">Denial Reduction</div>
-                  <div className="text-xs text-green-600 mt-1">Above 20% target</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                                  <Separator />
 
-        <TabsContent value="patterns" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Denial Pattern Analysis</CardTitle>
-              <p className="text-sm text-gray-600">
-                Analyze denial patterns to improve appeal strategies and prevent future denials
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80 mb-6">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={denialReasonData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="reason"
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
-                    />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#3b82f6" name="Count" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+                                  {/* Appeal Strength Analysis */}
+                                  <div className="space-y-2">
+                                    <h4 className="font-semibold">Appeal Strength Analysis</h4>
+                                    <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg space-y-2">
+                                      <div>
+                                        <p className="font-medium text-sm text-green-700 dark:text-green-300">Strong Points:</p>
+                                        {challengeLetterData.appealCase.appealStrength.strongPoints.map((point: string, index: number) => (
+                                          <div key={index} className="flex items-start space-x-2 mt-1">
+                                            <CheckCircle className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
+                                            <span className="text-sm">{point}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <div>
+                                        <p className="font-medium text-sm">Medical Justification:</p>
+                                        <p className="text-sm text-muted-foreground">{challengeLetterData.appealCase.appealStrength.medicalJustification}</p>
+                                      </div>
+                                      <div>
+                                        <p className="font-medium text-sm">Regulatory Support:</p>
+                                        <p className="text-sm text-muted-foreground">{challengeLetterData.appealCase.appealStrength.regulatorySupport}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </ScrollArea>
+                            </TabsContent>
+                          </Tabs>
+                        ) : null}
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {denialReasonData.map((item, index) => (
-                  <div key={index} className="p-4 border rounded">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-gray-900">{item.reason}</h4>
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                    </div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div>Count: {item.count}</div>
-                      <div className="text-green-600">Success Rate: {item.successRate}%</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Appeal Generation Modal */}
-      {showGenerationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-2xl">
-            <CardHeader>
-              <CardTitle>Generate New Appeal</CardTitle>
-              <p className="text-sm text-gray-600">
-                AI will analyze the denial and generate a comprehensive appeal letter
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Claim ID</label>
-                <Input placeholder="CLM-2024-XXX" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Denial Reason</label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select denial reason" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="medical_necessity">Medical Necessity</SelectItem>
-                    <SelectItem value="inappropriate_status">Inappropriate Status</SelectItem>
-                    <SelectItem value="drg_mismatch">DRG Mismatch</SelectItem>
-                    <SelectItem value="prior_auth">Prior Authorization</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
-                <Textarea 
-                  placeholder="Any specific clinical evidence or documentation to highlight..."
-                  className="h-24"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowGenerationModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  className="bg-purple-600 hover:bg-purple-700"
-                  onClick={() => setShowGenerationModal(false)}
-                >
-                  <Zap className="mr-2 h-4 w-4" />
-                  Generate Appeal
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+          {filteredCases.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No high-probability appeal cases found</p>
+              <p className="text-sm">Cases with &gt;70% success probability will appear here</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
