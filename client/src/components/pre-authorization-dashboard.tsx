@@ -58,7 +58,7 @@ interface ProcedureAuthRequirement {
 }
 
 export function PreAuthorizationDashboard() {
-  const [selectedTab, setSelectedTab] = useState("requests");
+  const [selectedTab, setSelectedTab] = useState("new-request");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProcedure, setSelectedProcedure] = useState("");
   const [newRequestData, setNewRequestData] = useState({
@@ -213,10 +213,10 @@ export function PreAuthorizationDashboard() {
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="requests" data-testid="tab-requests">Pre-Auth Requests</TabsTrigger>
-          <TabsTrigger value="procedures" data-testid="tab-procedures">Procedure Requirements</TabsTrigger>
-          <TabsTrigger value="criteria" data-testid="tab-criteria">Insurer Criteria</TabsTrigger>
           <TabsTrigger value="new-request" data-testid="tab-new-request">New Request</TabsTrigger>
+          <TabsTrigger value="requests" data-testid="tab-requests">Pre-Auth Requests</TabsTrigger>
+          <TabsTrigger value="analytics" data-testid="tab-analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="procedures" data-testid="tab-procedures">Procedure Requirements</TabsTrigger>
         </TabsList>
 
         <TabsContent value="requests" className="space-y-4">
@@ -357,53 +357,165 @@ export function PreAuthorizationDashboard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="criteria" className="space-y-4">
+        <TabsContent value="analytics" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Insurer Medical Necessity Criteria</CardTitle>
+              <CardTitle>Pre-Authorization Analytics & Performance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {insurerCriteria.map((criteria) => (
-                  <div key={criteria.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
+              <div className="space-y-6">
+                {/* Performance Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-green-50 p-4 rounded-lg border">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold text-gray-900">{criteria.insurerName}</h3>
-                        <p className="text-gray-700">{criteria.procedureCode} - {criteria.procedureName}</p>
+                        <p className="text-sm font-medium text-green-700">3+ Days Prior Completion</p>
+                        <p className="text-2xl font-bold text-green-800">90.0%</p>
+                        <p className="text-xs text-green-600">Target: 90% (Met)</p>
                       </div>
-                      <div className="text-right text-sm">
-                        <p className="text-gray-600">Auth Required: {criteria.timeFrameRequired}hrs prior</p>
-                        <p className="text-gray-600">Valid: {criteria.authValidityDays} days</p>
-                      </div>
+                      <CheckCircle className="h-8 w-8 text-green-500" />
                     </div>
-                    
-                    <div className="mb-3">
-                      <p className="text-sm font-medium text-gray-600 mb-2">Medical Necessity Criteria</p>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        {criteria.medicalNecessityCriteria.map((criterion, idx) => (
-                          <li key={idx} className="flex items-start">
-                            <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                            {criterion}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    {criteria.denialReasons.length > 0 && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 mb-2">Common Denial Reasons</p>
-                        <ul className="text-sm text-gray-700 space-y-1">
-                          {criteria.denialReasons.map((reason, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <AlertCircle className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
-                              {reason}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </div>
-                ))}
+                  
+                  <div className="bg-blue-50 p-4 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-blue-700">Average Processing Time</p>
+                        <p className="text-2xl font-bold text-blue-800">4.2 days</p>
+                        <p className="text-xs text-blue-600">Industry avg: 5.8 days</p>
+                      </div>
+                      <Clock className="h-8 w-8 text-blue-500" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-purple-50 p-4 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-purple-700">Overall Approval Rate</p>
+                        <p className="text-2xl font-bold text-purple-800">84.3%</p>
+                        <p className="text-xs text-purple-600">+2.1% vs last month</p>
+                      </div>
+                      <CheckCircle className="h-8 w-8 text-purple-500" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Distribution */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-gray-900">Authorization Status Distribution</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-green-50 rounded">
+                        <span className="text-green-700">Approved</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <div className="bg-green-500 h-2 rounded-full" style={{width: '84.3%'}}></div>
+                          </div>
+                          <span className="text-sm font-medium text-green-700">84.3%</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-yellow-50 rounded">
+                        <span className="text-yellow-700">Pending</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <div className="bg-yellow-500 h-2 rounded-full" style={{width: '11.2%'}}></div>
+                          </div>
+                          <span className="text-sm font-medium text-yellow-700">11.2%</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-red-50 rounded">
+                        <span className="text-red-700">Denied</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <div className="bg-red-500 h-2 rounded-full" style={{width: '4.5%'}}></div>
+                          </div>
+                          <span className="text-sm font-medium text-red-700">4.5%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-gray-900">Completion Timing Analysis</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-green-50 rounded">
+                        <span className="text-green-700">≥3 Days Prior</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <div className="bg-green-500 h-2 rounded-full" style={{width: '90%'}}></div>
+                          </div>
+                          <span className="text-sm font-medium text-green-700">90.0%</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-yellow-50 rounded">
+                        <span className="text-yellow-700">1-2 Days Prior</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <div className="bg-yellow-500 h-2 rounded-full" style={{width: '7%'}}></div>
+                          </div>
+                          <span className="text-sm font-medium text-yellow-700">7.0%</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-red-50 rounded">
+                        <span className="text-red-700">Same Day/Late</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <div className="bg-red-500 h-2 rounded-full" style={{width: '3%'}}></div>
+                          </div>
+                          <span className="text-sm font-medium text-red-700">3.0%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Performance by Payer */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-4">Performance by Insurance Provider</h3>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full border border-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Payer</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total Requests</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Approval Rate</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Avg Processing</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">3+ Days Prior</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        <tr>
+                          <td className="px-4 py-2 text-sm text-gray-900">Blue Cross Blue Shield</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">89</td>
+                          <td className="px-4 py-2 text-sm text-green-600">87.6%</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">3.8 days</td>
+                          <td className="px-4 py-2 text-sm text-green-600">92.1%</td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-2 text-sm text-gray-900">Aetna</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">76</td>
+                          <td className="px-4 py-2 text-sm text-green-600">89.5%</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">4.1 days</td>
+                          <td className="px-4 py-2 text-sm text-green-600">90.8%</td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-2 text-sm text-gray-900">UnitedHealthcare</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">123</td>
+                          <td className="px-4 py-2 text-sm text-green-600">82.1%</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">4.7 days</td>
+                          <td className="px-4 py-2 text-sm text-green-600">88.6%</td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-2 text-sm text-gray-900">Cigna</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">42</td>
+                          <td className="px-4 py-2 text-sm text-green-600">85.7%</td>
+                          <td className="px-4 py-2 text-sm text-gray-600">4.3 days</td>
+                          <td className="px-4 py-2 text-sm text-green-600">90.5%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
