@@ -1,4 +1,4 @@
-import { type Metric, type InsertMetric, type DocumentationRequest, type InsertDocumentationRequest, type PayerBehavior, type InsertPayerBehavior, type RedundancyMatrix, type InsertRedundancyMatrix } from "@shared/schema";
+import { type Metric, type InsertMetric, type DocumentationRequest, type InsertDocumentationRequest, type PayerBehavior, type InsertPayerBehavior, type RedundancyMatrix, type InsertRedundancyMatrix, type PredictiveAnalytics, type InsertPredictiveAnalytics, type DenialPredictions, type InsertDenialPredictions, type RiskFactors, type InsertRiskFactors } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -19,6 +19,18 @@ export interface IStorage {
   // Redundancy Matrix
   getRedundancyMatrix(): Promise<RedundancyMatrix[]>;
   createRedundancyMatrix(matrix: InsertRedundancyMatrix): Promise<RedundancyMatrix>;
+  
+  // Predictive Analytics
+  getPredictiveAnalytics(): Promise<PredictiveAnalytics[]>;
+  createPredictiveAnalytics(analytics: InsertPredictiveAnalytics): Promise<PredictiveAnalytics>;
+  
+  // Denial Predictions
+  getDenialPredictions(): Promise<DenialPredictions[]>;
+  createDenialPredictions(predictions: InsertDenialPredictions): Promise<DenialPredictions>;
+  
+  // Risk Factors
+  getRiskFactors(): Promise<RiskFactors[]>;
+  createRiskFactors(factors: InsertRiskFactors): Promise<RiskFactors>;
 }
 
 export class MemStorage implements IStorage {
@@ -26,12 +38,18 @@ export class MemStorage implements IStorage {
   private documentationRequests: Map<string, DocumentationRequest>;
   private payerBehavior: Map<string, PayerBehavior>;
   private redundancyMatrix: Map<string, RedundancyMatrix>;
+  private predictiveAnalytics: Map<string, PredictiveAnalytics>;
+  private denialPredictions: Map<string, DenialPredictions>;
+  private riskFactors: Map<string, RiskFactors>;
 
   constructor() {
     this.metrics = new Map();
     this.documentationRequests = new Map();
     this.payerBehavior = new Map();
     this.redundancyMatrix = new Map();
+    this.predictiveAnalytics = new Map();
+    this.denialPredictions = new Map();
+    this.riskFactors = new Map();
     this.initializeData();
   }
 
@@ -41,6 +59,9 @@ export class MemStorage implements IStorage {
     this.initializeDocumentationRequests();
     this.initializePayerBehavior();
     this.initializeRedundancyMatrix();
+    this.initializePredictiveAnalytics();
+    this.initializeDenialPredictions();
+    this.initializeRiskFactors();
   }
 
   private initializeMetrics() {
@@ -61,8 +82,12 @@ export class MemStorage implements IStorage {
     metricsData.forEach(metric => {
       const id = randomUUID();
       this.metrics.set(id, { 
-        ...metric, 
-        id, 
+        id,
+        name: metric.name,
+        value: metric.value,
+        previousValue: metric.previousValue,
+        changePercentage: metric.changePercentage,
+        status: metric.status,
         updatedAt: new Date() 
       });
     });
@@ -118,7 +143,18 @@ export class MemStorage implements IStorage {
 
     requestsData.forEach(request => {
       const id = randomUUID();
-      this.documentationRequests.set(id, { ...request, id });
+      this.documentationRequests.set(id, { 
+        id,
+        claimId: request.claimId,
+        patientName: request.patientName,
+        payer: request.payer,
+        requestDate: request.requestDate,
+        documentType: request.documentType,
+        originalSubmissionDate: request.originalSubmissionDate,
+        status: request.status,
+        isRedundant: request.isRedundant,
+        amount: request.amount
+      });
     });
   }
 
@@ -160,7 +196,15 @@ export class MemStorage implements IStorage {
 
     payerData.forEach(behavior => {
       const id = randomUUID();
-      this.payerBehavior.set(id, { ...behavior, id });
+      this.payerBehavior.set(id, { 
+        id,
+        payerName: behavior.payerName,
+        redundantRequestRate: behavior.redundantRequestRate,
+        topRequestType: behavior.topRequestType,
+        avgResponseTime: behavior.avgResponseTime,
+        successRate: behavior.successRate,
+        revenueImpact: behavior.revenueImpact
+      });
     });
   }
 
@@ -194,7 +238,189 @@ export class MemStorage implements IStorage {
 
     matrixData.forEach(matrix => {
       const id = randomUUID();
-      this.redundancyMatrix.set(id, { ...matrix, id });
+      this.redundancyMatrix.set(id, { 
+        id,
+        documentType: matrix.documentType,
+        payer: matrix.payer,
+        count: matrix.count,
+        redundancyRate: matrix.redundancyRate
+      });
+    });
+  }
+
+  private initializePredictiveAnalytics() {
+    const analyticsData = [
+      {
+        claimId: "CLM-45825",
+        patientName: "Brown, Michael",
+        payer: "BCBS",
+        procedureCode: "29827",
+        department: "Orthopedics",
+        amount: "18500.00",
+        denialRiskScore: "85.50",
+        documentationRiskScore: "92.30",
+        timelyFilingRiskScore: "15.20",
+        overallRiskScore: "87.40",
+        riskLevel: "critical" as const,
+        recommendedActions: ["Attach operative report", "Include surgeon notes", "Submit prior auth documentation"],
+        predictedDenialReasons: ["Missing operative report", "Insufficient documentation"],
+        confidence: "89.20"
+      },
+      {
+        claimId: "CLM-45826",
+        patientName: "Taylor, Lisa",
+        payer: "Medicare",
+        procedureCode: "93306",
+        department: "Cardiology",
+        amount: "3250.00",
+        denialRiskScore: "45.20",
+        documentationRiskScore: "38.10",
+        timelyFilingRiskScore: "72.80",
+        overallRiskScore: "52.30",
+        riskLevel: "medium" as const,
+        recommendedActions: ["File within 3 days", "Include ECG results"],
+        predictedDenialReasons: ["Timely filing risk"],
+        confidence: "76.50"
+      },
+      {
+        claimId: "CLM-45827",
+        patientName: "Anderson, David",
+        payer: "Commercial",
+        procedureCode: "80053",
+        department: "Laboratory",
+        amount: "425.00",
+        denialRiskScore: "12.30",
+        documentationRiskScore: "8.50",
+        timelyFilingRiskScore: "5.20",
+        overallRiskScore: "15.40",
+        riskLevel: "low" as const,
+        recommendedActions: ["Standard processing"],
+        predictedDenialReasons: [],
+        confidence: "94.80"
+      }
+    ];
+
+    analyticsData.forEach(analytics => {
+      const id = randomUUID();
+      this.predictiveAnalytics.set(id, {
+        id,
+        claimId: analytics.claimId,
+        patientName: analytics.patientName,
+        payer: analytics.payer,
+        procedureCode: analytics.procedureCode,
+        department: analytics.department,
+        amount: analytics.amount,
+        denialRiskScore: analytics.denialRiskScore,
+        documentationRiskScore: analytics.documentationRiskScore,
+        timelyFilingRiskScore: analytics.timelyFilingRiskScore,
+        overallRiskScore: analytics.overallRiskScore,
+        riskLevel: analytics.riskLevel,
+        recommendedActions: analytics.recommendedActions,
+        predictedDenialReasons: analytics.predictedDenialReasons,
+        confidence: analytics.confidence,
+        createdAt: new Date()
+      });
+    });
+  }
+
+  private initializeDenialPredictions() {
+    const predictionsData = [
+      {
+        predictionDate: new Date("2024-12-25"),
+        timeframe: "next_week",
+        predictedDenials: 23,
+        predictedAmount: "145600.00",
+        byPayer: JSON.stringify({ "Medicare": 8, "Medicaid": 6, "BCBS": 12, "Commercial": 4 }),
+        byDepartment: JSON.stringify({ "Orthopedics": 9, "Cardiology": 5, "Surgery": 7, "Emergency": 2 }),
+        byDenialType: JSON.stringify({ "Documentation": 12, "Timely Filing": 4, "Clinical": 7 }),
+        confidence: "82.30",
+        actualDenials: null,
+        actualAmount: null,
+        accuracy: null
+      },
+      {
+        predictionDate: new Date("2024-12-25"),
+        timeframe: "next_month",
+        predictedDenials: 98,
+        predictedAmount: "620800.00",
+        byPayer: JSON.stringify({ "Medicare": 32, "Medicaid": 25, "BCBS": 48, "Commercial": 18 }),
+        byDepartment: JSON.stringify({ "Orthopedics": 38, "Cardiology": 22, "Surgery": 28, "Emergency": 10 }),
+        byDenialType: JSON.stringify({ "Documentation": 51, "Timely Filing": 17, "Clinical": 30 }),
+        confidence: "78.60",
+        actualDenials: null,
+        actualAmount: null,
+        accuracy: null
+      }
+    ];
+
+    predictionsData.forEach(prediction => {
+      const id = randomUUID();
+      this.denialPredictions.set(id, {
+        id,
+        predictionDate: prediction.predictionDate,
+        timeframe: prediction.timeframe,
+        predictedDenials: prediction.predictedDenials,
+        predictedAmount: prediction.predictedAmount,
+        byPayer: prediction.byPayer,
+        byDepartment: prediction.byDepartment,
+        byDenialType: prediction.byDenialType,
+        confidence: prediction.confidence,
+        actualDenials: prediction.actualDenials,
+        actualAmount: prediction.actualAmount,
+        accuracy: prediction.accuracy
+      });
+    });
+  }
+
+  private initializeRiskFactors() {
+    const riskFactorsData = [
+      {
+        factorName: "BCBS Operative Reports",
+        category: "payer",
+        weightScore: "85.30",
+        description: "BCBS has 73% redundant request rate for operative reports",
+        isActive: true
+      },
+      {
+        factorName: "Orthopedic Procedures",
+        category: "procedure",
+        weightScore: "78.20",
+        description: "Orthopedic procedures have 3x higher documentation request rate",
+        isActive: true
+      },
+      {
+        factorName: "End of Month Filing",
+        category: "timing",
+        weightScore: "65.40",
+        description: "Claims filed in last week of month show higher denial rates",
+        isActive: true
+      },
+      {
+        factorName: "Missing Prior Auth",
+        category: "documentation",
+        weightScore: "92.10",
+        description: "Claims without prior authorization have 92% denial rate",
+        isActive: true
+      },
+      {
+        factorName: "Emergency Department Claims",
+        category: "department",
+        weightScore: "42.30",
+        description: "ED claims have moderate denial risk due to documentation gaps",
+        isActive: true
+      }
+    ];
+
+    riskFactorsData.forEach(factor => {
+      const id = randomUUID();
+      this.riskFactors.set(id, {
+        id,
+        factorName: factor.factorName,
+        category: factor.category,
+        weightScore: factor.weightScore,
+        description: factor.description,
+        isActive: factor.isActive
+      });
     });
   }
 
@@ -266,6 +492,39 @@ export class MemStorage implements IStorage {
     const matrix: RedundancyMatrix = { ...insertMatrix, id };
     this.redundancyMatrix.set(id, matrix);
     return matrix;
+  }
+
+  async getPredictiveAnalytics(): Promise<PredictiveAnalytics[]> {
+    return Array.from(this.predictiveAnalytics.values());
+  }
+
+  async createPredictiveAnalytics(insertAnalytics: InsertPredictiveAnalytics): Promise<PredictiveAnalytics> {
+    const id = randomUUID();
+    const analytics: PredictiveAnalytics = { ...insertAnalytics, id, createdAt: new Date() };
+    this.predictiveAnalytics.set(id, analytics);
+    return analytics;
+  }
+
+  async getDenialPredictions(): Promise<DenialPredictions[]> {
+    return Array.from(this.denialPredictions.values());
+  }
+
+  async createDenialPredictions(insertPredictions: InsertDenialPredictions): Promise<DenialPredictions> {
+    const id = randomUUID();
+    const predictions: DenialPredictions = { ...insertPredictions, id };
+    this.denialPredictions.set(id, predictions);
+    return predictions;
+  }
+
+  async getRiskFactors(): Promise<RiskFactors[]> {
+    return Array.from(this.riskFactors.values());
+  }
+
+  async createRiskFactors(insertFactors: InsertRiskFactors): Promise<RiskFactors> {
+    const id = randomUUID();
+    const factors: RiskFactors = { ...insertFactors, id };
+    this.riskFactors.set(id, factors);
+    return factors;
   }
 }
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MetricsPanel } from "@/components/metrics-panel";
 import { DocumentationDashboard } from "@/components/documentation-dashboard";
+import { PredictiveDashboard } from "@/components/predictive-dashboard";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -12,7 +13,7 @@ export default function Dashboard() {
   });
 
   const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Account Detail"];
-  const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management"];
+  const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management", "Predictive Analytics"];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -95,6 +96,8 @@ export default function Dashboard() {
         {/* Main Content Area */}
         {activeMainTab === "Denials" && activeSubTab === "Documentation Requests" ? (
           <DocumentationDashboard />
+        ) : activeMainTab === "Denials" && activeSubTab === "Predictive Analytics" ? (
+          <PredictiveDashboard />
         ) : (
           <main className="flex-1 p-6 overflow-y-auto bg-white">
             <div className="flex items-center justify-center h-full">
@@ -103,7 +106,7 @@ export default function Dashboard() {
                   {activeMainTab} - {activeSubTab || "Overview"}
                 </h2>
                 <p className="text-gray-600">
-                  This section is under development. Please select "Documentation Requests" to view the dashboard.
+                  This section is under development. Please select "Documentation Requests" or "Predictive Analytics" to view the available dashboards.
                 </p>
               </div>
             </div>

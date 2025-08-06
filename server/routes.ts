@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertMetricsSchema, insertDocumentationRequestSchema, insertPayerBehaviorSchema, insertRedundancyMatrixSchema } from "@shared/schema";
+import { insertMetricsSchema, insertDocumentationRequestSchema, insertPayerBehaviorSchema, insertRedundancyMatrixSchema, insertPredictiveAnalyticsSchema, insertDenialPredictionsSchema, insertRiskFactorsSchema } from "@shared/schema";
+import { predictDenialRisk, generateSmartRecommendations, analyzeDenialPatterns } from "./openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Metrics routes
@@ -81,6 +82,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(matrix);
     } catch (error) {
       res.status(400).json({ message: "Invalid redundancy matrix data" });
+    }
+  });
+
+  // Predictive Analytics routes
+  app.get("/api/predictive-analytics", async (req, res) => {
+    try {
+      const analytics = await storage.getPredictiveAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch predictive analytics" });
+    }
+  });
+
+  app.post("/api/predictive-analytics", async (req, res) => {
+    try {
+      const validatedData = insertPredictiveAnalyticsSchema.parse(req.body);
+      const analytics = await storage.createPredictiveAnalytics(validatedData);
+      res.json(analytics);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid predictive analytics data" });
+    }
+  });
+
+  // Denial Predictions routes
+  app.get("/api/denial-predictions", async (req, res) => {
+    try {
+      const predictions = await storage.getDenialPredictions();
+      res.json(predictions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch denial predictions" });
+    }
+  });
+
+  app.post("/api/denial-predictions", async (req, res) => {
+    try {
+      const validatedData = insertDenialPredictionsSchema.parse(req.body);
+      const predictions = await storage.createDenialPredictions(validatedData);
+      res.json(predictions);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid denial predictions data" });
+    }
+  });
+
+  // Risk Factors routes
+  app.get("/api/risk-factors", async (req, res) => {
+    try {
+      const factors = await storage.getRiskFactors();
+      res.json(factors);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch risk factors" });
+    }
+  });
+
+  app.post("/api/risk-factors", async (req, res) => {
+    try {
+      const validatedData = insertRiskFactorsSchema.parse(req.body);
+      const factors = await storage.createRiskFactors(validatedData);
+      res.json(factors);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid risk factors data" });
+    }
+  });
+
+  // AI-powered routes
+  app.post("/api/ai/predict-denial-risk", async (req, res) => {
+    try {
+      const prediction = await predictDenialRisk(req.body);
+      res.json(prediction);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to predict denial risk", error: (error as Error).message });
+    }
+  });
+
+  app.post("/api/ai/generate-recommendations", async (req, res) => {
+    try {
+      const recommendations = await generateSmartRecommendations(req.body);
+      res.json(recommendations);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate recommendations", error: (error as Error).message });
+    }
+  });
+
+  app.post("/api/ai/analyze-patterns", async (req, res) => {
+    try {
+      const analysis = await analyzeDenialPatterns(req.body.denialData);
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to analyze patterns", error: (error as Error).message });
     }
   });
 
