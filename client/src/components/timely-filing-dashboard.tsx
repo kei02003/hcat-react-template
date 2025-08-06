@@ -1,539 +1,355 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Clock, 
-  AlertTriangle, 
-  Calendar, 
-  DollarSign, 
-  FileText, 
-  TrendingUp,
-  Users,
-  Phone,
-  Mail,
-  CheckCircle,
-  XCircle,
-  Timer
-} from "lucide-react";
-import { FilingTrendChart, FilingVolumeChart } from "./charts/filing-trend-chart";
-import { DepartmentPerformanceChart, RiskLevelDistribution } from "./charts/department-performance-chart";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertTriangle, Clock, CheckCircle, XCircle, Calendar, Filter, FileText, User, Building } from "lucide-react";
 
-const filingMetrics = [
-  {
-    name: "Claims Due Today",
-    value: "23",
-    previousValue: "18",
-    changePercentage: "+27.8",
-    status: "negative" as const,
-    target: "0"
-  },
-  {
-    name: "Critical (0-3 days)",
-    value: "89",
-    previousValue: "67",
-    changePercentage: "+32.8",
-    status: "negative" as const,
-    target: "<50"
-  },
-  {
-    name: "Filing Success Rate",
-    value: "92.8%",
-    previousValue: "94.1%",
-    changePercentage: "-1.3",
-    status: "negative" as const,
-    target: "95.0%"
-  },
-  {
-    name: "Value at Risk",
-    value: "$5.7M",
-    previousValue: "$4.2M",
-    changePercentage: "+35.7",
-    status: "negative" as const,
-    target: "<$3M"
-  },
-  {
-    name: "Avg Days to File",
-    value: "11.4",
-    previousValue: "10.8",
-    changePercentage: "+5.6",
-    status: "negative" as const,
-    target: "<10"
-  },
-  {
-    name: "Expired Claims",
-    value: "31",
-    previousValue: "24",
-    changePercentage: "+29.2",
-    status: "negative" as const,
-    target: "0"
-  }
-];
-
-const criticalClaims = [
-  {
-    claimId: "CLM-24-089456",
-    patientName: "Johnson, Michael R.",
-    serviceDate: "2024-10-15",
-    payerName: "Aetna Commercial",
-    claimAmount: 45600,
-    daysRemaining: 1,
-    riskLevel: "Critical" as const,
-    department: "Emergency Department",
-    assignedTo: "Sarah Wilson",
-    status: "Pending" as const,
-    lastAction: "2024-12-01"
-  },
-  {
-    claimId: "CLM-24-078234",
-    patientName: "Williams, Jennifer L.",
-    serviceDate: "2024-10-12",
-    payerName: "Medicare",
-    claimAmount: 38900,
-    daysRemaining: 2,
-    riskLevel: "Critical" as const,
-    department: "Cardiology",
-    assignedTo: "Mark Thompson",
-    status: "In Progress" as const,
-    lastAction: "2024-12-01"
-  },
-  {
-    claimId: "CLM-24-067123",
-    patientName: "Brown, David A.",
-    serviceDate: "2024-10-18",
-    payerName: "Blue Cross Blue Shield",
-    claimAmount: 29300,
-    daysRemaining: 0,
-    riskLevel: "Critical" as const,
-    department: "General Surgery",
-    assignedTo: "Lisa Rodriguez",
-    status: "Pending" as const,
-    lastAction: "2024-11-30"
-  },
-  {
-    claimId: "CLM-24-056789",
-    patientName: "Davis, Mary K.",
-    serviceDate: "2024-10-20",
-    payerName: "Humana",
-    claimAmount: 52100,
-    daysRemaining: 3,
-    riskLevel: "Critical" as const,
-    department: "Oncology",
-    assignedTo: "Robert Chen",
-    status: "On Hold" as const,
-    lastAction: "2024-11-28"
-  },
-  {
-    claimId: "CLM-24-045678",
-    patientName: "Miller, Christopher J.",
-    serviceDate: "2024-10-22",
-    payerName: "United Healthcare",
-    claimAmount: 18700,
-    daysRemaining: 2,
-    riskLevel: "High" as const,
-    department: "Orthopedics",
-    assignedTo: "Amanda Wilson",
-    status: "In Progress" as const,
-    lastAction: "2024-12-01"
-  },
-  {
-    claimId: "CLM-24-034567",
-    patientName: "Garcia, Patricia M.",
-    serviceDate: "2024-10-19",
-    payerName: "Medicaid",
-    claimAmount: 24800,
-    daysRemaining: 1,
-    riskLevel: "Critical" as const,
-    department: "Laboratory",
-    assignedTo: "James Anderson",
-    status: "Pending" as const,
-    lastAction: "2024-11-29"
-  }
-];
-
-const recentAlerts = [
-  {
-    id: "ALERT-001",
-    type: "Critical Deadline",
-    message: "23 claims due for filing today across multiple departments",
-    priority: "Critical" as const,
-    timestamp: "2024-12-02 08:30:00",
-    isResolved: false
-  },
-  {
-    id: "ALERT-002",
-    type: "Deadline Warning",
-    message: "Emergency Department has 12 claims due within 48 hours",
-    priority: "High" as const,
-    timestamp: "2024-12-02 07:45:00",
-    isResolved: false
-  },
-  {
-    id: "ALERT-003",
-    type: "Expired",
-    message: "3 high-value claims expired overnight - total value $156K",
-    priority: "Critical" as const,
-    timestamp: "2024-12-02 06:00:00",
-    isResolved: false
-  },
-  {
-    id: "ALERT-004",
-    type: "Missing Documentation",
-    message: "Laboratory claims missing required authorization documents",
-    priority: "High" as const,
-    timestamp: "2024-12-01 16:20:00",
-    isResolved: true
-  }
-];
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case "positive": return "text-green-600";
-    case "negative": return "text-red-600";
-    default: return "text-gray-600";
-  }
-}
-
-function getChangeIcon(changePercentage: string) {
-  const isPositive = !changePercentage.startsWith("-");
-  return isPositive ? "↗" : "↘";
-}
-
-function getRiskColor(riskLevel: string) {
-  switch (riskLevel) {
-    case "Critical": return "bg-red-100 text-red-800 border-red-200";
-    case "High": return "bg-orange-100 text-orange-800 border-orange-200";
-    case "Medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    case "Low": return "bg-green-100 text-green-800 border-green-200";
-    default: return "bg-gray-100 text-gray-800 border-gray-200";
-  }
-}
-
-function getStatusBadge(status: string) {
-  switch (status) {
-    case "Pending": return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
-    case "In Progress": return <Badge className="bg-blue-100 text-blue-800 border-blue-200">In Progress</Badge>;
-    case "Filed": return <Badge className="bg-green-100 text-green-800 border-green-200">Filed</Badge>;
-    case "Expired": return <Badge className="bg-red-100 text-red-800 border-red-200">Expired</Badge>;
-    case "On Hold": return <Badge className="bg-gray-100 text-gray-800 border-gray-200">On Hold</Badge>;
-    default: return <Badge className="bg-gray-100 text-gray-800 border-gray-200">{status}</Badge>;
-  }
-}
-
-function getDaysRemainingColor(days: number) {
-  if (days <= 0) return "text-red-600 font-bold";
-  if (days <= 3) return "text-red-600";
-  if (days <= 7) return "text-orange-600";
-  return "text-green-600";
+interface TimelyFilingClaim {
+  id: string;
+  patientName: string;
+  patientId: string;
+  accountNumber: string;
+  claimId: string;
+  payer: string;
+  serviceDate: string;
+  filingDeadline: string;
+  daysRemaining: number;
+  agingCategory: string;
+  claimAmount: string;
+  department: string;
+  procedureDescription: string;
+  denialStatus: string;
+  denialReason?: string;
+  assignedBiller: string;
+  priority: string;
+  status: string;
+  notes: string;
 }
 
 export function TimelyFilingDashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [agingFilter, setAgingFilter] = useState("all");
+  const [denialFilter, setDenialFilter] = useState("all");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [billerFilter, setBillerFilter] = useState("all");
+
+  // Fetch timely filing claims with filters
+  const { data: claims = [], isLoading: isLoadingClaims } = useQuery({
+    queryKey: ["/api/timely-filing-claims", { 
+      agingCategory: agingFilter,
+      denialStatus: denialFilter,
+      department: departmentFilter,
+      assignedBiller: billerFilter
+    }],
+  });
+
+  // Fetch metrics
+  const { data: metricsData } = useQuery({
+    queryKey: ["/api/timely-filing-metrics"],
+  });
+
+  const metrics = metricsData?.metrics;
+  const categories = metricsData?.categories;
+
+  const filteredClaims = claims.filter((claim: TimelyFilingClaim) =>
+    claim.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    claim.claimId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    claim.payer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    claim.procedureDescription.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getAgingBadge = (agingCategory: string, daysRemaining: number) => {
+    switch (agingCategory) {
+      case "safe":
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">Safe ({daysRemaining} days)</Badge>;
+      case "warning":
+        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">Warning ({daysRemaining} days)</Badge>;
+      case "critical":
+        return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100">Critical ({daysRemaining} days)</Badge>;
+      case "overdue":
+        return <Badge className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">Overdue ({Math.abs(daysRemaining)} days late)</Badge>;
+      case "severely_overdue":
+        return <Badge className="bg-red-200 text-red-900 dark:bg-red-900 dark:text-red-100">Severely Overdue ({Math.abs(daysRemaining)} days late)</Badge>;
+      default:
+        return <Badge variant="secondary">{agingCategory}</Badge>;
+    }
+  };
+
+  const getDenialStatusBadge = (denialStatus: string) => {
+    switch (denialStatus) {
+      case "denied":
+        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Denied</Badge>;
+      case "approved":
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
+      case "pending":
+        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+      case "at_risk":
+        return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100"><AlertTriangle className="w-3 h-3 mr-1" />At Risk</Badge>;
+      default:
+        return <Badge variant="secondary">{denialStatus}</Badge>;
+    }
+  };
+
+  const getPriorityIcon = (priority: string, daysRemaining: number) => {
+    if (priority === "urgent" || priority === "critical" || daysRemaining <= 7) {
+      return <AlertTriangle className="h-4 w-4 text-red-500" />;
+    }
+    if (priority === "medium" || daysRemaining <= 14) {
+      return <Clock className="h-4 w-4 text-yellow-500" />;
+    }
+    return <CheckCircle className="h-4 w-4 text-green-500" />;
+  };
+
+  if (isLoadingClaims) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-16 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <main className="flex-1 p-6 overflow-y-auto bg-white">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Clock className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Timely Filing</h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4" />
-              <span className="text-sm text-gray-600">Real-time Monitoring</span>
-            </div>
-            <Button variant="outline" data-testid="button-export-filing">
-              Export Report
-            </Button>
-          </div>
-        </div>
-
-        {/* Filing Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {filingMetrics.map((metric, index) => (
-            <Card key={index} className="healthcare-card">
-              <CardContent className="p-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-600 font-medium">{metric.name}</p>
-                    <span className={`text-xs ${getStatusColor(metric.status)}`}>
-                      {getChangeIcon(metric.changePercentage)}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">{metric.value}</p>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500">vs {metric.previousValue}</span>
-                    <span className={`font-medium ${getStatusColor(metric.status)}`}>
-                      {metric.changePercentage}%
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Target: {metric.target}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Recent Alerts */}
-        <Card className="healthcare-card border-l-4 border-red-400">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3 mb-4">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Recent Alerts</h3>
-              <Badge className="bg-red-100 text-red-800 border-red-200">
-                {recentAlerts.filter(alert => !alert.isResolved).length} Active
-              </Badge>
-            </div>
-            <div className="space-y-3">
-              {recentAlerts.slice(0, 3).map((alert, index) => (
-                <div 
-                  key={index}
-                  className={`flex items-center justify-between p-3 rounded-lg border ${
-                    alert.isResolved ? 'bg-gray-50 border-gray-200' : 'bg-red-50 border-red-200'
-                  }`}
-                >
-                  <div className="flex items-start space-x-3">
-                    {alert.isResolved ? (
-                      <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
-                    )}
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">{alert.type}</span>
-                        <Badge className={getRiskColor(alert.priority)}>
-                          {alert.priority}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-700 mt-1">{alert.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">{alert.timestamp}</p>
-                    </div>
-                  </div>
-                  {!alert.isResolved && (
-                    <Button size="sm" data-testid={`button-resolve-${alert.id}`}>
-                      Resolve
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Tab Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview" className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4" />
-              <span>Overview</span>
-            </TabsTrigger>
-            <TabsTrigger value="critical" className="flex items-center space-x-2">
-              <AlertTriangle className="h-4 w-4" />
-              <span>Critical Claims</span>
-            </TabsTrigger>
-            <TabsTrigger value="departments" className="flex items-center space-x-2">
-              <Users className="h-4 w-4" />
-              <span>Departments</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center space-x-2">
-              <FileText className="h-4 w-4" />
-              <span>Analytics</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="healthcare-card">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Filing Trends (Last 10 Days)
-                  </h3>
-                  <FilingTrendChart />
-                </CardContent>
-              </Card>
-
-              <Card className="healthcare-card">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Claims Volume (Last 7 Days)
-                  </h3>
-                  <FilingVolumeChart />
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card className="healthcare-card">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Risk Level Distribution
-                </h3>
-                <RiskLevelDistribution />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Critical Claims Tab */}
-          <TabsContent value="critical" className="space-y-6">
-            <Card className="healthcare-card">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Critical Claims Requiring Immediate Action</h3>
-                  <div className="flex items-center space-x-4">
-                    <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                      <SelectTrigger className="w-48">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="All Departments">All Departments</SelectItem>
-                        <SelectItem value="Emergency Department">Emergency Department</SelectItem>
-                        <SelectItem value="Cardiology">Cardiology</SelectItem>
-                        <SelectItem value="General Surgery">General Surgery</SelectItem>
-                        <SelectItem value="Oncology">Oncology</SelectItem>
-                        <SelectItem value="Laboratory">Laboratory</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Badge className="bg-red-100 text-red-800 border-red-200">
-                      {criticalClaims.filter(claim => claim.daysRemaining <= 3).length} Critical
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {criticalClaims.map((claim, index) => (
-                    <div 
-                      key={index}
-                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                      data-testid={`filing-claim-${claim.claimId}`}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-start space-x-4">
-                          <div className={`w-3 h-3 rounded-full mt-2 ${
-                            claim.daysRemaining <= 0 ? "bg-red-600 animate-pulse" :
-                            claim.daysRemaining <= 3 ? "bg-red-500" : "bg-orange-500"
-                          }`} />
-                          <div>
-                            <div className="flex items-center space-x-2 mb-1">
-                              <span className="font-semibold text-gray-900">{claim.claimId}</span>
-                              {getStatusBadge(claim.status)}
-                              <Badge className={getRiskColor(claim.riskLevel)}>
-                                {claim.riskLevel}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-1">{claim.patientName}</p>
-                            <p className="text-xs text-gray-500">
-                              {claim.department} • Service Date: {claim.serviceDate}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900">${claim.claimAmount.toLocaleString()}</p>
-                          <p className={`text-sm font-medium ${getDaysRemainingColor(claim.daysRemaining)}`}>
-                            {claim.daysRemaining <= 0 ? "DUE TODAY" : `${claim.daysRemaining} days remaining`}
-                          </p>
-                          <p className="text-xs text-gray-500">Assigned: {claim.assignedTo}</p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                        <div>
-                          <span className="text-gray-600">Payer:</span>
-                          <span className="font-medium ml-2">{claim.payerName}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Last Action:</span>
-                          <span className="font-medium ml-2">{claim.lastAction}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex space-x-2">
-                        <Button 
-                          size="sm" 
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                          data-testid={`button-file-${claim.claimId}`}
-                        >
-                          <FileText className="h-4 w-4 mr-2" />
-                          File Claim
-                        </Button>
-                        <Button size="sm" variant="outline" data-testid={`button-contact-${claim.claimId}`}>
-                          <Phone className="h-4 w-4 mr-2" />
-                          Contact Payer
-                        </Button>
-                        <Button size="sm" variant="outline" data-testid={`button-details-${claim.claimId}`}>
-                          <Timer className="h-4 w-4 mr-2" />
-                          View Details
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Departments Tab */}
-          <TabsContent value="departments" className="space-y-6">
-            <Card className="healthcare-card">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Department Filing Performance
-                </h3>
-                <DepartmentPerformanceChart />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="healthcare-card">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Monthly Filing Success Rate
-                  </h3>
-                  <div className="text-center py-8 text-gray-500">
-                    Historical analytics chart would display monthly success rates, 
-                    trends, and comparative analysis across departments.
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="healthcare-card">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Payer-Specific Deadlines
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="font-medium">Medicare</span>
-                      <span className="text-sm text-gray-600">12 months from service date</span>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="font-medium">Medicaid</span>
-                      <span className="text-sm text-gray-600">12 months from service date</span>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="font-medium">Commercial (Most)</span>
-                      <span className="text-sm text-gray-600">90-180 days from service date</span>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="font-medium">Workers' Comp</span>
-                      <span className="text-sm text-gray-600">Varies by state (30-180 days)</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Timely Filing Management</h2>
+        <p className="text-muted-foreground">
+          Monitor and manage claims by aging categories and denial status for timely filing deadlines
+        </p>
       </div>
-    </main>
+
+      {/* Key Metrics */}
+      {metrics && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Critical Action Required</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{metrics.criticalActionRequired}</div>
+              <p className="text-xs text-muted-foreground">Claims requiring immediate attention</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Filing Success Rate</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">{metrics.filingSuccessRate}%</div>
+              <p className="text-xs text-muted-foreground">Claims filed on time</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Denial Amount</CardTitle>
+              <XCircle className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">${metrics.totalDenialAmount.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">Due to timely filing denials</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Days to Deadline</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">{metrics.averageDaysToDeadline}</div>
+              <p className="text-xs text-muted-foreground">Days remaining across all claims</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-4">
+        <Input
+          placeholder="Search by patient, claim ID, payer, or procedure..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+          data-testid="input-search-timely-filing"
+        />
+
+        <Select value={agingFilter} onValueChange={setAgingFilter}>
+          <SelectTrigger className="w-48" data-testid="select-aging-filter">
+            <SelectValue placeholder="Filter by Aging" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Aging Categories</SelectItem>
+            <SelectItem value="severely_overdue">Severely Overdue</SelectItem>
+            <SelectItem value="overdue">Overdue</SelectItem>
+            <SelectItem value="critical">Critical (1-14 days)</SelectItem>
+            <SelectItem value="warning">Warning (15-29 days)</SelectItem>
+            <SelectItem value="safe">Safe (30+ days)</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={denialFilter} onValueChange={setDenialFilter}>
+          <SelectTrigger className="w-48" data-testid="select-denial-filter">
+            <SelectValue placeholder="Filter by Denial Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Denial Statuses</SelectItem>
+            <SelectItem value="denied">Denied Claims Only</SelectItem>
+            <SelectItem value="at_risk">At Risk Claims</SelectItem>
+            <SelectItem value="pending">Pending Claims</SelectItem>
+            <SelectItem value="approved">Approved Claims</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+          <SelectTrigger className="w-48" data-testid="select-department-filter">
+            <SelectValue placeholder="Filter by Department" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Departments</SelectItem>
+            <SelectItem value="Cardiology">Cardiology</SelectItem>
+            <SelectItem value="Emergency Medicine">Emergency Medicine</SelectItem>
+            <SelectItem value="Orthopedics">Orthopedics</SelectItem>
+            <SelectItem value="Pulmonology">Pulmonology</SelectItem>
+            <SelectItem value="Internal Medicine">Internal Medicine</SelectItem>
+            <SelectItem value="Surgery">Surgery</SelectItem>
+            <SelectItem value="Family Practice">Family Practice</SelectItem>
+            <SelectItem value="Dermatology">Dermatology</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={billerFilter} onValueChange={setBillerFilter}>
+          <SelectTrigger className="w-48" data-testid="select-biller-filter">
+            <SelectValue placeholder="Filter by Biller" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Billers</SelectItem>
+            <SelectItem value="Jennifer Martinez">Jennifer Martinez</SelectItem>
+            <SelectItem value="David Rodriguez">David Rodriguez</SelectItem>
+            <SelectItem value="Maria Garcia">Maria Garcia</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Badge variant="outline" className="flex items-center gap-1">
+          <Filter className="w-3 h-3" />
+          {filteredClaims.length} claims shown
+        </Badge>
+      </div>
+
+      {/* Claims Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Claims by Aging and Denial Status</CardTitle>
+          <CardDescription>
+            Manage claims based on filing deadlines and denial status. Filter by aging categories to focus on urgent items.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Priority</TableHead>
+                <TableHead>Patient</TableHead>
+                <TableHead>Claim ID</TableHead>
+                <TableHead>Payer</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Aging Status</TableHead>
+                <TableHead>Denial Status</TableHead>
+                <TableHead>Department</TableHead>
+                <TableHead>Assigned Biller</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredClaims.map((claim: TimelyFilingClaim) => (
+                <TableRow key={claim.id}>
+                  <TableCell>
+                    {getPriorityIcon(claim.priority, claim.daysRemaining)}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    <div>
+                      <div>{claim.patientName}</div>
+                      <div className="text-sm text-muted-foreground">{claim.patientId}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{claim.claimId}</div>
+                      <div className="text-sm text-muted-foreground">{claim.accountNumber}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{claim.payer}</TableCell>
+                  <TableCell className="font-medium">{claim.claimAmount}</TableCell>
+                  <TableCell>
+                    {getAgingBadge(claim.agingCategory, claim.daysRemaining)}
+                  </TableCell>
+                  <TableCell>
+                    {getDenialStatusBadge(claim.denialStatus)}
+                    {claim.denialReason && (
+                      <div className="text-xs text-red-600 mt-1 max-w-xs truncate" title={claim.denialReason}>
+                        {claim.denialReason}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Building className="w-3 h-3 text-muted-foreground" />
+                      {claim.department}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <User className="w-3 h-3 text-muted-foreground" />
+                      {claim.assignedBiller}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" data-testid={`button-view-claim-${claim.id}`}>
+                        <FileText className="w-3 h-3 mr-1" />
+                        View
+                      </Button>
+                      {claim.denialStatus === 'denied' && (
+                        <Button variant="outline" size="sm" className="text-blue-600" data-testid={`button-appeal-${claim.id}`}>
+                          Appeal
+                        </Button>
+                      )}
+                      {claim.daysRemaining <= 14 && claim.denialStatus !== 'denied' && (
+                        <Button variant="outline" size="sm" className="text-orange-600" data-testid={`button-expedite-${claim.id}`}>
+                          Expedite
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {filteredClaims.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No claims found matching the current filters</p>
+              <p className="text-sm">Adjust filters to see more results</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

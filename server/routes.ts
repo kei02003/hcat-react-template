@@ -311,6 +311,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Timely Filing routes
+  app.get("/api/timely-filing-claims", async (req, res) => {
+    try {
+      const { timelyFilingClaims } = await import("./timely-filing-data");
+      const { agingCategory, denialStatus, department, assignedBiller } = req.query;
+      
+      let filteredClaims = [...timelyFilingClaims];
+      
+      // Filter by aging category
+      if (agingCategory && agingCategory !== 'all') {
+        filteredClaims = filteredClaims.filter(claim => claim.agingCategory === agingCategory);
+      }
+      
+      // Filter by denial status
+      if (denialStatus && denialStatus !== 'all') {
+        if (denialStatus === 'denied') {
+          filteredClaims = filteredClaims.filter(claim => claim.denialStatus === 'denied');
+        } else if (denialStatus === 'at_risk') {
+          filteredClaims = filteredClaims.filter(claim => claim.daysRemaining <= 14 && claim.denialStatus !== 'denied');
+        }
+      }
+      
+      // Filter by department
+      if (department && department !== 'all') {
+        filteredClaims = filteredClaims.filter(claim => claim.department === department);
+      }
+      
+      // Filter by assigned biller
+      if (assignedBiller && assignedBiller !== 'all') {
+        filteredClaims = filteredClaims.filter(claim => claim.assignedBiller === assignedBiller);
+      }
+      
+      res.json(filteredClaims);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch timely filing claims" });
+    }
+  });
+
+  app.get("/api/timely-filing-metrics", async (req, res) => {
+    try {
+      const { timelyFilingMetrics, agingCategories } = await import("./timely-filing-data");
+      res.json({ metrics: timelyFilingMetrics, categories: agingCategories });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch timely filing metrics" });
+    }
+  });
+
   app.get("/api/challenge-letters/:appealId", async (req, res) => {
     try {
       const { appealId } = req.params;
