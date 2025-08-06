@@ -712,7 +712,190 @@ export class MemStorage implements IStorage {
 
   // Initialize new module data
   private initializePreAuthRequests() {
-    // Sample pre-authorization requests will be added here
+    // Sample insurer criteria (BCBS medical necessity guidelines)
+    const bcbsCriteria: InsurerCriteria = {
+      id: "ins-001",
+      insurerName: "Blue Cross Blue Shield",
+      procedureCode: "CPT-29881",
+      procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
+      requiresAuth: true,
+      medicalNecessityCriteria: [
+        "Mechanical symptoms (locking, catching, giving way)",
+        "Failed conservative treatment for 6+ weeks",
+        "MRI confirmation of meniscal tear",
+        "Functional limitation documented"
+      ],
+      timeFrameRequired: 72,
+      authValidityDays: 30,
+      denialReasons: [
+        "Insufficient conservative treatment",
+        "Lack of MRI documentation",
+        "Procedure not medically necessary"
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const aetnaCriteria: InsurerCriteria = {
+      id: "ins-002", 
+      insurerName: "Aetna",
+      procedureCode: "CPT-64483",
+      procedureName: "Injection, anesthetic agent; transforaminal epidural",
+      requiresAuth: true,
+      medicalNecessityCriteria: [
+        "Radicular pain correlating with imaging findings",
+        "Failed oral medications and physical therapy",
+        "No more than 3 injections per 6-month period",
+        "Documented functional impairment"
+      ],
+      timeFrameRequired: 48,
+      authValidityDays: 90,
+      denialReasons: [
+        "Exceeded injection frequency limits",
+        "Insufficient prior treatment documentation",
+        "Imaging does not correlate with symptoms"
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    this.insurerCriteria.set(bcbsCriteria.id, bcbsCriteria);
+    this.insurerCriteria.set(aetnaCriteria.id, aetnaCriteria);
+
+    // Sample procedure authorization requirements
+    const procedures: ProcedureAuthRequirement[] = [
+      {
+        id: "proc-001",
+        procedureCode: "CPT-29881", 
+        procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
+        category: "Orthopedic Surgery",
+        requiresPreAuth: true,
+        riskLevel: "Medium",
+        averageProcessingDays: 3,
+        approvalRate: 85.2,
+        commonDenialReasons: [
+          "Insufficient conservative treatment documentation",
+          "Missing MRI results",
+          "Procedure not meeting medical necessity criteria"
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "proc-002",
+        procedureCode: "CPT-64483",
+        procedureName: "Injection, anesthetic agent; transforaminal epidural", 
+        category: "Pain Management",
+        requiresPreAuth: true,
+        riskLevel: "Low",
+        averageProcessingDays: 2,
+        approvalRate: 92.1,
+        commonDenialReasons: [
+          "Frequency limits exceeded",
+          "Inadequate prior treatment documentation"
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "proc-003",
+        procedureCode: "CPT-27447",
+        procedureName: "Arthroplasty, knee, condyle and plateau; medial OR lateral compartment",
+        category: "Orthopedic Surgery",
+        requiresPreAuth: true,
+        riskLevel: "High", 
+        averageProcessingDays: 5,
+        approvalRate: 78.9,
+        commonDenialReasons: [
+          "Alternative treatments not exhausted",
+          "Insufficient severity documentation",
+          "Patient not meeting age/activity criteria"
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    procedures.forEach(proc => {
+      this.procedureAuthRequirements.set(proc.id, proc);
+    });
+
+    // Sample pre-authorization requests
+    const preAuthRequests: PreAuthRequest[] = [
+      {
+        id: "pre-001",
+        patientId: "PAT-12345",
+        patientName: "Johnson, Robert M.",
+        memberID: "BCBS789456123",
+        insurerName: "Blue Cross Blue Shield",
+        procedureCode: "CPT-29881",
+        procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
+        scheduledDate: new Date("2025-01-15"),
+        requestDate: new Date("2025-01-10"),
+        status: "pending",
+        priority: "standard",
+        daysUntilProcedure: 5,
+        authRequiredBy: new Date("2025-01-12"),
+        providerId: "DR-001",
+        providerName: "Dr. Sarah Mitchell",
+        diagnosis: "M23.201 - Derangement of medial meniscus due to old tear, right knee",
+        clinicalJustification: "Patient presents with mechanical symptoms of right knee locking and catching. Conservative treatment with PT for 8 weeks has failed. MRI shows complex medial meniscal tear with functional limitation.",
+        priorAuthNumber: null,
+        estimatedValue: 12500.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-002", 
+        patientId: "PAT-67890",
+        patientName: "Williams, Maria C.",
+        memberID: "AETNA456789012",
+        insurerName: "Aetna",
+        procedureCode: "CPT-64483", 
+        procedureName: "Injection, anesthetic agent; transforaminal epidural",
+        scheduledDate: new Date("2025-01-12"),
+        requestDate: new Date("2025-01-09"),
+        status: "approved",
+        priority: "standard",
+        daysUntilProcedure: 3,
+        authRequiredBy: new Date("2025-01-10"),
+        providerId: "DR-002",
+        providerName: "Dr. James Park",
+        diagnosis: "M54.16 - Radiculopathy, lumbar region",
+        clinicalJustification: "Patient has L4-L5 radiculopathy with correlating MRI findings. Failed 6 weeks of oral medications and physical therapy. Documented functional impairment affecting daily activities.",
+        priorAuthNumber: "AETNA-PA-2025-001234",
+        estimatedValue: 2800.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-003",
+        patientId: "PAT-11111",
+        patientName: "Davis, Thomas E.",
+        memberID: "BCBS123987456", 
+        insurerName: "Blue Cross Blue Shield",
+        procedureCode: "CPT-27447",
+        procedureName: "Arthroplasty, knee, condyle and plateau; medial compartment",
+        scheduledDate: new Date("2025-01-18"),
+        requestDate: new Date("2025-01-08"),
+        status: "requires_review",
+        priority: "urgent",
+        daysUntilProcedure: 8,
+        authRequiredBy: new Date("2025-01-13"),
+        providerId: "DR-001", 
+        providerName: "Dr. Sarah Mitchell",
+        diagnosis: "M17.11 - Unilateral primary osteoarthritis, right knee",
+        clinicalJustification: "Severe osteoarthritis with bone-on-bone contact. Failed conservative treatment including injections, PT, and medications over 12 months. Significant functional limitation and pain affecting quality of life.",
+        priorAuthNumber: null,
+        estimatedValue: 45000.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    preAuthRequests.forEach(req => {
+      this.preAuthRequests.set(req.id, req);
+    });
   }
 
   private initializePatientStatusMonitoring() {
