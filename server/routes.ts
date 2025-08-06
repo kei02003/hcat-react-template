@@ -1,49 +1,90 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
+import { requirePermission, requireAnyPermission, requireRoleLevel, auditAction, type AuthenticatedRequest } from "./auth/middleware";
+import { rbacService } from "./auth/rbac";
 import { insertMetricsSchema, insertDocumentationRequestSchema, insertPayerBehaviorSchema, insertRedundancyMatrixSchema, insertPredictiveAnalyticsSchema, insertDenialPredictionsSchema, insertRiskFactorsSchema } from "@shared/schema";
 import { predictDenialRisk, generateSmartRecommendations, analyzeDenialPatterns } from "./openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Metrics routes
-  app.get("/api/metrics", async (req, res) => {
+  // Setup authentication
+  await setupAuth(app);
+  
+  // Initialize RBAC system
+  await rbacService.initializeRolesAndPermissions();
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: AuthenticatedRequest, res) => {
     try {
-      const metrics = await storage.getMetrics();
-      res.json(metrics);
+      const userId = req.user.claims.sub;
+      const userWithPermissions = await rbacService.getUserWithPermissions(userId);
+      res.json(userWithPermissions);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch metrics" });
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
     }
   });
 
-  app.post("/api/metrics", async (req, res) => {
-    try {
-      const validatedData = insertMetricsSchema.parse(req.body);
-      const metric = await storage.createMetric(validatedData);
-      res.json(metric);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid metric data" });
+  // Metrics routes (require basic view permissions)
+  app.get("/api/metrics", 
+    isAuthenticated,
+    requireAnyPermission(['denials.view', 'ar.view', 'collections.view', 'reports.view']),
+    auditAction('view_metrics', 'metrics'),
+    async (_req, res) => {
+      try {
+        const metrics = await storage.getMetrics();
+        res.json(metrics);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to fetch metrics" });
+      }
     }
-  });
+  );
 
-  // Documentation requests routes
-  app.get("/api/documentation-requests", async (req, res) => {
-    try {
-      const requests = await storage.getDocumentationRequests();
-      res.json(requests);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch documentation requests" });
+  app.post("/api/metrics", 
+    isAuthenticated,
+    requireRoleLevel(3), // Manager level and above
+    auditAction('create_metric', 'metrics'),
+    async (req, res) => {
+      try {
+        const validatedData = insertMetricsSchema.parse(req.body);
+        const metric = await storage.createMetric(validatedData);
+        res.json(metric);
+      } catch (error) {
+        res.status(400).json({ message: "Invalid metric data" });
+      }
     }
-  });
+  );
 
-  app.post("/api/documentation-requests", async (req, res) => {
-    try {
-      const validatedData = insertDocumentationRequestSchema.parse(req.body);
-      const request = await storage.createDocumentationRequest(validatedData);
-      res.json(request);
-    } catch (error) {
-      res.status(400).json({ message: "Invalid documentation request data" });
+  // Documentation requests routes (require denials permissions)
+  app.get("/api/documentation-requests", 
+    isAuthenticated,
+    requirePermission('denials.view'),
+    auditAction('view_documentation_requests', 'documentation'),
+    async (_req, res) => {
+      try {
+        const requests = await storage.getDocumentationRequests();
+        res.json(requests);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to fetch documentation requests" });
+      }
     }
-  });
+  );
+
+  app.post("/api/documentation-requests", 
+    isAuthenticated,
+    requirePermission('denials.edit'),
+    auditAction('create_documentation_request', 'documentation'),
+    async (req, res) => {
+      try {
+        const validatedData = insertDocumentationRequestSchema.parse(req.body);
+        const request = await storage.createDocumentationRequest(validatedData);
+        res.json(request);
+      } catch (error) {
+        res.status(400).json({ message: "Invalid documentation request data" });
+      }
+    }
+  );
 
   // Payer behavior routes
   app.get("/api/payer-behavior", async (req, res) => {

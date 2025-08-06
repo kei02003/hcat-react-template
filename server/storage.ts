@@ -1,7 +1,14 @@
 import { type Metric, type InsertMetric, type DocumentationRequest, type InsertDocumentationRequest, type PayerBehavior, type InsertPayerBehavior, type RedundancyMatrix, type InsertRedundancyMatrix, type PredictiveAnalytics, type InsertPredictiveAnalytics, type DenialPredictions, type InsertDenialPredictions, type RiskFactors, type InsertRiskFactors } from "@shared/schema";
+import { users, type User, type UpsertUser } from "../shared/auth-schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
+  // User operations (required for Replit Auth)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  
   // Metrics
   getMetrics(): Promise<Metric[]>;
   createMetric(metric: InsertMetric): Promise<Metric>;
@@ -526,6 +533,108 @@ export class MemStorage implements IStorage {
     this.riskFactors.set(id, factors);
     return factors;
   }
+
+  // User operations (required for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    // In memory storage doesn't support user operations - redirect to database
+    return undefined;
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    // In memory storage doesn't support user operations - redirect to database
+    throw new Error("User operations require database storage");
+  }
 }
 
-export const storage = new MemStorage();
+// Database storage implementation for production use
+export class DatabaseStorage implements IStorage {
+  // User operations (required for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  // Other operations would delegate to MemStorage for now
+  private memStorage = new MemStorage();
+
+  async getMetrics(): Promise<Metric[]> {
+    return this.memStorage.getMetrics();
+  }
+
+  async createMetric(metric: InsertMetric): Promise<Metric> {
+    return this.memStorage.createMetric(metric);
+  }
+
+  async updateMetric(id: string, metric: Partial<InsertMetric>): Promise<Metric | undefined> {
+    return this.memStorage.updateMetric(id, metric);
+  }
+
+  async getDocumentationRequests(): Promise<DocumentationRequest[]> {
+    return this.memStorage.getDocumentationRequests();
+  }
+
+  async createDocumentationRequest(request: InsertDocumentationRequest): Promise<DocumentationRequest> {
+    return this.memStorage.createDocumentationRequest(request);
+  }
+
+  async updateDocumentationRequest(id: string, request: Partial<InsertDocumentationRequest>): Promise<DocumentationRequest | undefined> {
+    return this.memStorage.updateDocumentationRequest(id, request);
+  }
+
+  async getPayerBehavior(): Promise<PayerBehavior[]> {
+    return this.memStorage.getPayerBehavior();
+  }
+
+  async createPayerBehavior(behavior: InsertPayerBehavior): Promise<PayerBehavior> {
+    return this.memStorage.createPayerBehavior(behavior);
+  }
+
+  async getRedundancyMatrix(): Promise<RedundancyMatrix[]> {
+    return this.memStorage.getRedundancyMatrix();
+  }
+
+  async createRedundancyMatrix(matrix: InsertRedundancyMatrix): Promise<RedundancyMatrix> {
+    return this.memStorage.createRedundancyMatrix(matrix);
+  }
+
+  async getPredictiveAnalytics(): Promise<PredictiveAnalytics[]> {
+    return this.memStorage.getPredictiveAnalytics();
+  }
+
+  async createPredictiveAnalytics(analytics: InsertPredictiveAnalytics): Promise<PredictiveAnalytics> {
+    return this.memStorage.createPredictiveAnalytics(analytics);
+  }
+
+  async getDenialPredictions(): Promise<DenialPredictions[]> {
+    return this.memStorage.getDenialPredictions();
+  }
+
+  async createDenialPredictions(predictions: InsertDenialPredictions): Promise<DenialPredictions> {
+    return this.memStorage.createDenialPredictions(predictions);
+  }
+
+  async getRiskFactors(): Promise<RiskFactors[]> {
+    return this.memStorage.getRiskFactors();
+  }
+
+  async createRiskFactors(factors: InsertRiskFactors): Promise<RiskFactors> {
+    return this.memStorage.createRiskFactors(factors);
+  }
+}
+
+export const storage = new DatabaseStorage();
