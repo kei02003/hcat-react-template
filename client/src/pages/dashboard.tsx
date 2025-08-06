@@ -20,7 +20,7 @@ export default function Dashboard() {
     end: "2024-12-31"
   });
 
-  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Feasibility", "Account Detail", "RFP Modules"];
+  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Feasibility", "Pre-Authorization", "RFP Modules"];
   const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management", "Predictive Analytics"];
   const rfpSubTabs = ["Pre-Authorization", "Clinical Decision", "Appeal Generation"];
 
@@ -139,6 +139,8 @@ export default function Dashboard() {
           <CollectionsDashboard />
         ) : activeMainTab === "Feasibility" ? (
           <FeasibilityDashboard />
+        ) : activeMainTab === "Pre-Authorization" ? (
+          <PreAuthorizationDashboard />
         ) : activeMainTab === "RFP Modules" && activeSubTab === "Pre-Authorization" ? (
           <PreAuthorizationDashboard />
         ) : activeMainTab === "RFP Modules" && activeSubTab === "Clinical Decision" ? (
