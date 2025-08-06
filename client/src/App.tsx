@@ -12,20 +12,13 @@ import { Navigation } from "@/components/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
+  // Authentication disabled for now - direct access to dashboard
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Navigation />
-          <Route path="/" component={Dashboard} />
-          <Route path="/profile" component={UserProfile} />
-          <Route path="/demo-users" component={DemoUserSelector} />
-        </>
-      )}
+      <Route path="/landing" component={Landing} />
+      <Route path="/profile" component={UserProfile} />
+      <Route path="/demo-users" component={DemoUserSelector} />
+      <Route path="/" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
   );

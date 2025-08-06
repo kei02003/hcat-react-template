@@ -66,11 +66,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Metrics routes (require basic view permissions)
+  // Metrics routes (authentication disabled for now)
   app.get("/api/metrics", 
-    isAuthenticated,
-    requireAnyPermission(['denials.view', 'ar.view', 'collections.view', 'reports.view']),
-    auditAction('view_metrics', 'metrics'),
     async (_req, res) => {
       try {
         const metrics = await storage.getMetrics();
@@ -82,9 +79,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   app.post("/api/metrics", 
-    isAuthenticated,
-    requireRoleLevel(3), // Manager level and above
-    auditAction('create_metric', 'metrics'),
     async (req, res) => {
       try {
         const validatedData = insertMetricsSchema.parse(req.body);
@@ -98,9 +92,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Documentation requests routes (require denials permissions)
   app.get("/api/documentation-requests", 
-    isAuthenticated,
-    requirePermission('denials.view'),
-    auditAction('view_documentation_requests', 'documentation'),
     async (_req, res) => {
       try {
         const requests = await storage.getDocumentationRequests();
@@ -111,10 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  app.post("/api/documentation-requests", 
-    isAuthenticated,
-    requirePermission('denials.edit'),
-    auditAction('create_documentation_request', 'documentation'),
+  app.post("/api/documentation-requests",
     async (req, res) => {
       try {
         const validatedData = insertDocumentationRequestSchema.parse(req.body);
