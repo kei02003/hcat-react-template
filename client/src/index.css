@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Healthcare Dashboard Colors */
+  --healthcare-primary: hsl(217, 19%, 35%);
+  --healthcare-secondary: hsl(217, 19%, 27%);
+  --healthcare-accent: hsl(207, 90%, 54%);
+  --healthcare-success: hsl(142, 71%, 45%);
+  --healthcare-warning: hsl(45, 93%, 47%);
+  --healthcare-danger: hsl(0, 84%, 60%);
+  --healthcare-gray-50: hsl(210, 40%, 98%);
+  --healthcare-gray-100: hsl(210, 40%, 95%);
+  --healthcare-gray-200: hsl(214, 32%, 91%);
+  --healthcare-gray-300: hsl(213, 27%, 84%);
+  --healthcare-gray-400: hsl(215, 20%, 65%);
+  --healthcare-gray-500: hsl(215, 16%, 47%);
+  --healthcare-gray-600: hsl(215, 19%, 35%);
+  --healthcare-gray-700: hsl(215, 25%, 27%);
+  --healthcare-gray-800: hsl(217, 33%, 17%);
+  --healthcare-gray-900: hsl(222, 47%, 11%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Healthcare Dashboard Specific Styles */
+.healthcare-header {
+  background-color: var(--healthcare-primary);
+  color: white;
+}
+
+.healthcare-secondary-header {
+  background-color: var(--healthcare-secondary);
+  color: white;
+}
+
+.healthcare-sidebar {
+  background-color: var(--healthcare-gray-100);
+}
+
+.healthcare-card {
+  background-color: var(--background);
+  border: 1px solid var(--healthcare-gray-200);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.metric-positive {
+  color: var(--healthcare-success);
+}
+
+.metric-negative {
+  color: var(--healthcare-danger);
+}
+
+.metric-warning {
+  color: var(--healthcare-warning);
+}
+
+.status-indicator-green {
+  background-color: hsl(142, 71%, 94%);
+  color: hsl(142, 76%, 36%);
+}
+
+.status-indicator-red {
+  background-color: hsl(0, 93%, 94%);
+  color: hsl(0, 84%, 37%);
+}
+
+.status-indicator-yellow {
+  background-color: hsl(45, 93%, 94%);
+  color: hsl(45, 86%, 32%);
+}
+
+.status-indicator-blue {
+  background-color: hsl(207, 90%, 94%);
+  color: hsl(207, 90%, 42%);
+}
+
+.heat-map-cell-high {
+  background-color: hsl(0, 84%, 90%);
+  color: hsl(0, 84%, 20%);
+}
+
+.heat-map-cell-medium {
+  background-color: hsl(45, 93%, 90%);
+  color: hsl(45, 93%, 25%);
+}
+
+.heat-map-cell-low {
+  background-color: hsl(142, 71%, 90%);
+  color: hsl(142, 71%, 25%);
+}
+
+.payer-card-worst {
+  border: 2px solid var(--healthcare-danger);
+  background-color: hsl(0, 84%, 98%);
+}
