@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { requirePermission, requireAnyPermission, requireRoleLevel, auditAction, type AuthenticatedRequest } from "./auth/middleware";
 import { rbacService } from "./auth/rbac";
+import { demoUserService } from "./demo-users";
 import { insertMetricsSchema, insertDocumentationRequestSchema, insertPayerBehaviorSchema, insertRedundancyMatrixSchema, insertPredictiveAnalyticsSchema, insertDenialPredictionsSchema, insertRiskFactorsSchema } from "@shared/schema";
 import { predictDenialRisk, generateSmartRecommendations, analyzeDenialPatterns } from "./openai";
 
@@ -13,6 +14,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Initialize RBAC system
   await rbacService.initializeRolesAndPermissions();
+  
+  // Create demo users for testing (only in development)
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      await demoUserService.createDemoUsers();
+    } catch (error) {
+      console.warn('Demo users creation skipped (tables may not exist yet)');
+    }
+  }
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: AuthenticatedRequest, res) => {
@@ -25,6 +35,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
+
+  // Demo users management (development only)
+  if (process.env.NODE_ENV === 'development') {
+    app.get('/api/demo-users', async (req, res) => {
+      try {
+        const users = await demoUserService.listDemoUsers();
+        res.json(users);
+      } catch (error) {
+        res.status(500).json({ message: "Failed to list demo users" });
+      }
+    });
+
+    app.post('/api/demo-users/create', async (req, res) => {
+      try {
+        await demoUserService.createDemoUsers();
+        res.json({ message: "Demo users created successfully" });
+      } catch (error) {
+        res.status(500).json({ message: "Failed to create demo users" });
+      }
+    });
+
+    app.delete('/api/demo-users', async (req, res) => {
+      try {
+        await demoUserService.removeDemoUsers();
+        res.json({ message: "Demo users removed successfully" });
+      } catch (error) {
+        res.status(500).json({ message: "Failed to remove demo users" });
+      }
+    });
+  }
 
   // Metrics routes (require basic view permissions)
   app.get("/api/metrics", 

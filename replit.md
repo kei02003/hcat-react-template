@@ -1,6 +1,6 @@
 # Overview
 
-This is a comprehensive healthcare revenue cycle management dashboard application featuring advanced analytics across multiple domains: documentation request analysis, denial management, accounts receivable management, and AI-powered predictive analytics. The system provides complete tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, optimizing payer interactions, and advanced AR aging analysis with statistical process control. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, and OpenAI-powered intelligent recommendations.
+This is a comprehensive healthcare revenue cycle management dashboard application featuring advanced analytics across multiple domains: documentation request analysis, denial management, accounts receivable management, and AI-powered predictive analytics. The system provides complete tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, optimizing payer interactions, and advanced AR aging analysis with statistical process control. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, OpenAI-powered intelligent recommendations, and comprehensive role-based access control (RBAC) system with Replit authentication integration.
 
 # User Preferences
 
@@ -23,7 +23,10 @@ The backend follows a RESTful API design pattern:
 - **Language**: TypeScript with ES modules
 - **API Routes**: Organized around core entities (metrics, documentation requests, payer behavior, redundancy matrix)
 - **Data Validation**: Zod schemas for request/response validation
-- **Storage Interface**: Abstracted storage layer with in-memory implementation for development
+- **Storage Interface**: Abstracted storage layer with DatabaseStorage implementation using PostgreSQL
+- **Authentication**: Replit Auth integration with OpenID Connect and Passport.js
+- **Authorization**: Comprehensive RBAC system with 10 healthcare-specific roles
+- **Security**: Permission-based middleware protection with audit logging
 - **Development**: Hot module replacement and error handling for development experience
 
 ## Database and Data Management
@@ -31,6 +34,9 @@ The backend follows a RESTful API design pattern:
 - **Database**: PostgreSQL with Neon serverless configuration
 - **Schema Management**: Centralized schema definitions with automated migration support
 - **Connection**: Environment-based database URL configuration with connection pooling
+- **RBAC Tables**: Complete role-based access control schema with users, roles, permissions, and audit logging
+- **Session Management**: PostgreSQL-backed session storage for authentication
+- **Demo Data**: Comprehensive demo user system with 12 healthcare staff accounts for testing
 
 ## Core Data Models
 The application manages multiple comprehensive entities:
@@ -44,6 +50,8 @@ The application manages multiple comprehensive entities:
 8. **Collections Management**: Discharge location analysis, payer class balances, aging subcategories, and high-priority account tracking
 9. **Timely Filing Management**: Claims deadline tracking, risk assessment, department performance monitoring, and automated alerts for filing deadlines
 10. **Clinical Denials Management**: Comprehensive denial review workflows, appeal tracking, clinical reviewer performance monitoring, and denial reason analysis
+11. **User Management**: Complete RBAC system with 10 healthcare roles (System Admin, Clinical Director, Revenue Manager, Billing Manager, Clinical Reviewer, Denial Specialist, AR Specialist, Collections Specialist, Financial Analyst, Read Only User)
+12. **Authentication System**: Replit Auth integration with user profiles, role assignments, and permission-based access control
 
 ## Component Architecture
 The dashboard implements a modular component structure:
@@ -57,6 +65,8 @@ The dashboard implements a modular component structure:
 - **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts, discharge location performance, payer class breakdowns, filing trends, department performance, denial trends, reason analysis)
 - **DataTables**: Interactive tables with sorting, filtering, and action buttons
 - **AI Components**: OpenAI-powered recommendation engine and pattern analysis
+- **Authentication Components**: User profile management, navigation with role badges, demo user selector, and RBAC-aware component wrappers
+- **Navigation**: Role-based navigation menu with user dropdown, profile access, and development tools
 
 ## Development and Build Process
 - **Development**: Concurrent client and server development with hot reloading
@@ -91,6 +101,14 @@ The dashboard implements a modular component structure:
 - **Zod**: Schema validation for API requests and responses
 - **Date-fns**: Date utility library for time-based calculations
 
+## Authentication and Security
+- **Replit Auth**: OpenID Connect authentication with multi-domain support
+- **Session Management**: PostgreSQL-backed session storage with secure cookies
+- **RBAC System**: Complete role-based access control with permission middleware
+- **Audit Logging**: Comprehensive user action tracking with IP and user agent logging
+- **Demo Users**: 12 pre-configured healthcare staff accounts for testing role-based access
+
 ## Session and Development
 - **Express Session**: Session management with PostgreSQL store integration
 - **Replit Integration**: Development environment integration with error overlays and debugging tools
+- **Demo Environment**: Automatic demo user creation and RBAC initialization in development mode

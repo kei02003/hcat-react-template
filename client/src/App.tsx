@@ -7,6 +7,8 @@ import Dashboard from "@/pages/dashboard";
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
 import { UserProfile } from "@/components/user-profile";
+import { DemoUserSelector } from "@/components/demo-user-selector";
+import { Navigation } from "@/components/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
@@ -18,8 +20,10 @@ function Router() {
         <Route path="/" component={Landing} />
       ) : (
         <>
+          <Navigation />
           <Route path="/" component={Dashboard} />
           <Route path="/profile" component={UserProfile} />
+          <Route path="/demo-users" component={DemoUserSelector} />
         </>
       )}
       <Route component={NotFound} />
