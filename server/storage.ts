@@ -137,6 +137,7 @@ export class MemStorage implements IStorage {
     this.appealLetters = new Map();
     this.appealOutcomes = new Map();
     this.denialPatterns = new Map();
+    this.clinicalDecisions = new Map();
     this.initializeData();
   }
 
@@ -151,6 +152,7 @@ export class MemStorage implements IStorage {
     this.initializeRiskFactors();
     this.initializePreAuthRequests();
     this.initializePatientStatusMonitoring();
+    this.initializeClinicalDecisions();
     this.initializeAppealRequests();
   }
 
@@ -711,6 +713,95 @@ export class MemStorage implements IStorage {
   }
 
   // Initialize new module data
+  private initializeClinicalDecisions() {
+    // Sample clinical decision cases for denied claim screening
+    const clinicalDecisions = [
+      {
+        id: "cd-001",
+        patientName: "Martinez, Elena R.",
+        patientId: "PAT-78901",
+        admissionId: "ADM-2025-001",
+        currentStatus: "observation",
+        denialReason: "Inappropriate inpatient status - heart failure admission",
+        payer: "Medicare Advantage",
+        payerId: "MA-001",
+        department: "Cardiology",
+        clinicalIndicators: {
+          vitalSigns: {
+            systolicBP: 165,
+            diastolicBP: 95,
+            heartRate: 110,
+            respiratoryRate: 24,
+            oxygenSaturation: 88,
+            temperature: 99.2
+          },
+          labResults: {
+            troponinI: 0.8,
+            bnp: 1250,
+            creatinine: 1.8,
+            sodium: 128,
+            hemoglobin: 9.2
+          },
+          physicianNotes: [
+            "Patient presents with acute decompensated heart failure with pulmonary edema",
+            "Requires IV diuretics and close hemodynamic monitoring",
+            "Patient has history of HFrEF with EF 25%, multiple hospitalizations",
+            "Current episode triggered by medication non-adherence and dietary indiscretion"
+          ],
+          symptoms: [
+            "Dyspnea at rest",
+            "Orthopnea (3-pillow)",
+            "Bilateral lower extremity edema",
+            "Chest discomfort",
+            "Fatigue"
+          ],
+          medications: [
+            "Furosemide 40mg IV BID",
+            "Lisinopril 10mg daily",
+            "Metoprolol 25mg BID",
+            "Spironolactone 25mg daily"
+          ]
+        },
+        insurerCriteria: {
+          inpatientRequirements: [
+            "Requires IV medications that cannot be given in observation",
+            "Patient requires intensive cardiac monitoring",
+            "Hemodynamically unstable requiring frequent assessment",
+            "Expected length of stay >24 hours with active treatment"
+          ],
+          observationCriteria: [
+            "Stable vital signs with mild exacerbation",
+            "Responds well to oral medications",
+            "No acute complications expected",
+            "Can be managed with <24 hour stay"
+          ],
+          exclusionFactors: [
+            "Chronic stable heart failure without acute changes",
+            "Social admissions without medical necessity",
+            "Routine medication adjustments"
+          ]
+        },
+        recommendedStatus: "inpatient",
+        confidenceScore: 92,
+        complianceScore: 96,
+        aiRecommendations: [
+          "Clinical indicators strongly support inpatient status: BNP >1000, oxygen saturation <90%, IV diuretic requirement",
+          "Patient meets Medicare criteria for inpatient admission with acute decompensated heart failure",
+          "Document hemodynamic instability and need for frequent monitoring in physician notes",
+          "Emphasize IV medication requirement and expected >48 hour length of stay"
+        ],
+        reviewStatus: "pending",
+        createdAt: new Date("2025-01-08"),
+        updatedAt: new Date("2025-01-09")
+      }
+    ];
+
+    clinicalDecisions.forEach(decision => {
+      this.clinicalDecisions.set(decision.id, decision as any);
+    });
+  }
+
+  // Initialize new module data
   private initializePreAuthRequests() {
     // Sample insurer criteria (BCBS medical necessity guidelines)
     const bcbsCriteria: InsurerCriteria = {
@@ -1008,6 +1099,10 @@ export class MemStorage implements IStorage {
 
   async getDenialPatterns(): Promise<DenialPattern[]> {
     return Array.from(this.denialPatterns.values());
+  }
+
+  async getClinicalDecisions(): Promise<ClinicalDecision[]> {
+    return Array.from(this.clinicalDecisions.values());
   }
 
   // User operations (required for Replit Auth)

@@ -291,6 +291,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Appeal Generation routes
+  // Clinical decision routes
+  app.get("/api/clinical-decisions", async (req, res) => {
+    try {
+      const decisions = await storage.getClinicalDecisions();
+      res.json(decisions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch clinical decisions" });
+    }
+  });
+
   app.get("/api/appeal-requests", async (req, res) => {
     try {
       const requests = await storage.getAppealRequests();
