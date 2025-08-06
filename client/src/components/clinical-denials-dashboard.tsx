@@ -378,7 +378,7 @@ export function ClinicalDenialsDashboard() {
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4" />
               <span>Overview</span>
@@ -386,10 +386,6 @@ export function ClinicalDenialsDashboard() {
             <TabsTrigger value="active" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
               <span>Active Denials</span>
-            </TabsTrigger>
-            <TabsTrigger value="analysis" className="flex items-center space-x-2">
-              <AlertCircle className="h-4 w-4" />
-              <span>Reason Analysis</span>
             </TabsTrigger>
             <TabsTrigger value="reviewers" className="flex items-center space-x-2">
               <Users className="h-4 w-4" />
@@ -604,17 +600,7 @@ export function ClinicalDenialsDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Reason Analysis Tab */}
-          <TabsContent value="analysis" className="space-y-6">
-            <Card className="healthcare-card">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Top Denial Reasons
-                </h3>
-                <DenialReasonAnalysis />
-              </CardContent>
-            </Card>
-          </TabsContent>
+
 
           {/* Reviewers Tab */}
           <TabsContent value="reviewers" className="space-y-6">
