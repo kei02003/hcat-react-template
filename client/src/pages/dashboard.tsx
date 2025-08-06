@@ -9,6 +9,7 @@ import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboar
 import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashboard";
 import { ClinicalDecisionDashboard } from "@/components/clinical-decision-dashboard";
 import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
+import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -19,7 +20,7 @@ export default function Dashboard() {
     end: "2024-12-31"
   });
 
-  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Account Detail", "RFP Modules"];
+  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Feasibility", "Account Detail", "RFP Modules"];
   const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management", "Predictive Analytics"];
   const rfpSubTabs = ["Pre-Authorization", "Clinical Decision", "Appeal Generation"];
 
@@ -136,6 +137,8 @@ export default function Dashboard() {
           <ArManagementDashboard />
         ) : activeMainTab === "Collections" ? (
           <CollectionsDashboard />
+        ) : activeMainTab === "Feasibility" ? (
+          <FeasibilityDashboard />
         ) : activeMainTab === "RFP Modules" && activeSubTab === "Pre-Authorization" ? (
           <PreAuthorizationDashboard />
         ) : activeMainTab === "RFP Modules" && activeSubTab === "Clinical Decision" ? (

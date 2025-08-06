@@ -358,6 +358,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Feasibility Analysis routes
+  app.get("/api/feasibility-analysis", async (req, res) => {
+    try {
+      const { payerAnalysis, feasibilityMetrics } = await import("./feasibility-analysis-data");
+      res.json({ payerAnalysis, feasibilityMetrics });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch feasibility analysis" });
+    }
+  });
+
+  app.get("/api/payer-analysis/:payerId", async (req, res) => {
+    try {
+      const { payerAnalysis } = await import("./feasibility-analysis-data");
+      const { payerId } = req.params;
+      
+      const payer = payerAnalysis.find(p => p.payerId === payerId);
+      if (!payer) {
+        return res.status(404).json({ message: "Payer not found" });
+      }
+      
+      res.json(payer);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch payer analysis" });
+    }
+  });
+
   app.get("/api/challenge-letters/:appealId", async (req, res) => {
     try {
       const { appealId } = req.params;
