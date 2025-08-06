@@ -42,6 +42,7 @@ The application manages multiple comprehensive entities:
 6. **AR Management**: Accounts receivable trends, aging analysis, and financial performance tracking
 7. **Statistical Process Control**: AR trend analysis with changepoint detection and control limits
 8. **Collections Management**: Discharge location analysis, payer class balances, aging subcategories, and high-priority account tracking
+9. **Timely Filing Management**: Claims deadline tracking, risk assessment, department performance monitoring, and automated alerts for filing deadlines
 
 ## Component Architecture
 The dashboard implements a modular component structure:
@@ -50,7 +51,8 @@ The dashboard implements a modular component structure:
 - **PredictiveDashboard**: Advanced AI-powered analytics with risk scoring and recommendations
 - **ArManagementDashboard**: Comprehensive AR analysis with statistical process control
 - **CollectionsDashboard**: Collections management with discharge location performance and aging analysis
-- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts, discharge location performance, payer class breakdowns)
+- **TimelyFilingDashboard**: Claims filing deadline management with risk assessment and department performance tracking
+- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts, discharge location performance, payer class breakdowns, filing trends, department performance)
 - **DataTables**: Interactive tables with sorting, filtering, and action buttons
 - **AI Components**: OpenAI-powered recommendation engine and pattern analysis
 

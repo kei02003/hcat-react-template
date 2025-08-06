@@ -4,6 +4,7 @@ import { DocumentationDashboard } from "@/components/documentation-dashboard";
 import { PredictiveDashboard } from "@/components/predictive-dashboard";
 import { ArManagementDashboard } from "@/components/ar-management-dashboard";
 import { CollectionsDashboard } from "@/components/collections-dashboard";
+import { TimelyFilingDashboard } from "@/components/timely-filing-dashboard";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -100,6 +101,8 @@ export default function Dashboard() {
           <DocumentationDashboard />
         ) : activeMainTab === "Denials" && activeSubTab === "Predictive Analytics" ? (
           <PredictiveDashboard />
+        ) : activeMainTab === "Denials" && activeSubTab === "Timely Filing" ? (
+          <TimelyFilingDashboard />
         ) : activeMainTab === "AR Management" ? (
           <ArManagementDashboard />
         ) : activeMainTab === "Collections" ? (
@@ -112,7 +115,7 @@ export default function Dashboard() {
                   {activeMainTab} - {activeSubTab || "Overview"}
                 </h2>
                 <p className="text-gray-600">
-                  This section is under development. Available dashboards: "Documentation Requests", "Predictive Analytics", "AR Management", and "Collections".
+                  This section is under development. Available dashboards: "Documentation Requests", "Predictive Analytics", "Timely Filing", "AR Management", and "Collections".
                 </p>
               </div>
             </div>
