@@ -41,6 +41,7 @@ The application manages multiple comprehensive entities:
 5. **Predictive Analytics**: AI-powered risk scoring and denial prediction models
 6. **AR Management**: Accounts receivable trends, aging analysis, and financial performance tracking
 7. **Statistical Process Control**: AR trend analysis with changepoint detection and control limits
+8. **Collections Management**: Discharge location analysis, payer class balances, aging subcategories, and high-priority account tracking
 
 ## Component Architecture
 The dashboard implements a modular component structure:
@@ -48,7 +49,8 @@ The dashboard implements a modular component structure:
 - **DocumentationDashboard**: Main content area with tabbed interface for denial management
 - **PredictiveDashboard**: Advanced AI-powered analytics with risk scoring and recommendations
 - **ArManagementDashboard**: Comprehensive AR analysis with statistical process control
-- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts)
+- **CollectionsDashboard**: Collections management with discharge location performance and aging analysis
+- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts, discharge location performance, payer class breakdowns)
 - **DataTables**: Interactive tables with sorting, filtering, and action buttons
 - **AI Components**: OpenAI-powered recommendation engine and pattern analysis
 
