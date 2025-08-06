@@ -1,6 +1,6 @@
 # Overview
 
-This is a comprehensive healthcare revenue cycle management dashboard application featuring advanced analytics across multiple domains: documentation request analysis, denial management, accounts receivable management, and AI-powered predictive analytics. The system provides complete tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, optimizing payer interactions, and advanced AR aging analysis with statistical process control. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, OpenAI-powered intelligent recommendations, and comprehensive role-based access control (RBAC) system with Replit authentication integration.
+This is a comprehensive healthcare revenue cycle management dashboard application featuring advanced analytics across multiple domains: documentation request analysis, denial management, accounts receivable management, AI-powered predictive analytics, and three critical RFP-required modules. The system provides complete tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, optimizing payer interactions, advanced AR aging analysis with statistical process control, pre-authorization management, clinical decision support, and automated appeal generation. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, OpenAI-powered intelligent recommendations, and comprehensive role-based access control (RBAC) system with Replit authentication integration.
 
 # User Preferences
 
@@ -50,8 +50,11 @@ The application manages multiple comprehensive entities:
 8. **Collections Management**: Discharge location analysis, payer class balances, aging subcategories, and high-priority account tracking
 9. **Timely Filing Management**: Claims deadline tracking, risk assessment, department performance monitoring, and automated alerts for filing deadlines
 10. **Clinical Denials Management**: Comprehensive denial review workflows, appeal tracking, clinical reviewer performance monitoring, and denial reason analysis
-11. **User Management**: Complete RBAC system with 10 healthcare roles (System Admin, Clinical Director, Revenue Manager, Billing Manager, Clinical Reviewer, Denial Specialist, AR Specialist, Collections Specialist, Financial Analyst, Read Only User)
-12. **Authentication System**: Replit Auth integration with user profiles, role assignments, and permission-based access control
+11. **Pre-Authorization Management**: Complete workflow for flagging procedures requiring pre-auth, comparing against insurer criteria, tracking approval status, and ensuring 90% completion 3+ days prior to procedures
+12. **Clinical Decision Support**: Real-time patient status monitoring, medical record analysis, clinical indicators tracking, and AI-powered recommendations for status changes and documentation improvements
+13. **Automated Appeal Generation**: AI-powered challenge letter generation, clinical evidence extraction, success probability scoring (>70% target), and comprehensive appeal outcome tracking
+14. **User Management**: Complete RBAC system with 10 healthcare roles (System Admin, Clinical Director, Revenue Manager, Billing Manager, Clinical Reviewer, Denial Specialist, AR Specialist, Collections Specialist, Financial Analyst, Read Only User)
+15. **Authentication System**: Replit Auth integration with user profiles, role assignments, and permission-based access control
 
 ## Component Architecture
 The dashboard implements a modular component structure:
@@ -66,7 +69,8 @@ The dashboard implements a modular component structure:
 - **DataTables**: Interactive tables with sorting, filtering, and action buttons
 - **AI Components**: OpenAI-powered recommendation engine and pattern analysis
 - **Authentication Components**: User profile management, navigation with role badges, demo user selector, and RBAC-aware component wrappers
-- **Navigation**: Role-based navigation menu with user dropdown, profile access, and development tools
+- **Navigation**: Role-based navigation menu with user dropdown, profile access, development tools, and dedicated RFP Modules tab
+- **RFP Module Components**: Pre-Authorization Dashboard, Clinical Decision Dashboard, and Appeal Generation Dashboard with comprehensive workflows and analytics
 
 ## Development and Build Process
 - **Development**: Concurrent client and server development with hot reloading

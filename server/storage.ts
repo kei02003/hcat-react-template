@@ -1,6 +1,38 @@
 import { type Metric, type InsertMetric, type DocumentationRequest, type InsertDocumentationRequest, type PayerBehavior, type InsertPayerBehavior, type RedundancyMatrix, type InsertRedundancyMatrix, type PredictiveAnalytics, type InsertPredictiveAnalytics, type DenialPredictions, type InsertDenialPredictions, type RiskFactors, type InsertRiskFactors } from "@shared/schema";
 import { type DepartmentPerformance } from "@shared/timely-filing-schema";
 import { users, type User, type UpsertUser } from "../shared/auth-schema";
+
+// Import new module types
+import {
+  type PreAuthRequest,
+  type InsertPreAuthRequest,
+  type InsurerCriteria,
+  type InsertInsurerCriteria,
+  type ProcedureAuthRequirement,
+  type InsertProcedureAuthRequirement,
+} from "@shared/pre-authorization-schema";
+
+import {
+  type PatientStatusMonitoring,
+  type InsertPatientStatusMonitoring,
+  type ClinicalIndicator,
+  type InsertClinicalIndicator,
+  type MedicalRecordAnalysis,
+  type InsertMedicalRecordAnalysis,
+  type ClinicalAlert,
+  type InsertClinicalAlert,
+} from "@shared/clinical-decision-schema";
+
+import {
+  type AppealRequest,
+  type InsertAppealRequest,
+  type AppealLetter,
+  type InsertAppealLetter,
+  type AppealOutcome,
+  type InsertAppealOutcome,
+  type DenialPattern,
+  type InsertDenialPattern,
+} from "@shared/appeal-generation-schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -42,6 +74,28 @@ export interface IStorage {
   
   // Department Performance
   getDepartmentPerformance(): Promise<DepartmentPerformance[]>;
+  
+  // Pre-Authorization Management
+  getPreAuthRequests(): Promise<PreAuthRequest[]>;
+  createPreAuthRequest(request: InsertPreAuthRequest): Promise<PreAuthRequest>;
+  updatePreAuthRequest(id: string, request: Partial<InsertPreAuthRequest>): Promise<PreAuthRequest | undefined>;
+  getInsurerCriteria(): Promise<InsurerCriteria[]>;
+  getProcedureAuthRequirements(): Promise<ProcedureAuthRequirement[]>;
+  
+  // Clinical Decision Support
+  getPatientStatusMonitoring(): Promise<PatientStatusMonitoring[]>;
+  createPatientStatusMonitoring(monitoring: InsertPatientStatusMonitoring): Promise<PatientStatusMonitoring>;
+  getClinicalIndicators(patientId?: string): Promise<ClinicalIndicator[]>;
+  getMedicalRecordAnalysis(): Promise<MedicalRecordAnalysis[]>;
+  getClinicalAlerts(): Promise<ClinicalAlert[]>;
+  
+  // Appeal Generation
+  getAppealRequests(): Promise<AppealRequest[]>;
+  createAppealRequest(request: InsertAppealRequest): Promise<AppealRequest>;
+  getAppealLetters(): Promise<AppealLetter[]>;
+  createAppealLetter(letter: InsertAppealLetter): Promise<AppealLetter>;
+  getAppealOutcomes(): Promise<AppealOutcome[]>;
+  getDenialPatterns(): Promise<DenialPattern[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -52,6 +106,17 @@ export class MemStorage implements IStorage {
   private predictiveAnalytics: Map<string, PredictiveAnalytics>;
   private denialPredictions: Map<string, DenialPredictions>;
   private riskFactors: Map<string, RiskFactors>;
+  private preAuthRequests: Map<string, PreAuthRequest>;
+  private insurerCriteria: Map<string, InsurerCriteria>;
+  private procedureAuthRequirements: Map<string, ProcedureAuthRequirement>;
+  private patientStatusMonitoring: Map<string, PatientStatusMonitoring>;
+  private clinicalIndicators: Map<string, ClinicalIndicator>;
+  private medicalRecordAnalysis: Map<string, MedicalRecordAnalysis>;
+  private clinicalAlerts: Map<string, ClinicalAlert>;
+  private appealRequests: Map<string, AppealRequest>;
+  private appealLetters: Map<string, AppealLetter>;
+  private appealOutcomes: Map<string, AppealOutcome>;
+  private denialPatterns: Map<string, DenialPattern>;
 
   constructor() {
     this.metrics = new Map();
@@ -61,6 +126,17 @@ export class MemStorage implements IStorage {
     this.predictiveAnalytics = new Map();
     this.denialPredictions = new Map();
     this.riskFactors = new Map();
+    this.preAuthRequests = new Map();
+    this.insurerCriteria = new Map();
+    this.procedureAuthRequirements = new Map();
+    this.patientStatusMonitoring = new Map();
+    this.clinicalIndicators = new Map();
+    this.medicalRecordAnalysis = new Map();
+    this.clinicalAlerts = new Map();
+    this.appealRequests = new Map();
+    this.appealLetters = new Map();
+    this.appealOutcomes = new Map();
+    this.denialPatterns = new Map();
     this.initializeData();
   }
 
@@ -73,6 +149,9 @@ export class MemStorage implements IStorage {
     this.initializePredictiveAnalytics();
     this.initializeDenialPredictions();
     this.initializeRiskFactors();
+    this.initializePreAuthRequests();
+    this.initializePatientStatusMonitoring();
+    this.initializeAppealRequests();
   }
 
   private initializeMetrics() {
@@ -631,6 +710,123 @@ export class MemStorage implements IStorage {
     ];
   }
 
+  // Initialize new module data
+  private initializePreAuthRequests() {
+    // Sample pre-authorization requests will be added here
+  }
+
+  private initializePatientStatusMonitoring() {
+    // Sample patient monitoring data will be added here
+  }
+
+  private initializeAppealRequests() {
+    // Sample appeal requests will be added here
+  }
+
+  // Pre-Authorization Management methods
+  async getPreAuthRequests(): Promise<PreAuthRequest[]> {
+    return Array.from(this.preAuthRequests.values());
+  }
+
+  async createPreAuthRequest(request: InsertPreAuthRequest): Promise<PreAuthRequest> {
+    const id = randomUUID();
+    const preAuthRequest: PreAuthRequest = { 
+      id, 
+      ...request, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.preAuthRequests.set(id, preAuthRequest);
+    return preAuthRequest;
+  }
+
+  async updatePreAuthRequest(id: string, request: Partial<InsertPreAuthRequest>): Promise<PreAuthRequest | undefined> {
+    const existing = this.preAuthRequests.get(id);
+    if (!existing) return undefined;
+    const updated: PreAuthRequest = { ...existing, ...request, updatedAt: new Date() };
+    this.preAuthRequests.set(id, updated);
+    return updated;
+  }
+
+  async getInsurerCriteria(): Promise<InsurerCriteria[]> {
+    return Array.from(this.insurerCriteria.values());
+  }
+
+  async getProcedureAuthRequirements(): Promise<ProcedureAuthRequirement[]> {
+    return Array.from(this.procedureAuthRequirements.values());
+  }
+
+  // Clinical Decision Support methods
+  async getPatientStatusMonitoring(): Promise<PatientStatusMonitoring[]> {
+    return Array.from(this.patientStatusMonitoring.values());
+  }
+
+  async createPatientStatusMonitoring(monitoring: InsertPatientStatusMonitoring): Promise<PatientStatusMonitoring> {
+    const id = randomUUID();
+    const statusMonitoring: PatientStatusMonitoring = { 
+      id, 
+      ...monitoring, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.patientStatusMonitoring.set(id, statusMonitoring);
+    return statusMonitoring;
+  }
+
+  async getClinicalIndicators(patientId?: string): Promise<ClinicalIndicator[]> {
+    const indicators = Array.from(this.clinicalIndicators.values());
+    return patientId ? indicators.filter(i => i.patientId === patientId) : indicators;
+  }
+
+  async getMedicalRecordAnalysis(): Promise<MedicalRecordAnalysis[]> {
+    return Array.from(this.medicalRecordAnalysis.values());
+  }
+
+  async getClinicalAlerts(): Promise<ClinicalAlert[]> {
+    return Array.from(this.clinicalAlerts.values());
+  }
+
+  // Appeal Generation methods
+  async getAppealRequests(): Promise<AppealRequest[]> {
+    return Array.from(this.appealRequests.values());
+  }
+
+  async createAppealRequest(request: InsertAppealRequest): Promise<AppealRequest> {
+    const id = randomUUID();
+    const appealRequest: AppealRequest = { 
+      id, 
+      ...request, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.appealRequests.set(id, appealRequest);
+    return appealRequest;
+  }
+
+  async getAppealLetters(): Promise<AppealLetter[]> {
+    return Array.from(this.appealLetters.values());
+  }
+
+  async createAppealLetter(letter: InsertAppealLetter): Promise<AppealLetter> {
+    const id = randomUUID();
+    const appealLetter: AppealLetter = { 
+      id, 
+      ...letter, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.appealLetters.set(id, appealLetter);
+    return appealLetter;
+  }
+
+  async getAppealOutcomes(): Promise<AppealOutcome[]> {
+    return Array.from(this.appealOutcomes.values());
+  }
+
+  async getDenialPatterns(): Promise<DenialPattern[]> {
+    return Array.from(this.denialPatterns.values());
+  }
+
   // User operations (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
     // In memory storage doesn't support user operations - redirect to database
@@ -735,6 +931,73 @@ export class DatabaseStorage implements IStorage {
 
   async getDepartmentPerformance(): Promise<DepartmentPerformance[]> {
     return this.memStorage.getDepartmentPerformance();
+  }
+
+  // Pre-Authorization Management methods
+  async getPreAuthRequests(): Promise<PreAuthRequest[]> {
+    return this.memStorage.getPreAuthRequests();
+  }
+
+  async createPreAuthRequest(request: InsertPreAuthRequest): Promise<PreAuthRequest> {
+    return this.memStorage.createPreAuthRequest(request);
+  }
+
+  async updatePreAuthRequest(id: string, request: Partial<InsertPreAuthRequest>): Promise<PreAuthRequest | undefined> {
+    return this.memStorage.updatePreAuthRequest(id, request);
+  }
+
+  async getInsurerCriteria(): Promise<InsurerCriteria[]> {
+    return this.memStorage.getInsurerCriteria();
+  }
+
+  async getProcedureAuthRequirements(): Promise<ProcedureAuthRequirement[]> {
+    return this.memStorage.getProcedureAuthRequirements();
+  }
+
+  // Clinical Decision Support methods
+  async getPatientStatusMonitoring(): Promise<PatientStatusMonitoring[]> {
+    return this.memStorage.getPatientStatusMonitoring();
+  }
+
+  async createPatientStatusMonitoring(monitoring: InsertPatientStatusMonitoring): Promise<PatientStatusMonitoring> {
+    return this.memStorage.createPatientStatusMonitoring(monitoring);
+  }
+
+  async getClinicalIndicators(patientId?: string): Promise<ClinicalIndicator[]> {
+    return this.memStorage.getClinicalIndicators(patientId);
+  }
+
+  async getMedicalRecordAnalysis(): Promise<MedicalRecordAnalysis[]> {
+    return this.memStorage.getMedicalRecordAnalysis();
+  }
+
+  async getClinicalAlerts(): Promise<ClinicalAlert[]> {
+    return this.memStorage.getClinicalAlerts();
+  }
+
+  // Appeal Generation methods
+  async getAppealRequests(): Promise<AppealRequest[]> {
+    return this.memStorage.getAppealRequests();
+  }
+
+  async createAppealRequest(request: InsertAppealRequest): Promise<AppealRequest> {
+    return this.memStorage.createAppealRequest(request);
+  }
+
+  async getAppealLetters(): Promise<AppealLetter[]> {
+    return this.memStorage.getAppealLetters();
+  }
+
+  async createAppealLetter(letter: InsertAppealLetter): Promise<AppealLetter> {
+    return this.memStorage.createAppealLetter(letter);
+  }
+
+  async getAppealOutcomes(): Promise<AppealOutcome[]> {
+    return this.memStorage.getAppealOutcomes();
+  }
+
+  async getDenialPatterns(): Promise<DenialPattern[]> {
+    return this.memStorage.getDenialPatterns();
   }
 }
 

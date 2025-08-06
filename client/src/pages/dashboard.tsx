@@ -6,6 +6,9 @@ import { ArManagementDashboard } from "@/components/ar-management-dashboard";
 import { CollectionsDashboard } from "@/components/collections-dashboard";
 import { TimelyFilingDashboard } from "@/components/timely-filing-dashboard";
 import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboard";
+import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashboard";
+import { ClinicalDecisionDashboard } from "@/components/clinical-decision-dashboard";
+import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -16,8 +19,9 @@ export default function Dashboard() {
     end: "2024-12-31"
   });
 
-  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Account Detail"];
+  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Account Detail", "RFP Modules"];
   const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management", "Predictive Analytics"];
+  const rfpSubTabs = ["Pre-Authorization", "Clinical Decision", "Appeal Generation"];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -91,6 +95,28 @@ export default function Dashboard() {
             </nav>
           </div>
         )}
+        
+        {/* Secondary Navigation for RFP Modules */}
+        {activeMainTab === "RFP Modules" && (
+          <div className="healthcare-secondary-header px-6 py-2">
+            <nav className="flex space-x-6">
+              {rfpSubTabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveSubTab(tab)}
+                  className={`px-3 py-1 text-sm rounded transition-colors ${
+                    activeSubTab === tab 
+                      ? "bg-gray-600" 
+                      : "hover:bg-gray-600"
+                  }`}
+                  data-testid={`rfp-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+          </div>
+        )}
       </header>
 
       <div className="flex h-screen">
@@ -110,6 +136,12 @@ export default function Dashboard() {
           <ArManagementDashboard />
         ) : activeMainTab === "Collections" ? (
           <CollectionsDashboard />
+        ) : activeMainTab === "RFP Modules" && activeSubTab === "Pre-Authorization" ? (
+          <PreAuthorizationDashboard />
+        ) : activeMainTab === "RFP Modules" && activeSubTab === "Clinical Decision" ? (
+          <ClinicalDecisionDashboard />
+        ) : activeMainTab === "RFP Modules" && activeSubTab === "Appeal Generation" ? (
+          <AppealGenerationDashboard />
         ) : (
           <main className="flex-1 p-6 overflow-y-auto bg-white">
             <div className="flex items-center justify-center h-full">
@@ -118,7 +150,7 @@ export default function Dashboard() {
                   {activeMainTab} - {activeSubTab || "Overview"}
                 </h2>
                 <p className="text-gray-600">
-                  This section is under development. Available dashboards: "Documentation Requests", "Predictive Analytics", "Timely Filing", "Clinical Denials", "AR Management", and "Collections".
+                  This section is under development. Available dashboards include all major revenue cycle modules plus new RFP features: Pre-Authorization Management, Clinical Decision Support, and Appeal Generation.
                 </p>
               </div>
             </div>
