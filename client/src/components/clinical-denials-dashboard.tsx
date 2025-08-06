@@ -547,27 +547,15 @@ export function ClinicalDenialsDashboard() {
                       </div>
 
                       <div className="flex flex-wrap gap-2">
-                        {/* Standard Action Buttons */}
-                        <Button 
-                          size="sm" 
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                          data-testid={`button-review-${denial.denialId}`}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Review
-                        </Button>
-                        <Button size="sm" variant="outline" data-testid={`button-appeal-${denial.denialId}`}>
-                          <FileText className="h-4 w-4 mr-2" />
-                          Submit Appeal
-                        </Button>
+                        {/* Essential Administrative Actions */}
                         <Button size="sm" variant="outline" data-testid={`button-assign-${denial.denialId}`}>
                           <Users className="h-4 w-4 mr-2" />
                           Assign Reviewer
                         </Button>
                         
                         {/* Contextual RFP Module Actions */}
-                        {getContextualActions(denial).length > 0 && (
-                          <div className="border-l border-gray-300 pl-2 ml-2 flex gap-2">
+                        {getContextualActions(denial).length > 0 ? (
+                          <div className="flex gap-2">
                             {getContextualActions(denial).map((action, actionIndex) => {
                               const IconComponent = action.icon;
                               return (
@@ -588,6 +576,24 @@ export function ClinicalDenialsDashboard() {
                                 </Dialog>
                               );
                             })}
+                          </div>
+                        ) : (
+                          /* Fallback actions for denials without contextual RFP modules */
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              data-testid={`button-review-${denial.denialId}`}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              Review Details
+                            </Button>
+                            {denial.daysToAppeal > 0 && denial.status !== "Upheld" && denial.status !== "Closed" && (
+                              <Button size="sm" variant="outline" data-testid={`button-appeal-${denial.denialId}`}>
+                                <FileText className="h-4 w-4 mr-2" />
+                                Manual Appeal
+                              </Button>
+                            )}
                           </div>
                         )}
                       </div>
