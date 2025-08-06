@@ -37,6 +37,51 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
+// Define ClinicalDecision type for the demo
+interface ClinicalDecision {
+  id: string;
+  patientName: string;
+  patientId: string;
+  admissionId: string;
+  currentStatus: "inpatient" | "observation" | "outpatient" | "emergency";
+  denialReason: string;
+  payer: string;
+  payerId: string;
+  department: string;
+  clinicalIndicators: {
+    vitalSigns: {
+      systolicBP: number;
+      diastolicBP: number;
+      heartRate: number;
+      respiratoryRate: number;
+      oxygenSaturation: number;
+      temperature: number;
+    };
+    labResults: {
+      troponinI: number;
+      bnp: number;
+      creatinine: number;
+      sodium: number;
+      hemoglobin: number;
+    };
+    physicianNotes: string[];
+    symptoms: string[];
+    medications: string[];
+  };
+  insurerCriteria: {
+    inpatientRequirements: string[];
+    observationCriteria: string[];
+    exclusionFactors: string[];
+  };
+  recommendedStatus: "inpatient" | "observation" | "outpatient";
+  confidenceScore: number;
+  complianceScore: number;
+  aiRecommendations: string[];
+  reviewStatus: "pending" | "approved" | "needs_revision" | "escalated";
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
@@ -89,6 +134,9 @@ export interface IStorage {
   getMedicalRecordAnalysis(): Promise<MedicalRecordAnalysis[]>;
   getClinicalAlerts(): Promise<ClinicalAlert[]>;
   
+  // Clinical Decision Support
+  getClinicalDecisions(): Promise<ClinicalDecision[]>;
+  
   // Appeal Generation
   getAppealRequests(): Promise<AppealRequest[]>;
   createAppealRequest(request: InsertAppealRequest): Promise<AppealRequest>;
@@ -117,6 +165,7 @@ export class MemStorage implements IStorage {
   private appealLetters: Map<string, AppealLetter>;
   private appealOutcomes: Map<string, AppealOutcome>;
   private denialPatterns: Map<string, DenialPattern>;
+  private clinicalDecisions: Map<string, ClinicalDecision>;
 
   constructor() {
     this.metrics = new Map();
@@ -1251,6 +1300,10 @@ export class DatabaseStorage implements IStorage {
 
   async getClinicalAlerts(): Promise<ClinicalAlert[]> {
     return this.memStorage.getClinicalAlerts();
+  }
+
+  async getClinicalDecisions(): Promise<ClinicalDecision[]> {
+    return this.memStorage.getClinicalDecisions();
   }
 
   // Appeal Generation methods

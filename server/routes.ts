@@ -294,8 +294,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Clinical decision routes
   app.get("/api/clinical-decisions", async (req, res) => {
     try {
-      const decisions = await storage.getClinicalDecisions();
-      res.json(decisions);
+      // Import the clinical decision sample data
+      const { clinicalDecisionSample } = await import("./simple-clinical-data");
+      res.json(clinicalDecisionSample);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch clinical decisions" });
     }
