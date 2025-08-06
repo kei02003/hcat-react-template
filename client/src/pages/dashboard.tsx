@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MetricsPanel } from "@/components/metrics-panel";
 import { DocumentationDashboard } from "@/components/documentation-dashboard";
 import { PredictiveDashboard } from "@/components/predictive-dashboard";
+import { ArManagementDashboard } from "@/components/ar-management-dashboard";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -98,6 +99,8 @@ export default function Dashboard() {
           <DocumentationDashboard />
         ) : activeMainTab === "Denials" && activeSubTab === "Predictive Analytics" ? (
           <PredictiveDashboard />
+        ) : activeMainTab === "AR Management" ? (
+          <ArManagementDashboard />
         ) : (
           <main className="flex-1 p-6 overflow-y-auto bg-white">
             <div className="flex items-center justify-center h-full">
@@ -106,7 +109,7 @@ export default function Dashboard() {
                   {activeMainTab} - {activeSubTab || "Overview"}
                 </h2>
                 <p className="text-gray-600">
-                  This section is under development. Please select "Documentation Requests" or "Predictive Analytics" to view the available dashboards.
+                  This section is under development. Available dashboards: "Documentation Requests", "Predictive Analytics", and "AR Management".
                 </p>
               </div>
             </div>

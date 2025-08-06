@@ -1,6 +1,6 @@
 # Overview
 
-This is a healthcare revenue cycle management dashboard application focused on documentation request analysis and denial management. The system provides comprehensive tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, and optimizing payer interactions. The application features a modern React frontend with a Node.js/Express backend and PostgreSQL database integration.
+This is a comprehensive healthcare revenue cycle management dashboard application featuring advanced analytics across multiple domains: documentation request analysis, denial management, accounts receivable management, and AI-powered predictive analytics. The system provides complete tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, optimizing payer interactions, and advanced AR aging analysis with statistical process control. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, and OpenAI-powered intelligent recommendations.
 
 # User Preferences
 
@@ -33,18 +33,24 @@ The backend follows a RESTful API design pattern:
 - **Connection**: Environment-based database URL configuration with connection pooling
 
 ## Core Data Models
-The application manages four primary entities:
+The application manages multiple comprehensive entities:
 1. **Metrics**: Dashboard KPIs with change tracking and status indicators
 2. **Documentation Requests**: Claims requiring additional documentation with redundancy detection
 3. **Payer Behavior**: Analytics on insurance company patterns and response rates
 4. **Redundancy Matrix**: Cross-tabulation of document types vs payers for pattern identification
+5. **Predictive Analytics**: AI-powered risk scoring and denial prediction models
+6. **AR Management**: Accounts receivable trends, aging analysis, and financial performance tracking
+7. **Statistical Process Control**: AR trend analysis with changepoint detection and control limits
 
 ## Component Architecture
 The dashboard implements a modular component structure:
 - **MetricsPanel**: Left sidebar with 11 key performance indicators
-- **DocumentationDashboard**: Main content area with tabbed interface
-- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis)
+- **DocumentationDashboard**: Main content area with tabbed interface for denial management
+- **PredictiveDashboard**: Advanced AI-powered analytics with risk scoring and recommendations
+- **ArManagementDashboard**: Comprehensive AR analysis with statistical process control
+- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts)
 - **DataTables**: Interactive tables with sorting, filtering, and action buttons
+- **AI Components**: OpenAI-powered recommendation engine and pattern analysis
 
 ## Development and Build Process
 - **Development**: Concurrent client and server development with hot reloading
@@ -53,6 +59,10 @@ The dashboard implements a modular component structure:
 - **Environment**: Development/production environment detection with appropriate tooling
 
 # External Dependencies
+
+## AI and Analytics Services
+- **OpenAI GPT-4o**: Advanced language model for predictive analytics and intelligent recommendations
+- **Statistical Analysis**: SPC charting with changepoint detection algorithms
 
 ## Database Services
 - **Neon Database**: Serverless PostgreSQL hosting with connection pooling
