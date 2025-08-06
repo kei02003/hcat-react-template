@@ -395,9 +395,9 @@ export function ClinicalDenialsDashboard() {
               <Users className="h-4 w-4" />
               <span>Reviewers</span>
             </TabsTrigger>
-            <TabsTrigger value="trends" className="flex items-center space-x-2">
+            <TabsTrigger value="analytics" className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4" />
-              <span>Trends</span>
+              <span>Analytics</span>
             </TabsTrigger>
           </TabsList>
 
@@ -675,13 +675,183 @@ export function ClinicalDenialsDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Trends Tab */}
-          <TabsContent value="trends" className="space-y-6">
+          {/* Analytics Tab - Lessons Learned */}
+          <TabsContent value="analytics" className="space-y-6">
+            {/* Key Insights Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="healthcare-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Prevention Opportunities</h3>
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="bg-red-50 p-3 rounded">
+                      <p className="text-sm font-medium text-red-800">30% of Medical Necessity denials</p>
+                      <p className="text-xs text-red-600">Missing comprehensive documentation</p>
+                    </div>
+                    <div className="bg-orange-50 p-3 rounded">
+                      <p className="text-sm font-medium text-orange-800">25% of Authorization denials</p>
+                      <p className="text-xs text-orange-600">Pre-auth not obtained timely</p>
+                    </div>
+                    <div className="bg-yellow-50 p-3 rounded">
+                      <p className="text-sm font-medium text-yellow-800">18% of Coverage denials</p>
+                      <p className="text-xs text-yellow-600">LCD criteria not verified</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="healthcare-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Success Stories</h3>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="bg-green-50 p-3 rounded">
+                      <p className="text-sm font-medium text-green-800">42% reduction in M80 denials</p>
+                      <p className="text-xs text-green-600">Enhanced documentation training</p>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded">
+                      <p className="text-sm font-medium text-blue-800">35% improvement in appeal success</p>
+                      <p className="text-xs text-blue-600">Clinical decision support adoption</p>
+                    </div>
+                    <div className="bg-purple-50 p-3 rounded">
+                      <p className="text-sm font-medium text-purple-800">28% faster resolution time</p>
+                      <p className="text-xs text-purple-600">Streamlined reviewer assignment</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="healthcare-card">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Action Items</h3>
+                    <Badge className="bg-blue-100 text-blue-800">High Priority</Badge>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Implement pre-auth checklist</p>
+                        <p className="text-xs text-gray-600">Target: Reduce N425 denials by 40%</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <Clock className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Enhance LCD verification</p>
+                        <p className="text-xs text-gray-600">Target: 90% compliance by Q2</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Documentation training</p>
+                        <p className="text-xs text-gray-600">Focus: Medical necessity support</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Root Cause Analysis */}
+            <Card className="healthcare-card">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Root Cause Analysis - Top Prevention Opportunities
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Issue Pattern</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Frequency</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Financial Impact</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Root Cause</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prevention Action</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">Missing Clinical Support</div>
+                          <div className="text-sm text-gray-500">Medical Necessity Documentation</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">30%</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$2.85M</td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">Incomplete clinical notes</div>
+                          <div className="text-sm text-gray-500">Lack of necessity justification</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">Enhanced documentation templates</div>
+                          <div className="text-sm text-gray-500">Clinical decision support integration</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
+                        </td>
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">Late Pre-Authorization</div>
+                          <div className="text-sm text-gray-500">Timing and Process Issues</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded">25%</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$1.89M</td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">Manual tracking systems</div>
+                          <div className="text-sm text-gray-500">Inconsistent follow-up</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">Automated pre-auth tracking</div>
+                          <div className="text-sm text-gray-500">3+ day advance requirement</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge className="bg-green-100 text-green-800">Implemented</Badge>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">LCD Criteria Gaps</div>
+                          <div className="text-sm text-gray-500">Coverage Determination</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">18%</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$1.45M</td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">Outdated coverage policies</div>
+                          <div className="text-sm text-gray-500">Insufficient criteria verification</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">Real-time LCD verification</div>
+                          <div className="text-sm text-gray-500">Automated policy updates</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge className="bg-blue-100 text-blue-800">Planned</Badge>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Trends and Performance */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="healthcare-card">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Weekly Denial Volume
+                    Prevention Impact Trends
                   </h3>
                   <DenialTrendsChart />
                 </CardContent>
@@ -690,9 +860,46 @@ export function ClinicalDenialsDashboard() {
               <Card className="healthcare-card">
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Category Distribution
+                    Learning Implementation Status
                   </h3>
-                  <DenialCategoryChart />
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">Documentation Enhancement</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div className="bg-green-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                        </div>
+                        <span className="text-sm text-gray-600">75%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">Pre-Auth Automation</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div className="bg-blue-600 h-2 rounded-full" style={{ width: '90%' }}></div>
+                        </div>
+                        <span className="text-sm text-gray-600">90%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">LCD Verification System</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div className="bg-yellow-600 h-2 rounded-full" style={{ width: '45%' }}></div>
+                        </div>
+                        <span className="text-sm text-gray-600">45%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">Staff Training Program</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div className="bg-purple-600 h-2 rounded-full" style={{ width: '60%' }}></div>
+                        </div>
+                        <span className="text-sm text-gray-600">60%</span>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
