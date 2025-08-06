@@ -14,7 +14,7 @@ import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
   const [activeMainTab, setActiveMainTab] = useState("Denials");
-  const [activeSubTab, setActiveSubTab] = useState("Documentation Requests");
+  const [activeSubTab, setActiveSubTab] = useState("Clinical Decision");
   const [dateRange, setDateRange] = useState({
     start: "2024-01-15",
     end: "2024-12-31"
@@ -22,7 +22,7 @@ export default function Dashboard() {
 
   const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Feasibility", "Pre-Authorization", "RFP Modules"];
   const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management", "Predictive Analytics"];
-  const rfpSubTabs = ["Pre-Authorization", "Clinical Decision", "Appeal Generation"];
+  const rfpSubTabs = ["Clinical Decision", "Appeal Generation"];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -140,8 +140,6 @@ export default function Dashboard() {
         ) : activeMainTab === "Feasibility" ? (
           <FeasibilityDashboard />
         ) : activeMainTab === "Pre-Authorization" ? (
-          <PreAuthorizationDashboard />
-        ) : activeMainTab === "RFP Modules" && activeSubTab === "Pre-Authorization" ? (
           <PreAuthorizationDashboard />
         ) : activeMainTab === "RFP Modules" && activeSubTab === "Clinical Decision" ? (
           <ClinicalDecisionDashboard />
