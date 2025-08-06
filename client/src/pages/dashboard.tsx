@@ -7,22 +7,19 @@ import { CollectionsDashboard } from "@/components/collections-dashboard";
 import { TimelyFilingDashboard } from "@/components/timely-filing-dashboard";
 import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboard";
 import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashboard";
-import { ClinicalDecisionDashboard } from "@/components/clinical-decision-dashboard";
-import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
   const [activeMainTab, setActiveMainTab] = useState("Denials");
-  const [activeSubTab, setActiveSubTab] = useState("Clinical Decision");
+  const [activeSubTab, setActiveSubTab] = useState("Clinical Denials");
   const [dateRange, setDateRange] = useState({
     start: "2024-01-15",
     end: "2024-12-31"
   });
 
-  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Feasibility", "Pre-Authorization", "RFP Modules"];
+  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Feasibility", "Pre-Authorization"];
   const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management", "Predictive Analytics"];
-  const rfpSubTabs = ["Clinical Decision", "Appeal Generation"];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -97,27 +94,7 @@ export default function Dashboard() {
           </div>
         )}
         
-        {/* Secondary Navigation for RFP Modules */}
-        {activeMainTab === "RFP Modules" && (
-          <div className="healthcare-secondary-header px-6 py-2">
-            <nav className="flex space-x-6">
-              {rfpSubTabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveSubTab(tab)}
-                  className={`px-3 py-1 text-sm rounded transition-colors ${
-                    activeSubTab === tab 
-                      ? "bg-gray-600" 
-                      : "hover:bg-gray-600"
-                  }`}
-                  data-testid={`rfp-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </nav>
-          </div>
-        )}
+
       </header>
 
       <div className="flex h-screen">
@@ -141,10 +118,6 @@ export default function Dashboard() {
           <FeasibilityDashboard />
         ) : activeMainTab === "Pre-Authorization" ? (
           <PreAuthorizationDashboard />
-        ) : activeMainTab === "RFP Modules" && activeSubTab === "Clinical Decision" ? (
-          <ClinicalDecisionDashboard />
-        ) : activeMainTab === "RFP Modules" && activeSubTab === "Appeal Generation" ? (
-          <AppealGenerationDashboard />
         ) : (
           <main className="flex-1 p-6 overflow-y-auto bg-white">
             <div className="flex items-center justify-center h-full">
