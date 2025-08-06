@@ -1,6 +1,21 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useQuery } from "@tanstack/react-query";
+import { type DepartmentPerformance } from "@shared/timely-filing-schema";
 
-const departmentData = [
+// Transform API data for chart rendering
+function transformDepartmentData(apiData: DepartmentPerformance[]) {
+  return apiData.map(dept => ({
+    department: dept.department,
+    totalClaims: dept.totalClaims,
+    filedOnTime: dept.filedOnTime,
+    expiredClaims: dept.expiredClaims,
+    avgDaysToFile: parseFloat(dept.avgDaysToFile),
+    successRate: parseFloat(dept.successRate),
+    valueAtRisk: parseFloat(dept.valueAtRisk)
+  }));
+}
+
+const fallbackDepartmentData = [
   {
     department: "Emergency Department",
     totalClaims: 3420,
@@ -115,7 +130,39 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function DepartmentPerformanceChart() {
+  const { data: apiData, isLoading, error } = useQuery<DepartmentPerformance[]>({
+    queryKey: ["/api/department-performance"],
+  });
+
+  // Use API data if available, fallback to static data if needed
+  const departmentData = apiData ? transformDepartmentData(apiData) : fallbackDepartmentData;
   const sortedData = departmentData.sort((a, b) => b.successRate - a.successRate);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-80 flex items-center justify-center bg-gray-50 rounded">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-gray-600">Loading department performance data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="h-80 flex items-center justify-center bg-red-50 rounded border border-red-200">
+          <div className="text-center">
+            <p className="text-red-600 font-medium">Failed to load department performance</p>
+            <p className="text-red-500 text-sm mt-1">Using cached data</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -168,13 +215,13 @@ export function DepartmentPerformanceChart() {
         <div className="bg-green-50 p-3 rounded">
           <p className="text-green-600 font-medium">Top Performer</p>
           <p className="font-semibold text-green-900">
-            Orthopedics (96.8%)
+            {sortedData[0]?.department} ({sortedData[0]?.successRate.toFixed(1)}%)
           </p>
         </div>
         <div className="bg-red-50 p-3 rounded">
           <p className="text-red-600 font-medium">Needs Attention</p>
           <p className="font-semibold text-red-900">
-            Laboratory (91.6%)
+            {sortedData[sortedData.length - 1]?.department} ({sortedData[sortedData.length - 1]?.successRate.toFixed(1)}%)
           </p>
         </div>
         <div className="bg-blue-50 p-3 rounded">

@@ -1,4 +1,5 @@
 import { type Metric, type InsertMetric, type DocumentationRequest, type InsertDocumentationRequest, type PayerBehavior, type InsertPayerBehavior, type RedundancyMatrix, type InsertRedundancyMatrix, type PredictiveAnalytics, type InsertPredictiveAnalytics, type DenialPredictions, type InsertDenialPredictions, type RiskFactors, type InsertRiskFactors } from "@shared/schema";
+import { type DepartmentPerformance } from "@shared/timely-filing-schema";
 import { users, type User, type UpsertUser } from "../shared/auth-schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -38,6 +39,9 @@ export interface IStorage {
   // Risk Factors
   getRiskFactors(): Promise<RiskFactors[]>;
   createRiskFactors(factors: InsertRiskFactors): Promise<RiskFactors>;
+  
+  // Department Performance
+  getDepartmentPerformance(): Promise<DepartmentPerformance[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -534,6 +538,99 @@ export class MemStorage implements IStorage {
     return factors;
   }
 
+  async getDepartmentPerformance(): Promise<DepartmentPerformance[]> {
+    return [
+      {
+        id: "dp-001",
+        department: "Emergency Department",
+        totalClaims: 3420,
+        filedOnTime: 3180,
+        expiredClaims: 45,
+        avgDaysToFile: "12.3",
+        successRate: "93.0",
+        valueAtRisk: "890000.00",
+        monthYear: "2024-12"
+      },
+      {
+        id: "dp-002", 
+        department: "Cardiology",
+        totalClaims: 2890,
+        filedOnTime: 2765,
+        expiredClaims: 28,
+        avgDaysToFile: "8.7",
+        successRate: "95.7",
+        valueAtRisk: "420000.00",
+        monthYear: "2024-12"
+      },
+      {
+        id: "dp-003",
+        department: "Orthopedics", 
+        totalClaims: 2156,
+        filedOnTime: 2087,
+        expiredClaims: 19,
+        avgDaysToFile: "9.2",
+        successRate: "96.8",
+        valueAtRisk: "315000.00",
+        monthYear: "2024-12"
+      },
+      {
+        id: "dp-004",
+        department: "General Surgery",
+        totalClaims: 1876,
+        filedOnTime: 1743,
+        expiredClaims: 52,
+        avgDaysToFile: "15.1",
+        successRate: "92.9", 
+        valueAtRisk: "1240000.00",
+        monthYear: "2024-12"
+      },
+      {
+        id: "dp-005",
+        department: "Oncology",
+        totalClaims: 1654,
+        filedOnTime: 1587,
+        expiredClaims: 23,
+        avgDaysToFile: "7.8",
+        successRate: "95.9",
+        valueAtRisk: "380000.00",
+        monthYear: "2024-12"
+      },
+      {
+        id: "dp-006",
+        department: "Radiology",
+        totalClaims: 1423,
+        filedOnTime: 1356,
+        expiredClaims: 31,
+        avgDaysToFile: "11.4",
+        successRate: "95.3",
+        valueAtRisk: "490000.00",
+        monthYear: "2024-12"
+      },
+      {
+        id: "dp-007", 
+        department: "Laboratory",
+        totalClaims: 1298,
+        filedOnTime: 1189,
+        expiredClaims: 67,
+        avgDaysToFile: "18.6",
+        successRate: "91.6",
+        valueAtRisk: "1580000.00",
+        monthYear: "2024-12"
+      },
+      {
+        id: "dp-008",
+        department: "Physical Therapy",
+        totalClaims: 987,
+        filedOnTime: 934,
+        expiredClaims: 18,
+        avgDaysToFile: "10.2",
+        successRate: "94.6",
+        valueAtRisk: "280000.00",
+        monthYear: "2024-12"
+      }
+    ];
+  }
+
   // User operations (required for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
     // In memory storage doesn't support user operations - redirect to database
@@ -634,6 +731,10 @@ export class DatabaseStorage implements IStorage {
 
   async createRiskFactors(factors: InsertRiskFactors): Promise<RiskFactors> {
     return this.memStorage.createRiskFactors(factors);
+  }
+
+  async getDepartmentPerformance(): Promise<DepartmentPerformance[]> {
+    return this.memStorage.getDepartmentPerformance();
   }
 }
 

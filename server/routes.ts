@@ -214,6 +214,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Department performance routes  
+  app.get("/api/department-performance", async (req, res) => {
+    try {
+      const performance = await storage.getDepartmentPerformance();
+      res.json(performance);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch department performance" });
+    }
+  });
+
   // AI-powered routes
   app.post("/api/ai/predict-denial-risk", async (req, res) => {
     try {
