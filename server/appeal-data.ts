@@ -245,6 +245,46 @@ export const appealCases = [
   }
 ];
 
+// Performance metrics for demonstration
+export const performanceMetrics = {
+  challengeLetterProduction: {
+    current: 98.4, // Current percentage
+    target: 100.0, // Target: 100% of unreasonable denials challenged within 5 days
+    totalUnreasonableDenials: 125,
+    challengedWithin5Days: 123,
+    status: "on_track",
+    timeframe: "Last 30 days"
+  },
+  denialReduction: {
+    current: 22.3, // Current percentage reduction
+    target: 20.0, // Target: 20% reduction in denials from clinical necessity/DRG/prior authorization issues
+    previousPeriodDenials: 187,
+    currentPeriodDenials: 145,
+    reductionAmount: 42,
+    status: "exceeded",
+    categories: {
+      clinicalNecessity: { reduction: 24.1, count: 15 },
+      drgCoding: { reduction: 18.7, count: 12 },
+      priorAuthorization: { reduction: 23.8, count: 15 }
+    },
+    timeframe: "Quarter over quarter comparison"
+  },
+  appealOutcomes: {
+    totalAppeals: 156,
+    successfulAppeals: 142,
+    successRate: 91.0,
+    averageProcessingTime: 12.4, // days
+    recoveredAmount: 1847250.00, // dollars
+    pendingAppeals: 14
+  },
+  timeliness: {
+    within5Days: 123,
+    within10Days: 2,
+    beyond10Days: 0,
+    averageDays: 3.2
+  }
+};
+
 export const challengeLetterTemplate = {
   header: {
     template: `

@@ -302,6 +302,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/appeal-metrics", async (req, res) => {
+    try {
+      const { performanceMetrics } = await import("./appeal-data");
+      res.json(performanceMetrics);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch appeal metrics" });
+    }
+  });
+
   app.get("/api/challenge-letters/:appealId", async (req, res) => {
     try {
       const { appealId } = req.params;
