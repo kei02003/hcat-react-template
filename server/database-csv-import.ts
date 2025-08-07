@@ -1,4 +1,11 @@
 import { db } from "./db";
+import { eq, sql } from "drizzle-orm";
+import { 
+  revenueCycleAccounts, 
+  clinicalDecisions, 
+  denialWorkflows, 
+  preauthorizationData 
+} from "../shared/revenue-cycle-schema";
 import Papa from "papaparse";
 
 export class DatabaseCSVImportService {
@@ -12,53 +19,39 @@ export class DatabaseCSVImportService {
     
     for (const row of data) {
       try {
-        await db.raw(`
-          INSERT INTO revenue_cycle_accounts (
-            hospital_account_id, revenue_cycle_id, patient_id, patient_nm, 
-            admit_dt, discharge_dt, current_payor_id, current_payor_nm,
-            attending_provider_id, attending_provider_nm, bill_status_cd,
-            total_charge_amt, payor_balance_amt, patient_balance_amt,
-            financial_class_cd, financial_class_dsc, ar_aging_days,
-            liability_bucket_id, report_cat, report_grp, report_sub_grp1,
-            report_sub_grp2, report_sub_grp3, facility_account_source_dsc,
-            hospital_nm, revenue_location_nm, rev_cycle_month_year
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 
-            $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27
-          ) ON CONFLICT (hospital_account_id) DO UPDATE SET
-            revenue_cycle_id = EXCLUDED.revenue_cycle_id,
-            patient_nm = EXCLUDED.patient_nm,
-            current_payor_nm = EXCLUDED.current_payor_nm,
-            updated_dt = NOW()
-        `, [
-          row['Hospital Account ID'] || `HSP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          row['Revenue Cycle ID'] || null,
-          row['Patient ID'] || 'UNKNOWN',
-          row['Patient Name'] || 'UNKNOWN',
-          this.parseDate(row['Admit Date']) || new Date(),
-          this.parseDate(row['Discharge Date']) || null,
-          row['Current Payor ID'] || 'UNKNOWN',
-          row['Current Payor Name'] || 'UNKNOWN',
-          row['Attending Provider ID'] || null,
-          row['Attending Provider Name'] || null,
-          row['Bill Status Code'] || null,
-          row['Total Charge Amount'] || null,
-          row['Payor Balance Amount'] || null,
-          row['Patient Balance Amount'] || null,
-          row['Financial Class Code'] || null,
-          row['Financial Class Description'] || null,
-          this.parseInteger(row['AR Aging Days']) || null,
-          row['Liability Bucket ID'] || null,
-          row['Report Category'] || null,
-          row['Report Group'] || null,
-          row['Report Sub Group 1'] || null,
-          row['Report Sub Group 2'] || null,
-          row['Report Sub Group 3'] || null,
-          row['Facility Account Source Description'] || null,
-          row['Hospital Name'] || null,
-          row['Revenue Location Name'] || null,
-          row['Revenue Cycle Month Year'] || null
-        ]);
+        // Use proper Drizzle ORM syntax instead of raw SQL
+        const accountData = {
+          hospitalAccountId: row['Hospital Account ID'] || `HSP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          revenueCycleId: row['Revenue Cycle ID'] || null,
+          patientId: row['Patient ID'] || 'UNKNOWN',
+          patientNm: row['Patient Name'] || 'UNKNOWN',
+          admitDt: this.parseDate(row['Admit Date']) || new Date(),
+          dischargeDt: this.parseDate(row['Discharge Date']) || null,
+          currentPayorId: row['Current Payor ID'] || 'UNKNOWN',
+          currentPayorNm: row['Current Payor Name'] || 'UNKNOWN',
+          attendingProviderId: row['Attending Provider ID'] || null,
+          attendingProviderNm: row['Attending Provider Name'] || null,
+          billStatusCd: row['Bill Status Code'] || null,
+          totalChargeAmt: row['Total Charge Amount'] || null,
+          payorBalanceAmt: row['Payor Balance Amount'] || null,
+          patientBalanceAmt: row['Patient Balance Amount'] || null,
+          financialClassCd: row['Financial Class Code'] || null,
+          financialClassDsc: row['Financial Class Description'] || null,
+          arAgingDays: this.parseInteger(row['AR Aging Days']) || null,
+          liabilityBucketId: row['Liability Bucket ID'] || null,
+          reportCat: row['Report Category'] || null,
+          reportGrp: row['Report Group'] || null,
+          reportSubGrp1: row['Report Sub Group 1'] || null,
+          reportSubGrp2: row['Report Sub Group 2'] || null,
+          reportSubGrp3: row['Report Sub Group 3'] || null,
+          facilityAccountSourceDsc: row['Facility Account Source Description'] || null,
+          hospitalNm: row['Hospital Name'] || null,
+          revenueLocationNm: row['Revenue Location Name'] || null,
+          revCycleMonthYear: row['Revenue Cycle Month Year'] || null
+        };
+
+        // Insert or update using Drizzle ORM
+        await db.insert(revenueCycleAccounts).values(accountData).onConflictDoNothing();
         success++;
       } catch (error) {
         errors.push(`Row ${success + errors.length + 1}: ${error.message}`);
@@ -77,36 +70,26 @@ export class DatabaseCSVImportService {
     
     for (const row of data) {
       try {
-        await db.raw(`
-          INSERT INTO clinical_decisions (
-            clinical_decision_id, hospital_account_id, patient_id, patient_nm,
-            current_payor_id, department_nm, hospital_account_class_cd,
-            denial_cd, appeal_probability, confidence_score, compliance_score,
-            review_status, priority_level, clinical_evidence, payor_criteria,
-            recommended_account_class_cd
-          ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
-          ) ON CONFLICT (clinical_decision_id) DO UPDATE SET
-            review_status = EXCLUDED.review_status,
-            updated_dt = NOW()
-        `, [
-          row['Clinical Decision ID'] || `CD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          row['Hospital Account ID'] || 'UNKNOWN',
-          row['Patient ID'] || 'UNKNOWN',
-          row['Patient Name'] || 'UNKNOWN',
-          row['Current Payor ID'] || 'UNKNOWN',
-          row['Department Name'] || 'UNKNOWN',
-          row['Hospital Account Class Code'] || null,
-          row['Denial Code'] || null,
-          this.parseInteger(row['Appeal Probability']) || null,
-          this.parseInteger(row['Confidence Score']) || null,
-          this.parseInteger(row['Compliance Score']) || null,
-          row['Review Status'] || null,
-          row['Priority Level'] || null,
-          this.parseJSON(row['Clinical Evidence']) || null,
-          this.parseJSON(row['Payor Criteria']) || null,
-          row['Recommended Account Class Code'] || null
-        ]);
+        const decisionData = {
+          clinicalDecisionId: row['Clinical Decision ID'] || `CD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          hospitalAccountId: row['Hospital Account ID'] || 'UNKNOWN',
+          patientId: row['Patient ID'] || 'UNKNOWN',
+          patientNm: row['Patient Name'] || 'UNKNOWN',
+          currentPayorId: row['Current Payor ID'] || 'UNKNOWN',
+          departmentNm: row['Department Name'] || 'UNKNOWN',
+          hospitalAccountClassCd: row['Hospital Account Class Code'] || null,
+          denialCd: row['Denial Code'] || null,
+          appealProbability: this.parseInteger(row['Appeal Probability']) || null,
+          confidenceScore: this.parseInteger(row['Confidence Score']) || null,
+          complianceScore: this.parseInteger(row['Compliance Score']) || null,
+          reviewStatus: row['Review Status'] || null,
+          priorityLevel: row['Priority Level'] || null,
+          clinicalEvidence: this.parseJSON(row['Clinical Evidence']) || null,
+          payorCriteria: this.parseJSON(row['Payor Criteria']) || null,
+          recommendedAccountClassCd: row['Recommended Account Class Code'] || null
+        };
+
+        await db.insert(clinicalDecisions).values(decisionData).onConflictDoNothing();
         success++;
       } catch (error) {
         errors.push(`Row ${success + errors.length + 1}: ${error.message}`);
@@ -248,17 +231,19 @@ export class DatabaseCSVImportService {
 
   async getTableCounts(): Promise<Record<string, number>> {
     try {
-      // Use a simpler approach that works with our database setup
-      const accountsResult = await db.raw('SELECT COUNT(*) as count FROM revenue_cycle_accounts');
-      const decisionsResult = await db.raw('SELECT COUNT(*) as count FROM clinical_decisions');
-      const workflowsResult = await db.raw('SELECT COUNT(*) as count FROM denial_workflows');
-      const preauthResult = await db.raw('SELECT COUNT(*) as count FROM preauthorization_data');
+      // Use Drizzle ORM to count records
+      const [accountsCount, decisionsCount, workflowsCount, preauthCount] = await Promise.all([
+        db.select({ count: sql`count(*)` }).from(revenueCycleAccounts),
+        db.select({ count: sql`count(*)` }).from(clinicalDecisions),
+        db.select({ count: sql`count(*)` }).from(denialWorkflows),
+        db.select({ count: sql`count(*)` }).from(preauthorizationData)
+      ]);
 
       return {
-        revenue_cycle_accounts: parseInt(accountsResult.rows?.[0]?.count || accountsResult[0]?.[0]?.count || '0'),
-        clinical_decisions: parseInt(decisionsResult.rows?.[0]?.count || decisionsResult[0]?.[0]?.count || '0'),
-        denial_workflows: parseInt(workflowsResult.rows?.[0]?.count || workflowsResult[0]?.[0]?.count || '0'),
-        preauthorization_data: parseInt(preauthResult.rows?.[0]?.count || preauthResult[0]?.[0]?.count || '0')
+        revenue_cycle_accounts: parseInt(accountsCount[0]?.count || '0'),
+        clinical_decisions: parseInt(decisionsCount[0]?.count || '0'),
+        denial_workflows: parseInt(workflowsCount[0]?.count || '0'),
+        preauthorization_data: parseInt(preauthCount[0]?.count || '0')
       };
     } catch (error) {
       console.error('Error getting table counts:', error);
