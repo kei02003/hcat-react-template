@@ -18,7 +18,8 @@ import {
   Settings,
   Shield,
   BarChart3,
-  Home
+  Home,
+  Upload
 } from "lucide-react";
 import { getRoleDisplayInfo } from "@/lib/authUtils";
 
@@ -35,6 +36,7 @@ export function Navigation() {
 
   const navigationItems = [
     { path: "/", label: "Dashboard", icon: Home },
+    { path: "/csv-import", label: "Import Data", icon: Upload },
     { path: "/demo-users", label: "Demo Users", icon: Users, devOnly: true },
   ];
 

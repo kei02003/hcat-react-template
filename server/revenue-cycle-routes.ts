@@ -1,7 +1,9 @@
 import type { Express } from "express";
 import { revenueCycleStorage } from "./revenue-cycle-storage";
+import { csvImportService } from "./csv-import";
 import { isAuthenticated } from "./replitAuth";
 import { requirePermission, auditAction, type AuthenticatedRequest } from "./auth/middleware";
+import multer from "multer";
 import { 
   insertRevenueCycleAccountSchema,
   insertClinicalDecisionSchema,
@@ -16,6 +18,21 @@ import {
   insertDepartmentSchema,
   insertProviderSchema
 } from "@shared/revenue-cycle-schema";
+
+// Configure multer for file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only CSV files are allowed'));
+    }
+  }
+});
 
 export function registerRevenueCycleRoutes(app: Express) {
   // Revenue Cycle Accounts
@@ -413,6 +430,69 @@ export function registerRevenueCycleRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching dashboard metrics:", error);
       res.status(500).json({ message: "Failed to fetch dashboard metrics" });
+    }
+  });
+
+  // CSV Import Routes
+  app.get("/api/revenue-cycle/import/entities", async (req, res) => {
+    try {
+      const entities = csvImportService.getImportableEntities();
+      res.json(entities);
+    } catch (error) {
+      console.error("Error fetching importable entities:", error);
+      res.status(500).json({ message: "Failed to fetch importable entities" });
+    }
+  });
+
+  app.post("/api/revenue-cycle/import/:entityType", upload.single('csvFile'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No CSV file uploaded" });
+      }
+
+      const entityType = req.params.entityType;
+      const csvContent = req.file.buffer.toString('utf-8');
+      
+      const result = await csvImportService.importEntity(entityType, csvContent);
+      
+      res.json({
+        message: `Import completed for ${entityType}`,
+        success: result.success,
+        errors: result.errors,
+        total: result.success + result.errors.length
+      });
+      
+    } catch (error) {
+      console.error("Error importing CSV:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to import CSV data" 
+      });
+    }
+  });
+
+  app.post("/api/revenue-cycle/import/preview/:entityType", upload.single('csvFile'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No CSV file uploaded" });
+      }
+
+      const csvContent = req.file.buffer.toString('utf-8');
+      const data = await csvImportService.parseCSV(csvContent);
+      
+      // Return first 5 rows for preview
+      const preview = {
+        headers: data[0] || [],
+        rows: data.slice(1, 6),
+        totalRows: data.length - 1
+      };
+      
+      res.json(preview);
+      
+    } catch (error) {
+      console.error("Error previewing CSV:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to preview CSV data" 
+      });
     }
   });
 }
