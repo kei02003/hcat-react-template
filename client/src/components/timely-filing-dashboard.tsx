@@ -38,19 +38,39 @@ export function TimelyFilingDashboard() {
   const [billerFilter, setBillerFilter] = useState("all");
   const [payerFilter, setPayerFilter] = useState("all");
 
+  // Construct URL with query parameters
+  const buildClaimsUrl = () => {
+    const params = new URLSearchParams();
+    if (agingFilter !== "all") params.append("agingCategory", agingFilter);
+    if (denialFilter !== "all") params.append("denialStatus", denialFilter);
+    if (departmentFilter !== "all") params.append("department", departmentFilter);
+    if (billerFilter !== "all") params.append("assignedBiller", billerFilter);
+    if (payerFilter !== "all") params.append("payer", payerFilter);
+    params.append("limit", "100");
+    
+    const paramString = params.toString();
+    return `/api/timely-filing-claims${paramString ? `?${paramString}` : ''}`;
+  };
+
   // Fetch timely filing claims with filters
-  const { data: claims = [], isLoading: isLoadingClaims } = useQuery({
-    queryKey: ["/api/timely-filing-claims", { 
-      agingCategory: agingFilter,
-      denialStatus: denialFilter,
-      department: departmentFilter,
-      assignedBiller: billerFilter,
-      payer: payerFilter
-    }],
+  const { data: claims = [], isLoading: isLoadingClaims } = useQuery<TimelyFilingClaim[]>({
+    queryKey: [buildClaimsUrl(), agingFilter, denialFilter, departmentFilter, billerFilter, payerFilter],
   });
 
   // Fetch metrics
-  const { data: metricsData } = useQuery({
+  const { data: metricsData } = useQuery<{
+    metrics: {
+      totalClaims: number;
+      claimsByAging: Record<string, number>;
+      denialsByAging: Record<string, number>;
+      totalDenialAmount: number;
+      averageDaysToDeadline: number;
+      criticalActionRequired: number;
+      filingSuccessRate: number;
+      departmentPerformance: Record<string, any>;
+    };
+    categories: Record<string, any>;
+  }>({
     queryKey: ["/api/timely-filing-metrics"],
   });
 
