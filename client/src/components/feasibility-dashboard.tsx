@@ -119,7 +119,7 @@ export function FeasibilityDashboard() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Feasibility Analysis</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Opportunities</h2>
         <p className="text-muted-foreground">
           Comprehensive analysis of appeal opportunities and redundant request optimization by payer
         </p>
