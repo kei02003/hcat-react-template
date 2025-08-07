@@ -7,6 +7,7 @@ import { CollectionsDashboard } from "@/components/collections-dashboard";
 import { TimelyFilingDashboard } from "@/components/timely-filing-dashboard";
 import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboard";
 import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashboard";
+import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { ChartLine, HelpCircle } from "lucide-react";
 
@@ -110,6 +111,8 @@ export default function Dashboard() {
           <TimelyFilingDashboard />
         ) : activeMainTab === "Denials" && activeSubTab === "Clinical Denials" ? (
           <ClinicalDenialsDashboard />
+        ) : activeMainTab === "Denials" && activeSubTab === "Appeals Management" ? (
+          <AppealGenerationDashboard />
         ) : activeMainTab === "AR Management" ? (
           <ArManagementDashboard />
         ) : activeMainTab === "Collections" ? (

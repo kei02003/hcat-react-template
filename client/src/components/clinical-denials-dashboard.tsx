@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { DenialTrendsChart, DenialCategoryChart } from "./charts/denial-trends-chart";
 import { DenialReasonAnalysis, PayerDenialPatterns } from "./charts/denial-reason-analysis";
-import { AppealGenerationDashboard } from "./appeal-generation-dashboard";
+import { PatientAppealModal } from "./patient-appeal-modal";
 import { ClinicalDecisionDashboard } from "./clinical-decision-dashboard";
 import { PreAuthorizationDashboard } from "./pre-authorization-dashboard";
 
@@ -266,6 +266,8 @@ export function ClinicalDenialsDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDenialForRFP, setSelectedDenialForRFP] = useState<any>(null);
   const [activeRFPModule, setActiveRFPModule] = useState<string | null>(null);
+  const [selectedDenialForAppeal, setSelectedDenialForAppeal] = useState<any>(null);
+  const [showAppealModal, setShowAppealModal] = useState(false);
 
   const filteredDenials = activeDenials.filter(denial => {
     const matchesSearch = searchTerm === "" || 
@@ -318,13 +320,23 @@ export function ClinicalDenialsDashboard() {
   };
 
   const handleRFPModuleOpen = (denial: any, moduleType: string) => {
-    setSelectedDenialForRFP(denial);
-    setActiveRFPModule(moduleType);
+    if (moduleType === "appeal") {
+      setSelectedDenialForAppeal(denial);
+      setShowAppealModal(true);
+    } else {
+      setSelectedDenialForRFP(denial);
+      setActiveRFPModule(moduleType);
+    }
   };
 
   const closeRFPModule = () => {
     setSelectedDenialForRFP(null);
     setActiveRFPModule(null);
+  };
+
+  const closeAppealModal = () => {
+    setSelectedDenialForAppeal(null);
+    setShowAppealModal(false);
   };
 
   return (
@@ -1004,7 +1016,14 @@ export function ClinicalDenialsDashboard() {
                       </div>
                     </div>
                   </div>
-                  <AppealGenerationDashboard />
+                  {/* This modal now shows patient-specific appeal generation */}
+                  <div className="text-center py-8">
+                    <p className="text-gray-600">
+                      Patient-specific appeal generation is now available via the "Generate Appeal" button 
+                      on individual denial records. For comprehensive appeal management, navigate to 
+                      Denials → Appeals Management.
+                    </p>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
@@ -1087,6 +1106,15 @@ export function ClinicalDenialsDashboard() {
               </DialogContent>
             </Dialog>
           </>
+        )}
+
+        {/* Patient-specific Appeal Generation Modal */}
+        {selectedDenialForAppeal && (
+          <PatientAppealModal
+            denial={selectedDenialForAppeal}
+            isOpen={showAppealModal}
+            onClose={closeAppealModal}
+          />
         )}
       </div>
     </main>
