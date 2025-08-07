@@ -40,13 +40,19 @@ export function TimelyFilingDashboard() {
 
   // Fetch timely filing claims with filters
   const { data: claims = [], isLoading: isLoadingClaims } = useQuery({
-    queryKey: ["/api/timely-filing-claims", { 
-      agingCategory: agingFilter,
-      denialStatus: denialFilter,
-      department: departmentFilter,
-      assignedBiller: billerFilter,
-      payer: payerFilter
-    }],
+    queryKey: ["/api/timely-filing-claims", agingFilter, denialFilter, departmentFilter, billerFilter, payerFilter],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (agingFilter !== "all") params.append("agingCategory", agingFilter);
+      if (denialFilter !== "all") params.append("denialStatus", denialFilter);
+      if (departmentFilter !== "all") params.append("department", departmentFilter);
+      if (billerFilter !== "all") params.append("assignedBiller", billerFilter);
+      if (payerFilter !== "all") params.append("payer", payerFilter);
+      
+      const response = await fetch(`/api/timely-filing-claims?${params.toString()}`);
+      if (!response.ok) throw new Error('Failed to fetch timely filing claims');
+      return response.json();
+    }
   });
 
   // Fetch metrics
