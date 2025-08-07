@@ -324,16 +324,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { agingCategory, denialStatus, department, assignedBiller, payer, limit = "100" } = req.query;
       
-      // Use direct PostgreSQL query
-      const result = await pool.query(`
+      // Build WHERE clause for filtering
+      const conditions = [];
+      const params = [];
+      let paramIndex = 1;
+
+      if (agingCategory && agingCategory !== 'all') {
+        conditions.push(`agingcategory = $${paramIndex}`);
+        // Convert "safe" -> "Safe", "severely overdue" -> "Severely_Overdue"
+        const formattedCategory = agingCategory
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join('_');
+        params.push(formattedCategory);
+        paramIndex++;
+      }
+
+      if (denialStatus && denialStatus !== 'all') {
+        conditions.push(`denialstatus = $${paramIndex}`);
+        // Convert "denied" -> "Denied", "at_risk" -> "At_Risk"
+        const formattedStatus = denialStatus
+          .split(/[\s_]+/)
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join('_');
+        params.push(formattedStatus);
+        paramIndex++;
+      }
+
+      if (department && department !== 'all') {
+        conditions.push(`department = $${paramIndex}`);
+        params.push(department);
+        paramIndex++;
+      }
+
+      if (assignedBiller && assignedBiller !== 'all') {
+        conditions.push(`assignedbiller = $${paramIndex}`);
+        params.push(assignedBiller);
+        paramIndex++;
+      }
+
+      if (payer && payer !== 'all') {
+        conditions.push(`currentpayorid = $${paramIndex}`);
+        params.push(payer);
+        paramIndex++;
+      }
+
+      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      params.push(parseInt(limit as string));
+
+      const query = `
         SELECT timelyfilingid, patientid, hospitalaccountid, claimid, currentpayorid, 
                servicedt, billingdt, filingdeadlinedt, daysremaining, agingcategory, 
                totalchargeamt, denialstatus, denialcd, filingattempts, filingstatus, 
                risklevel, prioritylevel, createddt, updateddt
         FROM timely_filing_claims 
+        ${whereClause}
         ORDER BY timelyfilingid 
-        LIMIT $1
-      `, [parseInt(limit as string)]);
+        LIMIT $${paramIndex}
+      `;
+      
+      // Use direct PostgreSQL query with filtering
+      const result = await pool.query(query, params);
       
       // Transform database records to frontend format  
       const transformedClaims = result.rows.map((claim: any) => ({
