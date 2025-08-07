@@ -378,7 +378,7 @@ export function ClinicalDenialsDashboard() {
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4" />
               <span>Overview</span>
@@ -386,10 +386,6 @@ export function ClinicalDenialsDashboard() {
             <TabsTrigger value="active" className="flex items-center space-x-2">
               <FileText className="h-4 w-4" />
               <span>Active Denials</span>
-            </TabsTrigger>
-            <TabsTrigger value="reviewers" className="flex items-center space-x-2">
-              <Users className="h-4 w-4" />
-              <span>Reviewers</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4" />
@@ -544,10 +540,144 @@ export function ClinicalDenialsDashboard() {
 
                       <div className="flex flex-wrap gap-2">
                         {/* Essential Administrative Actions */}
-                        <Button size="sm" variant="outline" data-testid={`button-assign-${denial.denialId}`}>
-                          <Users className="h-4 w-4 mr-2" />
-                          Assign Reviewer
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" data-testid={`button-assign-${denial.denialId}`}>
+                              <Users className="h-4 w-4 mr-2" />
+                              Assign Reviewer
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>Assign Clinical Reviewer - {denial.denialId}</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-6">
+                              {/* Denial Details */}
+                              <div className="bg-gray-50 p-4 rounded">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <span className="font-medium">Patient:</span> {denial.patientName}
+                                  </div>
+                                  <div>
+                                    <span className="font-medium">Amount:</span> ${denial.deniedAmount.toLocaleString()}
+                                  </div>
+                                  <div>
+                                    <span className="font-medium">Category:</span> {denial.category}
+                                  </div>
+                                  <div>
+                                    <span className="font-medium">Days to Appeal:</span> 
+                                    <span className={getDaysToAppealColor(denial.daysToAppeal)}> {denial.daysToAppeal} days</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Available Reviewers */}
+                              <div className="space-y-4">
+                                <h3 className="font-semibold text-gray-900">Available Clinical Reviewers</h3>
+                                <div className="grid gap-3">
+                                  {[
+                                    { 
+                                      name: "Dr. Sarah Chen", 
+                                      specialty: "Cardiology", 
+                                      workload: 12, 
+                                      avgDays: 2.8, 
+                                      successRate: 89,
+                                      status: "Available"
+                                    },
+                                    { 
+                                      name: "Dr. Michael Rodriguez", 
+                                      specialty: "Internal Medicine", 
+                                      workload: 8, 
+                                      avgDays: 3.2, 
+                                      successRate: 92,
+                                      status: "Available"
+                                    },
+                                    { 
+                                      name: "Dr. Lisa Thompson", 
+                                      specialty: "Surgery", 
+                                      workload: 15, 
+                                      avgDays: 4.1, 
+                                      successRate: 85,
+                                      status: "Busy"
+                                    },
+                                    { 
+                                      name: "Dr. James Wilson", 
+                                      specialty: "Emergency Medicine", 
+                                      workload: 6, 
+                                      avgDays: 2.3, 
+                                      successRate: 94,
+                                      status: "Available"
+                                    }
+                                  ].map((reviewer, index) => (
+                                    <div key={index} className={`border rounded p-3 cursor-pointer hover:bg-blue-50 transition-colors ${
+                                      reviewer.status === "Busy" ? "opacity-60" : ""
+                                    }`}>
+                                      <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center space-x-2">
+                                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <Stethoscope className="h-4 w-4 text-blue-600" />
+                                          </div>
+                                          <div>
+                                            <p className="font-medium text-gray-900">{reviewer.name}</p>
+                                            <p className="text-xs text-gray-500">{reviewer.specialty}</p>
+                                          </div>
+                                        </div>
+                                        <Badge className={
+                                          reviewer.status === "Available" ? 
+                                          "bg-green-100 text-green-800" : 
+                                          "bg-yellow-100 text-yellow-800"
+                                        }>
+                                          {reviewer.status}
+                                        </Badge>
+                                      </div>
+                                      <div className="grid grid-cols-3 gap-4 text-xs text-gray-600">
+                                        <div>
+                                          <span className="font-medium">Workload:</span> {reviewer.workload} cases
+                                        </div>
+                                        <div>
+                                          <span className="font-medium">Avg Days:</span> {reviewer.avgDays}
+                                        </div>
+                                        <div>
+                                          <span className="font-medium">Success Rate:</span> {reviewer.successRate}%
+                                        </div>
+                                      </div>
+                                      {reviewer.status === "Available" && (
+                                        <div className="mt-2">
+                                          <Button size="sm" className="w-full">
+                                            Assign to {reviewer.name.split(' ')[1]}
+                                          </Button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Performance Overview */}
+                              <div className="bg-blue-50 p-4 rounded">
+                                <h4 className="font-medium text-blue-900 mb-2">Team Performance Summary</h4>
+                                <div className="grid grid-cols-4 gap-4 text-sm">
+                                  <div className="text-center">
+                                    <p className="font-semibold text-blue-900">41</p>
+                                    <p className="text-blue-600">Total Active Cases</p>
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="font-semibold text-blue-900">3.1</p>
+                                    <p className="text-blue-600">Avg Review Days</p>
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="font-semibold text-blue-900">90%</p>
+                                    <p className="text-blue-600">Success Rate</p>
+                                  </div>
+                                  <div className="text-center">
+                                    <p className="font-semibold text-blue-900">$12.4M</p>
+                                    <p className="text-blue-600">Recovered YTD</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                         
                         {/* Contextual RFP Module Actions */}
                         {getContextualActions(denial).length > 0 ? (
@@ -602,64 +732,7 @@ export function ClinicalDenialsDashboard() {
 
 
 
-          {/* Reviewers Tab */}
-          <TabsContent value="reviewers" className="space-y-6">
-            <Card className="healthcare-card">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                  Clinical Reviewers Performance
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {clinicalReviewers.map((reviewer, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">{reviewer.name}</h4>
-                          <p className="text-sm text-gray-600">{reviewer.credentials}</p>
-                          <p className="text-xs text-gray-500">{reviewer.specialization}</p>
-                        </div>
-                        <div className={`w-3 h-3 rounded-full ${
-                          reviewer.activeReviews > 25 ? "bg-red-500" :
-                          reviewer.activeReviews > 15 ? "bg-yellow-500" : "bg-green-500"
-                        }`} />
-                      </div>
-                      
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Active Reviews:</span>
-                          <span className="font-medium">{reviewer.activeReviews}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Completed This Month:</span>
-                          <span className="font-medium">{reviewer.completedThisMonth}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Appeal Success Rate:</span>
-                          <span className="font-medium text-green-600">{reviewer.appealSuccessRate}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Avg Review Time:</span>
-                          <span className="font-medium">{reviewer.avgReviewTime} days</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex space-x-2 mt-4">
-                        <Button size="sm" variant="outline" className="flex-1">
-                          <Phone className="h-4 w-4 mr-1" />
-                          Contact
-                        </Button>
-                        <Button size="sm" variant="outline" className="flex-1">
-                          <Edit className="h-4 w-4 mr-1" />
-                          Assign
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+
 
           {/* Analytics Tab - Lessons Learned */}
           <TabsContent value="analytics" className="space-y-6">
