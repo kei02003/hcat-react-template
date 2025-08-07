@@ -468,6 +468,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Summary Dashboard routes
+  app.get("/api/summary-metrics", async (req, res) => {
+    try {
+      const { period = "30d" } = req.query;
+      
+      // Mock summary metrics based on period
+      const summaryMetrics = {
+        totalRevenue: "$2.4M",
+        revenueChange: period === "7d" ? 3.2 : period === "30d" ? 8.2 : 12.5,
+        denialRate: 12.3,
+        denialChange: period === "7d" ? -0.8 : period === "30d" ? -2.1 : -3.4,
+        appealSuccessRate: 87.5,
+        appealChange: period === "7d" ? 2.1 : period === "30d" ? 5.3 : 8.7,
+        arDays: 42.1,
+        arChange: period === "7d" ? -1.2 : period === "30d" ? -3.4 : -5.8,
+        timelyFilingRate: 94.7,
+        timelyFilingChange: period === "7d" ? 1.1 : period === "30d" ? 2.8 : 4.2
+      };
+      
+      res.json(summaryMetrics);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch summary metrics" });
+    }
+  });
+
+  app.get("/api/recent-activity", async (req, res) => {
+    try {
+      const recentActivity = [
+        {
+          id: "1",
+          type: "appeal",
+          message: "Elena Martinez appeal approved - $12,450 recovered",
+          timestamp: "2025-01-08 14:30",
+          priority: "high",
+          status: "completed"
+        },
+        {
+          id: "2", 
+          type: "denial",
+          message: "New denial received: Johnson, Michael R. - Medical necessity",
+          timestamp: "2025-01-08 13:15",
+          priority: "medium",
+          status: "pending"
+        },
+        {
+          id: "3",
+          type: "filing",
+          message: "Critical: Thompson, Robert K. filing deadline in 5 days",
+          timestamp: "2025-01-08 12:45",
+          priority: "high",
+          status: "overdue"
+        },
+        {
+          id: "4",
+          type: "collection",
+          message: "Payment received: $8,750 - Wilson, Sarah M.",
+          timestamp: "2025-01-08 11:20",
+          priority: "low",
+          status: "completed"
+        },
+        {
+          id: "5",
+          type: "appeal",
+          message: "Sarah Thompson appeal generated - 95% success probability",
+          timestamp: "2025-01-08 10:15",
+          priority: "medium",
+          status: "pending"
+        }
+      ];
+      
+      res.json(recentActivity);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch recent activity" });
+    }
+  });
+
   // AI-powered routes
   app.post("/api/ai/predict-denial-risk", async (req, res) => {
     try {

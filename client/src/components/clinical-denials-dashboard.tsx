@@ -34,6 +34,7 @@ import { DenialReasonAnalysis, PayerDenialPatterns } from "./charts/denial-reaso
 import { PatientAppealModal } from "./patient-appeal-modal";
 import { ClinicalDecisionDashboard } from "./clinical-decision-dashboard";
 import { PreAuthorizationDashboard } from "./pre-authorization-dashboard";
+import { SummaryDashboard } from "./summary-dashboard";
 
 const clinicalMetrics = [
   {
@@ -428,7 +429,11 @@ export function ClinicalDenialsDashboard() {
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="summary" className="flex items-center space-x-2">
+              <Shield className="h-4 w-4" />
+              <span>Summary</span>
+            </TabsTrigger>
             <TabsTrigger value="overview" className="flex items-center space-x-2">
               <TrendingUp className="h-4 w-4" />
               <span>Overview</span>
@@ -442,6 +447,11 @@ export function ClinicalDenialsDashboard() {
               <span>Analytics</span>
             </TabsTrigger>
           </TabsList>
+
+          {/* Summary Tab */}
+          <TabsContent value="summary" className="space-y-6">
+            <SummaryDashboard />
+          </TabsContent>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
