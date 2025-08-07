@@ -179,7 +179,6 @@ export function CollectionsDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <DollarSign className="h-8 w-8 text-green-600" />
             <h1 className="text-2xl font-bold text-gray-900">Collections</h1>
           </div>
           <div className="flex items-center space-x-4">
