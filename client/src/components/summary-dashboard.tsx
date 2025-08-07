@@ -319,8 +319,7 @@ export function SummaryDashboard() {
         {/* Recent Activity */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
+            <CardTitle>
               Recent Activity
             </CardTitle>
             <CardDescription>Latest updates across all modules</CardDescription>
