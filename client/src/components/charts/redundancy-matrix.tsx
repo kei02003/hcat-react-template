@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { AlertTriangle, TrendingUp } from "lucide-react";
+import { ClaimsModal } from "@/components/claims-modal";
 
 interface MatrixData {
   documentType: string;
@@ -59,26 +61,72 @@ function getCellStyle(rate: number) {
   return "heat-map-cell-low";
 }
 
-function MatrixCell({ count, rate }: { count: number; rate: number }) {
+function MatrixCell({ 
+  count, 
+  rate, 
+  documentType, 
+  payer, 
+  onClick 
+}: { 
+  count: number; 
+  rate: number; 
+  documentType: string; 
+  payer: string; 
+  onClick: () => void; 
+}) {
   return (
     <td 
-      className={`px-3 py-2 text-center text-sm ${getCellStyle(rate)} cursor-pointer hover:opacity-80 transition-opacity`}
+      className={`px-3 py-2 text-center text-sm ${getCellStyle(rate)} cursor-pointer hover:opacity-80 hover:scale-105 transition-all duration-200 hover:shadow-md relative group`}
       data-testid={`matrix-cell-${count}-${rate}`}
+      onClick={onClick}
+      title={`Click to view ${count} ${documentType} claims for ${payer}`}
     >
-      {count} ({rate}%)
+      <div className="relative">
+        {count} ({rate}%)
+        <div className="absolute inset-0 bg-white bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded"></div>
+      </div>
     </td>
   );
 }
 
 export function RedundancyMatrix() {
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    documentType: string;
+    payer: string;
+    count: number;
+    rate: number;
+  }>({
+    isOpen: false,
+    documentType: "",
+    payer: "",
+    count: 0,
+    rate: 0
+  });
+
+  const handleCellClick = (documentType: string, payer: string, count: number, rate: number) => {
+    setModalConfig({
+      isOpen: true,
+      documentType,
+      payer,
+      count,
+      rate
+    });
+  };
+
+  const closeModal = () => {
+    setModalConfig(prev => ({ ...prev, isOpen: false }));
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      {/* Heat Map */}
-      <div className="lg:col-span-3">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr>
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Heat Map */}
+        <div className="lg:col-span-3">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Document Type
                 </th>
@@ -94,29 +142,53 @@ export function RedundancyMatrix() {
                 <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Commercial
                 </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {matrixData.map((row, index) => (
-                <tr key={index}>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {matrixData.map((row, index) => (
+                  <tr key={index}>
                   <td className="px-3 py-2 text-sm font-medium text-gray-900">
                     {row.documentType}
                   </td>
-                  <MatrixCell count={row.medicare.count} rate={row.medicare.rate} />
-                  <MatrixCell count={row.medicaid.count} rate={row.medicaid.rate} />
-                  <MatrixCell count={row.bcbs.count} rate={row.bcbs.rate} />
-                  <MatrixCell count={row.commercial.count} rate={row.commercial.rate} />
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  <MatrixCell 
+                    count={row.medicare.count} 
+                    rate={row.medicare.rate} 
+                    documentType={row.documentType}
+                    payer="Medicare"
+                    onClick={() => handleCellClick(row.documentType, "Medicare", row.medicare.count, row.medicare.rate)}
+                  />
+                  <MatrixCell 
+                    count={row.medicaid.count} 
+                    rate={row.medicaid.rate} 
+                    documentType={row.documentType}
+                    payer="Medicaid"
+                    onClick={() => handleCellClick(row.documentType, "Medicaid", row.medicaid.count, row.medicaid.rate)}
+                  />
+                  <MatrixCell 
+                    count={row.bcbs.count} 
+                    rate={row.bcbs.rate} 
+                    documentType={row.documentType}
+                    payer="BCBS"
+                    onClick={() => handleCellClick(row.documentType, "BCBS", row.bcbs.count, row.bcbs.rate)}
+                  />
+                  <MatrixCell 
+                    count={row.commercial.count} 
+                    rate={row.commercial.rate} 
+                    documentType={row.documentType}
+                    payer="Commercial"
+                    onClick={() => handleCellClick(row.documentType, "Commercial", row.commercial.count, row.commercial.rate)}
+                  />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {/* Pattern Analysis Panel */}
-      <div className="lg:col-span-1">
-        <div className="space-y-4">
-          <div className="bg-red-50 border border-red-200 rounded-md p-3" data-testid="pattern-alert">
+        {/* Pattern Analysis Panel */}
+        <div className="lg:col-span-1">
+          <div className="space-y-4">
+            <div className="bg-red-50 border border-red-200 rounded-md p-3" data-testid="pattern-alert">
             <div className="flex items-start">
               <AlertTriangle className="h-4 w-4 text-red-400 mt-1 mr-2 flex-shrink-0" />
               <div>
@@ -140,7 +212,18 @@ export function RedundancyMatrix() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+
+      {/* Claims Modal */}
+      <ClaimsModal
+        isOpen={modalConfig.isOpen}
+        onClose={closeModal}
+        documentType={modalConfig.documentType}
+        payer={modalConfig.payer}
+        count={modalConfig.count}
+        rate={modalConfig.rate}
+      />
+    </>
   );
 }
