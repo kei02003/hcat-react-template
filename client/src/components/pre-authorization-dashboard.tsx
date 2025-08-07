@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { NevadaMedicaidPriorAuthForm } from "./nevada-medicaid-prior-auth-form";
 
 interface PreAuthRequest {
   id: string;
@@ -59,7 +58,7 @@ interface ProcedureAuthRequirement {
 }
 
 export function PreAuthorizationDashboard() {
-  const [selectedTab, setSelectedTab] = useState("overview");
+  const [selectedTab, setSelectedTab] = useState("new-request");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProcedure, setSelectedProcedure] = useState("");
   const [newRequestData, setNewRequestData] = useState({
@@ -213,63 +212,12 @@ export function PreAuthorizationDashboard() {
       </div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
-          <TabsTrigger value="nevada-medicaid" data-testid="tab-nevada-medicaid">Nevada Medicaid Form</TabsTrigger>
-          <TabsTrigger value="requests" data-testid="tab-requests">All Requests</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="new-request" data-testid="tab-new-request">New Request</TabsTrigger>
+          <TabsTrigger value="requests" data-testid="tab-requests">Pre-Auth Requests</TabsTrigger>
           <TabsTrigger value="analytics" data-testid="tab-analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="procedures" data-testid="tab-procedures">Procedures</TabsTrigger>
+          <TabsTrigger value="procedures" data-testid="tab-procedures">Procedure Requirements</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pre-Authorization Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Manage prior authorization requests and ensure 90% completion rate for procedures requiring pre-auth, 
-                3+ days prior to scheduled procedures.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="border-blue-200 bg-blue-50">
-                  <CardContent className="p-4">
-                    <h4 className="font-semibold text-blue-900 mb-2">Nevada Medicaid Form Auto-Population</h4>
-                    <p className="text-sm text-blue-800 mb-3">
-                      Automatically populate Nevada Medicaid prior authorization forms using patient data from your revenue cycle system.
-                    </p>
-                    <Button 
-                      onClick={() => setSelectedTab("nevada-medicaid")} 
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Open Nevada Medicaid Form
-                    </Button>
-                  </CardContent>
-                </Card>
-                <Card className="border-green-200 bg-green-50">
-                  <CardContent className="p-4">
-                    <h4 className="font-semibold text-green-900 mb-2">Insurer Requirements</h4>
-                    <p className="text-sm text-green-800 mb-3">
-                      Compare procedures against insurer-specific criteria and track pre-auth completion rates.
-                    </p>
-                    <Button 
-                      onClick={() => setSelectedTab("analytics")} 
-                      variant="outline"
-                      className="border-green-600 text-green-700 hover:bg-green-100"
-                    >
-                      View Analytics
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="nevada-medicaid">
-          <NevadaMedicaidPriorAuthForm />
-        </TabsContent>
 
         <TabsContent value="requests" className="space-y-4">
           <Card>

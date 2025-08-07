@@ -1,4 +1,0 @@
-Hospital Account ID,Patient ID,Patient Name,Admit Date,Current Payor ID,Current Payor Name
-HSP001,PAT001,John Smith,2024-01-15,PAYOR001,Blue Cross Blue Shield
-HSP002,PAT002,Jane Doe,2024-01-16,PAYOR002,Medicare
-HSP003,PAT003,Bob Johnson,2024-01-17,PAYOR003,Medicaid

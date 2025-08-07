@@ -1,8 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { revenueCycleStorage } from "./revenue-cycle-storage";
-import { registerRevenueCycleRoutes } from "./revenue-cycle-routes";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { requirePermission, requireAnyPermission, requireRoleLevel, auditAction, type AuthenticatedRequest } from "./auth/middleware";
 import { rbacService } from "./auth/rbac";
@@ -25,9 +23,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.warn('Demo users creation skipped (tables may not exist yet)');
     }
   }
-
-  // Register revenue cycle routes
-  registerRevenueCycleRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req, res) => {
@@ -230,83 +225,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Pre-Authorization Management routes - using real database data
+  // Pre-Authorization Management routes
   app.get("/api/pre-auth-requests", async (req, res) => {
     try {
-      const { pool } = await import("./db");
-      const { limit = "100", status, priority, servicetype } = req.query;
-      
-      // Build WHERE clause for filtering
-      const conditions = [];
-      const params = [];
-      let paramIndex = 1;
-
-      if (status && status !== "all") {
-        conditions.push(`status = $${paramIndex}`);
-        params.push(status);
-        paramIndex++;
-      }
-
-      if (priority && priority !== "all") {
-        conditions.push(`priority = $${paramIndex}`);
-        params.push(priority);
-        paramIndex++;
-      }
-
-      if (servicetype && servicetype !== "all") {
-        conditions.push(`servicetype = $${paramIndex}`);
-        params.push(servicetype);
-        paramIndex++;
-      }
-
-      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-      params.push(parseInt(limit as string));
-
-      const query = `
-        SELECT preauthid, accountid, servicetype, proceduredate, requestdate, responsedate,
-               daysbeforeprocedure, completedontime, status, authnumber, expirationdate,
-               requestedunits, approvedunits, denialreason, priority, physicinadvisorreview,
-               appealeligible, delayimpact, createddt, updateddt
-        FROM preauthorization_data 
-        ${whereClause}
-        ORDER BY requestdate DESC
-        LIMIT $${paramIndex}
-      `;
-      
-      const result = await pool.query(query, params);
-      
-      // Transform to match frontend format
-      const transformedRequests = result.rows.map((req: any) => ({
-        id: req.preauthid,
-        patientId: req.accountid,
-        patientName: `Patient ${req.accountid}`,
-        memberID: req.accountid,
-        insurerName: "Various Insurers",
-        procedureCode: "N/A",
-        procedureName: req.servicetype,
-        scheduledDate: req.proceduredate,
-        requestDate: req.requestdate,
-        status: req.status?.toLowerCase() || "pending",
-        priority: req.priority?.toLowerCase() || "standard",
-        daysUntilProcedure: req.daysbeforeprocedure || 0,
-        authRequiredBy: req.responsedate,
-        providerId: "PROV-001",
-        providerName: "Healthcare Provider",
-        diagnosis: "Healthcare Service",
-        clinicalJustification: `${req.servicetype} service authorization`,
-        priorAuthNumber: req.authnumber,
-        estimatedValue: (req.requestedunits || 0) * 100,
-        requestedUnits: req.requestedunits,
-        approvedUnits: req.approvedunits,
-        denialReason: req.denialreason,
-        completedOnTime: req.completedontime === 'Y',
-        expirationDate: req.expirationdate,
-        delayImpact: req.delayimpact
-      }));
-      
-      res.json(transformedRequests);
+      const requests = await storage.getPreAuthRequests();
+      res.json(requests);
     } catch (error) {
-      console.error("Error fetching pre-auth requests:", error);
       res.status(500).json({ message: "Failed to fetch pre-auth requests" });
     }
   });
@@ -367,48 +291,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Revenue Cycle Accounts endpoint for patient data
-  app.get("/api/revenue-cycle-accounts/patients", async (req, res) => {
-    try {
-      const { pool } = await import("./db");
-      
-      const result = await pool.query(`
-        SELECT DISTINCT hospitalaccountid, currentpayornm, currentpayorid, totalchargeamt, 
-               procedurecd, proceduredsc, attendingprovidernm, attendingproviderid,
-               hospitalnm, facilityid, denialcd, denialcodedsc, admitdt, dischargedt
-        FROM revenue_cycle_accounts 
-        WHERE currentpayornm IS NOT NULL 
-        ORDER BY hospitalaccountid 
-        LIMIT 50
-      `);
-      
-      res.json(result.rows);
-    } catch (error) {
-      console.error("Error fetching patient data:", error);
-      res.status(500).json({ message: "Failed to fetch patient data" });
-    }
-  });
-
-  // Import preauthorization data endpoint
-  app.post("/api/import-preauth-data", async (req, res) => {
-    try {
-      const { fastImportPreAuth } = await import("./fast-import-preauth");
-      const recordCount = await fastImportPreAuth();
-      res.json({ 
-        success: true, 
-        message: `Successfully imported ${recordCount} preauthorization records`,
-        recordCount 
-      });
-    } catch (error) {
-      console.error("Error importing preauthorization data:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "Failed to import preauthorization data",
-        error: error instanceof Error ? error.message : "Unknown error"
-      });
-    }
-  });
-
   // Appeal Generation routes
   app.get("/api/appeal-cases", async (req, res) => {
     try {
@@ -430,211 +312,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Timely Filing routes - use PostgreSQL client directly
+  // Timely Filing routes
   app.get("/api/timely-filing-claims", async (req, res) => {
     try {
-      const { pool } = await import("./db");
+      const { timelyFilingClaims } = await import("./timely-filing-data");
+      const { agingCategory, denialStatus, department, assignedBiller, payer } = req.query;
       
-      const { agingCategory, denialStatus, department, assignedBiller, payer, limit = "100" } = req.query;
+      let filteredClaims = [...timelyFilingClaims];
       
-      // Build WHERE clause for filtering
-      const conditions = [];
-      const params = [];
-      let paramIndex = 1;
-
+      // Filter by aging category
       if (agingCategory && agingCategory !== 'all') {
-        conditions.push(`agingcategory = $${paramIndex}`);
-        // Convert "safe" -> "Safe", "severely overdue" -> "Severely_Overdue"
-        const formattedCategory = agingCategory
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join('_');
-        params.push(formattedCategory);
-        paramIndex++;
+        filteredClaims = filteredClaims.filter(claim => claim.agingCategory === agingCategory);
       }
-
+      
+      // Filter by denial status
       if (denialStatus && denialStatus !== 'all') {
-        conditions.push(`denialstatus = $${paramIndex}`);
-        // Convert "denied" -> "Denied", "at_risk" -> "At_Risk"
-        const formattedStatus = denialStatus
-          .split(/[\s_]+/)
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join('_');
-        params.push(formattedStatus);
-        paramIndex++;
+        if (denialStatus === 'denied') {
+          filteredClaims = filteredClaims.filter(claim => claim.denialStatus === 'denied');
+        } else if (denialStatus === 'at_risk') {
+          filteredClaims = filteredClaims.filter(claim => claim.daysRemaining <= 14 && claim.denialStatus !== 'denied');
+        }
       }
-
+      
+      // Filter by department
       if (department && department !== 'all') {
-        conditions.push(`department = $${paramIndex}`);
-        params.push(department);
-        paramIndex++;
+        filteredClaims = filteredClaims.filter(claim => claim.department === department);
       }
-
+      
+      // Filter by assigned biller
       if (assignedBiller && assignedBiller !== 'all') {
-        conditions.push(`assignedbiller = $${paramIndex}`);
-        params.push(assignedBiller);
-        paramIndex++;
+        filteredClaims = filteredClaims.filter(claim => claim.assignedBiller === assignedBiller);
       }
-
+      
+      // Filter by payer
       if (payer && payer !== 'all') {
-        conditions.push(`currentpayorid = $${paramIndex}`);
-        params.push(payer);
-        paramIndex++;
+        filteredClaims = filteredClaims.filter(claim => claim.payer === payer);
       }
-
-      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
-      params.push(parseInt(limit as string));
-
-      const query = `
-        SELECT timelyfilingid, patientid, hospitalaccountid, claimid, currentpayorid, 
-               servicedt, billingdt, filingdeadlinedt, daysremaining, agingcategory, 
-               totalchargeamt, denialstatus, denialcd, filingattempts, filingstatus, 
-               risklevel, prioritylevel, createddt, updateddt
-        FROM timely_filing_claims 
-        ${whereClause}
-        ORDER BY timelyfilingid 
-        LIMIT $${paramIndex}
-      `;
       
-      // Use direct PostgreSQL query with filtering
-      const result = await pool.query(query, params);
-      
-      // Transform database records to frontend format  
-      const transformedClaims = result.rows.map((claim: any) => ({
-        id: claim.timelyfilingid,
-        patientName: claim.patientid || 'Unknown Patient',
-        patientId: claim.patientid,
-        accountNumber: claim.hospitalaccountid,
-        claimId: claim.claimid,
-        payer: claim.currentpayorid || 'Unknown Payer',
-        payerId: claim.currentpayorid,
-        serviceDate: claim.servicedt,
-        billingDate: claim.billingdt,
-        filingDeadline: claim.filingdeadlinedt,
-        daysRemaining: claim.daysremaining,
-        agingCategory: claim.agingcategory?.toLowerCase().replace(/[_-]/g, ' ') || 'unknown',
-        claimAmount: `$${Number(claim.totalchargeamt || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
-        department: 'General',
-        procedureCode: '99999',
-        procedureDescription: 'Healthcare Service',
-        denialStatus: claim.denialstatus?.toLowerCase() || 'pending',
-        denialReason: claim.denialcd ? `Denial code: ${claim.denialcd}` : null,
-        denialDate: null,
-        filingAttempts: claim.filingattempts || 1,
-        lastFilingDate: claim.billingdt,
-        riskLevel: claim.daysremaining && claim.daysremaining < 0 ? 'high' : claim.daysremaining && claim.daysremaining < 15 ? 'medium' : 'low',
-        assignedBiller: 'Staff Member',
-        priority: claim.daysremaining && claim.daysremaining < 0 ? 'urgent' : claim.daysremaining && claim.daysremaining < 15 ? 'medium' : 'low',
-        status: claim.filingstatus || 'pending',
-        notes: 'Imported from database',
-        createdAt: claim.createddt,
-        updatedAt: claim.updateddt
-      }));
-      
-      res.json(transformedClaims);
+      res.json(filteredClaims);
     } catch (error) {
-      console.error("Error fetching timely filing claims:", error);
       res.status(500).json({ message: "Failed to fetch timely filing claims" });
     }
   });
 
   app.get("/api/timely-filing-metrics", async (req, res) => {
     try {
-      const { pool } = await import("./db");
-      
-      // Get total claims using direct PostgreSQL
-      const totalResult = await pool.query(`SELECT COUNT(*) as count FROM timely_filing_claims`);
-      const totalClaims = Number(totalResult.rows[0]?.count || 0);
-      
-      // Get claims by aging category
-      const agingResult = await pool.query(`
-        SELECT agingcategory as category, COUNT(*) as count 
-        FROM timely_filing_claims 
-        GROUP BY agingcategory
-      `);
-      
-      const claimsByAging = agingResult.rows.reduce((acc: Record<string, number>, item: any) => {
-        if (item.category) {
-          acc[item.category.toLowerCase().replace(/[_-]/g, ' ')] = Number(item.count);
-        }
-        return acc;
-      }, {});
-      
-      // Get denials by aging
-      const denialResult = await pool.query(`
-        SELECT agingcategory as category, COUNT(*) as count 
-        FROM timely_filing_claims 
-        WHERE denialstatus = 'Denied' 
-        GROUP BY agingcategory
-      `);
-      
-      const denialsByAging = denialResult.rows.reduce((acc: Record<string, number>, item: any) => {
-        if (item.category) {
-          acc[item.category.toLowerCase().replace(/[_-]/g, ' ')] = Number(item.count);
-        }
-        return acc;
-      }, {});
-      
-      // Get total denial amount
-      const denialAmountResult = await pool.query(`
-        SELECT COALESCE(SUM(CAST(totalchargeamt AS DECIMAL)), 0) as total
-        FROM timely_filing_claims 
-        WHERE denialstatus = 'Denied'
-      `);
-      
-      const totalDenialAmount = Number(denialAmountResult.rows[0]?.total || 0);
-      
-      // Calculate average days to deadline
-      const avgDaysResult = await pool.query(`
-        SELECT COALESCE(AVG(daysremaining), 0) as avg 
-        FROM timely_filing_claims
-      `);
-      
-      const averageDaysToDeadline = Math.round(Number(avgDaysResult.rows[0]?.avg || 0));
-      
-      // Count critical action required (negative days remaining)
-      const criticalResult = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM timely_filing_claims 
-        WHERE daysremaining < 0
-      `);
-      
-      const criticalActionRequired = Number(criticalResult.rows[0]?.count || 0);
-      
-      // Calculate filing success rate
-      const approvedResult = await pool.query(`
-        SELECT COUNT(*) as count 
-        FROM timely_filing_claims 
-        WHERE denialstatus = 'Approved'
-      `);
-      
-      const approvedClaims = Number(approvedResult.rows[0]?.count || 0);
-      const filingSuccessRate = totalClaims > 0 ? Math.round((approvedClaims / totalClaims) * 100) : 0;
-      
-      const metrics = {
-        totalClaims,
-        claimsByAging,
-        denialsByAging,
-        totalDenialAmount: Math.round(totalDenialAmount),
-        averageDaysToDeadline,
-        criticalActionRequired,
-        filingSuccessRate,
-        departmentPerformance: {
-          "General": { onTime: approvedClaims, late: criticalActionRequired, successRate: filingSuccessRate }
-        }
-      };
-      
-      const categories = {
-        safe: { label: "Safe", color: "green", dayRange: { min: 30, max: null }, description: "More than 30 days until filing deadline" },
-        warning: { label: "Warning", color: "yellow", dayRange: { min: 15, max: 29 }, description: "15-29 days until filing deadline" },
-        critical: { label: "Critical", color: "orange", dayRange: { min: 1, max: 14 }, description: "1-14 days until filing deadline" },
-        overdue: { label: "Overdue", color: "red", dayRange: { min: null, max: 0 }, description: "Filing deadline has passed" },
-        "severely overdue": { label: "Severely Overdue", color: "red", dayRange: { min: null, max: -30 }, description: "More than 30 days past filing deadline" }
-      };
-      
-      res.json({ metrics, categories });
+      const { timelyFilingMetrics, agingCategories } = await import("./timely-filing-data");
+      res.json({ metrics: timelyFilingMetrics, categories: agingCategories });
     } catch (error) {
-      console.error("Error fetching timely filing metrics:", error);
       res.status(500).json({ message: "Failed to fetch timely filing metrics" });
     }
   });
