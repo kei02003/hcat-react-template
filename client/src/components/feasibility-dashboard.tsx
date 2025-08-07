@@ -425,10 +425,10 @@ export function FeasibilityDashboard() {
                             </div>
                           </TableCell>
                           <TableCell className="text-green-600 font-medium">
-                            {formatCurrency(payer.redundantRequestOpportunities.estimatedSavings)}
+                            {formatCurrency(payer.redundantRequestOpportunities.automationPotential.estimatedSavings)}
                           </TableCell>
                           <TableCell className="text-purple-600 font-medium">
-                            {payer.redundantRequestOpportunities.paybackPeriod} months
+                            {payer.redundantRequestOpportunities.automationPotential.paybackPeriod} months
                           </TableCell>
                         </TableRow>
                       ))}
