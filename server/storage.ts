@@ -957,8 +957,60 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
 
+    // Additional BCBS criteria for more procedures
+    const bcbsKneeCriteria: InsurerCriteria = {
+      id: "ins-003",
+      payerName: "Blue Cross Blue Shield", 
+      payerId: "BCBS",
+      procedureCode: "CPT-27447",
+      procedureName: "Arthroplasty, knee, condyle and plateau; medial compartment",
+      requiresAuth: true,
+      medicalNecessityCriteria: [
+        "Documented bone-on-bone osteoarthritis on imaging",
+        "Failed conservative treatment for minimum 12 months",
+        "Significant functional limitation affecting activities of daily living",
+        "BMI under 40 or documented medical clearance",
+        "Patient age appropriate for procedure longevity"
+      ],
+      timeFrameRequired: 72,
+      authValidityDays: 30,
+      denialReasons: [
+        "Conservative treatment period insufficient",
+        "BMI above acceptable limits without clearance", 
+        "Functional limitation not adequately documented"
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    const bcbsGeneralCriteria: InsurerCriteria = {
+      id: "ins-004",
+      payerName: "Blue Cross Blue Shield",
+      payerId: "BCBS", 
+      procedureCode: "CPT-43280",
+      procedureName: "Laparoscopy, surgical, esophagogastroduodenoscopy",
+      requiresAuth: true,
+      medicalNecessityCriteria: [
+        "BMI ≥35 with documented comorbidities or BMI ≥40",
+        "Documented 6-month physician-supervised weight loss attempt", 
+        "Psychological evaluation completed",
+        "No contraindications to surgery documented"
+      ],
+      timeFrameRequired: 168, // 7 days
+      authValidityDays: 60,
+      denialReasons: [
+        "BMI criteria not met",
+        "Insufficient weight loss documentation",
+        "Missing psychological evaluation"
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
     this.insurerCriteria.set(bcbsCriteria.id, bcbsCriteria);
     this.insurerCriteria.set(aetnaCriteria.id, aetnaCriteria);
+    this.insurerCriteria.set(bcbsKneeCriteria.id, bcbsKneeCriteria);
+    this.insurerCriteria.set(bcbsGeneralCriteria.id, bcbsGeneralCriteria);
 
     // Sample procedure authorization requirements
     const procedures: ProcedureAuthRequirement[] = [
@@ -1008,6 +1060,23 @@ export class MemStorage implements IStorage {
           "Alternative treatments not exhausted",
           "Insufficient severity documentation",
           "Patient not meeting age/activity criteria"
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "proc-004",
+        procedureCode: "CPT-43280", 
+        procedureName: "Laparoscopy, surgical, esophagogastroduodenoscopy",
+        category: "Bariatric Surgery",
+        requiresAuth: true,
+        riskLevel: "High",
+        averageProcessingDays: 7,
+        approvalRate: 82.4,
+        commonDenialReasons: [
+          "BMI criteria not met",
+          "Insufficient supervised weight loss documentation",
+          "Missing psychological evaluation"
         ],
         createdAt: new Date(),
         updatedAt: new Date()
