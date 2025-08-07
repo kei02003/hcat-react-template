@@ -299,7 +299,7 @@ function getDaysToAppealColor(days: number) {
 }
 
 export function ClinicalDenialsDashboard() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("summary");
   const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
   const [selectedPayer, setSelectedPayer] = useState("All Payers");
   const [searchTerm, setSearchTerm] = useState("");
