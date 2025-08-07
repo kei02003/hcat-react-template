@@ -286,8 +286,7 @@ export function SummaryDashboard() {
         {/* Quick Stats */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
+            <CardTitle>
               Quick Stats
             </CardTitle>
             <CardDescription>Current items requiring attention</CardDescription>
