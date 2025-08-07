@@ -125,7 +125,7 @@ export function PreAuthorizationDashboard() {
 
   const getMatchingCriteria = (procedureCode: string, insurerName: string) => {
     return insurerCriteria.find(c => 
-      c.procedureCode === procedureCode && c.insurerName === insurerName
+      c.procedureCode === procedureCode && c.payerName === insurerName
     );
   };
 
