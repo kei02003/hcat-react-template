@@ -20,7 +20,7 @@ export default function Dashboard() {
     end: "2024-12-31"
   });
 
-  const mainTabs = ["Summary", "AR Management", "Denials", "Collections", "Feasibility", "Pre-Authorization"];
+  const mainTabs = ["Summary", "AR Management", "Pre-Authorization", "Denials", "Collections", "Feasibility"];
   const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management", "Predictive Analytics"];
 
   return (
