@@ -1100,7 +1100,185 @@ export function ClinicalDenialsDashboard() {
                       </div>
                     </div>
                   </div>
-                  <ClinicalDecisionDashboard />
+                  {/* Patient-Specific Medical Record Analysis */}
+                  <div className="space-y-6">
+                    {/* Patient Overview */}
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-semibold text-gray-900 mb-4">Patient Medical Record Analysis</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-4">
+                            <div>
+                              <h5 className="font-medium text-gray-700 mb-2">Patient Demographics</h5>
+                              <div className="text-sm space-y-1">
+                                <p><span className="text-gray-600">Name:</span> <span className="font-medium">{selectedDenialForRFP.patientName}</span></p>
+                                <p><span className="text-gray-600">Patient ID:</span> <span className="font-medium">{selectedDenialForRFP.patientId || 'PAT-' + Math.random().toString(36).substr(2, 5).toUpperCase()}</span></p>
+                                <p><span className="text-gray-600">Date of Birth:</span> <span className="font-medium">03/15/1965</span></p>
+                                <p><span className="text-gray-600">Age:</span> <span className="font-medium">59 years</span></p>
+                                <p><span className="text-gray-600">Gender:</span> <span className="font-medium">Female</span></p>
+                              </div>
+                            </div>
+                            <div>
+                              <h5 className="font-medium text-gray-700 mb-2">Admission Details</h5>
+                              <div className="text-sm space-y-1">
+                                <p><span className="text-gray-600">Admission Date:</span> <span className="font-medium">{selectedDenialForRFP.serviceDate}</span></p>
+                                <p><span className="text-gray-600">Department:</span> <span className="font-medium">{selectedDenialForRFP.department}</span></p>
+                                <p><span className="text-gray-600">Attending Physician:</span> <span className="font-medium">{selectedDenialForRFP.provider}</span></p>
+                                <p><span className="text-gray-600">Primary Diagnosis:</span> <span className="font-medium">I50.9 - Heart failure, unspecified</span></p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-4">
+                            <div>
+                              <h5 className="font-medium text-gray-700 mb-2">Clinical Indicators</h5>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between p-2 bg-red-50 rounded">
+                                  <span className="text-sm">Ejection Fraction</span>
+                                  <Badge className="bg-red-100 text-red-800">35% (Severe)</Badge>
+                                </div>
+                                <div className="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                                  <span className="text-sm">BNP Level</span>
+                                  <Badge className="bg-yellow-100 text-yellow-800">850 pg/mL (Elevated)</Badge>
+                                </div>
+                                <div className="flex items-center justify-between p-2 bg-red-50 rounded">
+                                  <span className="text-sm">Creatinine</span>
+                                  <Badge className="bg-red-100 text-red-800">2.1 mg/dL (High)</Badge>
+                                </div>
+                                <div className="flex items-center justify-between p-2 bg-green-50 rounded">
+                                  <span className="text-sm">Chest X-Ray</span>
+                                  <Badge className="bg-green-100 text-green-800">Pulmonary Edema</Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Clinical Documentation Analysis */}
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-semibold text-gray-900 mb-4">Documentation Assessment</h4>
+                        <div className="space-y-4">
+                          {[
+                            {
+                              category: "Admission Documentation",
+                              status: "Complete",
+                              color: "green",
+                              items: [
+                                "✓ H&P completed within 24 hours",
+                                "✓ Admission orders documented",
+                                "✓ Progress notes daily",
+                                "✓ Physician signatures present"
+                              ]
+                            },
+                            {
+                              category: "Medical Necessity Criteria",
+                              status: "Meets Requirements",
+                              color: "green",
+                              items: [
+                                "✓ Acute exacerbation of heart failure",
+                                "✓ IV diuretic therapy required",
+                                "✓ Monitoring for fluid overload",
+                                "✓ Inability to manage outpatient"
+                              ]
+                            },
+                            {
+                              category: "Potential Documentation Gaps",
+                              status: "Action Required",
+                              color: "orange",
+                              items: [
+                                "⚠ Social work assessment incomplete",
+                                "⚠ Discharge planning note missing",
+                                "⚠ Patient education documentation needed"
+                              ]
+                            }
+                          ].map((section, index) => (
+                            <div key={index} className="border rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-3">
+                                <h5 className="font-medium text-gray-900">{section.category}</h5>
+                                <Badge className={
+                                  section.color === "green" ? "bg-green-100 text-green-800" :
+                                  section.color === "orange" ? "bg-orange-100 text-orange-800" :
+                                  "bg-red-100 text-red-800"
+                                }>
+                                  {section.status}
+                                </Badge>
+                              </div>
+                              <div className="space-y-1">
+                                {section.items.map((item, idx) => (
+                                  <p key={idx} className="text-sm text-gray-700">{item}</p>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* AI Recommendations */}
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-semibold text-gray-900 mb-4">AI Clinical Recommendations</h4>
+                        <div className="space-y-4">
+                          <div className="bg-blue-50 p-4 rounded-lg">
+                            <div className="flex items-start space-x-3">
+                              <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                              <div>
+                                <h5 className="font-medium text-blue-900">Appeal Probability: High (85%)</h5>
+                                <p className="text-sm text-blue-700 mt-1">
+                                  Clinical documentation strongly supports inpatient status. Patient meets InterQual criteria for inpatient care with severe heart failure exacerbation requiring IV therapy and close monitoring.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-green-50 p-4 rounded-lg">
+                            <div className="flex items-start space-x-3">
+                              <Stethoscope className="h-5 w-5 text-green-600 mt-0.5" />
+                              <div>
+                                <h5 className="font-medium text-green-900">Recommended Actions</h5>
+                                <ul className="text-sm text-green-700 mt-1 space-y-1">
+                                  <li>• Obtain complete social work assessment</li>
+                                  <li>• Document discharge planning discussion</li>
+                                  <li>• Add patient education notes</li>
+                                  <li>• Include family conference documentation</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-yellow-50 p-4 rounded-lg">
+                            <div className="flex items-start space-x-3">
+                              <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                              <div>
+                                <h5 className="font-medium text-yellow-900">Appeal Strategy</h5>
+                                <p className="text-sm text-yellow-700 mt-1">
+                                  Focus on medical necessity with emphasis on acute decompensation requiring IV diuretics, monitoring, and inability to manage symptoms outpatient. Include cardiology consultation and echo results.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Generate Clinical Summary
+                      </Button>
+                      <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                        <Gavel className="h-4 w-4 mr-2" />
+                        Generate Appeal Letter
+                      </Button>
+                      <Button variant="outline">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Full Medical Record
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
