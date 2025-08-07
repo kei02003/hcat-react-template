@@ -110,15 +110,15 @@ export function PreAuthRedesignedDashboard() {
 
   // Data queries for the redesigned system
   const { data: timelineData, isLoading: timelineLoading } = useQuery({
-    queryKey: ["/api/pre-auth/timeline", selectedTimeframe],
+    queryKey: [`/api/pre-auth/timeline/${selectedTimeframe}`],
   });
 
   const { data: complianceData, isLoading: complianceLoading } = useQuery({
-    queryKey: ["/api/pre-auth/compliance-metrics", selectedTimeframe],
+    queryKey: [`/api/pre-auth/compliance-metrics/${selectedTimeframe}`],
   });
 
   const { data: payerAnalytics, isLoading: analyticsLoading } = useQuery({
-    queryKey: ["/api/pre-auth/payer-analytics", selectedTimeframe],
+    queryKey: [`/api/pre-auth/payer-analytics/${selectedTimeframe}`],
   });
 
   const { data: documentationAlerts, isLoading: alertsLoading } = useQuery({
