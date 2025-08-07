@@ -10,6 +10,8 @@ import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashbo
 import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
+import { PersonaSwitcher } from "@/components/persona-switcher";
+import { DemoModePanel } from "@/components/demo-mode-panel";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -53,23 +55,30 @@ export default function Dashboard() {
             </nav>
           </div>
           
-          {/* Date Range Selector */}
-          <div className="flex items-center space-x-2">
-            <input 
-              type="date" 
-              value={dateRange.start}
-              onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-              className="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
-              data-testid="date-input-start"
-            />
-            <span className="text-sm">to</span>
-            <input 
-              type="date" 
-              value={dateRange.end}
-              onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-              className="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
-              data-testid="date-input-end"
-            />
+          {/* User Controls */}
+          <div className="flex items-center space-x-4">
+            {/* Date Range Selector */}
+            <div className="flex items-center space-x-2">
+              <input 
+                type="date" 
+                value={dateRange.start}
+                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                className="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
+                data-testid="date-input-start"
+              />
+              <span className="text-sm">to</span>
+              <input 
+                type="date" 
+                value={dateRange.end}
+                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                className="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
+                data-testid="date-input-end"
+              />
+            </div>
+
+            {/* Persona Switcher */}
+            <PersonaSwitcher />
+            
             <HelpCircle className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
           </div>
         </div>
@@ -139,6 +148,9 @@ export default function Dashboard() {
           </main>
         )}
       </div>
+
+      {/* Demo Mode Panel - Floating */}
+      <DemoModePanel />
     </div>
   );
 }
