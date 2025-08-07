@@ -112,24 +112,35 @@ export function HealthCatalystNavbar({
 
         {/* Navigation Links */}
         {linkContent.length > 0 && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 2 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 0.5, 
+            ml: 2,
+            overflow: 'hidden',
+            flex: 1,
+            maxWidth: 'calc(100vw - 600px)' // Reserve space for brand and right content
+          }}>
             {linkContent.map((link, index) => (
               <Box key={index} sx={{
                 '& .navbar-link': {
                   color: 'rgba(255,255,255,0.8)',
                   textDecoration: 'none',
-                  padding: '8px 12px',
+                  padding: '6px 8px',
                   borderRadius: '4px',
-                  fontSize: '0.875rem',
+                  fontSize: '0.8rem',
                   fontWeight: 500,
                   transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                  display: 'block',
                   '&:hover': {
                     backgroundColor: 'rgba(255,255,255,0.1)',
                     color: 'white',
                   },
                   '&.force-active': {
-                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    backgroundColor: 'rgba(0,174,255,0.2)', // Health Catalyst primary with alpha
                     color: 'white',
+                    fontWeight: 600,
                   }
                 }
               }}>
