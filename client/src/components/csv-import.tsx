@@ -45,11 +45,17 @@ export function CSVImportComponent() {
     mutationFn: async ({ file, entityType }: { file: File; entityType: string }) => {
       const formData = new FormData();
       formData.append('csvFile', file);
-      const response = await apiRequest(`/api/revenue-cycle/import/preview/${entityType}`, {
+      
+      const response = await fetch(`/api/revenue-cycle/import/preview/${entityType}`, {
         method: 'POST',
         body: formData,
       });
-      return response as CSVPreview;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json() as CSVPreview;
     },
     onSuccess: () => {
       setShowPreview(true);
@@ -68,11 +74,17 @@ export function CSVImportComponent() {
     mutationFn: async ({ file, entityType }: { file: File; entityType: string }) => {
       const formData = new FormData();
       formData.append('csvFile', file);
-      const response = await apiRequest(`/api/revenue-cycle/import/${entityType}`, {
+      
+      const response = await fetch(`/api/revenue-cycle/import/${entityType}`, {
         method: 'POST',
         body: formData,
       });
-      return response as ImportResult;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json() as ImportResult;
     },
     onSuccess: (result) => {
       setImportResult(result);
