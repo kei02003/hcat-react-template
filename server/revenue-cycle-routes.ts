@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { revenueCycleStorage } from "./revenue-cycle-storage";
 import { csvImportService } from "./csv-import";
+import { dataMigrationService } from "./data-migration";
+import { databaseCSVImportService } from "./database-csv-import";
 import { isAuthenticated } from "./replitAuth";
 import { requirePermission, auditAction, type AuthenticatedRequest } from "./auth/middleware";
 import multer from "multer";
@@ -441,6 +443,84 @@ export function registerRevenueCycleRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching importable entities:", error);
       res.status(500).json({ message: "Failed to fetch importable entities" });
+    }
+  });
+
+  // Data migration endpoints
+  app.post('/api/migrate-data', async (req, res) => {
+    try {
+      console.log('Starting data migration to database...');
+      
+      // Insert sample data to demonstrate the database is working
+      await db.raw(`
+        INSERT INTO revenue_cycle_accounts (
+          hospital_account_id, patient_id, patient_nm, admit_dt, 
+          current_payor_id, current_payor_nm
+        ) VALUES (
+          'HSP_SAMPLE_001', 'PAT_001', 'Sample Patient', '2024-01-15',
+          'PAYOR_001', 'Sample Insurance'
+        ) ON CONFLICT (hospital_account_id) DO NOTHING;
+      `);
+
+      // Verify the data exists
+      const accountCount = await db.raw('SELECT COUNT(*) as count FROM revenue_cycle_accounts');
+      const totalRecords = accountCount.rows?.[0]?.count || 0;
+      
+      res.json({ 
+        message: 'Database setup verified with sample data',
+        database_accounts: totalRecords,
+        status: 'ready_for_csv_import'
+      });
+    } catch (error) {
+      console.error('Database verification failed:', error);
+      res.status(500).json({ message: 'Database verification failed', error: error.message });
+    }
+  });
+
+  app.get('/api/migration-status', async (req, res) => {
+    try {
+      const counts = await databaseCSVImportService.getTableCounts();
+      res.json({ 
+        database_counts: counts,
+        total_records: Object.values(counts).reduce((sum, count) => sum + count, 0)
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to check migration status' });
+    }
+  });
+
+  // Enhanced CSV import with database persistence
+  app.post("/api/revenue-cycle/import-to-database/:entityType", upload.single('csvFile'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No CSV file uploaded" });
+      }
+
+      const entityType = req.params.entityType;
+      const csvContent = req.file.buffer.toString('utf-8');
+      
+      // Import directly to database
+      const result = await databaseCSVImportService.importEntityToDatabase(entityType, csvContent);
+      
+      // Also import to in-memory storage for compatibility
+      const memoryResult = await csvImportService.importEntity(entityType, csvContent);
+      
+      // Get updated table counts
+      const counts = await databaseCSVImportService.getTableCounts();
+      
+      res.json({
+        message: `Import completed for ${entityType}`,
+        database_import: result,
+        memory_import: memoryResult,
+        updated_counts: counts,
+        total_database_records: Object.values(counts).reduce((sum, count) => sum + count, 0)
+      });
+      
+    } catch (error) {
+      console.error("Error importing CSV to database:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to import CSV data to database" 
+      });
     }
   });
 

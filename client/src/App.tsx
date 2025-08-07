@@ -11,6 +11,7 @@ import { DemoUserSelector } from "@/components/demo-user-selector";
 import { Navigation } from "@/components/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { CSVImportPage } from "@/pages/csv-import";
+import DatabaseMigration from "./pages/DatabaseMigration";
 
 function Router() {
   // Authentication disabled for now - direct access to dashboard
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/profile" component={UserProfile} />
       <Route path="/demo-users" component={DemoUserSelector} />
       <Route path="/csv-import" component={CSVImportPage} />
+      <Route path="/database-migration" component={DatabaseMigration} />
       <Route path="/" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
