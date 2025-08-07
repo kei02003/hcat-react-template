@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-react";
 
 interface MetricCardProps {
@@ -38,16 +38,28 @@ function MetricCard({ title, value, subtitle, status = "neutral", borderColor }:
 
   return (
     <Card 
-      className={`healthcare-card ${borderColor ? `border-l-4 ${borderColor}` : ''}`}
+      sx={{
+        borderLeft: borderColor ? `4px solid ${borderColor}` : 'none',
+        cursor: 'pointer',
+        '&:hover': {
+          boxShadow: 2,
+        },
+      }}
       data-testid={`metric-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
     >
-      <CardContent className="p-4">
-        <div className="text-sm text-gray-600 font-medium">{title}</div>
-        <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
-          {value}
+      <CardContent sx={{ p: 2 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
+          {title}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, my: 0.5 }}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+            {value}
+          </Typography>
           {getStatusIcon()}
-        </div>
-        <div className={`text-xs ${getStatusColor()}`}>{subtitle}</div>
+        </Box>
+        <Typography variant="caption" className={getStatusColor()}>
+          {subtitle}
+        </Typography>
       </CardContent>
     </Card>
   );
@@ -55,8 +67,8 @@ function MetricCard({ title, value, subtitle, status = "neutral", borderColor }:
 
 export function MetricsPanel() {
   return (
-    <aside className="w-1/5 healthcare-sidebar p-4 overflow-y-auto">
-      <div className="space-y-4">
+    <Box sx={{ width: '300px', p: 2, borderRight: 1, borderColor: 'divider', height: '100vh', overflow: 'auto' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <MetricCard
           title="Total AR"
           value="$912.79K"
@@ -138,7 +150,7 @@ export function MetricsPanel() {
           subtitle="Avg: ($185.58K) (-25.35%)"
           status="negative"
         />
-      </div>
-    </aside>
+      </Box>
+    </Box>
   );
 }
