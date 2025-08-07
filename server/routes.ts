@@ -317,54 +317,160 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Timely Filing routes
+  // Timely Filing routes - use PostgreSQL client directly
   app.get("/api/timely-filing-claims", async (req, res) => {
     try {
-      const { timelyFilingClaims } = await import("./timely-filing-data");
-      const { agingCategory, denialStatus, department, assignedBiller, payer } = req.query;
+      const { pool } = await import("./db");
       
-      let filteredClaims = [...timelyFilingClaims];
+      const { agingCategory, denialStatus, department, assignedBiller, payer, limit = "100" } = req.query;
       
-      // Filter by aging category
-      if (agingCategory && agingCategory !== 'all') {
-        filteredClaims = filteredClaims.filter(claim => claim.agingCategory === agingCategory);
-      }
+      // Use direct PostgreSQL query
+      const result = await pool.query(`
+        SELECT timelyfilingid, patientid, hospitalaccountid, claimid, currentpayorid, 
+               servicedt, billingdt, filingdeadlinedt, daysremaining, agingcategory, 
+               totalchargeamt, denialstatus, denialcd, filingattempts, filingstatus, 
+               risklevel, prioritylevel, createddt, updateddt
+        FROM timely_filing_claims 
+        ORDER BY timelyfilingid 
+        LIMIT $1
+      `, [parseInt(limit as string)]);
       
-      // Filter by denial status
-      if (denialStatus && denialStatus !== 'all') {
-        if (denialStatus === 'denied') {
-          filteredClaims = filteredClaims.filter(claim => claim.denialStatus === 'denied');
-        } else if (denialStatus === 'at_risk') {
-          filteredClaims = filteredClaims.filter(claim => claim.daysRemaining <= 14 && claim.denialStatus !== 'denied');
-        }
-      }
+      // Transform database records to frontend format  
+      const transformedClaims = result.rows.map((claim: any) => ({
+        id: claim.timelyfilingid,
+        patientName: claim.patientid || 'Unknown Patient',
+        patientId: claim.patientid,
+        accountNumber: claim.hospitalaccountid,
+        claimId: claim.claimid,
+        payer: claim.currentpayorid || 'Unknown Payer',
+        payerId: claim.currentpayorid,
+        serviceDate: claim.servicedt,
+        billingDate: claim.billingdt,
+        filingDeadline: claim.filingdeadlinedt,
+        daysRemaining: claim.daysremaining,
+        agingCategory: claim.agingcategory?.toLowerCase().replace(/[_-]/g, ' ') || 'unknown',
+        claimAmount: `$${Number(claim.totalchargeamt || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+        department: 'General',
+        procedureCode: '99999',
+        procedureDescription: 'Healthcare Service',
+        denialStatus: claim.denialstatus?.toLowerCase() || 'pending',
+        denialReason: claim.denialcd ? `Denial code: ${claim.denialcd}` : null,
+        denialDate: null,
+        filingAttempts: claim.filingattempts || 1,
+        lastFilingDate: claim.billingdt,
+        riskLevel: claim.daysremaining && claim.daysremaining < 0 ? 'high' : claim.daysremaining && claim.daysremaining < 15 ? 'medium' : 'low',
+        assignedBiller: 'Staff Member',
+        priority: claim.daysremaining && claim.daysremaining < 0 ? 'urgent' : claim.daysremaining && claim.daysremaining < 15 ? 'medium' : 'low',
+        status: claim.filingstatus || 'pending',
+        notes: 'Imported from database',
+        createdAt: claim.createddt,
+        updatedAt: claim.updateddt
+      }));
       
-      // Filter by department
-      if (department && department !== 'all') {
-        filteredClaims = filteredClaims.filter(claim => claim.department === department);
-      }
-      
-      // Filter by assigned biller
-      if (assignedBiller && assignedBiller !== 'all') {
-        filteredClaims = filteredClaims.filter(claim => claim.assignedBiller === assignedBiller);
-      }
-      
-      // Filter by payer
-      if (payer && payer !== 'all') {
-        filteredClaims = filteredClaims.filter(claim => claim.payer === payer);
-      }
-      
-      res.json(filteredClaims);
+      res.json(transformedClaims);
     } catch (error) {
+      console.error("Error fetching timely filing claims:", error);
       res.status(500).json({ message: "Failed to fetch timely filing claims" });
     }
   });
 
   app.get("/api/timely-filing-metrics", async (req, res) => {
     try {
-      const { timelyFilingMetrics, agingCategories } = await import("./timely-filing-data");
-      res.json({ metrics: timelyFilingMetrics, categories: agingCategories });
+      const { pool } = await import("./db");
+      
+      // Get total claims using direct PostgreSQL
+      const totalResult = await pool.query(`SELECT COUNT(*) as count FROM timely_filing_claims`);
+      const totalClaims = Number(totalResult.rows[0]?.count || 0);
+      
+      // Get claims by aging category
+      const agingResult = await pool.query(`
+        SELECT agingcategory as category, COUNT(*) as count 
+        FROM timely_filing_claims 
+        GROUP BY agingcategory
+      `);
+      
+      const claimsByAging = agingResult.rows.reduce((acc: Record<string, number>, item: any) => {
+        if (item.category) {
+          acc[item.category.toLowerCase().replace(/[_-]/g, ' ')] = Number(item.count);
+        }
+        return acc;
+      }, {});
+      
+      // Get denials by aging
+      const denialResult = await pool.query(`
+        SELECT agingcategory as category, COUNT(*) as count 
+        FROM timely_filing_claims 
+        WHERE denialstatus = 'Denied' 
+        GROUP BY agingcategory
+      `);
+      
+      const denialsByAging = denialResult.rows.reduce((acc: Record<string, number>, item: any) => {
+        if (item.category) {
+          acc[item.category.toLowerCase().replace(/[_-]/g, ' ')] = Number(item.count);
+        }
+        return acc;
+      }, {});
+      
+      // Get total denial amount
+      const denialAmountResult = await pool.query(`
+        SELECT COALESCE(SUM(CAST(totalchargeamt AS DECIMAL)), 0) as total
+        FROM timely_filing_claims 
+        WHERE denialstatus = 'Denied'
+      `);
+      
+      const totalDenialAmount = Number(denialAmountResult.rows[0]?.total || 0);
+      
+      // Calculate average days to deadline
+      const avgDaysResult = await pool.query(`
+        SELECT COALESCE(AVG(daysremaining), 0) as avg 
+        FROM timely_filing_claims
+      `);
+      
+      const averageDaysToDeadline = Math.round(Number(avgDaysResult.rows[0]?.avg || 0));
+      
+      // Count critical action required (negative days remaining)
+      const criticalResult = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM timely_filing_claims 
+        WHERE daysremaining < 0
+      `);
+      
+      const criticalActionRequired = Number(criticalResult.rows[0]?.count || 0);
+      
+      // Calculate filing success rate
+      const approvedResult = await pool.query(`
+        SELECT COUNT(*) as count 
+        FROM timely_filing_claims 
+        WHERE denialstatus = 'Approved'
+      `);
+      
+      const approvedClaims = Number(approvedResult.rows[0]?.count || 0);
+      const filingSuccessRate = totalClaims > 0 ? Math.round((approvedClaims / totalClaims) * 100) : 0;
+      
+      const metrics = {
+        totalClaims,
+        claimsByAging,
+        denialsByAging,
+        totalDenialAmount: Math.round(totalDenialAmount),
+        averageDaysToDeadline,
+        criticalActionRequired,
+        filingSuccessRate,
+        departmentPerformance: {
+          "General": { onTime: approvedClaims, late: criticalActionRequired, successRate: filingSuccessRate }
+        }
+      };
+      
+      const categories = {
+        safe: { label: "Safe", color: "green", dayRange: { min: 30, max: null }, description: "More than 30 days until filing deadline" },
+        warning: { label: "Warning", color: "yellow", dayRange: { min: 15, max: 29 }, description: "15-29 days until filing deadline" },
+        critical: { label: "Critical", color: "orange", dayRange: { min: 1, max: 14 }, description: "1-14 days until filing deadline" },
+        overdue: { label: "Overdue", color: "red", dayRange: { min: null, max: 0 }, description: "Filing deadline has passed" },
+        "severely overdue": { label: "Severely Overdue", color: "red", dayRange: { min: null, max: -30 }, description: "More than 30 days past filing deadline" }
+      };
+      
+      res.json({ metrics, categories });
     } catch (error) {
+      console.error("Error fetching timely filing metrics:", error);
       res.status(500).json({ message: "Failed to fetch timely filing metrics" });
     }
   });
