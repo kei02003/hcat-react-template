@@ -1,10 +1,24 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Chip,
+  Box,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
 import { FileText, User, Calendar, AlertTriangle, CheckCircle, Search, Filter } from "lucide-react";
 
 interface Claim {
@@ -78,16 +92,16 @@ export function ClaimsModal({ isOpen, onClose, documentType, payer, count, rate 
     }
   });
 
-  const getStatusBadge = (status: string) => {
+  const getStatusChip = (status: string) => {
     switch (status) {
       case "confirmed":
-        return <Badge variant="destructive">Confirmed Redundant</Badge>;
+        return <Chip label="Confirmed Redundant" color="error" size="small" />;
       case "suspected":
-        return <Badge className="bg-yellow-100 text-yellow-800">Suspected</Badge>;
+        return <Chip label="Suspected" color="warning" size="small" />;
       case "resolved":
-        return <Badge className="bg-green-100 text-green-800">Resolved</Badge>;
+        return <Chip label="Resolved" color="success" size="small" />;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Chip label={status} color="default" size="small" />;
     }
   };
 
@@ -95,127 +109,163 @@ export function ClaimsModal({ isOpen, onClose, documentType, payer, count, rate 
   const suspectedCount = claims.filter(c => c.redundancyStatus === "suspected").length;
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
-            {payer} - {documentType} Claims
-          </DialogTitle>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span>{count} total claims found</span>
-            <span>•</span>
-            <span className="text-red-600">{redundantCount} confirmed redundant</span>
-            <span>•</span>
-            <span className="text-yellow-600">{suspectedCount} suspected</span>
-            <span>•</span>
-            <span>{rate}% redundancy rate</span>
-          </div>
-        </DialogHeader>
+    <Dialog 
+      open={isOpen} 
+      onClose={onClose}
+      maxWidth="xl"
+      fullWidth
+      PaperProps={{
+        sx: { height: '90vh' }
+      }}
+    >
+      <DialogTitle>
+        <Typography variant="h5" component="div" gutterBottom>
+          {payer} - {documentType} Claims
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
+          <Chip label={`${count} total claims`} color="primary" variant="outlined" />
+          <Chip label={`${redundantCount} confirmed redundant`} color="error" variant="outlined" />
+          <Chip label={`${suspectedCount} suspected`} color="warning" variant="outlined" />
+          <Chip label={`${rate}% redundancy rate`} color="info" variant="outlined" />
+        </Box>
+      </DialogTitle>
 
+      <DialogContent sx={{ p: 0 }}>
         {/* Filters and Controls */}
-        <div className="flex flex-wrap items-center gap-4 py-4 border-b">
-          <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search by patient or claim ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-64"
-              data-testid="input-search-claims"
-            />
-          </div>
+        <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider', display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+          <TextField
+            placeholder="Search by patient or claim ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            size="small"
+            sx={{ minWidth: 250 }}
+            data-testid="input-search-claims"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+            }}
+          />
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48" data-testid="select-status-filter">
-              <SelectValue placeholder="Filter by Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="confirmed">Confirmed Redundant</SelectItem>
-              <SelectItem value="suspected">Suspected</SelectItem>
-              <SelectItem value="resolved">Resolved</SelectItem>
-            </SelectContent>
-          </Select>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
+            <InputLabel>Filter by Status</InputLabel>
+            <Select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              label="Filter by Status"
+              data-testid="select-status-filter"
+            >
+              <MenuItem value="all">All Statuses</MenuItem>
+              <MenuItem value="confirmed">Confirmed Redundant</MenuItem>
+              <MenuItem value="suspected">Suspected</MenuItem>
+              <MenuItem value="resolved">Resolved</MenuItem>
+            </Select>
+          </FormControl>
 
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-48" data-testid="select-sort-by">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="submissionDate">Submission Date</SelectItem>
-              <SelectItem value="redundancyStatus">Status</SelectItem>
-              <SelectItem value="patientName">Patient Name</SelectItem>
-            </SelectContent>
-          </Select>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <InputLabel>Sort by</InputLabel>
+            <Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              label="Sort by"
+              data-testid="select-sort-by"
+            >
+              <MenuItem value="submissionDate">Submission Date</MenuItem>
+              <MenuItem value="redundancyStatus">Status</MenuItem>
+              <MenuItem value="patientName">Patient Name</MenuItem>
+            </Select>
+          </FormControl>
 
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Filter className="w-3 h-3" />
-            {filteredClaims.length} claims shown
-          </Badge>
-        </div>
+          <Chip
+            icon={<Filter />}
+            label={`${filteredClaims.length} claims shown`}
+            variant="outlined"
+            color="primary"
+          />
+        </Box>
 
         {/* Claims Table */}
-        <div className="flex-1 overflow-auto">
+        <Box sx={{ flex: 1, overflow: 'auto' }}>
           <Table>
-            <TableHeader>
+            <TableHead>
               <TableRow>
-                <TableHead>Patient</TableHead>
-                <TableHead>Claim ID</TableHead>
-                <TableHead>Submission Date</TableHead>
-                <TableHead>Last Request</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Previous Submissions</TableHead>
-                <TableHead>Assigned To</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableCell>Patient</TableCell>
+                <TableCell>Claim ID</TableCell>
+                <TableCell>Submission Date</TableCell>
+                <TableCell>Last Request</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Previous Submissions</TableCell>
+                <TableCell>Assigned To</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            </TableHeader>
+            </TableHead>
             <TableBody>
               {sortedClaims.map((claim) => (
-                <TableRow key={claim.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-gray-400" />
+                <TableRow key={claim.id}>
+                  <TableCell sx={{ fontWeight: 500 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <User size={16} style={{ color: '#999' }} />
                       {claim.patientName}
-                    </div>
+                    </Box>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-gray-400" />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <FileText size={16} style={{ color: '#999' }} />
                       {claim.claimId}
-                    </div>
+                    </Box>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-400" />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Calendar size={16} style={{ color: '#999' }} />
                       {claim.submissionDate}
-                    </div>
+                    </Box>
                   </TableCell>
                   <TableCell>{claim.lastRequestDate}</TableCell>
-                  <TableCell>{getStatusBadge(claim.redundancyStatus)}</TableCell>
+                  <TableCell>{getStatusChip(claim.redundancyStatus)}</TableCell>
                   <TableCell>
-                    <span className={`font-medium ${claim.previousSubmissions > 2 ? 'text-red-600' : 'text-gray-900'}`}>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontWeight: 500,
+                        color: claim.previousSubmissions > 2 ? 'error.main' : 'text.primary'
+                      }}
+                    >
                       {claim.previousSubmissions}
-                    </span>
+                    </Typography>
                   </TableCell>
-                  <TableCell className="text-sm text-gray-600">{claim.assignedTo}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" data-testid={`button-review-${claim.id}`}>
+                    <Typography variant="body2" color="text.secondary">
+                      {claim.assignedTo}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      <Button variant="outlined" size="small" data-testid={`button-review-${claim.id}`}>
                         Review
                       </Button>
                       {claim.redundancyStatus === "confirmed" && (
-                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                          <AlertTriangle className="h-3 w-3 mr-1" />
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          color="error"
+                          startIcon={<AlertTriangle size={16} />}
+                        >
                           Contact Payer
                         </Button>
                       )}
                       {claim.redundancyStatus === "suspected" && (
-                        <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700">
-                          <CheckCircle className="h-3 w-3 mr-1" />
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          color="success"
+                          startIcon={<CheckCircle size={16} />}
+                        >
                           Mark Resolved
                         </Button>
                       )}
-                    </div>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))}
@@ -223,38 +273,42 @@ export function ClaimsModal({ isOpen, onClose, documentType, payer, count, rate 
           </Table>
 
           {filteredClaims.length === 0 && (
-            <div className="flex items-center justify-center py-8 text-gray-500">
-              <div className="text-center">
-                <FileText className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                <p>No claims match your current filters</p>
-              </div>
-            </div>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                    <FileText size={32} style={{ color: '#ccc' }} />
+                    <Typography color="text.secondary">No claims match your current filters</Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            </TableBody>
           )}
-        </div>
+        </Box>
 
         {/* Summary Footer */}
-        <div className="border-t pt-4">
-          <div className="grid grid-cols-4 gap-4 text-sm">
-            <div className="text-center">
-              <div className="font-semibold text-gray-900">{claims.length}</div>
-              <div className="text-gray-600">Total Claims</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-red-600">{redundantCount}</div>
-              <div className="text-gray-600">Confirmed Redundant</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-yellow-600">{suspectedCount}</div>
-              <div className="text-gray-600">Suspected</div>
-            </div>
-            <div className="text-center">
-              <div className="font-semibold text-blue-600">
+        <Box sx={{ borderTop: 1, borderColor: 'divider', p: 3 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, textAlign: 'center' }}>
+            <Box>
+              <Typography variant="h6" color="text.primary">{claims.length}</Typography>
+              <Typography variant="caption" color="text.secondary">Total Claims</Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6" color="error.main">{redundantCount}</Typography>
+              <Typography variant="caption" color="text.secondary">Confirmed Redundant</Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6" color="warning.main">{suspectedCount}</Typography>
+              <Typography variant="caption" color="text.secondary">Suspected</Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6" color="primary.main">
                 {claims.reduce((sum, claim) => sum + claim.previousSubmissions, 0)}
-              </div>
-              <div className="text-gray-600">Total Resubmissions</div>
-            </div>
-          </div>
-        </div>
+              </Typography>
+              <Typography variant="caption" color="text.secondary">Total Resubmissions</Typography>
+            </Box>
+          </Box>
+        </Box>
       </DialogContent>
     </Dialog>
   );
