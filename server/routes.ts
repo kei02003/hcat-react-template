@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { revenueCycleStorage } from "./revenue-cycle-storage";
+import { registerRevenueCycleRoutes } from "./revenue-cycle-routes";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { requirePermission, requireAnyPermission, requireRoleLevel, auditAction, type AuthenticatedRequest } from "./auth/middleware";
 import { rbacService } from "./auth/rbac";
@@ -23,6 +25,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.warn('Demo users creation skipped (tables may not exist yet)');
     }
   }
+
+  // Register revenue cycle routes
+  registerRevenueCycleRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req, res) => {
