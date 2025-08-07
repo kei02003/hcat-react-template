@@ -62,6 +62,12 @@ export function PreAuthorizationDashboard() {
   const [selectedTab, setSelectedTab] = useState("new-request");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProcedure, setSelectedProcedure] = useState("");
+  
+  // Filter states for pre-auth requests
+  const [filterProcedure, setFilterProcedure] = useState("");
+  const [filterPayer, setFilterPayer] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterDaysUntil, setFilterDaysUntil] = useState("");
   const [newRequestData, setNewRequestData] = useState({
     patientName: "",
     memberID: "",
@@ -135,11 +141,37 @@ export function PreAuthorizationDashboard() {
     setNewRequestData(prev => ({ ...prev, procedureCode }));
   };
 
-  const filteredRequests = preAuthRequests.filter(req =>
-    req.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.procedureCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    req.procedureName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRequests = preAuthRequests.filter(req => {
+    // Search filter
+    const matchesSearch = req.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.procedureCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.procedureName.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Procedure filter
+    const matchesProcedure = !filterProcedure || 
+      req.procedureCode.includes(filterProcedure) || 
+      req.procedureName.toLowerCase().includes(filterProcedure.toLowerCase());
+    
+    // Payer filter
+    const matchesPayer = !filterPayer || req.insurerName === filterPayer;
+    
+    // Status filter
+    const matchesStatus = !filterStatus || req.status === filterStatus;
+    
+    // Days until procedure filter
+    const matchesDaysUntil = !filterDaysUntil || (() => {
+      const days = req.daysUntilProcedure;
+      switch (filterDaysUntil) {
+        case "urgent": return days <= 3;
+        case "week": return days >= 4 && days <= 7;
+        case "month": return days >= 8 && days <= 30;
+        case "future": return days > 30;
+        default: return true;
+      }
+    })();
+    
+    return matchesSearch && matchesProcedure && matchesPayer && matchesStatus && matchesDaysUntil;
+  });
 
   // Calculate metrics
   const totalRequests = preAuthRequests.length;
@@ -240,6 +272,101 @@ export function PreAuthorizationDashboard() {
                   />
                 </div>
               </div>
+              
+              {/* Filter Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                <div>
+                  <Label className="text-sm">Filter by Procedure</Label>
+                  <Select value={filterProcedure} onValueChange={setFilterProcedure}>
+                    <SelectTrigger data-testid="select-filter-procedure">
+                      <SelectValue placeholder="All procedures" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All procedures</SelectItem>
+                      {Array.from(new Set(preAuthRequests.map(r => r.procedureCode))).map(code => {
+                        const request = preAuthRequests.find(r => r.procedureCode === code);
+                        return (
+                          <SelectItem key={code} value={code}>
+                            {code} - {request?.procedureName}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label className="text-sm">Filter by Payer</Label>
+                  <Select value={filterPayer} onValueChange={setFilterPayer}>
+                    <SelectTrigger data-testid="select-filter-payer">
+                      <SelectValue placeholder="All payers" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All payers</SelectItem>
+                      {Array.from(new Set(preAuthRequests.map(r => r.insurerName))).map(payer => (
+                        <SelectItem key={payer} value={payer}>{payer}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label className="text-sm">Filter by Status</Label>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger data-testid="select-filter-status">
+                      <SelectValue placeholder="All statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All statuses</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="denied">Denied</SelectItem>
+                      <SelectItem value="requires_review">Requires Review</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label className="text-sm">Filter by Days Until Procedure</Label>
+                  <Select value={filterDaysUntil} onValueChange={setFilterDaysUntil}>
+                    <SelectTrigger data-testid="select-filter-days">
+                      <SelectValue placeholder="All timeframes" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All timeframes</SelectItem>
+                      <SelectItem value="urgent">≤3 days (Urgent)</SelectItem>
+                      <SelectItem value="week">4-7 days</SelectItem>
+                      <SelectItem value="month">8-30 days</SelectItem>
+                      <SelectItem value="future">&gt;30 days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              {/* Filter Summary */}
+              {(filterProcedure || filterPayer || filterStatus || filterDaysUntil) && (
+                <div className="flex items-center space-x-2 mt-3 text-sm text-gray-600">
+                  <span>Active filters:</span>
+                  {filterProcedure && <Badge variant="outline" className="text-xs">Procedure: {filterProcedure}</Badge>}
+                  {filterPayer && <Badge variant="outline" className="text-xs">Payer: {filterPayer}</Badge>}
+                  {filterStatus && <Badge variant="outline" className="text-xs">Status: {filterStatus}</Badge>}
+                  {filterDaysUntil && <Badge variant="outline" className="text-xs">Days: {filterDaysUntil}</Badge>}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      setFilterProcedure("");
+                      setFilterPayer("");
+                      setFilterStatus("");
+                      setFilterDaysUntil("");
+                    }}
+                    className="text-xs"
+                    data-testid="button-clear-filters"
+                  >
+                    Clear all filters
+                  </Button>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
