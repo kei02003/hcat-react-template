@@ -20,8 +20,10 @@ import {
   User,
   Calendar,
   Shield,
-  Wand2
+  Wand2,
+  Upload
 } from "lucide-react";
+import { TemplateUploadWorkflow } from "./template-upload-workflow";
 
 interface FormField {
   id: string;
@@ -78,7 +80,7 @@ interface PatientData {
 }
 
 export function FormPrepopulationDemo() {
-  const [selectedOption, setSelectedOption] = useState<"option1" | "option2">("option1");
+  const [selectedOption, setSelectedOption] = useState<"option1" | "option2" | "templates">("option1");
   const [selectedPayer, setSelectedPayer] = useState<string>("");
   const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [isAutoFilling, setIsAutoFilling] = useState(false);
@@ -391,10 +393,14 @@ export function FormPrepopulationDemo() {
       </div>
 
       {/* Option Selection */}
-      <Tabs value={selectedOption} onValueChange={(value) => setSelectedOption(value as "option1" | "option2")}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="option1">Option 1: Interactive Real-time Prepopulation</TabsTrigger>
-          <TabsTrigger value="option2">Option 2: Payer Template Comparison</TabsTrigger>
+      <Tabs value={selectedOption} onValueChange={(value) => setSelectedOption(value as "option1" | "option2" | "templates")}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="option1">Interactive Prepopulation</TabsTrigger>
+          <TabsTrigger value="option2">Template Comparison</TabsTrigger>
+          <TabsTrigger value="templates">
+            <Upload className="h-4 w-4 mr-2" />
+            Template Management
+          </TabsTrigger>
         </TabsList>
 
         {/* Option 1: Interactive Real-time Prepopulation */}
@@ -682,6 +688,11 @@ export function FormPrepopulationDemo() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Templates Tab: Template Upload and Management */}
+        <TabsContent value="templates" className="space-y-6">
+          <TemplateUploadWorkflow />
         </TabsContent>
       </Tabs>
 

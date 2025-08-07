@@ -572,6 +572,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Template Management API routes
+  app.get("/api/pre-auth-templates", async (req, res) => {
+    try {
+      const templates = await storage.getPreAuthTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+      res.status(500).json({ message: "Failed to fetch templates" });
+    }
+  });
+
+  app.post("/api/pre-auth-templates", async (req, res) => {
+    try {
+      const template = await storage.createPreAuthTemplate(req.body);
+      res.json(template);
+    } catch (error) {
+      console.error("Error creating template:", error);
+      res.status(500).json({ message: "Failed to create template" });
+    }
+  });
+
+  app.put("/api/pre-auth-templates/:id", async (req, res) => {
+    try {
+      const template = await storage.updatePreAuthTemplate(req.params.id, req.body);
+      if (!template) {
+        return res.status(404).json({ message: "Template not found" });
+      }
+      res.json(template);
+    } catch (error) {
+      console.error("Error updating template:", error);
+      res.status(500).json({ message: "Failed to update template" });
+    }
+  });
+
+  app.delete("/api/pre-auth-templates/:id", async (req, res) => {
+    try {
+      await storage.deletePreAuthTemplate(req.params.id);
+      res.json({ message: "Template deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting template:", error);
+      res.status(500).json({ message: "Failed to delete template" });
+    }
+  });
+
+  app.get("/api/template-fields/:templateId", async (req, res) => {
+    try {
+      const fields = await storage.getTemplateFields(req.params.templateId);
+      res.json(fields);
+    } catch (error) {
+      console.error("Error fetching template fields:", error);
+      res.status(500).json({ message: "Failed to fetch template fields" });
+    }
+  });
+
+  app.post("/api/template-fields", async (req, res) => {
+    try {
+      const field = await storage.createTemplateField(req.body);
+      res.json(field);
+    } catch (error) {
+      console.error("Error creating template field:", error);
+      res.status(500).json({ message: "Failed to create template field" });
+    }
+  });
+
+  app.put("/api/template-fields/:id", async (req, res) => {
+    try {
+      const field = await storage.updateTemplateField(req.params.id, req.body);
+      if (!field) {
+        return res.status(404).json({ message: "Template field not found" });
+      }
+      res.json(field);
+    } catch (error) {
+      console.error("Error updating template field:", error);
+      res.status(500).json({ message: "Failed to update template field" });
+    }
+  });
+
+  app.get("/api/template-mapping-configs/:templateId", async (req, res) => {
+    try {
+      const configs = await storage.getTemplateMappingConfigs(req.params.templateId);
+      res.json(configs);
+    } catch (error) {
+      console.error("Error fetching mapping configs:", error);
+      res.status(500).json({ message: "Failed to fetch mapping configs" });
+    }
+  });
+
+  app.post("/api/template-mapping-configs", async (req, res) => {
+    try {
+      const config = await storage.createTemplateMappingConfig(req.body);
+      res.json(config);
+    } catch (error) {
+      console.error("Error creating mapping config:", error);
+      res.status(500).json({ message: "Failed to create mapping config" });
+    }
+  });
+
+  app.put("/api/template-mapping-configs/:id", async (req, res) => {
+    try {
+      const config = await storage.updateTemplateMappingConfig(req.params.id, req.body);
+      if (!config) {
+        return res.status(404).json({ message: "Mapping config not found" });
+      }
+      res.json(config);
+    } catch (error) {
+      console.error("Error updating mapping config:", error);
+      res.status(500).json({ message: "Failed to update mapping config" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,4 +1,4 @@
-import { type Metric, type InsertMetric, type DocumentationRequest, type InsertDocumentationRequest, type PayerBehavior, type InsertPayerBehavior, type RedundancyMatrix, type InsertRedundancyMatrix, type PredictiveAnalytics, type InsertPredictiveAnalytics, type DenialPredictions, type InsertDenialPredictions, type RiskFactors, type InsertRiskFactors } from "@shared/schema";
+import { type Metric, type InsertMetric, type DocumentationRequest, type InsertDocumentationRequest, type PayerBehavior, type InsertPayerBehavior, type RedundancyMatrix, type InsertRedundancyMatrix, type PredictiveAnalytics, type InsertPredictiveAnalytics, type DenialPredictions, type InsertDenialPredictions, type RiskFactors, type InsertRiskFactors, type PreAuthTemplate, type InsertPreAuthTemplate, type TemplateField, type InsertTemplateField, type TemplateMappingConfig, type InsertTemplateMappingConfig } from "@shared/schema";
 import { type DepartmentPerformance } from "@shared/timely-filing-schema";
 import { users, type User, type UpsertUser } from "../shared/auth-schema";
 
@@ -144,6 +144,18 @@ export interface IStorage {
   createAppealLetter(letter: InsertAppealLetter): Promise<AppealLetter>;
   getAppealOutcomes(): Promise<AppealOutcome[]>;
   getDenialPatterns(): Promise<DenialPattern[]>;
+  
+  // Template Management
+  getPreAuthTemplates(): Promise<PreAuthTemplate[]>;
+  createPreAuthTemplate(template: InsertPreAuthTemplate): Promise<PreAuthTemplate>;
+  updatePreAuthTemplate(id: string, template: Partial<InsertPreAuthTemplate>): Promise<PreAuthTemplate | undefined>;
+  deletePreAuthTemplate(id: string): Promise<void>;
+  getTemplateFields(templateId: string): Promise<TemplateField[]>;
+  createTemplateField(field: InsertTemplateField): Promise<TemplateField>;
+  updateTemplateField(id: string, field: Partial<InsertTemplateField>): Promise<TemplateField | undefined>;
+  getTemplateMappingConfigs(templateId: string): Promise<TemplateMappingConfig[]>;
+  createTemplateMappingConfig(config: InsertTemplateMappingConfig): Promise<TemplateMappingConfig>;
+  updateTemplateMappingConfig(id: string, config: Partial<InsertTemplateMappingConfig>): Promise<TemplateMappingConfig | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -166,6 +178,9 @@ export class MemStorage implements IStorage {
   private appealOutcomes: Map<string, AppealOutcome>;
   private denialPatterns: Map<string, DenialPattern>;
   private clinicalDecisions: Map<string, ClinicalDecision>;
+  private preAuthTemplates: Map<string, PreAuthTemplate>;
+  private templateFields: Map<string, TemplateField>;
+  private templateMappingConfigs: Map<string, TemplateMappingConfig>;
 
   constructor() {
     this.metrics = new Map();
@@ -187,6 +202,9 @@ export class MemStorage implements IStorage {
     this.appealOutcomes = new Map();
     this.denialPatterns = new Map();
     this.clinicalDecisions = new Map();
+    this.preAuthTemplates = new Map();
+    this.templateFields = new Map();
+    this.templateMappingConfigs = new Map();
     this.initializeData();
   }
 
@@ -1163,6 +1181,9 @@ export class MemStorage implements IStorage {
     preAuthRequests.forEach(req => {
       this.preAuthRequests.set(req.id, req);
     });
+
+    // Initialize template management data
+    this.initializeTemplates();
   }
 
   private initializePatientStatusMonitoring() {
@@ -1171,6 +1192,258 @@ export class MemStorage implements IStorage {
 
   private initializeAppealRequests() {
     // Sample appeal requests will be added here
+  }
+
+  private initializeTemplates() {
+    // Nevada Medicaid Pre-Authorization Template (based on attached PDF)
+    const nevadaMedicaidTemplate: PreAuthTemplate = {
+      id: "tmpl-001",
+      name: "Nevada Medicaid Prior Auth FA-8",
+      payerName: "Nevada Medicaid",
+      formType: "Inpatient Medical and Surgical",
+      originalFileName: "NV_MCAID_PriorAuth_FA-8.pdf",
+      uploadDate: new Date("2024-12-07"),
+      status: "ready",
+      extractedText: "Prior Authorization Request Nevada Medicaid and Nevada Check Up Inpatient Medical and Surgical...",
+      processingNotes: [
+        "Successfully extracted 25 form fields",
+        "Identified required fields: 18",
+        "Auto-mapped 23 fields to patient data",
+        "Requires manual mapping for 2 specialty fields"
+      ],
+      mappingProgress: 95,
+      createdBy: "demo_admin_001",
+      updatedAt: new Date()
+    };
+
+    this.preAuthTemplates.set(nevadaMedicaidTemplate.id, nevadaMedicaidTemplate);
+
+    // Template fields for Nevada Medicaid form
+    const templateFields: TemplateField[] = [
+      {
+        id: "field-001",
+        templateId: "tmpl-001",
+        label: "Recipient Name (Last, First, MI)",
+        fieldType: "text",
+        required: true,
+        position: { x: 100, y: 200, page: 1 },
+        mappingRules: ["patient.lastName + ', ' + patient.firstName + ' ' + patient.middleInitial"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-002",
+        templateId: "tmpl-001",
+        label: "Recipient ID",
+        fieldType: "text",
+        required: true,
+        position: { x: 100, y: 220, page: 1 },
+        mappingRules: ["patient.medicaidId", "patient.memberID"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-003",
+        templateId: "tmpl-001",
+        label: "DOB",
+        fieldType: "date",
+        required: true,
+        position: { x: 400, y: 220, page: 1 },
+        mappingRules: ["patient.dateOfBirth"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-004",
+        templateId: "tmpl-001",
+        label: "Address",
+        fieldType: "text",
+        required: false,
+        position: { x: 100, y: 240, page: 1 },
+        mappingRules: ["patient.address.street"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-005",
+        templateId: "tmpl-001",
+        label: "Phone",
+        fieldType: "text",
+        required: false,
+        position: { x: 400, y: 240, page: 1 },
+        mappingRules: ["patient.phoneNumber"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-006",
+        templateId: "tmpl-001",
+        label: "City",
+        fieldType: "text",
+        required: false,
+        position: { x: 100, y: 260, page: 1 },
+        mappingRules: ["patient.address.city"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-007",
+        templateId: "tmpl-001",
+        label: "State",
+        fieldType: "text",
+        required: false,
+        position: { x: 250, y: 260, page: 1 },
+        mappingRules: ["patient.address.state"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-008",
+        templateId: "tmpl-001",
+        label: "Zip Code",
+        fieldType: "text",
+        required: false,
+        position: { x: 350, y: 260, page: 1 },
+        mappingRules: ["patient.address.zipCode"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-009",
+        templateId: "tmpl-001",
+        label: "Ordering Provider Name",
+        fieldType: "text",
+        required: true,
+        position: { x: 100, y: 320, page: 1 },
+        mappingRules: ["provider.ordering.name"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-010",
+        templateId: "tmpl-001",
+        label: "NPI",
+        fieldType: "text",
+        required: true,
+        position: { x: 400, y: 320, page: 1 },
+        mappingRules: ["provider.ordering.npi"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-011",
+        templateId: "tmpl-001",
+        label: "Facility Name",
+        fieldType: "text",
+        required: true,
+        position: { x: 100, y: 380, page: 1 },
+        mappingRules: ["provider.facility.name"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-012",
+        templateId: "tmpl-001",
+        label: "Service Type",
+        fieldType: "select",
+        required: true,
+        position: { x: 100, y: 450, page: 1 },
+        options: ["Medical", "Surgical", "Maternity", "Pediatric", "Observation"],
+        mappingRules: ["service.type"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-013",
+        templateId: "tmpl-001",
+        label: "Estimated Admission Date",
+        fieldType: "date",
+        required: true,
+        position: { x: 100, y: 480, page: 1 },
+        mappingRules: ["procedure.scheduledDate", "admission.estimatedDate"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-014",
+        templateId: "tmpl-001",
+        label: "Admission Diagnosis 1",
+        fieldType: "text",
+        required: true,
+        position: { x: 100, y: 520, page: 1 },
+        mappingRules: ["diagnosis.primary.code"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-015",
+        templateId: "tmpl-001",
+        label: "Severity of Illness",
+        fieldType: "textarea",
+        required: true,
+        position: { x: 100, y: 200, page: 2 },
+        mappingRules: ["clinical.symptoms", "clinical.labFindings"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-016",
+        templateId: "tmpl-001",
+        label: "Intensity of Service",
+        fieldType: "textarea",
+        required: true,
+        position: { x: 100, y: 300, page: 2 },
+        mappingRules: ["treatment.plan", "clinical.services"],
+        createdAt: new Date()
+      },
+      {
+        id: "field-017",
+        templateId: "tmpl-001",
+        label: "Discharge Plan",
+        fieldType: "textarea",
+        required: false,
+        position: { x: 100, y: 400, page: 2 },
+        mappingRules: ["service.dischargeplan"],
+        createdAt: new Date()
+      }
+    ];
+
+    templateFields.forEach(field => {
+      this.templateFields.set(field.id, field);
+    });
+
+    // Template mapping configurations
+    const mappingConfigs: TemplateMappingConfig[] = [
+      {
+        id: "mapping-001",
+        templateId: "tmpl-001",
+        fieldId: "field-001",
+        patientDataPath: "patient.fullName",
+        confidence: 100.0,
+        isManualMapping: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "mapping-002",
+        templateId: "tmpl-001",
+        fieldId: "field-002",
+        patientDataPath: "insurance.memberId",
+        confidence: 95.0,
+        isManualMapping: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "mapping-003",
+        templateId: "tmpl-001",
+        fieldId: "field-003",
+        patientDataPath: "patient.dateOfBirth",
+        confidence: 100.0,
+        isManualMapping: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "mapping-004",
+        templateId: "tmpl-001",
+        fieldId: "field-009",
+        patientDataPath: "provider.ordering.name",
+        confidence: 90.0,
+        isManualMapping: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    mappingConfigs.forEach(config => {
+      this.templateMappingConfigs.set(config.id, config);
+    });
   }
 
   // Pre-Authorization Management methods
@@ -1279,6 +1552,92 @@ export class MemStorage implements IStorage {
 
   async getClinicalDecisions(): Promise<ClinicalDecision[]> {
     return Array.from(this.clinicalDecisions.values());
+  }
+
+  // Template Management methods
+  async getPreAuthTemplates(): Promise<PreAuthTemplate[]> {
+    return Array.from(this.preAuthTemplates.values());
+  }
+
+  async createPreAuthTemplate(template: InsertPreAuthTemplate): Promise<PreAuthTemplate> {
+    const id = randomUUID();
+    const preAuthTemplate: PreAuthTemplate = { 
+      id, 
+      ...template, 
+      uploadDate: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.preAuthTemplates.set(id, preAuthTemplate);
+    return preAuthTemplate;
+  }
+
+  async updatePreAuthTemplate(id: string, template: Partial<InsertPreAuthTemplate>): Promise<PreAuthTemplate | undefined> {
+    const existing = this.preAuthTemplates.get(id);
+    if (!existing) return undefined;
+    const updated: PreAuthTemplate = { ...existing, ...template, updatedAt: new Date() };
+    this.preAuthTemplates.set(id, updated);
+    return updated;
+  }
+
+  async deletePreAuthTemplate(id: string): Promise<void> {
+    this.preAuthTemplates.delete(id);
+    // Also delete associated template fields and mapping configs
+    const fieldsToDelete = Array.from(this.templateFields.values()).filter(f => f.templateId === id);
+    fieldsToDelete.forEach(field => {
+      this.templateFields.delete(field.id);
+      // Delete mapping configs for this field
+      const configsToDelete = Array.from(this.templateMappingConfigs.values()).filter(c => c.fieldId === field.id);
+      configsToDelete.forEach(config => this.templateMappingConfigs.delete(config.id));
+    });
+  }
+
+  async getTemplateFields(templateId: string): Promise<TemplateField[]> {
+    return Array.from(this.templateFields.values()).filter(f => f.templateId === templateId);
+  }
+
+  async createTemplateField(field: InsertTemplateField): Promise<TemplateField> {
+    const id = randomUUID();
+    const templateField: TemplateField = { 
+      id, 
+      ...field, 
+      createdAt: new Date() 
+    };
+    this.templateFields.set(id, templateField);
+    return templateField;
+  }
+
+  async updateTemplateField(id: string, field: Partial<InsertTemplateField>): Promise<TemplateField | undefined> {
+    const existing = this.templateFields.get(id);
+    if (!existing) return undefined;
+    const updated: TemplateField = { ...existing, ...field };
+    this.templateFields.set(id, updated);
+    return updated;
+  }
+
+  async getTemplateMappingConfigs(templateId: string): Promise<TemplateMappingConfig[]> {
+    const templateFields = Array.from(this.templateFields.values()).filter(f => f.templateId === templateId);
+    const fieldIds = templateFields.map(f => f.id);
+    return Array.from(this.templateMappingConfigs.values()).filter(c => fieldIds.includes(c.fieldId));
+  }
+
+  async createTemplateMappingConfig(config: InsertTemplateMappingConfig): Promise<TemplateMappingConfig> {
+    const id = randomUUID();
+    const mappingConfig: TemplateMappingConfig = { 
+      id, 
+      ...config, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.templateMappingConfigs.set(id, mappingConfig);
+    return mappingConfig;
+  }
+
+  async updateTemplateMappingConfig(id: string, config: Partial<InsertTemplateMappingConfig>): Promise<TemplateMappingConfig | undefined> {
+    const existing = this.templateMappingConfigs.get(id);
+    if (!existing) return undefined;
+    const updated: TemplateMappingConfig = { ...existing, ...config, updatedAt: new Date() };
+    this.templateMappingConfigs.set(id, updated);
+    return updated;
   }
 
   // User operations (required for Replit Auth)
@@ -1456,6 +1815,47 @@ export class DatabaseStorage implements IStorage {
 
   async getDenialPatterns(): Promise<DenialPattern[]> {
     return this.memStorage.getDenialPatterns();
+  }
+
+  // Template Management methods
+  async getPreAuthTemplates(): Promise<PreAuthTemplate[]> {
+    return this.memStorage.getPreAuthTemplates();
+  }
+
+  async createPreAuthTemplate(template: InsertPreAuthTemplate): Promise<PreAuthTemplate> {
+    return this.memStorage.createPreAuthTemplate(template);
+  }
+
+  async updatePreAuthTemplate(id: string, template: Partial<InsertPreAuthTemplate>): Promise<PreAuthTemplate | undefined> {
+    return this.memStorage.updatePreAuthTemplate(id, template);
+  }
+
+  async deletePreAuthTemplate(id: string): Promise<void> {
+    return this.memStorage.deletePreAuthTemplate(id);
+  }
+
+  async getTemplateFields(templateId: string): Promise<TemplateField[]> {
+    return this.memStorage.getTemplateFields(templateId);
+  }
+
+  async createTemplateField(field: InsertTemplateField): Promise<TemplateField> {
+    return this.memStorage.createTemplateField(field);
+  }
+
+  async updateTemplateField(id: string, field: Partial<InsertTemplateField>): Promise<TemplateField | undefined> {
+    return this.memStorage.updateTemplateField(id, field);
+  }
+
+  async getTemplateMappingConfigs(templateId: string): Promise<TemplateMappingConfig[]> {
+    return this.memStorage.getTemplateMappingConfigs(templateId);
+  }
+
+  async createTemplateMappingConfig(config: InsertTemplateMappingConfig): Promise<TemplateMappingConfig> {
+    return this.memStorage.createTemplateMappingConfig(config);
+  }
+
+  async updateTemplateMappingConfig(id: string, config: Partial<InsertTemplateMappingConfig>): Promise<TemplateMappingConfig | undefined> {
+    return this.memStorage.updateTemplateMappingConfig(id, config);
   }
 }
 

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, integer, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -131,3 +131,69 @@ export type DenialPredictions = typeof denialPredictions.$inferSelect;
 export type InsertDenialPredictions = z.infer<typeof insertDenialPredictionsSchema>;
 export type RiskFactors = typeof riskFactors.$inferSelect;
 export type InsertRiskFactors = z.infer<typeof insertRiskFactorsSchema>;
+
+// Template Management Schema
+export const preAuthTemplates = pgTable("pre_auth_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  payerName: text("payer_name").notNull(),
+  formType: text("form_type").notNull(), // e.g., "Inpatient Medical", "Outpatient", etc.
+  originalFileName: text("original_file_name").notNull(),
+  uploadDate: timestamp("upload_date").defaultNow(),
+  status: text("status").$type<"processing" | "ready" | "error" | "mapping_required">().default("processing"),
+  extractedText: text("extracted_text"),
+  processingNotes: text("processing_notes").array().default(sql`ARRAY[]::text[]`),
+  mappingProgress: integer("mapping_progress").default(0), // percentage 0-100
+  createdBy: varchar("created_by").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const templateFields = pgTable("template_fields", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  templateId: varchar("template_id").notNull().references(() => preAuthTemplates.id, { onDelete: "cascade" }),
+  label: text("label").notNull(),
+  fieldType: text("field_type").$type<"text" | "textarea" | "date" | "select" | "checkbox" | "number">().notNull(),
+  required: boolean("required").default(false),
+  position: jsonb("position").$type<{ x: number; y: number; page: number }>().notNull(),
+  options: text("options").array(), // for select fields
+  mappingRules: text("mapping_rules").array(), // patient data field paths
+  validationRules: jsonb("validation_rules").$type<{ pattern?: string; minLength?: number; maxLength?: number }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const templateMappingConfigs = pgTable("template_mapping_configs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  templateId: varchar("template_id").notNull().references(() => preAuthTemplates.id, { onDelete: "cascade" }),
+  fieldId: varchar("field_id").notNull().references(() => templateFields.id, { onDelete: "cascade" }),
+  patientDataPath: text("patient_data_path").notNull(), // e.g., "patient.firstName"
+  confidence: decimal("confidence", { precision: 5, scale: 2 }), // AI mapping confidence score
+  isManualMapping: boolean("is_manual_mapping").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Insert schemas for template management
+export const insertPreAuthTemplatesSchema = createInsertSchema(preAuthTemplates).omit({
+  id: true,
+  uploadDate: true,
+  updatedAt: true,
+});
+
+export const insertTemplateFieldsSchema = createInsertSchema(templateFields).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertTemplateMappingConfigsSchema = createInsertSchema(templateMappingConfigs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Template management types
+export type PreAuthTemplate = typeof preAuthTemplates.$inferSelect;
+export type InsertPreAuthTemplate = z.infer<typeof insertPreAuthTemplatesSchema>;
+export type TemplateField = typeof templateFields.$inferSelect;
+export type InsertTemplateField = z.infer<typeof insertTemplateFieldsSchema>;
+export type TemplateMappingConfig = typeof templateMappingConfigs.$inferSelect;
+export type InsertTemplateMappingConfig = z.infer<typeof insertTemplateMappingConfigsSchema>;
