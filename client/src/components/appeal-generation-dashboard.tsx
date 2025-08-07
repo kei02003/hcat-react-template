@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertTriangle, TrendingUp, FileText, Clock, CheckCircle, Target, Search } from "lucide-react";
+import { AlertTriangle, TrendingUp, TrendingDown, FileText, Clock, CheckCircle, Target, Search } from "lucide-react";
 import { PatientAppealModal } from "./patient-appeal-modal";
 
 interface AppealCase {
@@ -116,7 +116,7 @@ export function AppealGenerationDashboard() {
       </div>
 
       {/* Performance Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
@@ -187,6 +187,40 @@ export function AppealGenerationDashboard() {
               <div className="text-xs text-green-600 font-medium">
                 {filteredCases.filter((c: AppealCase) => c.status === "generated").length} letters ready
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Denial Letters Produced</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">98.4%</div>
+            <p className="text-xs text-muted-foreground">
+              Unreasonable denials challenged within 5 days
+            </p>
+            <div className="flex items-center mt-2">
+              <div className="text-xs text-green-600 font-medium">Target: 100%</div>
+              <Badge className="ml-2 bg-green-100 text-green-800 text-xs">On Track</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Denial Reduction</CardTitle>
+            <TrendingDown className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">22.3%</div>
+            <p className="text-xs text-muted-foreground">
+              Clinical necessity/DRG/prior auth issues
+            </p>
+            <div className="flex items-center mt-2">
+              <div className="text-xs text-blue-600 font-medium">Target: 20%</div>
+              <Badge className="ml-2 bg-blue-100 text-blue-800 text-xs">Exceeded</Badge>
             </div>
           </CardContent>
         </Card>
