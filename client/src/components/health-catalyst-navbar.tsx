@@ -101,11 +101,7 @@ export function HealthCatalystNavbar({
               marginRight: 1,
               boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
             }}>
-              <Box sx={{
-                width: 24,
-                height: 24,
-                background: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'%3E%3Cpath d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'/%3E%3C/svg%3E") center/contain no-repeat'
-              }} />
+              {renderIcon(brandIcon, 24)}
             </Box>
             <Typography sx={{
               color: 'white',
