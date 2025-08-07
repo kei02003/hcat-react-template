@@ -1,16 +1,4 @@
 import { useState } from "react";
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Tooltip,
-  Grid,
-} from '@mui/material';
 import { AlertTriangle, TrendingUp } from "lucide-react";
 import { ClaimsModal } from "@/components/claims-modal";
 
@@ -67,10 +55,10 @@ const matrixData: MatrixData[] = [
   },
 ];
 
-function getCellColor(rate: number) {
-  if (rate >= 60) return { bgcolor: 'error.main', color: 'error.contrastText' };
-  if (rate >= 30) return { bgcolor: 'warning.main', color: 'warning.contrastText' };
-  return { bgcolor: 'success.light', color: 'success.contrastText' };
+function getCellStyle(rate: number) {
+  if (rate >= 60) return "heat-map-cell-high";
+  if (rate >= 30) return "heat-map-cell-medium";
+  return "heat-map-cell-low";
 }
 
 function MatrixCell({ 
@@ -86,42 +74,18 @@ function MatrixCell({
   payer: string; 
   onClick: () => void; 
 }) {
-  const cellColors = getCellColor(rate);
-  
   return (
-    <TableCell 
-      sx={{
-        textAlign: 'center',
-        p: 2,
-        cursor: 'pointer',
-        border: 1,
-        borderColor: 'divider',
-        transition: 'all 0.2s',
-        borderRadius: 1,
-        '&:hover': {
-          transform: 'scale(1.02)',
-          boxShadow: 2,
-        },
-        ...cellColors,
-      }}
+    <td 
+      className={`px-3 py-2 text-center text-sm ${getCellStyle(rate)} cursor-pointer hover:opacity-80 hover:scale-105 transition-all duration-200 hover:shadow-md relative group`}
+      data-testid={`matrix-cell-${count}-${rate}`}
       onClick={onClick}
-      data-testid={`matrix-cell-${documentType.toLowerCase().replace(/\s+/g, '-')}-${payer.toLowerCase()}`}
+      title={`Click to view ${count} ${documentType} claims for ${payer}`}
     >
-      <Tooltip title={`${documentType} - ${payer}: ${count} claims (${rate}% redundancy rate)`}>
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {count} ({rate}%)
-          </Typography>
-          <Box sx={{ mt: 0.5, opacity: 0.8 }}>
-            {rate >= 50 ? (
-              <AlertTriangle size={12} />
-            ) : (
-              <TrendingUp size={12} />
-            )}
-          </Box>
-        </Box>
-      </Tooltip>
-    </TableCell>
+      <div className="relative">
+        {count} ({rate}%)
+        <div className="absolute inset-0 bg-white bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded"></div>
+      </div>
+    </td>
   );
 }
 
@@ -156,47 +120,47 @@ export function RedundancyMatrix() {
 
   return (
     <>
-      <Grid container spacing={3}>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Heat Map */}
-        <Grid item xs={12} lg={9}>
-          <Paper elevation={0} sx={{ overflow: 'hidden' }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 600, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-                    Document Type
-                  </TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 600, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-                    Medicare
-                  </TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 600, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-                    Medicaid
-                  </TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 600, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-                    BCBS
-                  </TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 600, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-                    Commercial
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+        <div className="lg:col-span-3">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr>
+                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Document Type
+                </th>
+                <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Medicare
+                </th>
+                <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Medicaid
+                </th>
+                <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  BCBS
+                </th>
+                <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Commercial
+                </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {matrixData.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>
-                      {row.documentType}
-                    </TableCell>
-                    <MatrixCell 
-                      count={row.medicare.count} 
-                      rate={row.medicare.rate} 
-                      documentType={row.documentType}
-                      payer="Medicare"
-                      onClick={() => handleCellClick(row.documentType, "Medicare", row.medicare.count, row.medicare.rate)}
-                    />
-                    <MatrixCell 
-                      count={row.medicaid.count} 
-                      rate={row.medicaid.rate} 
-                      documentType={row.documentType}
+                  <tr key={index}>
+                  <td className="px-3 py-2 text-sm font-medium text-gray-900">
+                    {row.documentType}
+                  </td>
+                  <MatrixCell 
+                    count={row.medicare.count} 
+                    rate={row.medicare.rate} 
+                    documentType={row.documentType}
+                    payer="Medicare"
+                    onClick={() => handleCellClick(row.documentType, "Medicare", row.medicare.count, row.medicare.rate)}
+                  />
+                  <MatrixCell 
+                    count={row.medicaid.count} 
+                    rate={row.medicaid.rate} 
+                    documentType={row.documentType}
                     payer="Medicaid"
                     onClick={() => handleCellClick(row.documentType, "Medicaid", row.medicaid.count, row.medicaid.rate)}
                   />
@@ -214,64 +178,42 @@ export function RedundancyMatrix() {
                     payer="Commercial"
                     onClick={() => handleCellClick(row.documentType, "Commercial", row.commercial.count, row.commercial.rate)}
                   />
-                  </TableRow>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </Paper>
-        </Grid>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* Pattern Analysis Panel */}
-        <Grid item xs={12} lg={3}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Paper 
-              elevation={1} 
-              sx={{ 
-                p: 2, 
-                bgcolor: 'error.light', 
-                borderLeft: 4, 
-                borderLeftColor: 'error.main' 
-              }} 
-              data-testid="pattern-alert"
-            >
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                <AlertTriangle size={16} color="#d32f2f" />
-                <Box>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'error.dark' }}>
-                    PATTERN ALERT
-                  </Typography>
-                  <Typography variant="caption" color="error.dark">
-                    BCBS requesting operative reports 73% already submitted
-                  </Typography>
-                </Box>
-              </Box>
-            </Paper>
-            
-            <Paper 
-              elevation={1} 
-              sx={{ 
-                p: 2, 
-                bgcolor: 'warning.light', 
-                borderLeft: 4, 
-                borderLeftColor: 'warning.main' 
-              }} 
-              data-testid="trend-alert"
-            >
-              <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                <TrendingUp size={16} color="#ed6c02" />
-                <Box>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.dark' }}>
-                    TREND
-                  </Typography>
-                  <Typography variant="caption" color="warning.dark">
-                    Medicaid lab result requests up 45% this month
-                  </Typography>
-                </Box>
-              </Box>
-            </Paper>
-          </Box>
-        </Grid>
-      </Grid>
+        <div className="lg:col-span-1">
+          <div className="space-y-4">
+            <div className="bg-red-50 border border-red-200 rounded-md p-3" data-testid="pattern-alert">
+            <div className="flex items-start">
+              <AlertTriangle className="h-4 w-4 text-red-400 mt-1 mr-2 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-red-800">PATTERN ALERT</p>
+                <p className="text-xs text-red-700 mt-1">
+                  BCBS requesting operative reports 73% already submitted
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3" data-testid="trend-alert">
+            <div className="flex items-start">
+              <TrendingUp className="h-4 w-4 text-yellow-400 mt-1 mr-2 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-yellow-800">TREND</p>
+                <p className="text-xs text-yellow-700 mt-1">
+                  Medicaid lab result requests up 45% this month
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
 
       {/* Claims Modal */}
       <ClaimsModal

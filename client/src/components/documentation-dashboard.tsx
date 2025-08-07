@@ -1,11 +1,5 @@
-import {
-  Box,
-  Button,
-  Typography,
-  Container,
-  Grid,
-  Paper,
-} from '@mui/material';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Download, Bot } from "lucide-react";
 import { PayerVolumeChart } from "./charts/payer-volume-chart";
 import { RedundancyMatrix } from "./charts/redundancy-matrix";
@@ -14,100 +8,89 @@ import { PayerAnalytics } from "./payer-analytics";
 
 export function DocumentationDashboard() {
   return (
-    <Container 
-      component="main" 
-      maxWidth={false}
-      sx={{ 
-        flex: 1, 
-        p: 3, 
-        overflow: 'auto', 
-        bgcolor: 'background.default' 
-      }}
-    >
-      <Box sx={{ mb: 4 }}>
+    <main className="flex-1 p-6 overflow-y-auto bg-white">
+      <div className="space-y-6">
         {/* Dashboard Title */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" component="h1" color="text.primary" sx={{ fontWeight: 600 }}>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900">
             Additional Documentation Request Analysis & Automation
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          </h1>
+          <div className="flex space-x-2">
             <Button 
-              variant="contained"
-              color="primary"
-              startIcon={<Download size={20} />}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               data-testid="button-export-report"
             >
+              <Download className="h-4 w-4 mr-2" />
               Export Report
             </Button>
             <Button 
-              variant="contained"
-              color="secondary"
-              startIcon={<Bot size={20} />}
+              className="bg-green-600 hover:bg-green-700 text-white"
               data-testid="button-auto-process"
             >
+              <Bot className="h-4 w-4 mr-2" />
               Auto-Process
             </Button>
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {/* Documentation Request Overview Section */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Summary Stats */}
-          <Grid item xs={12} lg={4}>
-            <Paper elevation={1} sx={{ p: 3, height: '100%' }}>
-              <Typography variant="h6" gutterBottom color="text.primary" sx={{ fontWeight: 600 }}>
-                Request Summary
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} data-testid="summary-total-requests">
-                  <Typography variant="body2" color="text.secondary">Total Requests:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>342</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} data-testid="summary-redundant">
-                  <Typography variant="body2" color="text.secondary">Redundant:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'error.main' }}>128 (37%)</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} data-testid="summary-auto-resolved">
-                  <Typography variant="body2" color="text.secondary">Auto-Resolved:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>89 (26%)</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} data-testid="summary-pending">
-                  <Typography variant="body2" color="text.secondary">Pending Review:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}>125 (37%)</Typography>
-                </Box>
-              </Box>
-            </Paper>
-          </Grid>
+          <div className="lg:col-span-1">
+            <Card className="healthcare-card">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Request Summary</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center" data-testid="summary-total-requests">
+                    <span className="text-sm text-gray-600">Total Requests:</span>
+                    <span className="font-semibold">342</span>
+                  </div>
+                  <div className="flex justify-between items-center" data-testid="summary-redundant">
+                    <span className="text-sm text-gray-600">Redundant:</span>
+                    <span className="font-semibold text-red-600">128 (37%)</span>
+                  </div>
+                  <div className="flex justify-between items-center" data-testid="summary-auto-resolved">
+                    <span className="text-sm text-gray-600">Auto-Resolved:</span>
+                    <span className="font-semibold text-green-600">89 (26%)</span>
+                  </div>
+                  <div className="flex justify-between items-center" data-testid="summary-pending">
+                    <span className="text-sm text-gray-600">Pending Review:</span>
+                    <span className="font-semibold text-yellow-600">125 (37%)</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Volume Chart */}
-          <Grid item xs={12} lg={8}>
-            <Paper elevation={1} sx={{ p: 3, height: '100%' }}>
-              <Typography variant="h6" gutterBottom color="text.primary" sx={{ fontWeight: 600 }}>
-                Documentation Requests by Payer
-              </Typography>
-              <PayerVolumeChart />
-            </Paper>
-          </Grid>
-        </Grid>
+          <div className="lg:col-span-2">
+            <Card className="healthcare-card">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Documentation Requests by Payer
+                </h3>
+                <PayerVolumeChart />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
-        {/* Redundancy Heat Map */}
-        <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" gutterBottom color="text.primary" sx={{ fontWeight: 600 }}>
-            Documentation Redundancy Matrix
-          </Typography>
-          <RedundancyMatrix />
-        </Paper>
+        {/* Redundant Request Detection Matrix */}
+        <Card className="healthcare-card">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Redundant Request Detection Matrix
+            </h3>
+            <RedundancyMatrix />
+          </CardContent>
+        </Card>
 
-        {/* Documentation Tracker and Payer Analytics */}
-        <Grid container spacing={3}>
-          <Grid item xs={12} xl={6}>
-            <DocumentationTracker />
-          </Grid>
-          <Grid item xs={12} xl={6}>
-            <PayerAnalytics />
-          </Grid>
-        </Grid>
-      </Box>
-    </Container>
+        {/* Smart Documentation Tracker */}
+        <DocumentationTracker />
+
+        {/* Payer Behavior Analytics */}
+        <PayerAnalytics />
+      </div>
+    </main>
   );
 }

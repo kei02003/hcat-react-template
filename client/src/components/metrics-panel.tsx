@@ -1,9 +1,4 @@
-import {
-  Box,
-  Paper,
-  Typography,
-  Drawer,
-} from '@mui/material';
+import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-react";
 
 interface MetricCardProps {
@@ -41,74 +36,27 @@ function MetricCard({ title, value, subtitle, status = "neutral", borderColor }:
     }
   };
 
-  const getStatusColorMUI = () => {
-    switch (status) {
-      case "positive":
-        return "success.main";
-      case "negative":
-        return "error.main";
-      case "warning":
-        return "warning.main";
-      default:
-        return "text.secondary";
-    }
-  };
-
-  const getBorderColor = () => {
-    switch (status) {
-      case "positive":
-        return "success.main";
-      case "negative":
-        return "error.main";
-      case "warning":
-        return "warning.main";
-      default:
-        return "divider";
-    }
-  };
-
   return (
-    <Paper 
-      elevation={1}
-      sx={{ 
-        p: 2, 
-        borderLeft: 4, 
-        borderLeftColor: getBorderColor(),
-        bgcolor: 'background.paper',
-      }}
+    <Card 
+      className={`healthcare-card ${borderColor ? `border-l-4 ${borderColor}` : ''}`}
       data-testid={`metric-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
     >
-      <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-        {title}
-      </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-        <Typography variant="h6" color="text.primary" sx={{ fontWeight: 700 }}>
+      <CardContent className="p-4">
+        <div className="text-sm text-gray-600 font-medium">{title}</div>
+        <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
           {value}
-        </Typography>
-        {getStatusIcon()}
-      </Box>
-      <Typography variant="caption" sx={{ color: getStatusColorMUI() }}>
-        {subtitle}
-      </Typography>
-    </Paper>
+          {getStatusIcon()}
+        </div>
+        <div className={`text-xs ${getStatusColor()}`}>{subtitle}</div>
+      </CardContent>
+    </Card>
   );
 }
 
 export function MetricsPanel() {
   return (
-    <Box 
-      component="aside" 
-      sx={{ 
-        width: '20%', 
-        bgcolor: 'background.default',
-        borderRight: 1,
-        borderColor: 'divider',
-        p: 2, 
-        overflow: 'auto',
-        height: '100%',
-      }}
-    >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <aside className="w-1/5 healthcare-sidebar p-4 overflow-y-auto">
+      <div className="space-y-4">
         <MetricCard
           title="Total AR"
           value="$912.79K"
@@ -135,6 +83,7 @@ export function MetricsPanel() {
           value="342"
           subtitle="2nd highest denial type"
           status="warning"
+          borderColor="border-l-yellow-500"
         />
         
         <MetricCard
@@ -142,6 +91,7 @@ export function MetricsPanel() {
           value="128"
           subtitle="37% of total"
           status="negative"
+          borderColor="border-l-red-500"
         />
         
         <MetricCard
@@ -149,6 +99,7 @@ export function MetricsPanel() {
           value="$142.5K"
           subtitle="47 claims"
           status="negative"
+          borderColor="border-l-red-500"
         />
         
         <MetricCard
@@ -156,6 +107,7 @@ export function MetricsPanel() {
           value="$38.2K"
           subtitle="15 claims <30 days"
           status="warning"
+          borderColor="border-l-yellow-500"
         />
         
         <MetricCard
@@ -163,6 +115,7 @@ export function MetricsPanel() {
           value="89"
           subtitle="$67.8K recoverable"
           status="positive"
+          borderColor="border-l-green-500"
         />
         
         <MetricCard
@@ -185,7 +138,7 @@ export function MetricsPanel() {
           subtitle="Avg: ($185.58K) (-25.35%)"
           status="negative"
         />
-      </Box>
-    </Box>
+      </div>
+    </aside>
   );
 }
