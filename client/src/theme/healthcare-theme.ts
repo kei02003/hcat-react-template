@@ -1,55 +1,89 @@
 import { createTheme } from '@mui/material/styles';
 
-// Health Catalyst inspired color palette
+// Health Catalyst authentic color palette from colors.ts
 const healthCatalystColors = {
   primary: {
-    main: '#00A0AC', // Health Catalyst teal
-    light: '#4DCED6',
-    dark: '#00707A',
-    contrastText: '#ffffff',
+    main: '#00aeff', // primary-brand
+    light: 'rgb(51, 190, 255)',
+    dark: 'rgb(0, 139, 204)',
+    contrastText: '#fff',
   },
   secondary: {
-    main: '#F15A22', // Health Catalyst orange
-    light: '#F48B65',
-    dark: '#D4481B',
-    contrastText: '#ffffff',
+    main: '#6d6e70', // secondary/neutral gray
+    light: 'rgb(138, 139, 140)',
+    dark: 'rgb(87, 88, 89)',
+    contrastText: '#fff',
   },
-  tertiary: {
-    main: '#6C757D', // Professional gray
-    light: '#A8ADB3',
-    dark: '#495057',
-    contrastText: '#ffffff',
+  primaryAction: {
+    main: '#00a859', // primary-action green
+    light: 'rgb(51, 185, 122)',
+    dark: 'rgb(0, 134, 71)',
+    contrastText: '#fff',
+  },
+  primaryAlt: {
+    main: '#6e53a3', // primary-alt purple
+    light: 'rgb(139, 117, 181)',
+    dark: 'rgb(88, 66, 130)',
+    contrastText: '#fff',
   },
   background: {
-    default: '#FAFBFC',
-    paper: '#FFFFFF',
-    surface: '#F8F9FA',
+    default: '#f0f3f6', // slate-gray-100
+    paper: '#fff',
+    surface: '#f1f1f1', // gray-100
+    blockText: '#f0f3f6', // block-text-background
   },
   text: {
-    primary: '#212529',
-    secondary: '#6C757D',
-    disabled: '#ADB5BD',
+    primary: '#333', // offblack
+    secondary: 'rgba(0, 0, 0, 0.6)',
+    disabled: 'rgba(0, 0, 0, 0.38)',
   },
-  divider: '#DEE2E6',
+  divider: '#d7dde4', // slate-gray-200
   success: {
-    main: '#28A745',
-    light: '#6BC46D',
-    dark: '#1E7E34',
+    main: '#00a859', // green
+    light: 'rgb(51, 185, 122)',
+    dark: 'rgb(0, 134, 71)',
   },
   warning: {
-    main: '#FFC107',
-    light: '#FFD54F',
-    dark: '#FF8F00',
+    main: '#f8961d', // orange
+    light: 'rgb(249, 171, 74)',
+    dark: 'rgb(198, 120, 23)',
   },
   error: {
-    main: '#DC3545',
-    light: '#E57373',
-    dark: '#C62828',
+    main: '#f13c45', // red
+    light: 'rgb(243, 99, 106)',
+    dark: 'rgb(192, 48, 55)',
   },
   info: {
-    main: '#17A2B8',
-    light: '#4FC3F7',
-    dark: '#0277BD',
+    main: '#00aeff', // blue
+    light: 'rgb(51, 190, 255)',
+    dark: 'rgb(0, 139, 204)',
+  },
+  // Additional Health Catalyst colors
+  charcoalBlue: {
+    main: '#384655',
+    light: 'rgb(95, 107, 119)',
+    dark: 'rgb(44, 56, 68)',
+    contrastText: '#fff',
+  },
+  slateBlue: {
+    main: '#262f34',
+    light: 'rgb(81, 88, 92)',
+    dark: 'rgb(30, 37, 41)',
+    contrastText: '#fff',
+  },
+  darkBlue: {
+    main: '#006d9a',
+    light: 'rgb(51, 138, 174)',
+    dark: 'rgb(0, 87, 123)',
+    contrastText: '#fff',
+  },
+  slateGray: {
+    100: '#f0f3f6',
+    200: '#d7dde4',
+    300: '#c0c5cc',
+    400: '#708090',
+    500: '#5e676f',
+    600: '#4f565c',
   },
 };
 
