@@ -1,4 +1,9 @@
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Typography,
+  Drawer,
+} from '@mui/material';
 import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-react";
 
 interface MetricCardProps {
@@ -36,38 +41,73 @@ function MetricCard({ title, value, subtitle, status = "neutral", borderColor }:
     }
   };
 
+  const getStatusColorMUI = () => {
+    switch (status) {
+      case "positive":
+        return "success.main";
+      case "negative":
+        return "error.main";
+      case "warning":
+        return "warning.main";
+      default:
+        return "text.secondary";
+    }
+  };
+
+  const getBorderColor = () => {
+    switch (status) {
+      case "positive":
+        return "success.main";
+      case "negative":
+        return "error.main";
+      case "warning":
+        return "warning.main";
+      default:
+        return "divider";
+    }
+  };
+
   return (
-    <Card 
-      sx={{
-        borderLeft: borderColor ? `4px solid ${borderColor}` : 'none',
-        cursor: 'pointer',
-        '&:hover': {
-          boxShadow: 2,
-        },
+    <Paper 
+      elevation={1}
+      sx={{ 
+        p: 2, 
+        borderLeft: 4, 
+        borderLeftColor: getBorderColor(),
+        bgcolor: 'background.paper',
       }}
       data-testid={`metric-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
     >
-      <CardContent sx={{ p: 2 }}>
-        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-          {title}
+      <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+        {title}
+      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+        <Typography variant="h6" color="text.primary" sx={{ fontWeight: 700 }}>
+          {value}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, my: 0.5 }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
-            {value}
-          </Typography>
-          {getStatusIcon()}
-        </Box>
-        <Typography variant="caption" className={getStatusColor()}>
-          {subtitle}
-        </Typography>
-      </CardContent>
-    </Card>
+        {getStatusIcon()}
+      </Box>
+      <Typography variant="caption" sx={{ color: getStatusColorMUI() }}>
+        {subtitle}
+      </Typography>
+    </Paper>
   );
 }
 
 export function MetricsPanel() {
   return (
-    <Box sx={{ width: '300px', p: 2, borderRight: 1, borderColor: 'divider', height: '100vh', overflow: 'auto' }}>
+    <Box 
+      component="aside" 
+      sx={{ 
+        width: '20%', 
+        bgcolor: 'background.default',
+        borderRight: 1,
+        borderColor: 'divider',
+        p: 2, 
+        overflow: 'auto',
+        height: '100%',
+      }}
+    >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <MetricCard
           title="Total AR"
@@ -95,7 +135,6 @@ export function MetricsPanel() {
           value="342"
           subtitle="2nd highest denial type"
           status="warning"
-          borderColor="border-l-yellow-500"
         />
         
         <MetricCard
@@ -103,7 +142,6 @@ export function MetricsPanel() {
           value="128"
           subtitle="37% of total"
           status="negative"
-          borderColor="border-l-red-500"
         />
         
         <MetricCard
@@ -111,7 +149,6 @@ export function MetricsPanel() {
           value="$142.5K"
           subtitle="47 claims"
           status="negative"
-          borderColor="border-l-red-500"
         />
         
         <MetricCard
@@ -119,7 +156,6 @@ export function MetricsPanel() {
           value="$38.2K"
           subtitle="15 claims <30 days"
           status="warning"
-          borderColor="border-l-yellow-500"
         />
         
         <MetricCard
@@ -127,7 +163,6 @@ export function MetricsPanel() {
           value="89"
           subtitle="$67.8K recoverable"
           status="positive"
-          borderColor="border-l-green-500"
         />
         
         <MetricCard

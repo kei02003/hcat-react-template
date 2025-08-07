@@ -6,15 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "@/pages/dashboard";
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
-import ThemeDemo from "@/pages/theme-demo";
 import { UserProfile } from "@/components/user-profile";
 import { DemoUserSelector } from "@/components/demo-user-selector";
 import { Navigation } from "@/components/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { HealthCatalystWrapper } from "@/components/health-catalyst-wrapper";
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
-import { healthCatalystTheme } from '@/theme/healthcare-theme';
 
 function Router() {
   // Authentication disabled for now - direct access to dashboard
@@ -23,7 +18,6 @@ function Router() {
       <Route path="/landing" component={Landing} />
       <Route path="/profile" component={UserProfile} />
       <Route path="/demo-users" component={DemoUserSelector} />
-      <Route path="/theme-demo" component={ThemeDemo} />
       <Route path="/" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
@@ -33,15 +27,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={healthCatalystTheme}>
-        <CssBaseline />
-        <TooltipProvider>
-          <HealthCatalystWrapper>
-            <Toaster />
-            <Router />
-          </HealthCatalystWrapper>
-        </TooltipProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }
