@@ -108,7 +108,6 @@ export function AppealGenerationDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Target className="h-8 w-8 text-purple-600" />
           <h1 className="text-2xl font-bold text-gray-900">Appeal Generation</h1>
         </div>
         <Badge className="bg-purple-100 text-purple-800 px-3 py-1">
