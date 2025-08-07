@@ -102,7 +102,7 @@ export function PreAuthRedesignedDashboard() {
   const [selectedTab, setSelectedTab] = useState("dashboard");
   const [selectedTimeframe, setSelectedTimeframe] = useState("week");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPayer, setSelectedPayer] = useState("");
+  const [selectedPayer, setSelectedPayer] = useState("all");
   const [showBulkSubmission, setShowBulkSubmission] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
@@ -132,10 +132,7 @@ export function PreAuthRedesignedDashboard() {
   // Mutations
   const bulkSubmitMutation = useMutation({
     mutationFn: async (requestIds: string[]) => {
-      return apiRequest("/api/pre-auth/bulk-submit", {
-        method: "POST",
-        body: JSON.stringify({ requestIds }),
-      });
+      return apiRequest("/api/pre-auth/bulk-submit", "POST", { requestIds });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/pre-auth"] });
@@ -146,10 +143,7 @@ export function PreAuthRedesignedDashboard() {
 
   const flagProcedureMutation = useMutation({
     mutationFn: async (procedureData: any) => {
-      return apiRequest("/api/pre-auth/flag-procedure", {
-        method: "POST",
-        body: JSON.stringify(procedureData),
-      });
+      return apiRequest("/api/pre-auth/flag-procedure", "POST", procedureData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/pre-auth"] });
@@ -228,7 +222,7 @@ export function PreAuthRedesignedDashboard() {
         <TabsContent value="dashboard" className="space-y-6">
           {/* Status Tracker Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {statusGridData?.map((status: StatusGridData) => (
+            {(statusGridData as StatusGridData[] | undefined)?.map((status: StatusGridData) => (
               <Card key={status.status} className="cursor-pointer hover:shadow-md transition-shadow" data-testid={`status-card-${status.status}`}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -261,7 +255,7 @@ export function PreAuthRedesignedDashboard() {
                   <span>3-Day Compliance Tracking</span>
                 </CardTitle>
                 <Badge variant="outline" data-testid="compliance-percentage">
-                  {complianceData?.compliancePercentage ?? 0}% Target: 90%
+                  {(complianceData as any)?.compliancePercentage ?? 0}% Target: 90%
                 </Badge>
               </div>
             </CardHeader>
@@ -269,24 +263,24 @@ export function PreAuthRedesignedDashboard() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between text-sm">
                   <span>Submitted on time</span>
-                  <span className="font-medium">{complianceData?.submittedOnTime ?? 0} / {complianceData?.totalRequests ?? 0}</span>
+                  <span className="font-medium">{(complianceData as any)?.submittedOnTime ?? 0} / {(complianceData as any)?.totalRequests ?? 0}</span>
                 </div>
                 <Progress 
-                  value={complianceData?.compliancePercentage ?? 0} 
+                  value={(complianceData as any)?.compliancePercentage ?? 0} 
                   className="h-3"
                   data-testid="compliance-progress"
                 />
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div className="text-center">
-                    <p className="font-medium text-green-600">{complianceData?.submittedOnTime ?? 0}</p>
+                    <p className="font-medium text-green-600">{(complianceData as any)?.submittedOnTime ?? 0}</p>
                     <p className="text-gray-500">On Time</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-medium text-red-600">{complianceData?.submittedLate ?? 0}</p>
+                    <p className="font-medium text-red-600">{(complianceData as any)?.submittedLate ?? 0}</p>
                     <p className="text-gray-500">Late</p>
                   </div>
                   <div className="text-center">
-                    <p className="font-medium text-gray-600">{complianceData?.avgDaysToSubmission ?? 0}</p>
+                    <p className="font-medium text-gray-600">{(complianceData as any)?.avgDaysToSubmission ?? 0}</p>
                     <p className="text-gray-500">Avg Days</p>
                   </div>
                 </div>
@@ -304,7 +298,7 @@ export function PreAuthRedesignedDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {payerAnalytics?.map((payer: PayerResponseAnalytics) => (
+                {(payerAnalytics as PayerResponseAnalytics[] | undefined)?.map((payer: PayerResponseAnalytics) => (
                   <div key={payer.id} className="flex items-center justify-between p-3 border rounded-lg" data-testid={`payer-analytics-${payer.payerId}`}>
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 rounded-full bg-blue-500"></div>
@@ -358,7 +352,7 @@ export function PreAuthRedesignedDashboard() {
                       <SelectValue placeholder="Filter by payer" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Payers</SelectItem>
+                      <SelectItem value="all">All Payers</SelectItem>
                       <SelectItem value="bcbs">Blue Cross Blue Shield</SelectItem>
                       <SelectItem value="uhc">United Healthcare</SelectItem>
                       <SelectItem value="medicare">Medicare</SelectItem>
@@ -369,7 +363,7 @@ export function PreAuthRedesignedDashboard() {
 
                 {/* Timeline View */}
                 <div className="space-y-3">
-                  {timelineData?.map((item: PreAuthTimeline) => (
+                  {(timelineData as PreAuthTimeline[] | undefined)?.map((item: PreAuthTimeline) => (
                     <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50" data-testid={`timeline-item-${item.id}`}>
                       <input
                         type="checkbox"
@@ -448,7 +442,7 @@ export function PreAuthRedesignedDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {documentationAlerts?.map((alert: DocumentationAlert) => (
+                {(documentationAlerts as DocumentationAlert[] | undefined)?.map((alert: DocumentationAlert) => (
                   <div key={alert.id} className="border rounded-lg p-4" data-testid={`alert-${alert.id}`}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">

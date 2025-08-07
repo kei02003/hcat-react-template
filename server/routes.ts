@@ -743,7 +743,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get missing documentation alerts
-  app.get("/api/pre-auth/missing-docs", isAuthenticated, async (req, res) => {
+  app.get("/api/pre-auth/missing-docs", async (req, res) => {
     try {
       // Filter alerts by priority and overdue status
       const sortedAlerts = demoDocumentationAlerts
@@ -761,7 +761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get status grid data for dashboard overview
-  app.get("/api/pre-auth/status-grid", isAuthenticated, async (req, res) => {
+  app.get("/api/pre-auth/status-grid", async (req, res) => {
     try {
       res.json(demoStatusGridData);
     } catch (error) {
