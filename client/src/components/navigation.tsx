@@ -27,9 +27,8 @@ export function Navigation() {
   const { user, isAuthenticated, getPrimaryRole } = useAuth();
   const [location] = useLocation();
 
-  if (!isAuthenticated || !user) {
-    return null;
-  }
+  // Always show navigation, but adapt content based on auth status
+  const showAuthenticatedNav = isAuthenticated && user;
 
   const primaryRole = getPrimaryRole();
   const roleInfo = primaryRole ? getRoleDisplayInfo(primaryRole.name) : null;
@@ -87,37 +86,38 @@ export function Navigation() {
           {/* User Menu */}
           <div className="flex items-center space-x-4">
             {/* Role Badge */}
-            {primaryRole && roleInfo && (
+            {showAuthenticatedNav && primaryRole && roleInfo && (
               <Badge className={`${roleInfo.color} hidden sm:inline-flex`}>
                 <Shield className="h-3 w-3 mr-1" />
                 {roleInfo.displayName}
               </Badge>
             )}
 
-            {/* User Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 p-2"
-                  data-testid="user-menu-trigger"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
-                    <AvatarFallback className="bg-blue-100 text-blue-800">
-                      {user.firstName?.[0]}{user.lastName?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="hidden sm:block text-left">
-                    <p className="text-sm font-medium text-gray-900">
-                      {user.firstName} {user.lastName}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {user.department || "Healthcare Staff"}
-                    </p>
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
+            {/* User Dropdown or Login Button */}
+            {showAuthenticatedNav ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="flex items-center space-x-2 p-2"
+                    data-testid="user-menu-trigger"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
+                      <AvatarFallback className="bg-blue-100 text-blue-800">
+                        {user.firstName?.[0]}{user.lastName?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="hidden sm:block text-left">
+                      <p className="text-sm font-medium text-gray-900">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {user.department || "Healthcare Staff"}
+                      </p>
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
               
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-3 py-2 border-b">
@@ -165,6 +165,15 @@ export function Navigation() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            ) : (
+              <Button
+                onClick={() => window.location.href = "/api/login"}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                data-testid="login-button"
+              >
+                Login
+              </Button>
+            )}
           </div>
         </div>
       </div>
