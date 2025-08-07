@@ -145,6 +145,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function DischargeLocationsChart() {
+  // Debug: Log the data to ensure it's properly loaded
+  console.log('DischargeLocationsChart data:', dischargeLocationData);
+  
   return (
     <div className="space-y-4">
       <div className="h-80">
@@ -165,6 +168,7 @@ export function DischargeLocationsChart() {
               tick={{ fontSize: 11 }}
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
               axisLine={{ stroke: '#E2E8F0' }}
+              domain={[0, 'dataMax']}
             />
             <YAxis 
               type="category"
@@ -174,7 +178,12 @@ export function DischargeLocationsChart() {
               axisLine={{ stroke: '#E2E8F0' }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="balance" radius={[0, 2, 2, 0]}>
+            <Bar 
+              dataKey="balance" 
+              radius={[0, 2, 2, 0]}
+              minPointSize={5}
+              fill="#8884d8"
+            >
               {dischargeLocationData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={getBarColor(entry)} />
               ))}
