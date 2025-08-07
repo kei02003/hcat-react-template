@@ -80,7 +80,7 @@ interface PatientData {
 }
 
 export function FormPrepopulationDemo() {
-  const [selectedOption, setSelectedOption] = useState<"option1" | "option2" | "templates">("option1");
+  const [selectedOption, setSelectedOption] = useState<"option1" | "templates">("option1");
   const [selectedPayer, setSelectedPayer] = useState<string>("");
   const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [isAutoFilling, setIsAutoFilling] = useState(false);
@@ -393,10 +393,9 @@ export function FormPrepopulationDemo() {
       </div>
 
       {/* Option Selection */}
-      <Tabs value={selectedOption} onValueChange={(value) => setSelectedOption(value as "option1" | "option2" | "templates")}>
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs value={selectedOption} onValueChange={(value) => setSelectedOption(value as "option1" | "templates")}>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="option1">Interactive Prepopulation</TabsTrigger>
-          <TabsTrigger value="option2">Template Comparison</TabsTrigger>
           <TabsTrigger value="templates">
             <Upload className="h-4 w-4 mr-2" />
             Template Management
@@ -555,140 +554,7 @@ export function FormPrepopulationDemo() {
           </Card>
         </TabsContent>
 
-        {/* Option 2: Payer Template Comparison */}
-        <TabsContent value="option2" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Building className="h-5 w-5" />
-                <span>Option 2: Payer Template Comparison</span>
-              </CardTitle>
-              <p className="text-sm text-gray-600">
-                Compare different payer form templates side-by-side to see how the same patient data maps to different requirements.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                {payerTemplates.map((template, index) => (
-                  <Card key={template.id} className="relative">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xl">{template.payerLogo}</span>
-                        <div>
-                          <CardTitle className="text-sm">{template.payerName}</CardTitle>
-                          <p className="text-xs text-gray-500">{template.processingTime}</p>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0 space-y-3">
-                      <div className="text-xs space-y-1">
-                        <p><strong>Fields:</strong> {template.fields.length}</p>
-                        <p><strong>Required:</strong> {template.fields.filter(f => f.required).length}</p>
-                        <p><strong>Documents:</strong> {template.requiredDocuments.length}</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label className="text-xs font-medium">Form Fields Preview:</Label>
-                        <div className="space-y-1 max-h-40 overflow-y-auto">
-                          {template.fields.slice(0, 6).map(field => (
-                            <div key={field.id} className="text-xs p-2 border rounded bg-gray-50">
-                              <div className="flex items-center justify-between">
-                                <span className="truncate">{field.label}</span>
-                                {field.required && <AlertCircle className="h-3 w-3 text-red-500" />}
-                              </div>
-                            </div>
-                          ))}
-                          {template.fields.length > 6 && (
-                            <p className="text-xs text-gray-500 text-center">
-                              +{template.fields.length - 6} more fields
-                            </p>
-                          )}
-                        </div>
-                      </div>
 
-                      <div className="space-y-2">
-                        <Label className="text-xs font-medium">Required Documents:</Label>
-                        <div className="space-y-1">
-                          {template.requiredDocuments.slice(0, 3).map((doc, idx) => (
-                            <div key={idx} className="text-xs flex items-center space-x-1">
-                              <FileText className="h-3 w-3" />
-                              <span className="truncate">{doc}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline" className="w-full text-xs">
-                            View Full Template
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle className="flex items-center space-x-2">
-                              <span className="text-xl">{template.payerLogo}</span>
-                              <span>{template.payerName} - {template.formTitle}</span>
-                            </DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4 mt-4">
-                            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded">
-                              <div>
-                                <Label className="font-medium">Processing Time</Label>
-                                <p className="text-sm">{template.processingTime}</p>
-                              </div>
-                              <div>
-                                <Label className="font-medium">Submission URL</Label>
-                                <p className="text-sm text-blue-600">{template.submitUrl}</p>
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <Label className="font-medium">Special Instructions</Label>
-                              <p className="text-sm text-gray-700 mt-1">{template.specialInstructions}</p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-6">
-                              <div>
-                                <Label className="font-medium">Form Fields ({template.fields.length})</Label>
-                                <div className="space-y-2 mt-2 max-h-60 overflow-y-auto">
-                                  {template.fields.map((field, idx) => (
-                                    <div key={field.id} className="flex items-center justify-between p-2 border rounded text-sm">
-                                      <span className="flex items-center space-x-2">
-                                        <span>{idx + 1}.</span>
-                                        <span>{field.label}</span>
-                                        {field.required && <AlertCircle className="h-3 w-3 text-red-500" />}
-                                      </span>
-                                      <Badge variant="outline" className="text-xs">
-                                        {field.type}
-                                      </Badge>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <Label className="font-medium">Required Documents ({template.requiredDocuments.length})</Label>
-                                <div className="space-y-2 mt-2">
-                                  {template.requiredDocuments.map((doc, idx) => (
-                                    <div key={idx} className="flex items-center space-x-2 p-2 border rounded text-sm">
-                                      <FileText className="h-4 w-4" />
-                                      <span>{doc}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Templates Tab: Template Upload and Management */}
         <TabsContent value="templates" className="space-y-6">
