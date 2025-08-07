@@ -142,17 +142,14 @@ export function ArManagementDashboard() {
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="trends" className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4" />
-              <span>AR Trends</span>
+            <TabsTrigger value="trends">
+              AR Trends
             </TabsTrigger>
-            <TabsTrigger value="aging" className="flex items-center space-x-2">
-              <Clock className="h-4 w-4" />
-              <span>AR Aging</span>
+            <TabsTrigger value="aging">
+              AR Aging
             </TabsTrigger>
-            <TabsTrigger value="financial" className="flex items-center space-x-2">
-              <DollarSign className="h-4 w-4" />
-              <span>Financial Trends</span>
+            <TabsTrigger value="financial">
+              Financial Trends
             </TabsTrigger>
           </TabsList>
 
