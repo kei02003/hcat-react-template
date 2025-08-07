@@ -107,7 +107,7 @@ const activeDenials = [
     lastAction: "2024-11-28"
   },
   {
-    denialId: "DN-25-001234",
+    denialId: "DEN-2025-001",
     claimId: "CLM-2025-001",
     patientName: "Martinez, Elena R.",
     serviceDate: "2025-01-03",
@@ -126,7 +126,7 @@ const activeDenials = [
     lastAction: "2025-01-08"
   },
   {
-    denialId: "DN-25-003456",
+    denialId: "DEN-2025-003",
     claimId: "CLM-2025-003",
     patientName: "Thompson, Sarah M.",
     serviceDate: "2025-01-06",

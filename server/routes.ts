@@ -394,7 +394,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { appealId } = req.params;
       const { appealCases, challengeLetterTemplate } = await import("./appeal-data");
-      const appealCase = appealCases.find(appeal => appeal.id === appealId);
+      
+      // Handle both appeal IDs (appeal-001) and denial IDs (DN-25-001234)
+      let appealCase = appealCases.find(appeal => appeal.id === appealId);
+      
+      // If not found by appeal ID, try to find by denial ID
+      if (!appealCase) {
+        appealCase = appealCases.find(appeal => appeal.denialId === appealId);
+      }
       
       if (!appealCase) {
         return res.status(404).json({ message: "Appeal case not found" });
