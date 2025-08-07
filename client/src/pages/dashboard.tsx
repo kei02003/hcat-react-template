@@ -21,7 +21,7 @@ export default function Dashboard() {
     end: "2024-12-31"
   });
 
-  const mainTabs = ["Summary", "AR Management", "Pre-Authorization", "Denials", "Collections", "Feasibility"];
+  const mainTabs = ["Summary", "AR Management", "Pre-Authorization", "Denials", "Collections", "Opportunities"];
   const subTabs = [
     { name: "Clinical Denials", warning: false },
     { name: "Timely Filing", warning: false },
@@ -157,7 +157,7 @@ export default function Dashboard() {
           <ArManagementDashboard />
         ) : activeMainTab === "Collections" ? (
           <CollectionsDashboard />
-        ) : activeMainTab === "Feasibility" ? (
+        ) : activeMainTab === "Opportunities" ? (
           <FeasibilityDashboard />
         ) : activeMainTab === "Pre-Authorization" ? (
           <PreAuthorizationDashboard />
