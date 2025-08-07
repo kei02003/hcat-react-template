@@ -307,6 +307,13 @@ export function ClinicalDenialsDashboard() {
   const [activeRFPModule, setActiveRFPModule] = useState<string | null>(null);
   const [selectedDenialForAppeal, setSelectedDenialForAppeal] = useState<any>(null);
   const [showAppealModal, setShowAppealModal] = useState(false);
+  const [smartFilterEnabled, setSmartFilterEnabled] = useState(true);
+  const [filterCriteria, setFilterCriteria] = useState({
+    specialty: "all",
+    availability: "all",
+    experience: "all",
+    performance: "all"
+  });
 
   const filteredDenials = activeDenials.filter(denial => {
     const matchesSearch = searchTerm === "" || 
@@ -376,6 +383,204 @@ export function ClinicalDenialsDashboard() {
   const closeAppealModal = () => {
     setSelectedDenialForAppeal(null);
     setShowAppealModal(false);
+  };
+
+  // Enhanced reviewer data with additional metadata for smart filtering
+  const getAllReviewers = () => [
+    { 
+      id: "rev-001",
+      name: "Dr. Sarah Chen", 
+      specialty: "Cardiology", 
+      workload: 12, 
+      avgDays: 2.8, 
+      successRate: 89,
+      status: "Available",
+      experience: "Senior",
+      certifications: ["Board Certified Cardiologist", "Clinical Documentation Improvement"],
+      recentCaseTypes: ["Heart Failure", "Cardiac Surgery", "Interventional Procedures"],
+      maxCaseLoad: 20,
+      urgentCasesHandled: 45,
+      complexityScore: 8.5,
+      departmentExperience: ["Cardiology", "CCU", "Emergency Medicine"]
+    },
+    { 
+      id: "rev-002",
+      name: "Dr. Michael Rodriguez", 
+      specialty: "Internal Medicine", 
+      workload: 8, 
+      avgDays: 3.2, 
+      successRate: 92,
+      status: "Available",
+      experience: "Senior",
+      certifications: ["Internal Medicine Board", "Quality Improvement", "Utilization Review"],
+      recentCaseTypes: ["Medical Necessity", "Length of Stay", "Discharge Planning"],
+      maxCaseLoad: 18,
+      urgentCasesHandled: 62,
+      complexityScore: 9.2,
+      departmentExperience: ["Internal Medicine", "ICU", "Hospitalist"]
+    },
+    { 
+      id: "rev-003",
+      name: "Dr. Lisa Thompson", 
+      specialty: "Surgery", 
+      workload: 15, 
+      avgDays: 4.1, 
+      successRate: 85,
+      status: "Busy",
+      experience: "Senior",
+      certifications: ["General Surgery Board", "Trauma Surgery"],
+      recentCaseTypes: ["Surgical Necessity", "Post-Op Complications", "Emergency Surgery"],
+      maxCaseLoad: 16,
+      urgentCasesHandled: 28,
+      complexityScore: 8.8,
+      departmentExperience: ["Surgery", "Trauma", "Emergency"]
+    },
+    { 
+      id: "rev-004",
+      name: "Dr. James Wilson", 
+      specialty: "Emergency Medicine", 
+      workload: 6, 
+      avgDays: 2.3, 
+      successRate: 94,
+      status: "Available",
+      experience: "Mid-Level",
+      certifications: ["Emergency Medicine Board", "Critical Care"],
+      recentCaseTypes: ["ED Visits", "Observation Status", "Emergency Procedures"],
+      maxCaseLoad: 22,
+      urgentCasesHandled: 78,
+      complexityScore: 7.9,
+      departmentExperience: ["Emergency Medicine", "ICU", "Urgent Care"]
+    },
+    { 
+      id: "rev-005",
+      name: "Dr. Emily Zhang", 
+      specialty: "Orthopedics", 
+      workload: 10, 
+      avgDays: 3.5, 
+      successRate: 88,
+      status: "Available",
+      experience: "Senior",
+      certifications: ["Orthopedic Surgery Board", "Sports Medicine"],
+      recentCaseTypes: ["Joint Replacements", "Fracture Care", "Sports Injuries"],
+      maxCaseLoad: 15,
+      urgentCasesHandled: 32,
+      complexityScore: 8.3,
+      departmentExperience: ["Orthopedics", "Surgery", "Sports Medicine"]
+    },
+    { 
+      id: "rev-006",
+      name: "Dr. Robert Kumar", 
+      specialty: "Pulmonology", 
+      workload: 7, 
+      avgDays: 2.9, 
+      successRate: 91,
+      status: "Available",
+      experience: "Junior",
+      certifications: ["Pulmonology Board", "Critical Care Medicine"],
+      recentCaseTypes: ["COPD", "Pneumonia", "Respiratory Failure"],
+      maxCaseLoad: 18,
+      urgentCasesHandled: 35,
+      complexityScore: 7.6,
+      departmentExperience: ["Pulmonology", "ICU", "Internal Medicine"]
+    }
+  ];
+
+  // Smart filtering algorithm for reviewer assignment
+  const getSmartFilteredReviewers = (denial: any) => {
+    const reviewers = getAllReviewers();
+    
+    if (!smartFilterEnabled) {
+      return reviewers.filter(r => r.status === "Available");
+    }
+
+    // Calculate match scores for each reviewer
+    const scoredReviewers = reviewers.map(reviewer => {
+      let score = 0;
+      const factors = {
+        specialty: 0,
+        availability: 0,
+        workload: 0,
+        experience: 0,
+        performance: 0,
+        urgency: 0,
+        department: 0
+      };
+
+      // Specialty matching (30% weight)
+      const denialDept = denial.department.toLowerCase();
+      const reviewerSpecialty = reviewer.specialty.toLowerCase();
+      const reviewerDepts = reviewer.departmentExperience.map(d => d.toLowerCase());
+      
+      if (reviewerSpecialty.includes(denialDept) || reviewerDepts.includes(denialDept)) {
+        factors.specialty = 30;
+      } else if (reviewerSpecialty === "internal medicine" || reviewerDepts.includes("internal medicine")) {
+        factors.specialty = 20; // Internal medicine as fallback
+      } else {
+        factors.specialty = 10; // General medical knowledge
+      }
+
+      // Availability (25% weight)
+      if (reviewer.status === "Available") {
+        const workloadRatio = reviewer.workload / reviewer.maxCaseLoad;
+        if (workloadRatio < 0.5) factors.availability = 25;
+        else if (workloadRatio < 0.8) factors.availability = 20;
+        else factors.availability = 15;
+      } else {
+        factors.availability = 0;
+      }
+
+      // Workload balance (15% weight)
+      const workloadScore = Math.max(0, 15 - (reviewer.workload / reviewer.maxCaseLoad * 15));
+      factors.workload = workloadScore;
+
+      // Experience level (10% weight)
+      if (denial.category === "Medical Necessity" || denial.deniedAmount > 50000) {
+        factors.experience = reviewer.experience === "Senior" ? 10 : reviewer.experience === "Mid-Level" ? 7 : 4;
+      } else {
+        factors.experience = reviewer.experience === "Senior" ? 10 : reviewer.experience === "Mid-Level" ? 9 : 8;
+      }
+
+      // Performance metrics (10% weight)
+      const performanceScore = (reviewer.successRate / 100) * 10;
+      factors.performance = performanceScore;
+
+      // Urgency handling (7% weight)
+      if (denial.daysToAppeal <= 14) {
+        const urgencyRatio = reviewer.urgentCasesHandled / reviewer.avgDays;
+        factors.urgency = Math.min(7, urgencyRatio * 0.1);
+      } else {
+        factors.urgency = 5;
+      }
+
+      // Department experience (3% weight)
+      factors.department = reviewerDepts.includes(denialDept) ? 3 : 1;
+
+      // Calculate total score
+      score = Object.values(factors).reduce((sum, factor) => sum + factor, 0);
+
+      return {
+        ...reviewer,
+        matchScore: score,
+        matchFactors: factors,
+        recommendation: score >= 75 ? "Highly Recommended" : 
+                      score >= 60 ? "Good Match" : 
+                      score >= 45 ? "Fair Match" : "Not Recommended"
+      };
+    });
+
+    // Sort by match score and filter available reviewers
+    return scoredReviewers
+      .filter(r => r.status === "Available")
+      .sort((a, b) => b.matchScore - a.matchScore);
+  };
+
+  const getRecommendationColor = (recommendation: string) => {
+    switch (recommendation) {
+      case "Highly Recommended": return "bg-green-100 text-green-800";
+      case "Good Match": return "bg-blue-100 text-blue-800";
+      case "Fair Match": return "bg-yellow-100 text-yellow-800";
+      default: return "bg-red-100 text-red-800";
+    }
   };
 
   return (
@@ -621,83 +826,172 @@ export function ClinicalDenialsDashboard() {
                                 </div>
                               </div>
 
-                              {/* Available Reviewers */}
+                              {/* Smart Filtering Controls */}
                               <div className="space-y-4">
-                                <h3 className="font-semibold text-gray-900">Available Clinical Reviewers</h3>
-                                <div className="grid gap-3">
-                                  {[
-                                    { 
-                                      name: "Dr. Sarah Chen", 
-                                      specialty: "Cardiology", 
-                                      workload: 12, 
-                                      avgDays: 2.8, 
-                                      successRate: 89,
-                                      status: "Available"
-                                    },
-                                    { 
-                                      name: "Dr. Michael Rodriguez", 
-                                      specialty: "Internal Medicine", 
-                                      workload: 8, 
-                                      avgDays: 3.2, 
-                                      successRate: 92,
-                                      status: "Available"
-                                    },
-                                    { 
-                                      name: "Dr. Lisa Thompson", 
-                                      specialty: "Surgery", 
-                                      workload: 15, 
-                                      avgDays: 4.1, 
-                                      successRate: 85,
-                                      status: "Busy"
-                                    },
-                                    { 
-                                      name: "Dr. James Wilson", 
-                                      specialty: "Emergency Medicine", 
-                                      workload: 6, 
-                                      avgDays: 2.3, 
-                                      successRate: 94,
-                                      status: "Available"
-                                    }
-                                  ].map((reviewer, index) => (
-                                    <div key={index} className={`border rounded p-3 cursor-pointer hover:bg-blue-50 transition-colors ${
-                                      reviewer.status === "Busy" ? "opacity-60" : ""
+                                <div className="flex items-center justify-between">
+                                  <h3 className="font-semibold text-gray-900">Clinical Reviewer Assignment</h3>
+                                  <div className="flex items-center space-x-2">
+                                    <label className="text-sm text-gray-600">Smart Matching:</label>
+                                    <input
+                                      type="checkbox"
+                                      checked={smartFilterEnabled}
+                                      onChange={(e) => setSmartFilterEnabled(e.target.checked)}
+                                      className="rounded"
+                                    />
+                                  </div>
+                                </div>
+
+                                {smartFilterEnabled && (
+                                  <div className="bg-blue-50 p-3 rounded-lg">
+                                    <div className="flex items-center space-x-2 mb-2">
+                                      <Shield className="h-4 w-4 text-blue-600" />
+                                      <span className="text-sm font-medium text-blue-900">AI-Powered Matching Enabled</span>
+                                    </div>
+                                    <p className="text-xs text-blue-700">
+                                      Reviewers are automatically ranked by specialty match, workload, experience, and performance metrics.
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* Reviewers List */}
+                                <div className="space-y-3 max-h-96 overflow-y-auto">
+                                  {getSmartFilteredReviewers(denial).map((reviewer, index) => (
+                                    <div key={reviewer.id} className={`border rounded p-4 transition-all ${
+                                      index === 0 && smartFilterEnabled ? "border-green-200 bg-green-50" :
+                                      index === 1 && smartFilterEnabled ? "border-blue-200 bg-blue-50" :
+                                      "border-gray-200 hover:bg-gray-50"
                                     }`}>
-                                      <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center space-x-2">
-                                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <Stethoscope className="h-4 w-4 text-blue-600" />
+                                      <div className="flex items-start justify-between mb-3">
+                                        <div className="flex items-center space-x-3">
+                                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                            index === 0 && smartFilterEnabled ? "bg-green-100" :
+                                            index === 1 && smartFilterEnabled ? "bg-blue-100" :
+                                            "bg-gray-100"
+                                          }`}>
+                                            <Stethoscope className={`h-5 w-5 ${
+                                              index === 0 && smartFilterEnabled ? "text-green-600" :
+                                              index === 1 && smartFilterEnabled ? "text-blue-600" :
+                                              "text-gray-600"
+                                            }`} />
                                           </div>
                                           <div>
-                                            <p className="font-medium text-gray-900">{reviewer.name}</p>
-                                            <p className="text-xs text-gray-500">{reviewer.specialty}</p>
+                                            <div className="flex items-center space-x-2">
+                                              <p className="font-medium text-gray-900">{reviewer.name}</p>
+                                              {index === 0 && smartFilterEnabled && (
+                                                <Badge className="bg-green-100 text-green-800 text-xs">
+                                                  #1 Match
+                                                </Badge>
+                                              )}
+                                              {index === 1 && smartFilterEnabled && (
+                                                <Badge className="bg-blue-100 text-blue-800 text-xs">
+                                                  #2 Match
+                                                </Badge>
+                                              )}
+                                            </div>
+                                            <p className="text-sm text-gray-600">{reviewer.specialty}</p>
+                                            <p className="text-xs text-gray-500">{reviewer.experience} Level</p>
                                           </div>
                                         </div>
-                                        <Badge className={
-                                          reviewer.status === "Available" ? 
-                                          "bg-green-100 text-green-800" : 
-                                          "bg-yellow-100 text-yellow-800"
-                                        }>
-                                          {reviewer.status}
-                                        </Badge>
+                                        <div className="text-right">
+                                          {smartFilterEnabled && (
+                                            <Badge className={getRecommendationColor(reviewer.recommendation)}>
+                                              {reviewer.recommendation}
+                                            </Badge>
+                                          )}
+                                          <div className="mt-1">
+                                            <Badge className="bg-green-100 text-green-800">
+                                              Available
+                                            </Badge>
+                                          </div>
+                                        </div>
                                       </div>
-                                      <div className="grid grid-cols-3 gap-4 text-xs text-gray-600">
+
+                                      {/* Performance Metrics */}
+                                      <div className="grid grid-cols-3 gap-3 text-xs text-gray-600 mb-3">
                                         <div>
-                                          <span className="font-medium">Workload:</span> {reviewer.workload} cases
+                                          <span className="font-medium">Cases:</span> {reviewer.workload}/{reviewer.maxCaseLoad}
                                         </div>
                                         <div>
                                           <span className="font-medium">Avg Days:</span> {reviewer.avgDays}
                                         </div>
                                         <div>
-                                          <span className="font-medium">Success Rate:</span> {reviewer.successRate}%
+                                          <span className="font-medium">Success:</span> {reviewer.successRate}%
                                         </div>
                                       </div>
-                                      {reviewer.status === "Available" && (
-                                        <div className="mt-2">
-                                          <Button size="sm" className="w-full">
-                                            Assign to {reviewer.name.split(' ')[1]}
-                                          </Button>
+
+                                      {/* Smart Matching Details */}
+                                      {smartFilterEnabled && (
+                                        <div className="mb-3">
+                                          <div className="flex items-center space-x-1 mb-2">
+                                            <span className="text-xs font-medium text-gray-700">Match Score:</span>
+                                            <span className="text-xs font-bold text-gray-900">{reviewer.matchScore.toFixed(1)}/100</span>
+                                            <div className="flex-1 mx-2">
+                                              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                                <div 
+                                                  className={`h-1.5 rounded-full ${
+                                                    reviewer.matchScore >= 75 ? "bg-green-500" :
+                                                    reviewer.matchScore >= 60 ? "bg-blue-500" :
+                                                    reviewer.matchScore >= 45 ? "bg-yellow-500" : "bg-red-500"
+                                                  }`}
+                                                  style={{width: `${reviewer.matchScore}%`}}
+                                                ></div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          
+                                          {/* Key Match Factors */}
+                                          <div className="grid grid-cols-2 gap-2 text-xs">
+                                            <div className="flex justify-between">
+                                              <span className="text-gray-600">Specialty:</span>
+                                              <span className="font-medium">{reviewer.matchFactors.specialty.toFixed(0)}%</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                              <span className="text-gray-600">Availability:</span>
+                                              <span className="font-medium">{reviewer.matchFactors.availability.toFixed(0)}%</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                              <span className="text-gray-600">Workload:</span>
+                                              <span className="font-medium">{reviewer.matchFactors.workload.toFixed(0)}%</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                              <span className="text-gray-600">Performance:</span>
+                                              <span className="font-medium">{reviewer.matchFactors.performance.toFixed(0)}%</span>
+                                            </div>
+                                          </div>
                                         </div>
                                       )}
+
+                                      {/* Certifications & Experience */}
+                                      <div className="mb-3">
+                                        <p className="text-xs text-gray-600 mb-1">Specializations:</p>
+                                        <div className="flex flex-wrap gap-1">
+                                          {reviewer.departmentExperience.slice(0, 3).map((dept, idx) => (
+                                            <Badge key={idx} variant="outline" className="text-xs">
+                                              {dept}
+                                            </Badge>
+                                          ))}
+                                          {reviewer.departmentExperience.length > 3 && (
+                                            <Badge variant="outline" className="text-xs">
+                                              +{reviewer.departmentExperience.length - 3} more
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* Assignment Button */}
+                                      <Button 
+                                        size="sm" 
+                                        className={`w-full ${
+                                          index === 0 && smartFilterEnabled ? "bg-green-600 hover:bg-green-700" :
+                                          index === 1 && smartFilterEnabled ? "bg-blue-600 hover:bg-blue-700" :
+                                          "bg-gray-600 hover:bg-gray-700"
+                                        }`}
+                                        data-testid={`button-assign-to-${reviewer.id}`}
+                                      >
+                                        {index === 0 && smartFilterEnabled && "🏆 "}
+                                        Assign to {reviewer.name.split(' ')[1]}
+                                        {smartFilterEnabled && ` (${reviewer.matchScore.toFixed(0)} pts)`}
+                                      </Button>
                                     </div>
                                   ))}
                                 </div>
