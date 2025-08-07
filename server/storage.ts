@@ -574,7 +574,10 @@ export class MemStorage implements IStorage {
     const metric: Metric = { 
       ...insertMetric, 
       id, 
-      updatedAt: new Date() 
+      updatedAt: new Date(),
+      previousValue: insertMetric.previousValue ?? null,
+      changePercentage: insertMetric.changePercentage ?? null,
+      status: (insertMetric.status as "positive" | "negative" | "neutral" | null) ?? null
     };
     this.metrics.set(id, metric);
     return metric;
@@ -587,7 +590,10 @@ export class MemStorage implements IStorage {
     const updated: Metric = { 
       ...existing, 
       ...updateData, 
-      updatedAt: new Date() 
+      updatedAt: new Date(),
+      previousValue: updateData.previousValue ?? existing.previousValue,
+      changePercentage: updateData.changePercentage ?? existing.changePercentage,
+      status: (updateData.status as "positive" | "negative" | "neutral" | null) ?? existing.status
     };
     this.metrics.set(id, updated);
     return updated;
@@ -599,7 +605,13 @@ export class MemStorage implements IStorage {
 
   async createDocumentationRequest(insertRequest: InsertDocumentationRequest): Promise<DocumentationRequest> {
     const id = randomUUID();
-    const request: DocumentationRequest = { ...insertRequest, id };
+    const request: DocumentationRequest = { 
+      ...insertRequest, 
+      id,
+      originalSubmissionDate: insertRequest.originalSubmissionDate ?? null,
+      isRedundant: insertRequest.isRedundant ?? null,
+      amount: insertRequest.amount ?? null
+    };
     this.documentationRequests.set(id, request);
     return request;
   }
@@ -608,7 +620,13 @@ export class MemStorage implements IStorage {
     const existing = this.documentationRequests.get(id);
     if (!existing) return undefined;
     
-    const updated: DocumentationRequest = { ...existing, ...updateData };
+    const updated: DocumentationRequest = { 
+      ...existing, 
+      ...updateData,
+      originalSubmissionDate: updateData.originalSubmissionDate ?? existing.originalSubmissionDate,
+      isRedundant: updateData.isRedundant ?? existing.isRedundant,
+      amount: updateData.amount ?? existing.amount
+    };
     this.documentationRequests.set(id, updated);
     return updated;
   }
@@ -619,7 +637,15 @@ export class MemStorage implements IStorage {
 
   async createPayerBehavior(insertBehavior: InsertPayerBehavior): Promise<PayerBehavior> {
     const id = randomUUID();
-    const behavior: PayerBehavior = { ...insertBehavior, id };
+    const behavior: PayerBehavior = { 
+      ...insertBehavior, 
+      id,
+      redundantRequestRate: insertBehavior.redundantRequestRate ?? null,
+      topRequestType: insertBehavior.topRequestType ?? null,
+      avgResponseTime: insertBehavior.avgResponseTime ?? null,
+      successRate: insertBehavior.successRate ?? null,
+      revenueImpact: insertBehavior.revenueImpact ?? null
+    };
     this.payerBehavior.set(id, behavior);
     return behavior;
   }
@@ -630,7 +656,11 @@ export class MemStorage implements IStorage {
 
   async createRedundancyMatrix(insertMatrix: InsertRedundancyMatrix): Promise<RedundancyMatrix> {
     const id = randomUUID();
-    const matrix: RedundancyMatrix = { ...insertMatrix, id };
+    const matrix: RedundancyMatrix = { 
+      ...insertMatrix, 
+      id,
+      redundancyRate: insertMatrix.redundancyRate ?? null
+    };
     this.redundancyMatrix.set(id, matrix);
     return matrix;
   }
@@ -641,7 +671,20 @@ export class MemStorage implements IStorage {
 
   async createPredictiveAnalytics(insertAnalytics: InsertPredictiveAnalytics): Promise<PredictiveAnalytics> {
     const id = randomUUID();
-    const analytics: PredictiveAnalytics = { ...insertAnalytics, id, createdAt: new Date() };
+    const analytics: PredictiveAnalytics = { 
+      ...insertAnalytics, 
+      id, 
+      createdAt: new Date(),
+      amount: insertAnalytics.amount ?? null,
+      denialRiskScore: insertAnalytics.denialRiskScore ?? null,
+      documentationRiskScore: insertAnalytics.documentationRiskScore ?? null,
+      timelyFilingRiskScore: insertAnalytics.timelyFilingRiskScore ?? null,
+      overallRiskScore: insertAnalytics.overallRiskScore ?? null,
+      recommendedActions: insertAnalytics.recommendedActions ?? null,
+      predictedDenialReasons: insertAnalytics.predictedDenialReasons ?? null,
+      confidence: insertAnalytics.confidence ?? null,
+      riskLevel: insertAnalytics.riskLevel as "low" | "medium" | "high" | "critical"
+    };
     this.predictiveAnalytics.set(id, analytics);
     return analytics;
   }
@@ -652,7 +695,15 @@ export class MemStorage implements IStorage {
 
   async createDenialPredictions(insertPredictions: InsertDenialPredictions): Promise<DenialPredictions> {
     const id = randomUUID();
-    const predictions: DenialPredictions = { ...insertPredictions, id };
+    const predictions: DenialPredictions = { 
+      ...insertPredictions, 
+      id,
+      confidence: insertPredictions.confidence ?? null,
+      predictedAmount: insertPredictions.predictedAmount ?? null,
+      actualDenials: insertPredictions.actualDenials ?? null,
+      actualAmount: insertPredictions.actualAmount ?? null,
+      accuracy: insertPredictions.accuracy ?? null
+    };
     this.denialPredictions.set(id, predictions);
     return predictions;
   }
@@ -663,7 +714,12 @@ export class MemStorage implements IStorage {
 
   async createRiskFactors(insertFactors: InsertRiskFactors): Promise<RiskFactors> {
     const id = randomUUID();
-    const factors: RiskFactors = { ...insertFactors, id };
+    const factors: RiskFactors = { 
+      ...insertFactors, 
+      id,
+      isActive: insertFactors.isActive ?? null,
+      weightScore: insertFactors.weightScore ?? null
+    };
     this.riskFactors.set(id, factors);
     return factors;
   }
@@ -855,7 +911,8 @@ export class MemStorage implements IStorage {
     // Sample insurer criteria (BCBS medical necessity guidelines)
     const bcbsCriteria: InsurerCriteria = {
       id: "ins-001",
-      insurerName: "Blue Cross Blue Shield",
+      payerName: "Blue Cross Blue Shield",
+      payerId: "BCBS",
       procedureCode: "CPT-29881",
       procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
       requiresAuth: true,
@@ -878,7 +935,8 @@ export class MemStorage implements IStorage {
     
     const aetnaCriteria: InsurerCriteria = {
       id: "ins-002", 
-      insurerName: "Aetna",
+      payerName: "Aetna",
+      payerId: "AETNA",
       procedureCode: "CPT-64483",
       procedureName: "Injection, anesthetic agent; transforaminal epidural",
       requiresAuth: true,
@@ -909,7 +967,7 @@ export class MemStorage implements IStorage {
         procedureCode: "CPT-29881", 
         procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
         category: "Orthopedic Surgery",
-        requiresPreAuth: true,
+        requiresAuth: true,
         riskLevel: "Medium",
         averageProcessingDays: 3,
         approvalRate: 85.2,
@@ -926,7 +984,7 @@ export class MemStorage implements IStorage {
         procedureCode: "CPT-64483",
         procedureName: "Injection, anesthetic agent; transforaminal epidural", 
         category: "Pain Management",
-        requiresPreAuth: true,
+        requiresAuth: true,
         riskLevel: "Low",
         averageProcessingDays: 2,
         approvalRate: 92.1,
@@ -942,7 +1000,7 @@ export class MemStorage implements IStorage {
         procedureCode: "CPT-27447",
         procedureName: "Arthroplasty, knee, condyle and plateau; medial OR lateral compartment",
         category: "Orthopedic Surgery",
-        requiresPreAuth: true,
+        requiresAuth: true,
         riskLevel: "High", 
         averageProcessingDays: 5,
         approvalRate: 78.9,
@@ -973,7 +1031,7 @@ export class MemStorage implements IStorage {
         scheduledDate: new Date("2025-01-15"),
         requestDate: new Date("2025-01-10"),
         status: "pending",
-        priority: "standard",
+        priority: "routine",
         daysUntilProcedure: 5,
         authRequiredBy: new Date("2025-01-12"),
         providerId: "DR-001",
@@ -996,7 +1054,7 @@ export class MemStorage implements IStorage {
         scheduledDate: new Date("2025-01-12"),
         requestDate: new Date("2025-01-09"),
         status: "approved",
-        priority: "standard",
+        priority: "routine",
         daysUntilProcedure: 3,
         authRequiredBy: new Date("2025-01-10"),
         providerId: "DR-002",
@@ -1018,7 +1076,7 @@ export class MemStorage implements IStorage {
         procedureName: "Arthroplasty, knee, condyle and plateau; medial compartment",
         scheduledDate: new Date("2025-01-18"),
         requestDate: new Date("2025-01-08"),
-        status: "requires_review",
+        status: "pending",
         priority: "urgent",
         daysUntilProcedure: 8,
         authRequiredBy: new Date("2025-01-13"),
