@@ -46,39 +46,28 @@ export function HealthCatalystNavbar({
   };
 
   const defaultRightContent = [
-    <IconButton key="help" size="small" sx={{ color: 'white' }}>
+    <Box key="help" className="hc-navbar-icon">
       <HelpCircle size={18} />
-    </IconButton>,
-    <Divider key="separator" orientation="vertical" flexItem sx={{ 
-      backgroundColor: 'rgba(255,255,255,0.3)', 
-      mx: 1,
-      height: '24px',
-      alignSelf: 'center'
-    }} />,
-    <Box key="user" sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 0.5, 
-      color: 'white',
-      cursor: 'pointer',
-      '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
-      px: 1,
-      py: 0.5,
-      borderRadius: 1
-    }}>
-      <Box>
-        <Typography variant="body2" sx={{ fontSize: '0.875rem', lineHeight: 1.2 }}>
+    </Box>,
+    <span key="separator" className="hc-navbar-vertical-separator"/>,
+    <Box key="user" className="hc-navbar-username">
+      <Box sx={{ textAlign: 'right' }}>
+        <Typography variant="body2" sx={{ 
+          fontSize: '0.875rem', 
+          lineHeight: 1.2,
+          fontWeight: 500
+        }}>
           Christine K.
         </Typography>
-        <Typography variant="caption" sx={{ 
-          fontSize: '0.75rem', 
-          opacity: 0.8,
-          lineHeight: 1.2 
+        <Typography variant="caption" className="hc-navbar-username-subtext" sx={{ 
+          fontSize: '0.75rem',
+          lineHeight: 1.2,
+          display: 'block'
         }}>
           Millrock Hospital
         </Typography>
       </Box>
-      <ChevronDown size={16} />
+      <ChevronDown size={14} />
     </Box>
   ];
 
@@ -86,28 +75,47 @@ export function HealthCatalystNavbar({
     <AppBar 
       position="fixed" 
       sx={{ 
-        backgroundColor: '#384655', // charcoal-blue from Health Catalyst colors
+        backgroundColor: '#495967', // Authentic Health Catalyst navbar color
         zIndex: 1300,
-        boxShadow: '0 2px 4px rgba(56,70,85,0.1)',
+        boxShadow: 'none',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
       }}
     >
-      <Toolbar sx={{ minHeight: '53px !important', px: 2, gap: 2 }}>
+      <Toolbar sx={{ 
+        minHeight: '53px !important', 
+        px: 3, 
+        gap: 3,
+        justifyContent: 'space-between'
+      }}>
         {/* Brand Section */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Link href={homeUri} sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderIcon(brandIcon, 28)}
-          </Link>
-          {renderIcon(appIcon, 120)}
-          {cobrandIcon && (
-            <>
-              <Divider orientation="vertical" flexItem sx={{ 
-                backgroundColor: 'rgba(255,255,255,0.3)', 
-                mx: 1,
-                height: '32px' 
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Link href={homeUri} sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Box sx={{
+              width: 32,
+              height: 32,
+              background: 'linear-gradient(135deg, #00aeff 0%, #0088cc 100%)',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: 1,
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            }}>
+              <Box sx={{
+                width: 24,
+                height: 24,
+                background: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'white\'%3E%3Cpath d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'/%3E%3C/svg%3E") center/contain no-repeat'
               }} />
-              {renderIcon(cobrandIcon, 80)}
-            </>
-          )}
+            </Box>
+            <Typography sx={{
+              color: 'white',
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              letterSpacing: '-0.02em'
+            }}>
+              Cashmere
+            </Typography>
+          </Link>
         </Box>
 
         {/* Navigation Links */}
@@ -115,32 +123,41 @@ export function HealthCatalystNavbar({
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center', 
-            gap: 0.5, 
-            ml: 2,
-            overflow: 'hidden',
+            gap: 0,
             flex: 1,
-            maxWidth: 'calc(100vw - 600px)' // Reserve space for brand and right content
+            maxWidth: '600px',
+            justifyContent: 'center'
           }}>
             {linkContent.map((link, index) => (
               <Box key={index} sx={{
+                position: 'relative',
                 '& .navbar-link': {
-                  color: 'rgba(255,255,255,0.8)',
+                  color: 'rgba(255,255,255,0.85)',
                   textDecoration: 'none',
-                  padding: '6px 8px',
-                  borderRadius: '4px',
-                  fontSize: '0.8rem',
+                  padding: '12px 16px',
+                  fontSize: '0.875rem',
                   fontWeight: 500,
                   transition: 'all 0.2s ease',
                   whiteSpace: 'nowrap',
                   display: 'block',
+                  position: 'relative',
                   '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.1)',
                     color: 'white',
+                    backgroundColor: 'rgba(255,255,255,0.08)',
                   },
                   '&.force-active': {
-                    backgroundColor: 'rgba(0,174,255,0.2)', // Health Catalyst primary with alpha
                     color: 'white',
                     fontWeight: 600,
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: '3px',
+                      backgroundColor: '#00aeff',
+                      borderRadius: '2px 2px 0 0'
+                    }
                   }
                 }
               }}>
@@ -150,42 +167,45 @@ export function HealthCatalystNavbar({
           </Box>
         )}
 
-        {/* Spacer */}
-        <Box sx={{ flexGrow: 1 }} />
-
         {/* Right Content */}
         <Box sx={{ 
           display: 'flex', 
           alignItems: 'center', 
-          gap: 1,
+          gap: 2,
           '& .hc-navbar-icon': {
-            color: 'white',
+            color: 'rgba(255,255,255,0.8)',
             fontSize: '18px',
             cursor: 'pointer',
+            padding: '6px',
+            borderRadius: '4px',
+            transition: 'all 0.2s ease',
             '&:hover': {
-              opacity: 0.8
+              color: 'white',
+              backgroundColor: 'rgba(255,255,255,0.1)'
             }
           },
           '& .hc-navbar-vertical-separator': {
             width: '1px',
-            height: '24px',
-            backgroundColor: 'rgba(255,255,255,0.3)',
-            margin: '0 8px'
+            height: '20px',
+            backgroundColor: 'rgba(255,255,255,0.2)',
+            margin: '0 4px'
           },
           '& .hc-navbar-username': {
             color: 'white',
             cursor: 'pointer',
-            padding: '4px 8px',
+            padding: '6px 12px',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
+            transition: 'all 0.2s ease',
             '&:hover': {
               backgroundColor: 'rgba(255,255,255,0.1)'
             },
             '& .hc-navbar-username-subtext': {
               fontSize: '0.75rem',
-              opacity: 0.8
+              opacity: 0.8,
+              color: 'rgba(255,255,255,0.7)'
             }
           }
         }}>
