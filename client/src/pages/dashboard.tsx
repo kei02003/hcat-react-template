@@ -1,17 +1,4 @@
 import { useState } from "react";
-import {
-  Box,
-  AppBar,
-  Toolbar,
-  Typography,
-  Tabs,
-  Tab,
-  TextField,
-  Container,
-  Paper,
-  IconButton,
-} from '@mui/material';
-import { LocalHospital, Help, CalendarToday } from '@mui/icons-material';
 import { MetricsPanel } from "@/components/metrics-panel";
 import { DocumentationDashboard } from "@/components/documentation-dashboard";
 import { PredictiveDashboard } from "@/components/predictive-dashboard";
@@ -21,6 +8,7 @@ import { TimelyFilingDashboard } from "@/components/timely-filing-dashboard";
 import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboard";
 import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
+import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
   const [activeMainTab, setActiveMainTab] = useState("Denials");
@@ -34,115 +22,82 @@ export default function Dashboard() {
   const subTabs = ["Clinical Denials", "Timely Filing", "Documentation Requests", "Appeals Management", "Predictive Analytics"];
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <div className="min-h-screen bg-gray-50">
       {/* Header Navigation */}
-      <AppBar position="static" elevation={2}>
-        <Toolbar>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 4 }} data-testid="logo">
-            <LocalHospital />
-            <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
-              RevenueCycle
-            </Typography>
-          </Box>
-          
-          {/* Main Navigation Tabs */}
-          <Tabs
-            value={activeMainTab}
-            onChange={(_, newValue) => setActiveMainTab(newValue)}
-            textColor="inherit"
-            indicatorColor="secondary"
-            sx={{ flexGrow: 1 }}
-          >
-            {mainTabs.map((tab) => (
-              <Tab
-                key={tab}
-                label={tab}
-                value={tab}
-                data-testid={`main-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
-                sx={{ 
-                  textTransform: 'none',
-                  fontWeight: 500,
-                  minWidth: 'auto',
-                }}
-              />
-            ))}
-          </Tabs>
+      <header className="healthcare-header shadow-lg">
+        <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center space-x-8">
+            <div className="flex items-center space-x-2" data-testid="logo">
+              <ChartLine className="h-6 w-6" />
+              <span className="text-xl font-semibold">RevenueCycle</span>
+            </div>
+            
+            {/* Main Navigation Tabs */}
+            <nav className="flex space-x-6">
+              {mainTabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveMainTab(tab)}
+                  className={`px-4 py-2 rounded-md transition-colors ${
+                    activeMainTab === tab 
+                      ? "bg-gray-700" 
+                      : "hover:bg-gray-700"
+                  }`}
+                  data-testid={`main-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+          </div>
           
           {/* Date Range Selector */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TextField
-              type="date"
+          <div className="flex items-center space-x-2">
+            <input 
+              type="date" 
               value={dateRange.start}
               onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-              size="small"
+              className="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
               data-testid="date-input-start"
-              sx={{ 
-                '& .MuiInputBase-root': { 
-                  color: 'white',
-                  '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' },
-                  '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.5)' },
-                  '&.Mui-focused fieldset': { borderColor: 'secondary.main' },
-                }
-              }}
             />
-            <Typography variant="body2" sx={{ color: 'inherit' }}>to</Typography>
-            <TextField
-              type="date"
+            <span className="text-sm">to</span>
+            <input 
+              type="date" 
               value={dateRange.end}
               onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-              size="small"
+              className="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
               data-testid="date-input-end"
-              sx={{ 
-                '& .MuiInputBase-root': { 
-                  color: 'white',
-                  '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' },
-                  '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.5)' },
-                  '&.Mui-focused fieldset': { borderColor: 'secondary.main' },
-                }
-              }}
             />
-            <IconButton color="inherit" size="small">
-              <Help />
-            </IconButton>
-          </Box>
-        </Toolbar>
+            <HelpCircle className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+          </div>
+        </div>
         
         {/* Secondary Navigation for Denials */}
         {activeMainTab === "Denials" && (
-          <Box sx={{ borderTop: 1, borderColor: 'rgba(255,255,255,0.12)' }}>
-            <Container maxWidth={false}>
-              <Tabs
-                value={activeSubTab}
-                onChange={(_, newValue) => setActiveSubTab(newValue)}
-                textColor="inherit"
-                indicatorColor="secondary"
-                variant="scrollable"
-                scrollButtons="auto"
-                sx={{ 
-                  '& .MuiTab-root': { 
-                    textTransform: 'none',
-                    fontSize: '0.875rem',
-                    minHeight: 48,
-                    opacity: 0.7,
-                    '&.Mui-selected': { opacity: 1 }
-                  }
-                }}
-              >
-                {subTabs.map((tab) => (
-                  <Tab
-                    key={tab}
-                    label={tab}
-                    value={tab}
-                    data-testid={`sub-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
-                  />
-                ))}
-              </Tabs>
-            </Container>
-          </Box>
+          <div className="healthcare-secondary-header px-6 py-2">
+            <nav className="flex space-x-6">
+              {subTabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveSubTab(tab)}
+                  className={`px-3 py-1 text-sm rounded transition-colors ${
+                    activeSubTab === tab 
+                      ? "bg-gray-600" 
+                      : "hover:bg-gray-600"
+                  }`}
+                  data-testid={`sub-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+          </div>
         )}
-      </AppBar>
+        
 
-      <Box sx={{ display: 'flex', height: 'calc(100vh - 64px)' }}>
+      </header>
+
+      <div className="flex h-screen">
         {/* Left Sidebar with Metrics */}
         <MetricsPanel />
 
@@ -164,30 +119,20 @@ export default function Dashboard() {
         ) : activeMainTab === "Pre-Authorization" ? (
           <PreAuthorizationDashboard />
         ) : (
-          <Container 
-            component="main" 
-            maxWidth={false}
-            sx={{ 
-              flex: 1, 
-              p: 3, 
-              overflow: 'auto', 
-              bgcolor: 'background.paper',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h4" gutterBottom color="text.primary">
-                {activeMainTab} - {activeSubTab || "Overview"}
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                This section is under development. Available dashboards include all major revenue cycle modules plus new RFP features: Pre-Authorization Management, Clinical Decision Support, and Appeal Generation.
-              </Typography>
-            </Box>
-          </Container>
+          <main className="flex-1 p-6 overflow-y-auto bg-white">
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {activeMainTab} - {activeSubTab || "Overview"}
+                </h2>
+                <p className="text-gray-600">
+                  This section is under development. Available dashboards include all major revenue cycle modules plus new RFP features: Pre-Authorization Management, Clinical Decision Support, and Appeal Generation.
+                </p>
+              </div>
+            </div>
+          </main>
         )}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
