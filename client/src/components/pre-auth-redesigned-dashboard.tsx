@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   AlertCircle, 
   CheckCircle, 
@@ -31,7 +32,8 @@ import {
   Eye,
   Send,
   Filter,
-  Download
+  Download,
+  FileEdit
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -325,13 +327,13 @@ export function PreAuthRedesignedDashboard() {
           </Card>
         </TabsContent>
 
-        {/* Tracking Tab - Interactive Timeline */}
+        {/* Tracking Tab - Table View */}
         <TabsContent value="tracking" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Activity className="h-5 w-5" />
-                <span>Interactive Procedure Timeline</span>
+                <span>Pre-Authorization Tracking Table</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -344,7 +346,7 @@ export function PreAuthRedesignedDashboard() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       className="w-full"
-                      data-testid="input-timeline-search"
+                      data-testid="input-table-search"
                     />
                   </div>
                   <Select value={selectedPayer} onValueChange={setSelectedPayer}>
@@ -361,43 +363,102 @@ export function PreAuthRedesignedDashboard() {
                   </Select>
                 </div>
 
-                {/* Timeline View */}
-                <div className="space-y-3">
-                  {(timelineData as PreAuthTimeline[] | undefined)?.map((item: PreAuthTimeline) => (
-                    <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50" data-testid={`timeline-item-${item.id}`}>
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.includes(item.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedItems([...selectedItems, item.id]);
-                          } else {
-                            setSelectedItems(selectedItems.filter(id => id !== item.id));
-                          }
-                        }}
-                        className="w-4 h-4"
-                        data-testid={`checkbox-${item.id}`}
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">{item.patientName}</p>
-                            <p className="text-sm text-gray-600">{item.procedureName} - {item.payerName}</p>
-                          </div>
-                          <div className="text-right">
-                            <Badge className={getUrgencyColor(item.urgencyLevel)} data-testid={`urgency-${item.id}`}>
-                              {item.daysUntilProcedure} days
-                            </Badge>
-                            <p className="text-sm text-gray-500 mt-1">{item.currentStatus}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )) || Array.from({ length: 5 }, (_, i) => (
-                    <div key={i} className="flex items-center space-x-4 p-4 border rounded-lg animate-pulse">
-                      <div className="h-16 bg-gray-200 rounded flex-1"></div>
-                    </div>
-                  ))}
+                {/* Table View */}
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Procedure</TableHead>
+                        <TableHead>Patient ID</TableHead>
+                        <TableHead>Payer</TableHead>
+                        <TableHead>Days Until Procedure</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Action Required</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(timelineData as PreAuthTimeline[] | undefined)?.map((item: PreAuthTimeline) => {
+                        // Color-code rows based on days until procedure
+                        const getRowColor = (days: number) => {
+                          if (days < 3) return "bg-red-50 border-red-200 hover:bg-red-100";
+                          if (days >= 3 && days <= 5) return "bg-yellow-50 border-yellow-200 hover:bg-yellow-100";
+                          return "bg-green-50 border-green-200 hover:bg-green-100";
+                        };
+
+                        const getActionRequired = (status: string, days: number) => {
+                          if (status === "flagged" && days < 5) return "Authorization Needed";
+                          if (status === "submitted") return "Awaiting Response";
+                          if (status === "approved") return "Complete";
+                          return "Review Required";
+                        };
+
+                        return (
+                          <TableRow key={item.id} className={getRowColor(item.daysUntilProcedure)} data-testid={`table-row-${item.id}`}>
+                            <TableCell className="font-medium">
+                              {item.procedureName}
+                            </TableCell>
+                            <TableCell>
+                              {item.patientId}
+                            </TableCell>
+                            <TableCell>
+                              {item.payerName}
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getUrgencyColor(item.urgencyLevel)} data-testid={`urgency-${item.id}`}>
+                                {item.daysUntilProcedure} days
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                variant={item.currentStatus === "approved" ? "default" : "secondary"}
+                                className={item.currentStatus === "approved" ? "bg-green-100 text-green-800" : ""}
+                              >
+                                {item.currentStatus}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm text-gray-600 mr-2">
+                                  {getActionRequired(item.currentStatus, item.daysUntilProcedure)}
+                                </span>
+                                <div className="flex space-x-1">
+                                  {item.currentStatus === "flagged" && (
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="h-8 px-2"
+                                      data-testid={`flag-review-${item.id}`}
+                                    >
+                                      <Flag className="h-3 w-3 mr-1" />
+                                      Flag Review
+                                    </Button>
+                                  )}
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="h-8 px-2"
+                                    data-testid={`auto-populate-${item.id}`}
+                                  >
+                                    <FileEdit className="h-3 w-3 mr-1" />
+                                    Auto-Populate
+                                  </Button>
+                                </div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }) || Array.from({ length: 5 }, (_, i) => (
+                        <TableRow key={i} className="animate-pulse">
+                          <TableCell><div className="h-4 bg-gray-200 rounded"></div></TableCell>
+                          <TableCell><div className="h-4 bg-gray-200 rounded"></div></TableCell>
+                          <TableCell><div className="h-4 bg-gray-200 rounded"></div></TableCell>
+                          <TableCell><div className="h-4 bg-gray-200 rounded"></div></TableCell>
+                          <TableCell><div className="h-4 bg-gray-200 rounded"></div></TableCell>
+                          <TableCell><div className="h-4 bg-gray-200 rounded"></div></TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
             </CardContent>
