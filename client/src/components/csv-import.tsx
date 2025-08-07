@@ -69,13 +69,14 @@ export function CSVImportComponent() {
     },
   });
 
-  // Import mutation
+  // Import mutation - now imports directly to database
   const importMutation = useMutation({
     mutationFn: async ({ file, entityType }: { file: File; entityType: string }) => {
       const formData = new FormData();
       formData.append('csvFile', file);
       
-      const response = await fetch(`/api/revenue-cycle/import/${entityType}`, {
+      // Use the database import endpoint for persistent storage
+      const response = await fetch(`/api/revenue-cycle/import-to-database/${entityType}`, {
         method: 'POST',
         body: formData,
       });
@@ -89,9 +90,12 @@ export function CSVImportComponent() {
     onSuccess: (result) => {
       setImportResult(result);
       queryClient.invalidateQueries({ queryKey: ['/api/revenue-cycle'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/migration-status'] });
+      const dbSuccess = result.database_import?.success || result.success;
+      const totalRecords = result.total_database_records || result.total;
       toast({
-        title: 'Import Complete',
-        description: `Successfully imported ${result.success} records`,
+        title: 'Database Import Complete',
+        description: `Successfully imported ${dbSuccess} records to database. Total database records: ${totalRecords}`,
       });
     },
     onError: (error) => {
