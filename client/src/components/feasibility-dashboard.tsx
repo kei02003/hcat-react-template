@@ -242,7 +242,7 @@ export function FeasibilityDashboard() {
                       {formatPercentage(payer.redundantRequestOpportunities.redundancyRate)} redundancy rate
                     </div>
                     <div className="text-sm text-green-600 font-medium">
-                      {formatCurrency(payer.redundantRequestOpportunities.estimatedSavings)} potential savings
+                      {formatCurrency(payer.redundantRequestOpportunities.automationPotential.estimatedSavings)} potential savings
                     </div>
                     <Progress value={payer.redundantRequestOpportunities.redundancyRate} className="h-2" />
                   </div>
