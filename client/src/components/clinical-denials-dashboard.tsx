@@ -829,7 +829,10 @@ export function ClinicalDenialsDashboard() {
                               {/* Smart Filtering Controls */}
                               <div className="space-y-4">
                                 <div className="flex items-center justify-between">
-                                  <h3 className="font-semibold text-gray-900">Clinical Reviewer Assignment</h3>
+                                  <div className="flex items-center space-x-2">
+                                    <h3 className="font-semibold text-gray-900">Clinical Reviewer Assignment</h3>
+                                    <Badge className="bg-orange-100 text-orange-800 text-xs">BETA</Badge>
+                                  </div>
                                   <div className="flex items-center space-x-2">
                                     <label className="text-sm text-gray-600">Smart Matching:</label>
                                     <input
@@ -842,13 +845,17 @@ export function ClinicalDenialsDashboard() {
                                 </div>
 
                                 {smartFilterEnabled && (
-                                  <div className="bg-blue-50 p-3 rounded-lg">
+                                  <div className="bg-blue-50 p-3 rounded-lg border border-orange-200">
                                     <div className="flex items-center space-x-2 mb-2">
                                       <Shield className="h-4 w-4 text-blue-600" />
                                       <span className="text-sm font-medium text-blue-900">AI-Powered Matching Enabled</span>
+                                      <Badge className="bg-orange-100 text-orange-800 text-xs">BETA</Badge>
                                     </div>
                                     <p className="text-xs text-blue-700">
                                       Reviewers are automatically ranked by specialty match, workload, experience, and performance metrics.
+                                    </p>
+                                    <p className="text-xs text-orange-700 mt-1 italic">
+                                      Beta feature - algorithm is being refined based on user feedback.
                                     </p>
                                   </div>
                                 )}
@@ -988,9 +995,16 @@ export function ClinicalDenialsDashboard() {
                                         }`}
                                         data-testid={`button-assign-to-${reviewer.id}`}
                                       >
-                                        {index === 0 && smartFilterEnabled && "🏆 "}
-                                        Assign to {reviewer.name.split(' ')[1]}
-                                        {smartFilterEnabled && ` (${reviewer.matchScore.toFixed(0)} pts)`}
+                                        <div className="flex items-center justify-center space-x-1">
+                                          <span>
+                                            {index === 0 && smartFilterEnabled && "🏆 "}
+                                            Assign to {reviewer.name.split(' ')[1]}
+                                            {smartFilterEnabled && ` (${reviewer.matchScore.toFixed(0)} pts)`}
+                                          </span>
+                                          {smartFilterEnabled && (
+                                            <Badge className="bg-orange-100 text-orange-800 text-xs ml-1">β</Badge>
+                                          )}
+                                        </div>
                                       </Button>
                                     </div>
                                   ))}
