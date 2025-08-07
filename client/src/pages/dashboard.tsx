@@ -11,7 +11,6 @@ import { AppealGenerationDashboard } from "@/components/appeal-generation-dashbo
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
 import { PersonaSwitcher } from "@/components/persona-switcher";
-import { DemoModePanel } from "@/components/demo-mode-panel";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -148,9 +147,6 @@ export default function Dashboard() {
           </main>
         )}
       </div>
-
-      {/* Demo Mode Panel - Floating */}
-      <DemoModePanel />
     </div>
   );
 }

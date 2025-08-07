@@ -56,7 +56,7 @@ export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwit
     const primaryRole = roles[0];
     const roleInfo = getRoleDisplayInfo(primaryRole);
     return {
-      label: roleInfo?.label || primaryRole,
+      label: roleInfo?.displayName || primaryRole,
       color: roleInfo?.color || "bg-gray-100 text-gray-800"
     };
   };
