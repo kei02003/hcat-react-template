@@ -296,6 +296,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Revenue Cycle Accounts endpoint for patient data
+  app.get("/api/revenue-cycle-accounts/patients", async (req, res) => {
+    try {
+      const { pool } = await import("./db");
+      
+      const result = await pool.query(`
+        SELECT DISTINCT hospitalaccountid, currentpayornm, currentpayorid, totalchargeamt, 
+               procedurecd, proceduredsc, attendingprovidernm, attendingproviderid,
+               hospitalnm, facilityid, denialcd, denialcodedsc, admitdt, dischargedt
+        FROM revenue_cycle_accounts 
+        WHERE currentpayornm IS NOT NULL 
+        ORDER BY hospitalaccountid 
+        LIMIT 50
+      `);
+      
+      res.json(result.rows);
+    } catch (error) {
+      console.error("Error fetching patient data:", error);
+      res.status(500).json({ message: "Failed to fetch patient data" });
+    }
+  });
+
   // Appeal Generation routes
   app.get("/api/appeal-cases", async (req, res) => {
     try {
