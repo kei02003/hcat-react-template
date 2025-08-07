@@ -20,34 +20,31 @@ export class DatabaseCSVImportService {
     for (const row of data) {
       try {
         // Use proper Drizzle ORM syntax instead of raw SQL
+        // Map CSV columns to database schema fields
         const accountData = {
-          hospitalAccountId: row['Hospital Account ID'] || `HSP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          revenueCycleId: row['Revenue Cycle ID'] || null,
-          patientId: row['Patient ID'] || 'UNKNOWN',
-          patientNm: row['Patient Name'] || 'UNKNOWN',
-          admitDt: this.parseDate(row['Admit Date']) || new Date(),
-          dischargeDt: this.parseDate(row['Discharge Date']) || null,
-          currentPayorId: row['Current Payor ID'] || 'UNKNOWN',
-          currentPayorNm: row['Current Payor Name'] || 'UNKNOWN',
-          attendingProviderId: row['Attending Provider ID'] || null,
-          attendingProviderNm: row['Attending Provider Name'] || null,
-          billStatusCd: row['Bill Status Code'] || null,
-          totalChargeAmt: row['Total Charge Amount'] || null,
-          payorBalanceAmt: row['Payor Balance Amount'] || null,
-          patientBalanceAmt: row['Patient Balance Amount'] || null,
-          financialClassCd: row['Financial Class Code'] || null,
-          financialClassDsc: row['Financial Class Description'] || null,
-          arAgingDays: this.parseInteger(row['AR Aging Days']) || null,
-          liabilityBucketId: row['Liability Bucket ID'] || null,
-          reportCat: row['Report Category'] || null,
-          reportGrp: row['Report Group'] || null,
-          reportSubGrp1: row['Report Sub Group 1'] || null,
-          reportSubGrp2: row['Report Sub Group 2'] || null,
-          reportSubGrp3: row['Report Sub Group 3'] || null,
-          facilityAccountSourceDsc: row['Facility Account Source Description'] || null,
-          hospitalNm: row['Hospital Name'] || null,
-          revenueLocationNm: row['Revenue Location Name'] || null,
-          revCycleMonthYear: row['Revenue Cycle Month Year'] || null
+          hospitalAccountID: row['Hospital Account ID'] || `HSP_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          revenueCycleID: row['Revenue Cycle ID'] || null,
+          patientID: row['Patient ID'] || 'UNKNOWN',
+          patientNM: row['Patient Name'] || 'UNKNOWN',
+          admitDT: this.parseDate(row['Admit Date']) || new Date(),
+          dischargeDT: this.parseDate(row['Discharge Date']) || null,
+          currentPayorID: row['Current Payor ID'] || 'UNKNOWN',
+          currentPayorNM: row['Current Payor Name'] || 'UNKNOWN',
+          currentFinancialClassCD: row['Financial Class Code'] || null,
+          attendingProviderID: row['Attending Provider ID'] || 'UNKNOWN',
+          attendingProviderNM: row['Attending Provider Name'] || 'UNKNOWN',
+          departmentNM: row['Department Name'] || 'UNKNOWN',
+          serviceAreaNM: row['Service Area Name'] || null,
+          hospitalAccountClassCD: row['Hospital Account Class Code'] || null,
+          finalDRG: row['Final DRG'] || null,
+          totalChargeAMT: row['Total Charge Amount'] || null,
+          totalPaymentAMT: row['Total Payment Amount'] || null,
+          totalAdjustmentAMT: row['Total Adjustment Amount'] || null,
+          denialCD: row['Denial Code'] || null,
+          denialCodeDSC: row['Denial Code Description'] || null,
+          denialCodeGRP: row['Denial Code Group'] || null,
+          denialAccountBalanceAMT: row['Denial Account Balance Amount'] || null,
+          billStatusCD: row['Bill Status Code'] || null
         };
 
         // Insert or update using Drizzle ORM
@@ -71,22 +68,22 @@ export class DatabaseCSVImportService {
     for (const row of data) {
       try {
         const decisionData = {
-          clinicalDecisionId: row['Clinical Decision ID'] || `CD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          hospitalAccountId: row['Hospital Account ID'] || 'UNKNOWN',
-          patientId: row['Patient ID'] || 'UNKNOWN',
-          patientNm: row['Patient Name'] || 'UNKNOWN',
-          currentPayorId: row['Current Payor ID'] || 'UNKNOWN',
-          departmentNm: row['Department Name'] || 'UNKNOWN',
-          hospitalAccountClassCd: row['Hospital Account Class Code'] || null,
-          denialCd: row['Denial Code'] || null,
+          clinicalDecisionID: row['Clinical Decision ID'] || `CD_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          hospitalAccountID: row['Hospital Account ID'] || 'UNKNOWN',
+          patientID: row['Patient ID'] || 'UNKNOWN',
+          patientNM: row['Patient Name'] || 'UNKNOWN',
+          departmentNM: row['Department Name'] || 'UNKNOWN',
+          hospitalAccountClassCD: row['Hospital Account Class Code'] || null,
+          recommendedAccountClassCD: row['Recommended Account Class Code'] || null,
+          currentPayorID: row['Current Payor ID'] || 'UNKNOWN',
+          denialCD: row['Denial Code'] || null,
           appealProbability: this.parseInteger(row['Appeal Probability']) || null,
           confidenceScore: this.parseInteger(row['Confidence Score']) || null,
           complianceScore: this.parseInteger(row['Compliance Score']) || null,
-          reviewStatus: row['Review Status'] || null,
-          priorityLevel: row['Priority Level'] || null,
           clinicalEvidence: this.parseJSON(row['Clinical Evidence']) || null,
           payorCriteria: this.parseJSON(row['Payor Criteria']) || null,
-          recommendedAccountClassCd: row['Recommended Account Class Code'] || null
+          reviewStatus: row['Review Status'] || null,
+          priorityLevel: row['Priority Level'] || null
         };
 
         await db.insert(clinicalDecisions).values(decisionData).onConflictDoNothing();

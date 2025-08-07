@@ -16,9 +16,18 @@ import { Upload, FileText, AlertCircle, CheckCircle2, Download } from 'lucide-re
 
 interface ImportResult {
   message: string;
-  success: number;
-  errors: string[];
-  total: number;
+  success?: number;
+  errors?: string[];
+  total?: number;
+  database_import?: {
+    success: number;
+    errors: string[];
+  };
+  memory_import?: {
+    success: number;
+    errors: string[];
+  };
+  total_database_records?: number;
 }
 
 interface CSVPreview {
@@ -99,6 +108,7 @@ export function CSVImportComponent() {
       });
     },
     onError: (error) => {
+      console.error('Import error:', error);
       toast({
         title: 'Import Failed',
         description: error instanceof Error ? error.message : 'Failed to import CSV',

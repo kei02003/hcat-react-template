@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { revenueCycleStorage } from "./revenue-cycle-storage";
 import { csvImportService } from "./csv-import";
 import { dataMigrationService } from "./data-migration";
-import { databaseCSVImportService } from "./database-csv-import";
+import { SimpleCSVImportService } from "./database-import-simple";
 import { isAuthenticated } from "./replitAuth";
 import { requirePermission, auditAction, type AuthenticatedRequest } from "./auth/middleware";
 import multer from "multer";
@@ -477,6 +477,8 @@ export function registerRevenueCycleRoutes(app: Express) {
     }
   });
 
+  const databaseCSVImportService = new SimpleCSVImportService();
+
   app.get('/api/migration-status', async (req, res) => {
     try {
       const counts = await databaseCSVImportService.getTableCounts();
@@ -485,6 +487,7 @@ export function registerRevenueCycleRoutes(app: Express) {
         total_records: Object.values(counts).reduce((sum, count) => sum + count, 0)
       });
     } catch (error) {
+      console.error('Migration status error:', error);
       res.status(500).json({ message: 'Failed to check migration status' });
     }
   });
