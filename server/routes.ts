@@ -230,12 +230,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Pre-Authorization Management routes
+  // Pre-Authorization Management routes - using real database data
   app.get("/api/pre-auth-requests", async (req, res) => {
     try {
-      const requests = await storage.getPreAuthRequests();
-      res.json(requests);
+      const { pool } = await import("./db");
+      const { limit = "100", status, priority, servicetype } = req.query;
+      
+      // Build WHERE clause for filtering
+      const conditions = [];
+      const params = [];
+      let paramIndex = 1;
+
+      if (status && status !== "all") {
+        conditions.push(`status = $${paramIndex}`);
+        params.push(status);
+        paramIndex++;
+      }
+
+      if (priority && priority !== "all") {
+        conditions.push(`priority = $${paramIndex}`);
+        params.push(priority);
+        paramIndex++;
+      }
+
+      if (servicetype && servicetype !== "all") {
+        conditions.push(`servicetype = $${paramIndex}`);
+        params.push(servicetype);
+        paramIndex++;
+      }
+
+      const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+      params.push(parseInt(limit as string));
+
+      const query = `
+        SELECT preauthid, accountid, servicetype, proceduredate, requestdate, responsedate,
+               daysbeforeprocedure, completedontime, status, authnumber, expirationdate,
+               requestedunits, approvedunits, denialreason, priority, physicinadvisorreview,
+               appealeligible, delayimpact, createddt, updateddt
+        FROM preauthorization_data 
+        ${whereClause}
+        ORDER BY requestdate DESC
+        LIMIT $${paramIndex}
+      `;
+      
+      const result = await pool.query(query, params);
+      
+      // Transform to match frontend format
+      const transformedRequests = result.rows.map((req: any) => ({
+        id: req.preauthid,
+        patientId: req.accountid,
+        patientName: `Patient ${req.accountid}`,
+        memberID: req.accountid,
+        insurerName: "Various Insurers",
+        procedureCode: "N/A",
+        procedureName: req.servicetype,
+        scheduledDate: req.proceduredate,
+        requestDate: req.requestdate,
+        status: req.status?.toLowerCase() || "pending",
+        priority: req.priority?.toLowerCase() || "standard",
+        daysUntilProcedure: req.daysbeforeprocedure || 0,
+        authRequiredBy: req.responsedate,
+        providerId: "PROV-001",
+        providerName: "Healthcare Provider",
+        diagnosis: "Healthcare Service",
+        clinicalJustification: `${req.servicetype} service authorization`,
+        priorAuthNumber: req.authnumber,
+        estimatedValue: (req.requestedunits || 0) * 100,
+        requestedUnits: req.requestedunits,
+        approvedUnits: req.approvedunits,
+        denialReason: req.denialreason,
+        completedOnTime: req.completedontime === 'Y',
+        expirationDate: req.expirationdate,
+        delayImpact: req.delayimpact
+      }));
+      
+      res.json(transformedRequests);
     } catch (error) {
+      console.error("Error fetching pre-auth requests:", error);
       res.status(500).json({ message: "Failed to fetch pre-auth requests" });
     }
   });
@@ -315,6 +386,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching patient data:", error);
       res.status(500).json({ message: "Failed to fetch patient data" });
+    }
+  });
+
+  // Import preauthorization data endpoint
+  app.post("/api/import-preauth-data", async (req, res) => {
+    try {
+      const { importPreAuthFromCSV } = await import("./simple-preauth-import");
+      const recordCount = await importPreAuthFromCSV();
+      res.json({ 
+        success: true, 
+        message: `Successfully imported ${recordCount} preauthorization records`,
+        recordCount 
+      });
+    } catch (error) {
+      console.error("Error importing preauthorization data:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to import preauthorization data",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
