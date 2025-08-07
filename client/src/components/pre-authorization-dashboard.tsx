@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { FormPrepopulationDemo } from "./form-prepopulation-demo";
 
 interface PreAuthRequest {
   id: string;
@@ -212,9 +213,13 @@ export function PreAuthorizationDashboard() {
       </div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="new-request" data-testid="tab-new-request">New Request</TabsTrigger>
           <TabsTrigger value="requests" data-testid="tab-requests">Pre-Auth Requests</TabsTrigger>
+          <TabsTrigger value="form-demo" data-testid="tab-form-demo" className="flex items-center space-x-2">
+            <Sparkles className="h-4 w-4" />
+            <span>Form Prepopulation</span>
+          </TabsTrigger>
           <TabsTrigger value="analytics" data-testid="tab-analytics">Analytics</TabsTrigger>
           <TabsTrigger value="procedures" data-testid="tab-procedures">Procedure Requirements</TabsTrigger>
         </TabsList>
@@ -700,6 +705,10 @@ export function PreAuthorizationDashboard() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="form-demo">
+          <FormPrepopulationDemo />
         </TabsContent>
       </Tabs>
     </div>
