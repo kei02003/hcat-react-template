@@ -23,8 +23,8 @@ export async function importPreAuthFromCSV(): Promise<number> {
   try {
     await client.query('BEGIN');
     
-    // Process records in batches
-    for (let i = 1; i < lines.length && i <= 1000; i++) { // Limit to first 1000 records for testing
+    // Process all records in batches
+    for (let i = 1; i < lines.length; i++) { // Process all records
       const line = lines[i].trim();
       if (!line) continue;
       

@@ -392,8 +392,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import preauthorization data endpoint
   app.post("/api/import-preauth-data", async (req, res) => {
     try {
-      const { importPreAuthFromCSV } = await import("./simple-preauth-import");
-      const recordCount = await importPreAuthFromCSV();
+      const { fastImportPreAuth } = await import("./fast-import-preauth");
+      const recordCount = await fastImportPreAuth();
       res.json({ 
         success: true, 
         message: `Successfully imported ${recordCount} preauthorization records`,
