@@ -10,6 +10,16 @@ import {
   type InsertInsurerCriteria,
   type ProcedureAuthRequirement,
   type InsertProcedureAuthRequirement,
+  type PreAuthTimeline,
+  type InsertPreAuthTimeline,
+  type ComplianceMetrics,
+  type InsertComplianceMetrics,
+  type PayerResponseAnalytics,
+  type InsertPayerResponseAnalytics,
+  type DocumentationAlerts,
+  type InsertDocumentationAlerts,
+  type ProcedureFlaggingRules,
+  type InsertProcedureFlaggingRules,
 } from "@shared/pre-authorization-schema";
 
 import {

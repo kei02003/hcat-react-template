@@ -6,7 +6,7 @@ import { ArManagementDashboard } from "@/components/ar-management-dashboard";
 import { CollectionsDashboard } from "@/components/collections-dashboard";
 import { TimelyFilingDashboard } from "@/components/timely-filing-dashboard";
 import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboard";
-import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashboard";
+import { PreAuthRedesignedDashboard } from "@/components/pre-auth-redesigned-dashboard";
 import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
@@ -160,7 +160,9 @@ export default function Dashboard() {
         ) : activeMainTab === "Opportunities" ? (
           <FeasibilityDashboard />
         ) : activeMainTab === "Pre-Authorization" ? (
-          <PreAuthorizationDashboard />
+          <main className="flex-1 p-6 overflow-y-auto bg-white">
+            <PreAuthRedesignedDashboard />
+          </main>
         ) : (
           <main className="flex-1 p-6 overflow-y-auto bg-white">
             <div className="flex items-center justify-center h-full">

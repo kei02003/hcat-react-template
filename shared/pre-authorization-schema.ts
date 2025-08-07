@@ -103,8 +103,115 @@ export const insertInsurerCriteriaSchema = createInsertSchema(insurerCriteria);
 export const insertPreAuthTemplateSchema = createInsertSchema(preAuthTemplates);
 export const insertProcedureAuthRequirementSchema = createInsertSchema(procedureAuthRequirements);
 
-// Export insert types
+// Pre-auth timeline tracking table
+export const preAuthTimeline = pgTable("pre_auth_timeline", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  patientId: text("patient_id").notNull(),
+  patientName: text("patient_name").notNull(),
+  procedureCode: text("procedure_code").notNull(),
+  procedureName: text("procedure_name").notNull(),
+  scheduledDate: timestamp("scheduled_date").notNull(),
+  daysUntilProcedure: integer("days_until_procedure").notNull(),
+  urgencyLevel: text("urgency_level").$type<"green" | "yellow" | "red">().notNull(),
+  authRequiredBy: timestamp("auth_required_by").notNull(),
+  currentStatus: text("current_status").$type<"flagged" | "submitted" | "approved" | "denied" | "expired">().default("flagged"),
+  payerId: text("payer_id").notNull(),
+  payerName: text("payer_name").notNull(),
+  estimatedProcessingDays: integer("estimated_processing_days").default(3),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Compliance metrics tracking table
+export const complianceMetrics = pgTable("compliance_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  period: text("period").notNull(), // "daily", "weekly", "monthly"
+  periodDate: timestamp("period_date").notNull(),
+  totalRequests: integer("total_requests").default(0),
+  submittedOnTime: integer("submitted_on_time").default(0), // Within 3 days
+  submittedLate: integer("submitted_late").default(0),
+  compliancePercentage: decimal("compliance_percentage", { precision: 5, scale: 2 }),
+  avgDaysToSubmission: decimal("avg_days_to_submission", { precision: 4, scale: 2 }),
+  department: text("department"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Payer response analytics table
+export const payerResponseAnalytics = pgTable("payer_response_analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  payerId: text("payer_id").notNull(),
+  payerName: text("payer_name").notNull(),
+  avgResponseDays: decimal("avg_response_days", { precision: 4, scale: 2 }),
+  approvalRate: decimal("approval_rate", { precision: 5, scale: 2 }),
+  denialRate: decimal("denial_rate", { precision: 5, scale: 2 }),
+  totalRequests: integer("total_requests").default(0),
+  monthYear: text("month_year").notNull(), // "2025-01" format
+  trendDirection: text("trend_direction").$type<"improving" | "declining" | "stable">().default("stable"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Documentation alerts table
+export const documentationAlerts = pgTable("documentation_alerts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  preAuthRequestId: text("pre_auth_request_id").notNull(),
+  patientName: text("patient_name").notNull(),
+  procedureName: text("procedure_name").notNull(),
+  missingDocuments: text("missing_documents").array(),
+  alertPriority: text("alert_priority").$type<"low" | "medium" | "high" | "critical">().default("medium"),
+  daysOverdue: integer("days_overdue").default(0),
+  payerName: text("payer_name").notNull(),
+  directLink: text("direct_link"), // Link to required documentation
+  isResolved: boolean("is_resolved").default(false),
+  assignedTo: text("assigned_to"),
+  createdAt: timestamp("created_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
+// Procedure flagging rules table  
+export const procedureFlaggingRules = pgTable("procedure_flagging_rules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  procedureCode: text("procedure_code").notNull(),
+  procedureName: text("procedure_name").notNull(),
+  payerId: text("payer_id"),
+  payerName: text("payer_name"),
+  requiresAuth: boolean("requires_auth").default(true),
+  autoFlag: boolean("auto_flag").default(true),
+  leadTimeRequired: integer("lead_time_required").default(3), // Days before procedure
+  criteriaChecks: jsonb("criteria_checks"), // Automated criteria to check
+  riskLevel: text("risk_level").$type<"low" | "medium" | "high">().default("medium"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Export new types
+export type PreAuthTimeline = typeof preAuthTimeline.$inferSelect;
+export type InsertPreAuthTimeline = typeof preAuthTimeline.$inferInsert;
+export type ComplianceMetrics = typeof complianceMetrics.$inferSelect;
+export type InsertComplianceMetrics = typeof complianceMetrics.$inferInsert;
+export type PayerResponseAnalytics = typeof payerResponseAnalytics.$inferSelect;
+export type InsertPayerResponseAnalytics = typeof payerResponseAnalytics.$inferInsert;
+export type DocumentationAlerts = typeof documentationAlerts.$inferSelect;
+export type InsertDocumentationAlerts = typeof documentationAlerts.$inferInsert;
+export type ProcedureFlaggingRules = typeof procedureFlaggingRules.$inferSelect;
+export type InsertProcedureFlaggingRules = typeof procedureFlaggingRules.$inferInsert;
+
+// Export existing insert types
 export type InsertPreAuthRequestType = z.infer<typeof insertPreAuthRequestSchema>;
 export type InsertInsurerCriteriaType = z.infer<typeof insertInsurerCriteriaSchema>;
 export type InsertPreAuthTemplateType = z.infer<typeof insertPreAuthTemplateSchema>;
 export type InsertProcedureAuthRequirementType = z.infer<typeof insertProcedureAuthRequirementSchema>;
+
+// Create new insert schemas
+export const insertPreAuthTimelineSchema = createInsertSchema(preAuthTimeline);
+export const insertComplianceMetricsSchema = createInsertSchema(complianceMetrics);
+export const insertPayerResponseAnalyticsSchema = createInsertSchema(payerResponseAnalytics);
+export const insertDocumentationAlertsSchema = createInsertSchema(documentationAlerts);
+export const insertProcedureFlaggingRulesSchema = createInsertSchema(procedureFlaggingRules);
+
+// Export new insert types
+export type InsertPreAuthTimelineType = z.infer<typeof insertPreAuthTimelineSchema>;
+export type InsertComplianceMetricsType = z.infer<typeof insertComplianceMetricsSchema>;
+export type InsertPayerResponseAnalyticsType = z.infer<typeof insertPayerResponseAnalyticsSchema>;
+export type InsertDocumentationAlertsType = z.infer<typeof insertDocumentationAlertsSchema>;
+export type InsertProcedureFlaggingRulesType = z.infer<typeof insertProcedureFlaggingRulesSchema>;
