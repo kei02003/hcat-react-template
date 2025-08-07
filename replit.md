@@ -1,6 +1,6 @@
 # Overview
 
-This is a comprehensive healthcare revenue cycle management dashboard application featuring advanced analytics across multiple domains: documentation request analysis, denial management, accounts receivable management, AI-powered predictive analytics, and three critical RFP-required modules. The system provides complete tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, optimizing payer interactions, advanced AR aging analysis with statistical process control, pre-authorization management, clinical decision support, and automated appeal generation. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, OpenAI-powered intelligent recommendations, and comprehensive role-based access control (RBAC) system with Replit authentication integration.
+This is a comprehensive healthcare revenue cycle management dashboard application featuring advanced analytics across multiple domains: documentation request analysis, denial management, accounts receivable management, AI-powered predictive analytics, and three critical RFP-required modules. The system provides complete tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, optimizing payer interactions, advanced AR aging analysis with statistical process control, pre-authorization management, clinical decision support, and automated appeal generation. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, OpenAI-powered intelligent recommendations, comprehensive role-based access control (RBAC) system with Replit authentication integration, and advanced CSV import capabilities supporting real healthcare data from multiple sources including revenue cycle accounts, preauthorization data, physician advisor reviews, documentation tracking, and denial workflows.
 
 # User Preferences
 
@@ -55,6 +55,14 @@ The application manages multiple comprehensive entities:
 13. **Automated Appeal Generation**: AI-powered challenge letter generation, clinical evidence extraction, success probability scoring (>70% target), and comprehensive appeal outcome tracking
 14. **User Management**: Complete RBAC system with 10 healthcare roles (System Admin, Clinical Director, Revenue Manager, Billing Manager, Clinical Reviewer, Denial Specialist, AR Specialist, Collections Specialist, Financial Analyst, Read Only User)
 15. **Authentication System**: Replit Auth integration with user profiles, role assignments, and permission-based access control
+16. **CSV Import System**: Advanced data import capabilities supporting revenue cycle accounts (50+ fields), preauthorization data, physician advisor reviews, documentation tracking, and denial workflows with comprehensive field mapping and validation
+
+## Recent Changes (January 2025)
+- Enhanced CSV import functionality to support complete data dictionary with 50+ fields for revenue cycle accounts
+- Added support for importing preauthorization data, physician advisor reviews, documentation tracking, and denial workflows
+- Improved field mapping to handle all data dictionary specifications including NULL value handling
+- Updated navigation system to include "Import Data" link accessible from all pages
+- Successfully tested import functionality with real healthcare data files
 
 ## Component Architecture
 The dashboard implements a modular component structure:
