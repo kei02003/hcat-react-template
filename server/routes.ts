@@ -25,9 +25,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: AuthenticatedRequest, res) => {
+  app.get('/api/auth/user', isAuthenticated, async (req, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const user = req.user as any;
+      const userId = user.claims.sub;
       const userWithPermissions = await rbacService.getUserWithPermissions(userId);
       res.json(userWithPermissions);
     } catch (error) {
