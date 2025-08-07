@@ -9,10 +9,11 @@ import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboar
 import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashboard";
 import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
+import { SummaryDashboard } from "@/components/summary-dashboard";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
-  const [activeMainTab, setActiveMainTab] = useState("Denials");
+  const [activeMainTab, setActiveMainTab] = useState("Summary");
   const [activeSubTab, setActiveSubTab] = useState("Clinical Denials");
   const [dateRange, setDateRange] = useState({
     start: "2024-01-15",
@@ -103,7 +104,9 @@ export default function Dashboard() {
         <MetricsPanel />
 
         {/* Main Content Area */}
-        {activeMainTab === "Denials" && activeSubTab === "Documentation Requests" ? (
+        {activeMainTab === "Summary" ? (
+          <SummaryDashboard />
+        ) : activeMainTab === "Denials" && activeSubTab === "Documentation Requests" ? (
           <DocumentationDashboard />
         ) : activeMainTab === "Denials" && activeSubTab === "Predictive Analytics" ? (
           <PredictiveDashboard />
