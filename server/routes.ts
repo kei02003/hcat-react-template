@@ -315,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/timely-filing-claims", async (req, res) => {
     try {
       const { timelyFilingClaims } = await import("./timely-filing-data");
-      const { agingCategory, denialStatus, department, assignedBiller } = req.query;
+      const { agingCategory, denialStatus, department, assignedBiller, payer } = req.query;
       
       let filteredClaims = [...timelyFilingClaims];
       
@@ -341,6 +341,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Filter by assigned biller
       if (assignedBiller && assignedBiller !== 'all') {
         filteredClaims = filteredClaims.filter(claim => claim.assignedBiller === assignedBiller);
+      }
+      
+      // Filter by payer
+      if (payer && payer !== 'all') {
+        filteredClaims = filteredClaims.filter(claim => claim.payer === payer);
       }
       
       res.json(filteredClaims);

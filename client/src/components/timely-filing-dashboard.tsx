@@ -36,6 +36,7 @@ export function TimelyFilingDashboard() {
   const [denialFilter, setDenialFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [billerFilter, setBillerFilter] = useState("all");
+  const [payerFilter, setPayerFilter] = useState("all");
 
   // Fetch timely filing claims with filters
   const { data: claims = [], isLoading: isLoadingClaims } = useQuery({
@@ -43,7 +44,8 @@ export function TimelyFilingDashboard() {
       agingCategory: agingFilter,
       denialStatus: denialFilter,
       department: departmentFilter,
-      assignedBiller: billerFilter
+      assignedBiller: billerFilter,
+      payer: payerFilter
     }],
   });
 
@@ -55,12 +57,16 @@ export function TimelyFilingDashboard() {
   const metrics = metricsData?.metrics;
   const categories = metricsData?.categories;
 
-  const filteredClaims = claims.filter((claim: TimelyFilingClaim) =>
-    claim.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    claim.claimId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    claim.payer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    claim.procedureDescription.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClaims = claims.filter((claim: TimelyFilingClaim) => {
+    const matchesSearch = claim.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      claim.claimId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      claim.payer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      claim.procedureDescription.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesPayer = payerFilter === "all" || claim.payer === payerFilter;
+    
+    return matchesSearch && matchesPayer;
+  });
 
   const getAgingBadge = (agingCategory: string, daysRemaining: number) => {
     switch (agingCategory) {
@@ -242,6 +248,23 @@ export function TimelyFilingDashboard() {
             <SelectItem value="Jennifer Martinez">Jennifer Martinez</SelectItem>
             <SelectItem value="David Rodriguez">David Rodriguez</SelectItem>
             <SelectItem value="Maria Garcia">Maria Garcia</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={payerFilter} onValueChange={setPayerFilter}>
+          <SelectTrigger className="w-48" data-testid="select-payer-filter">
+            <SelectValue placeholder="Filter by Payer" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Payers</SelectItem>
+            <SelectItem value="Aetna">Aetna</SelectItem>
+            <SelectItem value="Blue Cross Blue Shield">Blue Cross Blue Shield</SelectItem>
+            <SelectItem value="Medicare">Medicare</SelectItem>
+            <SelectItem value="Medicaid">Medicaid</SelectItem>
+            <SelectItem value="UnitedHealth">UnitedHealth</SelectItem>
+            <SelectItem value="Humana">Humana</SelectItem>
+            <SelectItem value="Cigna">Cigna</SelectItem>
+            <SelectItem value="Anthem">Anthem</SelectItem>
           </SelectContent>
         </Select>
 
