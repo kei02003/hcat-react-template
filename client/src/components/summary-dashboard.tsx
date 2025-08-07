@@ -357,8 +357,7 @@ export function SummaryDashboard() {
       {/* Module Performance */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5" />
+          <CardTitle>
             Module Performance
           </CardTitle>
           <CardDescription>Performance indicators for each system module</CardDescription>
