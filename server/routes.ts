@@ -700,15 +700,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const timeframe = req.query.timeframe as string;
       
-      // Filter demo data based on timeframe
+      // Filter demo data based on timeframe with more inclusive ranges
       let filteredData = demoPreAuthTimeline;
       if (timeframe === "day") {
-        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 1);
+        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 3);
       } else if (timeframe === "week") {
-        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 7);
+        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 21); // Show 3 weeks worth
       } else if (timeframe === "month") {
-        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 30);
+        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 60);
       }
+      
+      // Sort by urgency: red (most urgent) first, then yellow, then green
+      filteredData.sort((a, b) => {
+        const urgencyOrder = { red: 3, yellow: 2, green: 1 };
+        return urgencyOrder[b.urgencyLevel] - urgencyOrder[a.urgencyLevel];
+      });
 
       res.json(filteredData);
     } catch (error) {
@@ -722,15 +728,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const timeframe = req.params.timeframe as string;
       
-      // Filter demo data based on timeframe
+      // Filter demo data based on timeframe with more inclusive ranges
       let filteredData = demoPreAuthTimeline;
       if (timeframe === "day") {
-        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 1);
+        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 3);
       } else if (timeframe === "week") {
-        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 7);
+        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 21); // Show 3 weeks worth
       } else if (timeframe === "month") {
-        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 30);
+        filteredData = demoPreAuthTimeline.filter(item => item.daysUntilProcedure <= 60);
       }
+      
+      // Sort by urgency: red (most urgent) first, then yellow, then green
+      filteredData.sort((a, b) => {
+        const urgencyOrder = { red: 3, yellow: 2, green: 1 };
+        return urgencyOrder[b.urgencyLevel] - urgencyOrder[a.urgencyLevel];
+      });
 
       res.json(filteredData);
     } catch (error) {
