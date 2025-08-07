@@ -78,6 +78,12 @@ export function HealthCatalystIcon({
     'fa-arrow-right': 'ArrowRight',
     'fa-arrow-up': 'ArrowUp',
     'fa-arrow-down': 'ArrowDown',
+    'fa-question-circle-o': 'HelpCircle',
+    'fa-question-circle': 'HelpCircle',
+    'fa-angle-down': 'ChevronDown',
+    'fa-angle-up': 'ChevronUp',
+    'fa-angle-left': 'ChevronLeft',
+    'fa-angle-right': 'ChevronRight',
   };
 
   const mappedIconName = iconMap[icon] || icon;
