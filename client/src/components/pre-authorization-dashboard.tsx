@@ -822,14 +822,15 @@ export function PreAuthorizationDashboard() {
                                 console.log('Flagging request for review:', request.id);
                                 
                                 // Call the API to update the status
-                                await apiRequest(`/api/pre-auth-requests/${request.id}`, {
-                                  method: 'PATCH',
-                                  body: JSON.stringify({ 
+                                await apiRequest(
+                                  'PATCH',
+                                  `/api/pre-auth-requests/${request.id}`,
+                                  { 
                                     status: 'requires_review', 
                                     flaggedAt: new Date().toISOString(),
                                     reviewerNotes: 'Flagged for manual review'
-                                  })
-                                });
+                                  }
+                                );
                                 
                                 console.log(`Request ${request.id} flagged for review successfully`);
                                 
