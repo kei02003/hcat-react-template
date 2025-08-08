@@ -91,6 +91,9 @@ export function PreAuthorizationDashboard() {
   // Modal state for workflow demo
   const [showWorkflowModal, setShowWorkflowModal] = useState(false);
   const [selectedRequestForModal, setSelectedRequestForModal] = useState<PreAuthRequest | null>(null);
+  
+  // Filter state
+  const [showOnlyPreAuthRequired, setShowOnlyPreAuthRequired] = useState(true);
 
   // Helper function to calculate days until procedure
   const calculateDaysUntilProcedure = (scheduledDate: string): number => {
@@ -257,6 +260,14 @@ export function PreAuthorizationDashboard() {
 
 
   const filteredRequests = preAuthRequests.filter(req => {
+    // Pre-auth requirement filter (applied first)
+    if (showOnlyPreAuthRequired) {
+      const matchingCriteria = getMatchingCriteria(req.procedureCode, req.payer);
+      if (!matchingCriteria || !matchingCriteria.criteria.requiresAuth) {
+        return false;
+      }
+    }
+    
     // Search filter
     const matchesSearch = req.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.procedureCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -394,6 +405,24 @@ export function PreAuthorizationDashboard() {
                 </div>
               </div>
               
+              {/* Pre-Auth Required Toggle Filter */}
+              <div className="flex items-center space-x-2 mt-4 mb-4 p-3 bg-blue-50 rounded-lg border">
+                <input
+                  type="checkbox"
+                  id="preauth-filter"
+                  checked={showOnlyPreAuthRequired}
+                  onChange={(e) => setShowOnlyPreAuthRequired(e.target.checked)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  data-testid="checkbox-preauth-filter"
+                />
+                <label htmlFor="preauth-filter" className="text-sm font-medium text-blue-700">
+                  Show only procedures requiring pre-authorization
+                </label>
+                <Badge variant="outline" className="text-xs bg-white">
+                  {showOnlyPreAuthRequired ? 'Filtered' : 'All procedures'}
+                </Badge>
+              </div>
+
               {/* Filter Controls */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                 <div>
@@ -767,20 +796,24 @@ export function PreAuthorizationDashboard() {
                       
                       {/* Action Buttons */}
                       <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-end space-x-2">
-                        {/* Flag for Review button - show if requires review and not already flagged */}
-                        {((matchingCriteria && matchingCriteria.requiresAuth) || request.status === "pending") && (
+                        {/* Flag for Review button - show for pending or requires_review status */}
+                        {(request.status === "pending" || request.status === "requires_review") && (
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              // Handle flag for review
+                              // Handle flag for review - update status to requires_review
                               console.log('Flagging request for review:', request.id);
+                              // In a real implementation, this would call an API to update the status
+                              // For demo purposes, we'll just log the action
                             }}
-                            className="text-orange-600 border-orange-300 hover:bg-orange-50"
+                            className={`text-orange-600 border-orange-300 hover:bg-orange-50 ${
+                              request.status === "requires_review" ? "bg-orange-50" : ""
+                            }`}
                             data-testid={`button-flag-review-${request.id}`}
                           >
                             <Flag className="h-3 w-3 mr-1" />
-                            Flag for Review
+                            {request.status === "requires_review" ? "Flagged for Review" : "Flag for Review"}
                           </Button>
                         )}
                         
