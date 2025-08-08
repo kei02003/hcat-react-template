@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building, Sparkles, Flag, FormInput } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { FormPrepopulationDemo } from "./form-prepopulation-demo";
@@ -435,69 +436,76 @@ export function PreAuthorizationDashboard() {
                             <p className="text-sm font-medium">{request.diagnosis || "Not specified"}</p>
                           </div>
                           
-                          {/* Payer Criteria Information */}
+                          {/* Payer Criteria Information - Accordion */}
                           {matchingCriteria && (
-                            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                              <div className="flex items-start justify-between mb-2">
-                                <h4 className="text-sm font-semibold text-blue-900 flex items-center">
-                                  <Building className="h-4 w-4 mr-1" />
-                                  Payer Authorization Criteria
-                                </h4>
-                                <div className="flex items-center space-x-2 text-xs">
-                                  {matchingCriteria.requiresAuth ? (
-                                    <Badge className="bg-orange-100 text-orange-800">Auth Required</Badge>
-                                  ) : (
-                                    <Badge className="bg-green-100 text-green-800">No Auth Needed</Badge>
-                                  )}
-                                  <Badge variant="outline" className="text-blue-700 border-blue-300">
-                                    {matchingCriteria.timeFrameRequired} days processing
-                                  </Badge>
-                                </div>
-                              </div>
-                              
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                {matchingCriteria.medicalNecessityCriteria && matchingCriteria.medicalNecessityCriteria.length > 0 && (
-                                  <div>
-                                    <p className="font-medium text-blue-800 mb-1">Medical Necessity Requirements:</p>
-                                    <ul className="text-blue-700 space-y-1">
-                                      {matchingCriteria.medicalNecessityCriteria.slice(0, 3).map((criteria, idx) => (
-                                        <li key={idx} className="flex items-start">
-                                          <span className="text-blue-500 mr-1">•</span>
-                                          <span className="line-clamp-1">{criteria}</span>
-                                        </li>
-                                      ))}
-                                      {matchingCriteria.medicalNecessityCriteria.length > 3 && (
-                                        <li className="text-blue-600 italic">+{matchingCriteria.medicalNecessityCriteria.length - 3} more criteria</li>
+                            <div className="mt-4">
+                              <Accordion type="single" collapsible className="border border-blue-200 rounded-lg">
+                                <AccordionItem value="criteria" className="border-0">
+                                  <AccordionTrigger className="px-3 py-2 hover:no-underline bg-blue-50 rounded-t-lg data-[state=open]:rounded-b-none">
+                                    <div className="flex items-center justify-between w-full mr-3">
+                                      <h4 className="text-sm font-semibold text-blue-900 flex items-center">
+                                        <Building className="h-4 w-4 mr-2" />
+                                        Payer Authorization Criteria
+                                      </h4>
+                                      <div className="flex items-center space-x-2 text-xs">
+                                        {matchingCriteria.requiresAuth ? (
+                                          <Badge className="bg-orange-100 text-orange-800">Auth Required</Badge>
+                                        ) : (
+                                          <Badge className="bg-green-100 text-green-800">No Auth Needed</Badge>
+                                        )}
+                                        <Badge variant="outline" className="text-blue-700 border-blue-300">
+                                          {matchingCriteria.timeFrameRequired} days processing
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="px-3 pb-3 bg-blue-50 border-t border-blue-200">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs mt-2">
+                                      {matchingCriteria.medicalNecessityCriteria && matchingCriteria.medicalNecessityCriteria.length > 0 && (
+                                        <div>
+                                          <p className="font-medium text-blue-800 mb-1">Medical Necessity Requirements:</p>
+                                          <ul className="text-blue-700 space-y-1">
+                                            {matchingCriteria.medicalNecessityCriteria.slice(0, 3).map((criteria, idx) => (
+                                              <li key={idx} className="flex items-start">
+                                                <span className="text-blue-500 mr-1">•</span>
+                                                <span className="line-clamp-1">{criteria}</span>
+                                              </li>
+                                            ))}
+                                            {matchingCriteria.medicalNecessityCriteria.length > 3 && (
+                                              <li className="text-blue-600 italic">+{matchingCriteria.medicalNecessityCriteria.length - 3} more criteria</li>
+                                            )}
+                                          </ul>
+                                        </div>
                                       )}
-                                    </ul>
-                                  </div>
-                                )}
-                                
-                                {matchingCriteria.denialReasons && matchingCriteria.denialReasons.length > 0 && (
-                                  <div>
-                                    <p className="font-medium text-red-800 mb-1">Common Denial Reasons:</p>
-                                    <ul className="text-red-700 space-y-1">
-                                      {matchingCriteria.denialReasons.slice(0, 2).map((reason, idx) => (
-                                        <li key={idx} className="flex items-start">
-                                          <span className="text-red-500 mr-1">•</span>
-                                          <span className="line-clamp-1">{reason}</span>
-                                        </li>
-                                      ))}
-                                      {matchingCriteria.denialReasons.length > 2 && (
-                                        <li className="text-red-600 italic">+{matchingCriteria.denialReasons.length - 2} more reasons</li>
+                                      
+                                      {matchingCriteria.denialReasons && matchingCriteria.denialReasons.length > 0 && (
+                                        <div>
+                                          <p className="font-medium text-red-800 mb-1">Common Denial Reasons:</p>
+                                          <ul className="text-red-700 space-y-1">
+                                            {matchingCriteria.denialReasons.slice(0, 2).map((reason, idx) => (
+                                              <li key={idx} className="flex items-start">
+                                                <span className="text-red-500 mr-1">•</span>
+                                                <span className="line-clamp-1">{reason}</span>
+                                              </li>
+                                            ))}
+                                            {matchingCriteria.denialReasons.length > 2 && (
+                                              <li className="text-red-600 italic">+{matchingCriteria.denialReasons.length - 2} more reasons</li>
+                                            )}
+                                          </ul>
+                                        </div>
                                       )}
-                                    </ul>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div className="mt-2 flex items-center justify-between text-xs text-blue-700">
-                                <span>Authorization valid for {matchingCriteria.authValidityDays} days</span>
-                                <span className="flex items-center">
-                                  <Clock className="h-3 w-3 mr-1" />
-                                  Submit {matchingCriteria.timeFrameRequired} days before procedure
-                                </span>
-                              </div>
+                                    </div>
+                                    
+                                    <div className="mt-3 pt-2 border-t border-blue-300 flex items-center justify-between text-xs text-blue-700">
+                                      <span>Authorization valid for {matchingCriteria.authValidityDays} days</span>
+                                      <span className="flex items-center">
+                                        <Clock className="h-3 w-3 mr-1" />
+                                        Submit {matchingCriteria.timeFrameRequired} days before procedure
+                                      </span>
+                                    </div>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
                             </div>
                           )}
                           
