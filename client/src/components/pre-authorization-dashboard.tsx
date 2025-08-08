@@ -396,28 +396,32 @@ export function PreAuthorizationDashboard() {
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
                               <p className="text-gray-600">Procedure</p>
-                              <p className="font-medium">{request.procedureCode}</p>
-                              <p className="text-gray-700">{request.procedureName}</p>
+                              <p className="font-medium">{request.procedureCode || "N/A"}</p>
+                              <p className="text-gray-700">{request.procedureName || "Procedure name not available"}</p>
                             </div>
                             
                             <div>
                               <p className="text-gray-600">Insurer</p>
                               <p className="font-medium">{request.payer}</p>
-                              <p className="text-gray-700">Member: {request.memberID}</p>
+                              <p className="text-gray-700">Member: {request.memberID || "N/A"}</p>
                             </div>
                             
                             <div>
                               <p className="text-gray-600">Scheduled</p>
                               <p className="font-medium">
-                                {new Date(request.scheduledDate).toLocaleDateString()}
+                                {request.scheduledDate ? new Date(request.scheduledDate).toLocaleDateString() : "Not scheduled"}
                               </p>
-                              <p className="text-gray-700">{request.daysUntilProcedure} days until</p>
+                              <p className="text-gray-700">
+                                {request.daysUntilProcedure !== null && request.daysUntilProcedure !== undefined 
+                                  ? `${request.daysUntilProcedure} days until` 
+                                  : "Schedule TBD"}
+                              </p>
                             </div>
                           </div>
                           
                           <div className="mt-3">
                             <p className="text-sm text-gray-600">Diagnosis</p>
-                            <p className="text-sm font-medium">{request.diagnosis}</p>
+                            <p className="text-sm font-medium">{request.diagnosis || "Not specified"}</p>
                           </div>
                           
                           {/* Payer Criteria Information */}
@@ -499,7 +503,9 @@ export function PreAuthorizationDashboard() {
                         
                         <div className="ml-4 text-right">
                           <p className="text-sm text-gray-600">Estimated Cost</p>
-                          <p className="font-bold text-lg">${parseFloat(request.estimatedCost || "0").toLocaleString()}</p>
+                          <p className="font-bold text-lg">
+                            ${request.estimatedCost ? parseFloat(request.estimatedCost).toLocaleString() : "0"}
+                          </p>
                           {request.priorAuthNumber && (
                             <p className="text-xs text-green-600 mt-1">
                               Auth: {request.priorAuthNumber}
