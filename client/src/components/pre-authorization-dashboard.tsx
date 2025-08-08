@@ -24,7 +24,6 @@ interface PreAuthRequest {
   requestDate: string;
   status: "pending" | "approved" | "denied" | "requires_review";
   priority: "standard" | "urgent";
-  daysUntilProcedure: number;
   authRequiredBy: string;
   providerId: string;
   providerName: string;
@@ -62,6 +61,13 @@ export function PreAuthorizationDashboard() {
   const [selectedTab, setSelectedTab] = useState("new-request");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProcedure, setSelectedProcedure] = useState("");
+
+  // Helper function to calculate days until procedure
+  const calculateDaysUntilProcedure = (scheduledDate: string): number => {
+    const today = new Date();
+    const scheduled = new Date(scheduledDate);
+    return Math.ceil((scheduled.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  };
   
   // Filter states for pre-auth requests
   const [filterProcedure, setFilterProcedure] = useState("");
@@ -171,7 +177,9 @@ export function PreAuthorizationDashboard() {
     
     // Days until procedure filter
     const matchesDaysUntil = !filterDaysUntil || filterDaysUntil === "all" || (() => {
-      const days = req.daysUntilProcedure;
+      const today = new Date();
+      const scheduledDate = new Date(req.scheduledDate);
+      const days = Math.ceil((scheduledDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       switch (filterDaysUntil) {
         case "urgent": return days <= 3;
         case "week": return days >= 4 && days <= 7;
@@ -188,7 +196,12 @@ export function PreAuthorizationDashboard() {
   const totalRequests = preAuthRequests.length;
   const approvedRequests = preAuthRequests.filter(r => r.status === "approved").length;
   const pendingRequests = preAuthRequests.filter(r => r.status === "pending" || r.status === "requires_review").length;
-  const urgentRequests = preAuthRequests.filter(r => r.daysUntilProcedure <= 3).length;
+  const urgentRequests = preAuthRequests.filter(r => {
+    const today = new Date();
+    const scheduledDate = new Date(r.scheduledDate);
+    const days = Math.ceil((scheduledDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return days <= 3;
+  }).length;
   const completionRate = totalRequests > 0 ? ((approvedRequests / totalRequests) * 100).toFixed(1) : "0";
 
   if (loadingRequests) {
@@ -388,9 +401,9 @@ export function PreAuthorizationDashboard() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
-                            {getPriorityIcon(request.priority, request.daysUntilProcedure)}
+                            {getPriorityIcon(request.priority, calculateDaysUntilProcedure(request.scheduledDate))}
                             <h3 className="font-semibold text-gray-900">{request.patientName}</h3>
-                            {getStatusBadge(request.status, request.daysUntilProcedure)}
+                            {getStatusBadge(request.status, calculateDaysUntilProcedure(request.scheduledDate))}
                           </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -412,9 +425,7 @@ export function PreAuthorizationDashboard() {
                                 {request.scheduledDate ? new Date(request.scheduledDate).toLocaleDateString() : "Not scheduled"}
                               </p>
                               <p className="text-gray-700">
-                                {request.daysUntilProcedure !== null && request.daysUntilProcedure !== undefined 
-                                  ? `${request.daysUntilProcedure} days until` 
-                                  : "Schedule TBD"}
+                                {`${calculateDaysUntilProcedure(request.scheduledDate)} days until`}
                               </p>
                             </div>
                           </div>
@@ -515,7 +526,7 @@ export function PreAuthorizationDashboard() {
                           {/* Timeline indicator based on criteria */}
                           {matchingCriteria && (
                             <div className="mt-2 text-xs">
-                              {request.daysUntilProcedure <= matchingCriteria.timeFrameRequired ? (
+                              {calculateDaysUntilProcedure(request.scheduledDate) <= matchingCriteria.timeFrameRequired ? (
                                 <div className="flex items-center text-red-600">
                                   <AlertCircle className="h-3 w-3 mr-1" />
                                   <span>Time Critical</span>
