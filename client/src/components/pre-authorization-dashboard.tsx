@@ -17,7 +17,7 @@ interface PreAuthRequest {
   patientId: string;
   patientName: string;
   memberID: string;
-  insurerName: string;
+  payer: string;
   procedureCode: string;
   procedureName: string;
   scheduledDate: string;
@@ -36,7 +36,7 @@ interface PreAuthRequest {
 
 interface InsurerCriteria {
   id: string;
-  insurerName: string;
+  payer: string;
   procedureCode: string;
   procedureName: string;
   requiresAuth: boolean;
@@ -71,7 +71,7 @@ export function PreAuthorizationDashboard() {
   const [newRequestData, setNewRequestData] = useState({
     patientName: "",
     memberID: "",
-    insurerName: "",
+    payer: "",
     procedureCode: "",
     scheduledDate: "",
     diagnosis: "",
@@ -106,7 +106,7 @@ export function PreAuthorizationDashboard() {
       setNewRequestData({
         patientName: "",
         memberID: "",
-        insurerName: "",
+        payer: "",
         procedureCode: "",
         scheduledDate: "",
         diagnosis: "",
@@ -130,10 +130,21 @@ export function PreAuthorizationDashboard() {
     return <Clock className="h-4 w-4 text-blue-500" />;
   };
 
-  const getMatchingCriteria = (procedureCode: string, insurerName: string) => {
-    return insurerCriteria.find(c => 
-      c.procedureCode === procedureCode && c.insurerName === insurerName
+  const getMatchingCriteria = (procedureCode: string, payerName: string) => {
+    const criteria = insurerCriteria.find(c => 
+      c.procedureCode === procedureCode && c.payerName === payerName
     );
+    
+    // Flatten the criteria structure for the frontend to use
+    if (criteria && criteria.criteria) {
+      return {
+        ...criteria.criteria,
+        payerName: criteria.payerName,
+        procedureCode: criteria.procedureCode,
+        procedureName: criteria.procedureName
+      };
+    }
+    return null;
   };
 
   const handleProcedureSelection = (procedureCode: string) => {
@@ -153,7 +164,7 @@ export function PreAuthorizationDashboard() {
       req.procedureName.toLowerCase().includes(filterProcedure.toLowerCase());
     
     // Payer filter
-    const matchesPayer = !filterPayer || filterPayer === "all" || req.insurerName === filterPayer;
+    const matchesPayer = !filterPayer || filterPayer === "all" || req.payer === filterPayer;
     
     // Status filter
     const matchesStatus = !filterStatus || filterStatus === "all" || req.status === filterStatus;
@@ -303,7 +314,7 @@ export function PreAuthorizationDashboard() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All payers</SelectItem>
-                      {Array.from(new Set(preAuthRequests.map(r => r.insurerName))).map(payer => (
+                      {Array.from(new Set(preAuthRequests.map(r => r.payer))).map(payer => (
                         <SelectItem key={payer} value={payer}>{payer}</SelectItem>
                       ))}
                     </SelectContent>
@@ -371,7 +382,7 @@ export function PreAuthorizationDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {filteredRequests.map((request) => {
-                  const matchingCriteria = getMatchingCriteria(request.procedureCode, request.insurerName);
+                  const matchingCriteria = getMatchingCriteria(request.procedureCode, request.payer);
                   return (
                     <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex items-start justify-between">
@@ -391,7 +402,7 @@ export function PreAuthorizationDashboard() {
                             
                             <div>
                               <p className="text-gray-600">Insurer</p>
-                              <p className="font-medium">{request.insurerName}</p>
+                              <p className="font-medium">{request.payer}</p>
                               <p className="text-gray-700">Member: {request.memberID}</p>
                             </div>
                             
@@ -430,7 +441,7 @@ export function PreAuthorizationDashboard() {
                               </div>
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                {matchingCriteria.medicalNecessityCriteria.length > 0 && (
+                                {matchingCriteria.medicalNecessityCriteria && matchingCriteria.medicalNecessityCriteria.length > 0 && (
                                   <div>
                                     <p className="font-medium text-blue-800 mb-1">Medical Necessity Requirements:</p>
                                     <ul className="text-blue-700 space-y-1">
@@ -447,7 +458,7 @@ export function PreAuthorizationDashboard() {
                                   </div>
                                 )}
                                 
-                                {matchingCriteria.denialReasons.length > 0 && (
+                                {matchingCriteria.denialReasons && matchingCriteria.denialReasons.length > 0 && (
                                   <div>
                                     <p className="font-medium text-red-800 mb-1">Common Denial Reasons:</p>
                                     <ul className="text-red-700 space-y-1">
@@ -820,8 +831,8 @@ export function PreAuthorizationDashboard() {
                   <div>
                     <Label htmlFor="insurer">Insurance Company</Label>
                     <Select
-                      value={newRequestData.insurerName}
-                      onValueChange={(value) => setNewRequestData(prev => ({ ...prev, insurerName: value }))}
+                      value={newRequestData.payer}
+                      onValueChange={(value) => setNewRequestData(prev => ({ ...prev, payer: value }))}
                     >
                       <SelectTrigger data-testid="select-insurer">
                         <SelectValue placeholder="Select insurer..." />
@@ -848,21 +859,21 @@ export function PreAuthorizationDashboard() {
                 </div>
 
                 {/* Step 3: Compare Against Insurer Criteria */}
-                {selectedProcedure && newRequestData.insurerName && (
+                {selectedProcedure && newRequestData.payer && (
                   <div className="border rounded-lg p-4 bg-yellow-50">
                     <h3 className="font-semibold text-gray-900 mb-3">Step 2: Insurer Criteria Comparison</h3>
                     {(() => {
-                      const matchingCriteria = getMatchingCriteria(selectedProcedure, newRequestData.insurerName);
+                      const matchingCriteria = getMatchingCriteria(selectedProcedure, newRequestData.payer);
                       if (matchingCriteria) {
                         return (
                           <div className="space-y-3">
                             <p className="font-medium text-green-700">
-                              ✓ Found {matchingCriteria.insurerName} criteria for {selectedProcedure}
+                              ✓ Found {matchingCriteria.payerName} criteria for {selectedProcedure}
                             </p>
                             <div className="bg-white p-3 rounded border">
                               <p className="font-medium text-gray-700 mb-2">Required Medical Necessity Documentation:</p>
                               <ul className="text-sm space-y-1">
-                                {matchingCriteria.medicalNecessityCriteria.map((criterion, idx) => (
+                                {matchingCriteria.medicalNecessityCriteria && matchingCriteria.medicalNecessityCriteria.map((criterion, idx) => (
                                   <li key={idx} className="flex items-start">
                                     <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
                                     {criterion}
@@ -879,7 +890,7 @@ export function PreAuthorizationDashboard() {
                         return (
                           <div className="bg-white p-3 rounded border">
                             <p className="text-orange-600">
-                              ⚠ No specific criteria found for {newRequestData.insurerName} and {selectedProcedure}
+                              ⚠ No specific criteria found for {newRequestData.payer} and {selectedProcedure}
                             </p>
                             <p className="text-sm text-gray-600">
                               Standard documentation requirements will apply. Contact insurer for specific guidelines.
