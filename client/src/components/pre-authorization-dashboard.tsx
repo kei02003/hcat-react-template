@@ -50,11 +50,24 @@ interface InsurerCriteria {
   payer: string; // Keep for compatibility
   procedureCode: string;
   procedureName: string;
-  requiresAuth: boolean;
-  medicalNecessityCriteria: string[];
-  timeFrameRequired: number;
-  authValidityDays: number;
-  denialReasons: string[];
+  criteriaType: string;
+  criteria: {
+    requiresAuth: boolean;
+    medicalNecessityCriteria: string[];
+    timeFrameRequired: number;
+    authValidityDays: number;
+    denialReasons: string[];
+  };
+  effectiveDate: string;
+  expirationDate?: string | null;
+  isActive: boolean;
+  updatedAt: string;
+  // Flattened properties for compatibility
+  requiresAuth?: boolean;
+  medicalNecessityCriteria?: string[];
+  timeFrameRequired?: number;
+  authValidityDays?: number;
+  denialReasons?: string[];
 }
 
 interface ProcedureAuthRequirement {
@@ -135,12 +148,19 @@ export function PreAuthorizationDashboard() {
       c.procedureCode === procedureCode && (c.payer === payerName || c.payerName === payerName)
     );
     
-    if (criteria) {
+    if (criteria && criteria.criteria) {
+      // Extract the nested criteria structure
+      const nestedCriteria = criteria.criteria;
       return {
         ...criteria,
-        payerName: criteria.payer,
+        payerName: criteria.payerName || criteria.payer,
         procedureCode: criteria.procedureCode,
-        procedureName: criteria.procedureName
+        procedureName: criteria.procedureName,
+        requiresAuth: nestedCriteria.requiresAuth,
+        medicalNecessityCriteria: nestedCriteria.medicalNecessityCriteria || [],
+        timeFrameRequired: nestedCriteria.timeFrameRequired || 0,
+        authValidityDays: nestedCriteria.authValidityDays || 0,
+        denialReasons: nestedCriteria.denialReasons || []
       };
     }
     return null;
