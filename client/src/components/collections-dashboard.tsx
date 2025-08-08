@@ -249,9 +249,6 @@ export function CollectionsDashboard() {
                 <h3 className="text-lg font-semibold text-gray-900">
                   Current Balance by Discharge Location
                 </h3>
-                <div className="text-sm text-gray-600">
-                  measure (individual)
-                </div>
               </div>
               <p className="text-sm text-gray-600 mb-4">
                 Filtered to 10 bottom performing groups
