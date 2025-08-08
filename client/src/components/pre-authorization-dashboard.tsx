@@ -31,7 +31,7 @@ interface PreAuthRequest {
   diagnosis: string;
   clinicalJustification: string;
   priorAuthNumber: string | null;
-  estimatedValue: number;
+  estimatedCost: string;
 }
 
 interface InsurerCriteria {
@@ -498,8 +498,8 @@ export function PreAuthorizationDashboard() {
                         </div>
                         
                         <div className="ml-4 text-right">
-                          <p className="text-sm text-gray-600">Estimated Value</p>
-                          <p className="font-bold text-lg">${request.estimatedValue.toLocaleString()}</p>
+                          <p className="text-sm text-gray-600">Estimated Cost</p>
+                          <p className="font-bold text-lg">${parseFloat(request.estimatedCost || "0").toLocaleString()}</p>
                           {request.priorAuthNumber && (
                             <p className="text-xs text-green-600 mt-1">
                               Auth: {request.priorAuthNumber}
