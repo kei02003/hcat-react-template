@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, DollarSign, Clock, AlertTriangle, BarChart3, Calendar } from "lucide-react";
+import { TrendingUp, DollarSign, Clock, AlertTriangle, BarChart3, Network } from "lucide-react";
 import { ArTrendsChart } from "./charts/ar-trends-chart";
 import { PayerMixChart } from "./charts/payer-mix-chart";
 
@@ -101,10 +101,14 @@ export function ArManagementDashboard() {
             <h1 className="text-2xl font-bold text-gray-900">AR Management</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm">
-              <Calendar className="h-4 w-4" />
-              <span className="text-gray-600">1/15/2022 - 12/31/2024</span>
-            </div>
+            <Button 
+              variant="outline" 
+              className="flex items-center space-x-2 text-sm"
+              data-testid="button-epic-architecture"
+            >
+              <Network className="h-4 w-4" />
+              <span>Epic Integration Architecture</span>
+            </Button>
             <Button variant="outline" data-testid="button-export-ar">
               Export Report
             </Button>

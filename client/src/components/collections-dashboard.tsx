@@ -11,7 +11,7 @@ import {
   AlertTriangle, 
   Phone,
   Mail,
-  Calendar,
+  Network,
   FileText,
   Target
 } from "lucide-react";
@@ -182,10 +182,14 @@ export function CollectionsDashboard() {
             <h1 className="text-2xl font-bold text-gray-900">Collections</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4" />
-              <span className="text-sm text-gray-600">1/15/2022 - 12/31/2024</span>
-            </div>
+            <Button 
+              variant="outline" 
+              className="flex items-center space-x-2"
+              data-testid="button-epic-architecture-collections"
+            >
+              <Network className="h-4 w-4" />
+              <span className="text-sm">Epic Integration Architecture</span>
+            </Button>
             <Button variant="outline" data-testid="button-export-collections">
               Export Report
             </Button>
