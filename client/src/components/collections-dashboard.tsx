@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -183,14 +184,16 @@ export function CollectionsDashboard() {
             <h1 className="text-2xl font-bold text-gray-900">Collections</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              className="flex items-center space-x-2"
-              data-testid="button-epic-architecture-collections"
-            >
-              <Network className="h-4 w-4" />
-              <span className="text-sm">Epic Integration Architecture</span>
-            </Button>
+            <Link href="/epic-architecture">
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2"
+                data-testid="button-epic-architecture-collections"
+              >
+                <Network className="h-4 w-4" />
+                <span className="text-sm">Epic Integration Architecture</span>
+              </Button>
+            </Link>
             <Button variant="outline" data-testid="button-export-collections">
               Export Report
             </Button>
