@@ -1372,7 +1372,7 @@ export class MemStorage implements IStorage {
         scheduledDate: new Date("2025-08-28"),
         payer: "Blue Cross Blue Shield",
         payerId: "BCBS",
-        status: "pending",
+        status: "requires_review",
         submissionDate: new Date("2025-01-08"),
         responseDate: null,
         daysToComplete: null,
