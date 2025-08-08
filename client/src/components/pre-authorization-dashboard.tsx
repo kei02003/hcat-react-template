@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building, Sparkles, Flag, FormInput } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building, Sparkles, Flag, FormInput, CheckSquare, Square, Loader2, Send, Wand2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { FormPrepopulationDemo } from "./form-prepopulation-demo";
 
@@ -62,6 +62,13 @@ export function PreAuthorizationDashboard() {
   const [selectedTab, setSelectedTab] = useState("requests");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProcedure, setSelectedProcedure] = useState("");
+  
+  // Bulk operations state
+  const [selectedRequestIds, setSelectedRequestIds] = useState<string[]>([]);
+  const [isBulkAutoPopulating, setIsBulkAutoPopulating] = useState(false);
+  const [isBulkSubmitting, setIsBulkSubmitting] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
+  const [bulkOperationResults, setBulkOperationResults] = useState<{successful: string[], failed: string[]}>({successful: [], failed: []});
 
   // Helper function to calculate days until procedure
   const calculateDaysUntilProcedure = (scheduledDate: string): number => {
@@ -114,19 +121,112 @@ export function PreAuthorizationDashboard() {
 
   const getMatchingCriteria = (procedureCode: string, payerName: string) => {
     const criteria = insurerCriteria.find(c => 
-      c.procedureCode === procedureCode && c.payerName === payerName
+      c.procedureCode === procedureCode && c.payer === payerName
     );
     
-    // Flatten the criteria structure for the frontend to use
-    if (criteria && criteria.criteria) {
+    if (criteria) {
       return {
-        ...criteria.criteria,
-        payerName: criteria.payerName,
+        ...criteria,
+        payerName: criteria.payer,
         procedureCode: criteria.procedureCode,
         procedureName: criteria.procedureName
       };
     }
     return null;
+  };
+
+  // Bulk operations handlers
+  const handleSelectAll = () => {
+    if (selectedRequestIds.length === filteredRequests.length) {
+      setSelectedRequestIds([]);
+    } else {
+      setSelectedRequestIds(filteredRequests.map(req => req.id));
+    }
+  };
+
+  const handleSelectRequest = (requestId: string) => {
+    setSelectedRequestIds(prev => 
+      prev.includes(requestId) 
+        ? prev.filter(id => id !== requestId)
+        : [...prev, requestId]
+    );
+  };
+
+  const handleBulkAutoPopulate = async () => {
+    if (selectedRequestIds.length === 0) return;
+    
+    setIsBulkAutoPopulating(true);
+    setBulkProgress({ current: 0, total: selectedRequestIds.length });
+    setBulkOperationResults({ successful: [], failed: [] });
+    
+    const results = { successful: [], failed: [] };
+    
+    for (let i = 0; i < selectedRequestIds.length; i++) {
+      const requestId = selectedRequestIds[i];
+      setBulkProgress({ current: i + 1, total: selectedRequestIds.length });
+      
+      try {
+        // Simulate auto-populating form for each request
+        console.log('Auto-populating form for request:', requestId);
+        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing time
+        
+        // Here you would call your actual auto-populate API
+        // await apiRequest(`/api/pre-auth-requests/${requestId}/auto-populate`, { method: 'POST' });
+        
+        results.successful.push(requestId);
+      } catch (error) {
+        console.error(`Failed to auto-populate request ${requestId}:`, error);
+        results.failed.push(requestId);
+      }
+    }
+    
+    setBulkOperationResults(results);
+    setIsBulkAutoPopulating(false);
+    setBulkProgress({ current: 0, total: 0 });
+    
+    // Clear selection after completion
+    setTimeout(() => {
+      setSelectedRequestIds([]);
+    }, 2000);
+  };
+
+  const handleBulkSubmit = async () => {
+    if (selectedRequestIds.length === 0) return;
+    
+    setIsBulkSubmitting(true);
+    setBulkProgress({ current: 0, total: selectedRequestIds.length });
+    setBulkOperationResults({ successful: [], failed: [] });
+    
+    const results = { successful: [], failed: [] };
+    
+    for (let i = 0; i < selectedRequestIds.length; i++) {
+      const requestId = selectedRequestIds[i];
+      setBulkProgress({ current: i + 1, total: selectedRequestIds.length });
+      
+      try {
+        // Simulate submitting each request
+        console.log('Submitting request:', requestId);
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing time
+        
+        // Here you would call your actual submit API
+        // await apiRequest(`/api/pre-auth-requests/${requestId}/submit`, { method: 'POST' });
+        
+        results.successful.push(requestId);
+      } catch (error) {
+        console.error(`Failed to submit request ${requestId}:`, error);
+        results.failed.push(requestId);
+      }
+    }
+    
+    setBulkOperationResults(results);
+    setIsBulkSubmitting(false);
+    setBulkProgress({ current: 0, total: 0 });
+    
+    // Refresh the data and clear selection
+    queryClient.invalidateQueries({ queryKey: ['/api/pre-auth-requests'] });
+    setTimeout(() => {
+      setSelectedRequestIds([]);
+    }, 2000);
   };
 
 
@@ -362,15 +462,133 @@ export function PreAuthorizationDashboard() {
                   </Button>
                 </div>
               )}
+              
+              {/* Bulk Actions */}
+              {filteredRequests.length > 0 && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleSelectAll}
+                        className="flex items-center space-x-2"
+                        data-testid="button-select-all"
+                      >
+                        {selectedRequestIds.length === filteredRequests.length ? (
+                          <CheckSquare className="h-4 w-4" />
+                        ) : (
+                          <Square className="h-4 w-4" />
+                        )}
+                        <span>
+                          {selectedRequestIds.length === filteredRequests.length 
+                            ? 'Deselect All' 
+                            : `Select All (${filteredRequests.length})`
+                          }
+                        </span>
+                      </Button>
+                      
+                      {selectedRequestIds.length > 0 && (
+                        <div className="text-sm text-gray-600">
+                          {selectedRequestIds.length} request{selectedRequestIds.length !== 1 ? 's' : ''} selected
+                        </div>
+                      )}
+                    </div>
+                    
+                    {selectedRequestIds.length > 0 && (
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          onClick={handleBulkAutoPopulate}
+                          disabled={isBulkAutoPopulating || isBulkSubmitting}
+                          className="bg-purple-600 hover:bg-purple-700 text-white flex items-center space-x-2"
+                          data-testid="button-bulk-autopop"
+                        >
+                          {isBulkAutoPopulating ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span>Auto-populating... ({bulkProgress.current}/{bulkProgress.total})</span>
+                            </>
+                          ) : (
+                            <>
+                              <Wand2 className="h-4 w-4" />
+                              <span>Bulk Auto-Populate ({selectedRequestIds.length})</span>
+                            </>
+                          )}
+                        </Button>
+                        
+                        <Button
+                          onClick={handleBulkSubmit}
+                          disabled={isBulkSubmitting || isBulkAutoPopulating}
+                          className="bg-green-600 hover:bg-green-700 text-white flex items-center space-x-2"
+                          data-testid="button-bulk-submit"
+                        >
+                          {isBulkSubmitting ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span>Submitting... ({bulkProgress.current}/{bulkProgress.total})</span>
+                            </>
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4" />
+                              <span>Bulk Submit ({selectedRequestIds.length})</span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Bulk Operation Results */}
+                  {(bulkOperationResults.successful.length > 0 || bulkOperationResults.failed.length > 0) && (
+                    <div className="mt-3 p-3 bg-white rounded border">
+                      <div className="text-sm font-medium text-gray-900 mb-2">Bulk Operation Results:</div>
+                      <div className="flex items-center space-x-4 text-sm">
+                        {bulkOperationResults.successful.length > 0 && (
+                          <div className="flex items-center space-x-1 text-green-600">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>{bulkOperationResults.successful.length} successful</span>
+                          </div>
+                        )}
+                        {bulkOperationResults.failed.length > 0 && (
+                          <div className="flex items-center space-x-1 text-red-600">
+                            <AlertCircle className="h-4 w-4" />
+                            <span>{bulkOperationResults.failed.length} failed</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {filteredRequests.map((request) => {
                   const matchingCriteria = getMatchingCriteria(request.procedureCode, request.payer);
+                  const isSelected = selectedRequestIds.includes(request.id);
                   return (
-                    <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div 
+                      key={request.id} 
+                      className={`border rounded-lg p-4 hover:bg-gray-50 transition-colors ${
+                        isSelected ? 'bg-blue-50 border-blue-200' : ''
+                      }`}
+                    >
                       <div className="flex items-start justify-between">
-                        <div className="flex-1">
+                        <div className="flex items-start space-x-3 flex-1">
+                          <div className="mt-1">
+                            <button
+                              onClick={() => handleSelectRequest(request.id)}
+                              className="p-1 hover:bg-gray-200 rounded transition-colors"
+                              data-testid={`checkbox-request-${request.id}`}
+                            >
+                              {isSelected ? (
+                                <CheckSquare className="h-4 w-4 text-blue-600" />
+                              ) : (
+                                <Square className="h-4 w-4 text-gray-400" />
+                              )}
+                            </button>
+                          </div>
+                          <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
                             {getPriorityIcon(request.priority, calculateDaysUntilProcedure(request.scheduledDate))}
                             <h3 className="font-semibold text-gray-900">{request.patientName}</h3>
@@ -552,6 +770,10 @@ export function PreAuthorizationDashboard() {
                           <FormInput className="h-3 w-3 mr-1" />
                           Auto-Populate Form
                         </Button>
+                      </div>
+                    </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   );
