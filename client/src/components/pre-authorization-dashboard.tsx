@@ -159,7 +159,7 @@ export function PreAuthorizationDashboard() {
     setBulkProgress({ current: 0, total: selectedRequestIds.length });
     setBulkOperationResults({ successful: [], failed: [] });
     
-    const results = { successful: [], failed: [] };
+    const results: { successful: string[], failed: string[] } = { successful: [], failed: [] };
     
     for (let i = 0; i < selectedRequestIds.length; i++) {
       const requestId = selectedRequestIds[i];
@@ -197,7 +197,7 @@ export function PreAuthorizationDashboard() {
     setBulkProgress({ current: 0, total: selectedRequestIds.length });
     setBulkOperationResults({ successful: [], failed: [] });
     
-    const results = { successful: [], failed: [] };
+    const results: { successful: string[], failed: string[] } = { successful: [], failed: [] };
     
     for (let i = 0; i < selectedRequestIds.length; i++) {
       const requestId = selectedRequestIds[i];
@@ -741,7 +741,7 @@ export function PreAuthorizationDashboard() {
                       {/* Action Buttons */}
                       <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-end space-x-2">
                         {/* Flag for Review button - show if requires review and not already flagged */}
-                        {((matchingCriteria && matchingCriteria.requiresAuth) || request.status === "pending") && !request.requiresReview && (
+                        {((matchingCriteria && matchingCriteria.requiresAuth) || request.status === "pending") && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -770,10 +770,6 @@ export function PreAuthorizationDashboard() {
                           <FormInput className="h-3 w-3 mr-1" />
                           Auto-Populate Form
                         </Button>
-                      </div>
-                    </div>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   );
@@ -986,11 +982,11 @@ export function PreAuthorizationDashboard() {
                                 {relatedCriteria.map((criteria, idx) => (
                                   <div key={idx} className="border border-blue-200 rounded p-3 bg-blue-50">
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="font-medium text-blue-800">{criteria.payerName}</span>
+                                      <span className="font-medium text-blue-800">{criteria.payer}</span>
                                       <div className="flex space-x-2">
-                                        {criteria.criteriaType && (
+                                        {criteria.requiresAuth && (
                                           <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
-                                            {criteria.criteriaType.replace('_', ' ')}
+                                            {'Medical Necessity'}
                                           </Badge>
                                         )}
                                         <Badge className="bg-blue-100 text-blue-800 text-xs">
