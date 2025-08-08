@@ -59,7 +59,7 @@ interface ProcedureAuthRequirement {
 }
 
 export function PreAuthorizationDashboard() {
-  const [selectedTab, setSelectedTab] = useState("new-request");
+  const [selectedTab, setSelectedTab] = useState("requests");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProcedure, setSelectedProcedure] = useState("");
 
@@ -75,15 +75,11 @@ export function PreAuthorizationDashboard() {
   const [filterPayer, setFilterPayer] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterDaysUntil, setFilterDaysUntil] = useState("");
-  const [newRequestData, setNewRequestData] = useState({
-    patientName: "",
-    memberID: "",
-    payer: "",
-    procedureCode: "",
-    scheduledDate: "",
-    diagnosis: "",
-    clinicalJustification: ""
-  });
+  
+  // Search state for procedure requirements
+  const [procedureSearchTerm, setProcedureSearchTerm] = useState("");
+  const [selectedPayerFilter, setSelectedPayerFilter] = useState("");
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -100,27 +96,6 @@ export function PreAuthorizationDashboard() {
     queryKey: ["/api/procedure-auth-requirements"]
   });
 
-  // Create new pre-auth request mutation
-  const createRequestMutation = useMutation({
-    mutationFn: async (requestData: any) => {
-      return apiRequest("/api/pre-auth-requests", {
-        method: "POST",
-        body: JSON.stringify(requestData)
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/pre-auth-requests"] });
-      setNewRequestData({
-        patientName: "",
-        memberID: "",
-        payer: "",
-        procedureCode: "",
-        scheduledDate: "",
-        diagnosis: "",
-        clinicalJustification: ""
-      });
-    }
-  });
 
   const getStatusBadge = (status: string, daysUntil: number) => {
     if (status === "approved") return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
@@ -154,10 +129,6 @@ export function PreAuthorizationDashboard() {
     return null;
   };
 
-  const handleProcedureSelection = (procedureCode: string) => {
-    setSelectedProcedure(procedureCode);
-    setNewRequestData(prev => ({ ...prev, procedureCode }));
-  };
 
   const filteredRequests = preAuthRequests.filter(req => {
     // Search filter
@@ -270,15 +241,14 @@ export function PreAuthorizationDashboard() {
       </div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="new-request" data-testid="tab-new-request">New Request</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="requests" data-testid="tab-requests">Pre-Auth Requests</TabsTrigger>
           <TabsTrigger value="form-demo" data-testid="tab-form-demo" className="flex items-center space-x-2">
             <Sparkles className="h-4 w-4" />
             <span>Form Prepopulation</span>
           </TabsTrigger>
           <TabsTrigger value="analytics" data-testid="tab-analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="procedures" data-testid="tab-procedures">Procedure Requirements</TabsTrigger>
+          <TabsTrigger value="procedures" data-testid="tab-procedures">Reference Guide</TabsTrigger>
         </TabsList>
 
         <TabsContent value="requests" className="space-y-4">
@@ -594,62 +564,296 @@ export function PreAuthorizationDashboard() {
         <TabsContent value="procedures" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Procedure Authorization Requirements</CardTitle>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Procedure Requirements & Payer Criteria Reference Guide</CardTitle>
+                  <p className="text-gray-600 mt-1">Comprehensive reference for authorization requirements, payer policies, and approval criteria</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Search className="h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search procedures, codes, or criteria..."
+                    value={procedureSearchTerm}
+                    onChange={(e) => setProcedureSearchTerm(e.target.value)}
+                    className="w-64"
+                    data-testid="input-search-procedures"
+                  />
+                </div>
+              </div>
+              
+              {/* Filter Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <Label className="text-sm">Filter by Category</Label>
+                  <Select value={selectedCategoryFilter} onValueChange={setSelectedCategoryFilter}>
+                    <SelectTrigger data-testid="select-category-filter">
+                      <SelectValue placeholder="All categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All categories</SelectItem>
+                      {Array.from(new Set(procedureRequirements.map(p => p.category))).map(category => (
+                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label className="text-sm">Filter by Authorization Required</Label>
+                  <Select value={selectedPayerFilter} onValueChange={setSelectedPayerFilter}>
+                    <SelectTrigger data-testid="select-auth-filter">
+                      <SelectValue placeholder="All procedures" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All procedures</SelectItem>
+                      <SelectItem value="required">Authorization required</SelectItem>
+                      <SelectItem value="not-required">No authorization needed</SelectItem>
+                      <SelectItem value="high-risk">High risk procedures</SelectItem>
+                      <SelectItem value="medium-risk">Medium risk procedures</SelectItem>
+                      <SelectItem value="low-risk">Low risk procedures</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {procedureRequirements.map((proc) => (
-                  <div key={proc.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-2">
+              <div className="space-y-6">
+                {/* Quick Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg border">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold text-gray-900">{proc.procedureCode}</h3>
-                        <p className="text-gray-700">{proc.procedureName}</p>
-                        <Badge className="mt-1" variant="outline">{proc.category}</Badge>
+                        <p className="text-sm font-medium text-blue-700">Total Procedures</p>
+                        <p className="text-2xl font-bold text-blue-800">{procedureRequirements.length}</p>
                       </div>
-                      <div className="text-right">
-                        <Badge 
-                          className={
-                            proc.riskLevel === "High" ? "bg-red-100 text-red-800" :
-                            proc.riskLevel === "Medium" ? "bg-yellow-100 text-yellow-800" :
-                            "bg-green-100 text-green-800"
-                          }
-                        >
-                          {proc.riskLevel} Risk
-                        </Badge>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {proc.approvalRate}% approval rate
-                        </p>
-                      </div>
+                      <FileText className="h-8 w-8 text-blue-500" />
                     </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-3">
-                      <div>
-                        <p className="text-gray-600">Processing Time</p>
-                        <p className="font-medium">{proc.averageProcessingDays} days average</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Authorization Required</p>
-                        <p className="font-medium">
-                          {proc.requiresPreAuth ? "Yes" : "No"}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {proc.commonDenialReasons.length > 0 && (
-                      <div className="mt-3">
-                        <p className="text-sm font-medium text-gray-600 mb-1">Common Denial Reasons</p>
-                        <ul className="text-xs text-gray-700 space-y-1">
-                          {proc.commonDenialReasons.map((reason, idx) => (
-                            <li key={idx} className="flex items-start">
-                              <span className="text-red-500 mr-2">•</span>
-                              {reason}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </div>
-                ))}
+                  
+                  <div className="bg-orange-50 p-4 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-orange-700">Require Pre-Auth</p>
+                        <p className="text-2xl font-bold text-orange-800">
+                          {procedureRequirements.filter(p => p.requiresPreAuth).length}
+                        </p>
+                      </div>
+                      <AlertCircle className="h-8 w-8 text-orange-500" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-red-50 p-4 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-red-700">High Risk</p>
+                        <p className="text-2xl font-bold text-red-800">
+                          {procedureRequirements.filter(p => p.riskLevel === "High").length}
+                        </p>
+                      </div>
+                      <AlertCircle className="h-8 w-8 text-red-500" />
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 p-4 rounded-lg border">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-green-700">Avg Approval Rate</p>
+                        <p className="text-2xl font-bold text-green-800">
+                          {Math.round(procedureRequirements.reduce((sum, p) => sum + p.approvalRate, 0) / procedureRequirements.length)}%
+                        </p>
+                      </div>
+                      <CheckCircle className="h-8 w-8 text-green-500" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Procedure Requirements List */}
+                <div className="space-y-4">
+                  {(() => {
+                    // Filter logic
+                    const filtered = procedureRequirements.filter(proc => {
+                      const matchesSearch = procedureSearchTerm === "" || 
+                        proc.procedureCode.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
+                        proc.procedureName.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
+                        proc.category.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
+                        proc.commonDenialReasons.some(reason => reason.toLowerCase().includes(procedureSearchTerm.toLowerCase()));
+                      
+                      const matchesCategory = selectedCategoryFilter === "" || selectedCategoryFilter === "all" || 
+                        proc.category === selectedCategoryFilter;
+                      
+                      const matchesAuthFilter = selectedPayerFilter === "" || selectedPayerFilter === "all" || 
+                        (selectedPayerFilter === "required" && proc.requiresPreAuth) ||
+                        (selectedPayerFilter === "not-required" && !proc.requiresPreAuth) ||
+                        (selectedPayerFilter === "high-risk" && proc.riskLevel === "High") ||
+                        (selectedPayerFilter === "medium-risk" && proc.riskLevel === "Medium") ||
+                        (selectedPayerFilter === "low-risk" && proc.riskLevel === "Low");
+                      
+                      return matchesSearch && matchesCategory && matchesAuthFilter;
+                    });
+                    
+                    return filtered.map((proc) => {
+                      // Find matching insurer criteria for this procedure
+                      const relatedCriteria = insurerCriteria.filter(c => c.procedureCode === proc.procedureCode);
+                      
+                      return (
+                        <div key={proc.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <h3 className="font-semibold text-gray-900 text-lg">{proc.procedureCode}</h3>
+                                <Badge className="mt-1" variant="outline">{proc.category}</Badge>
+                                <Badge 
+                                  className={
+                                    proc.riskLevel === "High" ? "bg-red-100 text-red-800" :
+                                    proc.riskLevel === "Medium" ? "bg-yellow-100 text-yellow-800" :
+                                    "bg-green-100 text-green-800"
+                                  }
+                                >
+                                  {proc.riskLevel} Risk
+                                </Badge>
+                                {proc.requiresPreAuth && (
+                                  <Badge className="bg-orange-100 text-orange-800">
+                                    Pre-Auth Required
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-gray-700 font-medium">{proc.procedureName}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-600">Approval Rate</p>
+                              <p className="text-2xl font-bold text-green-600">{proc.approvalRate}%</p>
+                              <p className="text-xs text-gray-500">{proc.averageProcessingDays} days avg</p>
+                            </div>
+                          </div>
+                          
+                          {/* Key Requirements Summary */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm">
+                            <div className="bg-blue-50 p-3 rounded">
+                              <p className="font-medium text-blue-700 mb-1">Authorization Status</p>
+                              <p className="text-blue-800">
+                                {proc.requiresPreAuth ? "Required" : "Not Required"}
+                              </p>
+                              {proc.requiresPreAuth && (
+                                <p className="text-xs text-blue-600 mt-1">
+                                  Submit {proc.averageProcessingDays} days before procedure
+                                </p>
+                              )}
+                            </div>
+                            
+                            <div className="bg-gray-50 p-3 rounded">
+                              <p className="font-medium text-gray-700 mb-1">Processing Time</p>
+                              <p className="text-gray-800">{proc.averageProcessingDays} days average</p>
+                              <p className="text-xs text-gray-600 mt-1">Based on historical data</p>
+                            </div>
+                            
+                            <div className="bg-green-50 p-3 rounded">
+                              <p className="font-medium text-green-700 mb-1">Success Rate</p>
+                              <p className="text-green-800">{proc.approvalRate}% approved</p>
+                              <p className="text-xs text-green-600 mt-1">Historical approval rate</p>
+                            </div>
+                          </div>
+                          
+                          {/* Payer-Specific Criteria */}
+                          {relatedCriteria.length > 0 && (
+                            <div className="mb-4">
+                              <h4 className="font-medium text-gray-800 mb-2 flex items-center">
+                                <Building className="h-4 w-4 mr-2" />
+                                Payer-Specific Criteria
+                              </h4>
+                              <div className="space-y-2">
+                                {relatedCriteria.map((criteria, idx) => (
+                                  <div key={idx} className="border border-blue-200 rounded p-3 bg-blue-50">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="font-medium text-blue-800">{criteria.payerName}</span>
+                                      <div className="flex space-x-2">
+                                        {criteria.criteriaType && (
+                                          <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
+                                            {criteria.criteriaType.replace('_', ' ')}
+                                          </Badge>
+                                        )}
+                                        <Badge className="bg-blue-100 text-blue-800 text-xs">
+                                          {criteria.timeFrameRequired || 3} days required
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                    {criteria.medicalNecessityCriteria && criteria.medicalNecessityCriteria.length > 0 && (
+                                      <div>
+                                        <p className="text-xs font-medium text-blue-700 mb-1">Key Requirements:</p>
+                                        <ul className="text-xs text-blue-700 space-y-1">
+                                          {criteria.medicalNecessityCriteria.slice(0, 2).map((req, reqIdx) => (
+                                            <li key={reqIdx} className="flex items-start">
+                                              <span className="text-blue-500 mr-1">•</span>
+                                              <span>{req}</span>
+                                            </li>
+                                          ))}
+                                          {criteria.medicalNecessityCriteria.length > 2 && (
+                                            <li className="text-blue-600 italic text-xs">
+                                              +{criteria.medicalNecessityCriteria.length - 2} more requirements
+                                            </li>
+                                          )}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Common Denial Reasons */}
+                          {proc.commonDenialReasons.length > 0 && (
+                            <div className="bg-red-50 border border-red-200 rounded p-3">
+                              <p className="text-sm font-medium text-red-800 mb-2 flex items-center">
+                                <AlertCircle className="h-4 w-4 mr-2" />
+                                Common Denial Reasons
+                              </p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {proc.commonDenialReasons.map((reason, idx) => (
+                                  <div key={idx} className="flex items-start text-xs text-red-700">
+                                    <span className="text-red-500 mr-2 font-bold">•</span>
+                                    <span>{reason}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    });
+                  })()
+                  }
+                </div>
+                
+                {/* No results message */}
+                {(() => {
+                  const filteredCount = procedureRequirements.filter(proc => {
+                    const matchesSearch = procedureSearchTerm === "" || 
+                      proc.procedureCode.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
+                      proc.procedureName.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
+                      proc.category.toLowerCase().includes(procedureSearchTerm.toLowerCase());
+                    
+                    const matchesCategory = selectedCategoryFilter === "" || selectedCategoryFilter === "all" || 
+                      proc.category === selectedCategoryFilter;
+                    
+                    const matchesAuthFilter = selectedPayerFilter === "" || selectedPayerFilter === "all" || 
+                      (selectedPayerFilter === "required" && proc.requiresPreAuth) ||
+                      (selectedPayerFilter === "not-required" && !proc.requiresPreAuth) ||
+                      (selectedPayerFilter === "high-risk" && proc.riskLevel === "High") ||
+                      (selectedPayerFilter === "medium-risk" && proc.riskLevel === "Medium") ||
+                      (selectedPayerFilter === "low-risk" && proc.riskLevel === "Low");
+                    
+                    return matchesSearch && matchesCategory && matchesAuthFilter;
+                  }).length;
+                  
+                  return filteredCount === 0 && procedureRequirements.length > 0 ? (
+                    <div className="text-center py-8">
+                      <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">No procedures match your search criteria</p>
+                      <p className="text-sm text-gray-500 mt-1">Try adjusting your filters or search terms</p>
+                    </div>
+                  ) : null;
+                })()
+                }
               </div>
             </CardContent>
           </Card>
@@ -819,186 +1023,6 @@ export function PreAuthorizationDashboard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="new-request" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Create New Pre-Authorization Request</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* Step 1: Select Procedure */}
-                <div className="border rounded-lg p-4 bg-blue-50">
-                  <h3 className="font-semibold text-gray-900 mb-3">Step 1: Flag Procedure for Authorization</h3>
-                  <Label htmlFor="procedure-select">Select Procedure Code</Label>
-                  <Select 
-                    value={selectedProcedure} 
-                    onValueChange={handleProcedureSelection}
-                  >
-                    <SelectTrigger data-testid="select-procedure">
-                      <SelectValue placeholder="Search and select procedure..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {procedureRequirements.map((proc) => (
-                        <SelectItem key={proc.id} value={proc.procedureCode}>
-                          {proc.procedureCode} - {proc.procedureName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  {selectedProcedure && (
-                    <div className="mt-3 p-3 bg-white rounded border">
-                      {(() => {
-                        const proc = procedureRequirements.find(p => p.procedureCode === selectedProcedure);
-                        return proc ? (
-                          <div>
-                            <p className="font-medium text-green-700">✓ Procedure flagged for pre-authorization</p>
-                            <p className="text-sm text-gray-600">
-                              Risk Level: {proc.riskLevel} | Approval Rate: {proc.approvalRate}%
-                            </p>
-                          </div>
-                        ) : null;
-                      })()}
-                    </div>
-                  )}
-                </div>
-
-                {/* Step 2: Patient and Insurance Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="patient-name">Patient Name</Label>
-                    <Input
-                      id="patient-name"
-                      value={newRequestData.patientName}
-                      onChange={(e) => setNewRequestData(prev => ({ ...prev, patientName: e.target.value }))}
-                      placeholder="Last, First M."
-                      data-testid="input-patient-name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="member-id">Member ID</Label>
-                    <Input
-                      id="member-id"
-                      value={newRequestData.memberID}
-                      onChange={(e) => setNewRequestData(prev => ({ ...prev, memberID: e.target.value }))}
-                      placeholder="Insurance member ID"
-                      data-testid="input-member-id"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="insurer">Insurance Company</Label>
-                    <Select
-                      value={newRequestData.payer}
-                      onValueChange={(value) => setNewRequestData(prev => ({ ...prev, payer: value }))}
-                    >
-                      <SelectTrigger data-testid="select-insurer">
-                        <SelectValue placeholder="Select insurer..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Blue Cross Blue Shield">Blue Cross Blue Shield</SelectItem>
-                        <SelectItem value="Aetna">Aetna</SelectItem>
-                        <SelectItem value="UnitedHealthcare">UnitedHealthcare</SelectItem>
-                        <SelectItem value="Cigna">Cigna</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="scheduled-date">Scheduled Procedure Date</Label>
-                    <Input
-                      id="scheduled-date"
-                      type="date"
-                      value={newRequestData.scheduledDate}
-                      onChange={(e) => setNewRequestData(prev => ({ ...prev, scheduledDate: e.target.value }))}
-                      data-testid="input-scheduled-date"
-                    />
-                  </div>
-                </div>
-
-                {/* Step 3: Compare Against Insurer Criteria */}
-                {selectedProcedure && newRequestData.payer && (
-                  <div className="border rounded-lg p-4 bg-yellow-50">
-                    <h3 className="font-semibold text-gray-900 mb-3">Step 2: Insurer Criteria Comparison</h3>
-                    {(() => {
-                      const matchingCriteria = getMatchingCriteria(selectedProcedure, newRequestData.payer);
-                      if (matchingCriteria) {
-                        return (
-                          <div className="space-y-3">
-                            <p className="font-medium text-green-700">
-                              ✓ Found {matchingCriteria.payerName} criteria for {selectedProcedure}
-                            </p>
-                            <div className="bg-white p-3 rounded border">
-                              <p className="font-medium text-gray-700 mb-2">Required Medical Necessity Documentation:</p>
-                              <ul className="text-sm space-y-1">
-                                {matchingCriteria.medicalNecessityCriteria && matchingCriteria.medicalNecessityCriteria.map((criterion, idx) => (
-                                  <li key={idx} className="flex items-start">
-                                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
-                                    {criterion}
-                                  </li>
-                                ))}
-                              </ul>
-                              <p className="text-sm text-orange-600 mt-2">
-                                ⚠ Authorization must be submitted {matchingCriteria.timeFrameRequired} hours prior to procedure
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      } else {
-                        return (
-                          <div className="bg-white p-3 rounded border">
-                            <p className="text-orange-600">
-                              ⚠ No specific criteria found for {newRequestData.payer} and {selectedProcedure}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              Standard documentation requirements will apply. Contact insurer for specific guidelines.
-                            </p>
-                          </div>
-                        );
-                      }
-                    })()}
-                  </div>
-                )}
-
-                {/* Step 4: Clinical Justification */}
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="diagnosis">Primary Diagnosis</Label>
-                    <Input
-                      id="diagnosis"
-                      value={newRequestData.diagnosis}
-                      onChange={(e) => setNewRequestData(prev => ({ ...prev, diagnosis: e.target.value }))}
-                      placeholder="ICD-10 code and description"
-                      data-testid="input-diagnosis"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="justification">Clinical Justification</Label>
-                    <Textarea
-                      id="justification"
-                      value={newRequestData.clinicalJustification}
-                      onChange={(e) => setNewRequestData(prev => ({ ...prev, clinicalJustification: e.target.value }))}
-                      placeholder="Provide detailed clinical justification addressing medical necessity criteria..."
-                      className="min-h-32"
-                      data-testid="textarea-justification"
-                    />
-                  </div>
-                </div>
-
-                <Button
-                  onClick={() => createRequestMutation.mutate(newRequestData)}
-                  disabled={createRequestMutation.isPending || !selectedProcedure || !newRequestData.patientName}
-                  className="w-full"
-                  data-testid="button-submit-request"
-                >
-                  {createRequestMutation.isPending ? "Submitting..." : "Submit Pre-Authorization Request"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="form-demo">
           <FormPrepopulationDemo />
