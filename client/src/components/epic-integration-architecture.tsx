@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   ArrowRight, 
   ArrowLeftRight,
+  ArrowDown,
   Database, 
   Server, 
   Shield, 
@@ -17,7 +20,10 @@ import {
   CheckCircle2,
   Network,
   Eye,
-  UserCheck
+  UserCheck,
+  Layers,
+  BarChart3,
+  Archive
 } from "lucide-react";
 
 interface IntegrationPoint {
@@ -96,6 +102,57 @@ const complianceIndicators = [
   { name: "Data Retention", status: "7-year policy", icon: Database }
 ];
 
+const batchDataSources = [
+  {
+    name: "Epic EMR Extract",
+    type: "Database Extract",
+    schedule: "Daily 2:00 AM",
+    format: "HL7 FHIR",
+    volume: "~50GB/day",
+    tables: ["Patients", "Encounters", "Diagnoses", "Procedures", "Claims"]
+  },
+  {
+    name: "Claims Files (837/835)",
+    type: "EDI Files",
+    schedule: "Daily 3:00 AM",
+    format: "X12 EDI",
+    volume: "~25GB/day",
+    tables: ["Claims_837", "Remittance_835", "Eligibility_271"]
+  },
+  {
+    name: "Payer Response Files",
+    type: "Flat Files",
+    schedule: "Daily 4:00 AM",
+    format: "CSV/JSON",
+    volume: "~5GB/day",
+    tables: ["Authorizations", "Denials", "Payment_Status"]
+  }
+];
+
+const databricksLayers = [
+  {
+    layer: "Bronze (Raw)",
+    description: "Raw data ingestion with minimal transformation",
+    retention: "90 days",
+    format: "Delta Lake",
+    compression: "ZSTD"
+  },
+  {
+    layer: "Silver (Cleaned)",
+    description: "Cleaned and validated data with business rules applied",
+    retention: "2 years",
+    format: "Delta Lake",
+    compression: "ZSTD"
+  },
+  {
+    layer: "Gold (Aggregated)",
+    description: "Business-ready aggregated tables for analytics",
+    retention: "7 years",
+    format: "Delta Lake",
+    compression: "ZSTD"
+  }
+];
+
 export function EpicIntegrationArchitecture() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -114,6 +171,15 @@ export function EpicIntegrationArchitecture() {
             Back to Dashboard
           </Button>
         </div>
+
+        {/* Architecture Views Tabs */}
+        <Tabs defaultValue="realtime" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="realtime">Real-time Integration</TabsTrigger>
+            <TabsTrigger value="batch">Data Warehouse & Batch Processing</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="realtime" className="space-y-6">
 
         {/* Architecture Overview Diagram */}
         <Card className="healthcare-card">
@@ -355,6 +421,264 @@ export function EpicIntegrationArchitecture() {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="batch" className="space-y-6">
+            {/* Databricks Architecture Overview */}
+            <Card className="healthcare-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Layers className="h-6 w-6 text-purple-600" />
+                  <span>Data Warehouse Architecture - Daily Batch Processing</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-8 p-6">
+                  {/* Data Sources Row */}
+                  <div className="flex justify-center space-x-8">
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="w-32 h-20 bg-purple-100 border-2 border-purple-300 rounded-lg flex flex-col items-center justify-center">
+                        <Database className="h-6 w-6 text-purple-600 mb-1" />
+                        <span className="text-xs font-semibold text-purple-900">Epic EMR</span>
+                      </div>
+                      <Badge className="bg-purple-100 text-purple-800">Source System</Badge>
+                    </div>
+                    
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="w-32 h-20 bg-blue-100 border-2 border-blue-300 rounded-lg flex flex-col items-center justify-center">
+                        <FileText className="h-6 w-6 text-blue-600 mb-1" />
+                        <span className="text-xs font-semibold text-blue-900">Claims Files</span>
+                      </div>
+                      <Badge className="bg-blue-100 text-blue-800">EDI Files</Badge>
+                    </div>
+                    
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="w-32 h-20 bg-green-100 border-2 border-green-300 rounded-lg flex flex-col items-center justify-center">
+                        <Archive className="h-6 w-6 text-green-600 mb-1" />
+                        <span className="text-xs font-semibold text-green-900">Payer Files</span>
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">Response Data</Badge>
+                    </div>
+                  </div>
+                  
+                  {/* Arrow Down */}
+                  <div className="flex justify-center">
+                    <ArrowDown className="h-8 w-8 text-gray-400" />
+                  </div>
+                  
+                  {/* Ingestion Layer */}
+                  <div className="flex justify-center">
+                    <div className="w-80 h-24 bg-orange-100 border-2 border-orange-300 rounded-lg flex flex-col items-center justify-center p-4">
+                      <Server className="h-6 w-6 text-orange-600 mb-2" />
+                      <span className="font-semibold text-orange-900">Data Ingestion Pipeline</span>
+                      <span className="text-xs text-orange-700">Apache Spark • Delta Lake • Auto Loader</span>
+                    </div>
+                  </div>
+                  
+                  {/* Arrow Down */}
+                  <div className="flex justify-center">
+                    <ArrowDown className="h-8 w-8 text-gray-400" />
+                  </div>
+                  
+                  {/* Databricks Layers */}
+                  <div className="grid grid-cols-3 gap-6">
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="w-40 h-32 bg-yellow-100 border-2 border-yellow-300 rounded-lg flex flex-col items-center justify-center p-3">
+                        <Layers className="h-8 w-8 text-yellow-600 mb-2" />
+                        <span className="font-semibold text-yellow-900 text-center">Bronze Layer</span>
+                        <span className="text-xs text-yellow-700 text-center">Raw Data</span>
+                      </div>
+                      <Badge className="bg-yellow-100 text-yellow-800">Delta Lake</Badge>
+                    </div>
+                    
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="w-40 h-32 bg-gray-200 border-2 border-gray-400 rounded-lg flex flex-col items-center justify-center p-3">
+                        <Layers className="h-8 w-8 text-gray-600 mb-2" />
+                        <span className="font-semibold text-gray-900 text-center">Silver Layer</span>
+                        <span className="text-xs text-gray-700 text-center">Cleaned Data</span>
+                      </div>
+                      <Badge className="bg-gray-200 text-gray-800">Delta Lake</Badge>
+                    </div>
+                    
+                    <div className="flex flex-col items-center space-y-2">
+                      <div className="w-40 h-32 bg-yellow-200 border-2 border-yellow-500 rounded-lg flex flex-col items-center justify-center p-3">
+                        <Layers className="h-8 w-8 text-yellow-700 mb-2" />
+                        <span className="font-semibold text-yellow-900 text-center">Gold Layer</span>
+                        <span className="text-xs text-yellow-800 text-center">Analytics Ready</span>
+                      </div>
+                      <Badge className="bg-yellow-200 text-yellow-800">Delta Lake</Badge>
+                    </div>
+                  </div>
+                  
+                  {/* Arrow Down */}
+                  <div className="flex justify-center">
+                    <ArrowDown className="h-8 w-8 text-gray-400" />
+                  </div>
+                  
+                  {/* Analytics Layer */}
+                  <div className="flex justify-center">
+                    <div className="w-80 h-24 bg-teal-100 border-2 border-teal-300 rounded-lg flex flex-col items-center justify-center p-4">
+                      <BarChart3 className="h-6 w-6 text-teal-600 mb-2" />
+                      <span className="font-semibold text-teal-900">RCM Analytics Dashboard</span>
+                      <span className="text-xs text-teal-700">PowerBI • Tableau • Custom Dashboards</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Data Sources Details */}
+            <Card className="healthcare-card">
+              <CardHeader>
+                <CardTitle>Daily Data Ingestion Sources</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {batchDataSources.map((source, index) => (
+                    <div key={index} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-gray-900">{source.name}</span>
+                        <Badge variant="outline" className="text-xs">{source.type}</Badge>
+                      </div>
+                      
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center space-x-2">
+                          <Clock className="h-3 w-3 text-gray-400" />
+                          <span className="text-gray-600">Schedule:</span>
+                          <span className="font-medium text-blue-700">{source.schedule}</span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <FileText className="h-3 w-3 text-gray-400" />
+                          <span className="text-gray-600">Format:</span>
+                          <span className="font-medium">{source.format}</span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Database className="h-3 w-3 text-gray-400" />
+                          <span className="text-gray-600">Volume:</span>
+                          <span className="font-medium text-green-700">{source.volume}</span>
+                        </div>
+                        
+                        <div className="mt-3">
+                          <span className="text-xs text-gray-500">Tables/Entities:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {source.tables.map((table, idx) => (
+                              <Badge key={idx} className="bg-gray-100 text-gray-700 text-xs">
+                                {table}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Databricks Layers Details */}
+            <Card className="healthcare-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Layers className="h-5 w-5 text-purple-600" />
+                  <span>Databricks Delta Lake Architecture</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {databricksLayers.map((layer, index) => (
+                    <div key={index} className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          index === 0 ? "bg-yellow-500" : 
+                          index === 1 ? "bg-gray-400" : "bg-yellow-600"
+                        }`}></div>
+                        <span className="font-semibold text-gray-900">{layer.layer}</span>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600">{layer.description}</p>
+                      
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Retention:</span>
+                          <span className="font-medium">{layer.retention}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Format:</span>
+                          <span className="font-medium">{layer.format}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Compression:</span>
+                          <span className="font-medium">{layer.compression}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Daily Processing Schedule */}
+            <Card className="healthcare-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Clock className="h-5 w-5 text-blue-600" />
+                  <span>Daily Processing Schedule</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Clock className="h-4 w-4 text-purple-600" />
+                        <span className="font-semibold text-purple-900">2:00 AM</span>
+                      </div>
+                      <p className="text-sm text-purple-800">Epic EMR data extraction begins</p>
+                      <Badge className="bg-purple-100 text-purple-800 mt-2">Duration: ~45 min</Badge>
+                    </div>
+                    
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Clock className="h-4 w-4 text-blue-600" />
+                        <span className="font-semibold text-blue-900">3:00 AM</span>
+                      </div>
+                      <p className="text-sm text-blue-800">Claims files (837/835) ingestion</p>
+                      <Badge className="bg-blue-100 text-blue-800 mt-2">Duration: ~30 min</Badge>
+                    </div>
+                    
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Clock className="h-4 w-4 text-green-600" />
+                        <span className="font-semibold text-green-900">4:00 AM</span>
+                      </div>
+                      <p className="text-sm text-green-800">Payer response files processing</p>
+                      <Badge className="bg-green-100 text-green-800 mt-2">Duration: ~15 min</Badge>
+                    </div>
+                    
+                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Clock className="h-4 w-4 text-teal-600" />
+                        <span className="font-semibold text-teal-900">5:00 AM</span>
+                      </div>
+                      <p className="text-sm text-teal-800">Data quality checks & Gold layer updates</p>
+                      <Badge className="bg-teal-100 text-teal-800 mt-2">Duration: ~20 min</Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <span className="font-semibold text-gray-900">Processing Complete by 6:00 AM</span>
+                    </div>
+                    <p className="text-sm text-gray-600">All data refreshed and analytics dashboards updated for daily business operations</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
