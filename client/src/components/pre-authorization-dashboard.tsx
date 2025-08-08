@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building, Sparkles } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building, Sparkles, Flag, FormInput } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { FormPrepopulationDemo } from "./form-prepopulation-demo";
 
@@ -540,6 +540,40 @@ export function PreAuthorizationDashboard() {
                             </div>
                           )}
                         </div>
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-end space-x-2">
+                        {/* Flag for Review button - show if requires review and not already flagged */}
+                        {((matchingCriteria && matchingCriteria.requiresAuth) || request.status === "pending") && !request.requiresReview && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              // Handle flag for review
+                              console.log('Flagging request for review:', request.id);
+                            }}
+                            className="text-orange-600 border-orange-300 hover:bg-orange-50"
+                            data-testid={`button-flag-review-${request.id}`}
+                          >
+                            <Flag className="h-3 w-3 mr-1" />
+                            Flag for Review
+                          </Button>
+                        )}
+                        
+                        {/* Auto-Populate Form button */}
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            // Handle auto-populate form
+                            console.log('Auto-populating form for request:', request.id);
+                          }}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          data-testid={`button-auto-populate-${request.id}`}
+                        >
+                          <FormInput className="h-3 w-3 mr-1" />
+                          Auto-Populate Form
+                        </Button>
                       </div>
                     </div>
                   );
