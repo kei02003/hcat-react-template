@@ -12,31 +12,42 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building, Sparkles, Flag, FormInput, CheckSquare, Square, Loader2, Send, Wand2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { FormPrepopulationDemo } from "./form-prepopulation-demo";
+import type { PreAuthRequest as BackendPreAuthRequest, InsurerCriteria as BackendInsurerCriteria, ProcedureAuthRequirement as BackendProcedureAuthRequirement } from "@shared/pre-authorization-schema";
 
+// Frontend interface that matches backend data structure
 interface PreAuthRequest {
   id: string;
   patientId: string;
   patientName: string;
-  memberID: string;
-  payer: string;
   procedureCode: string;
   procedureName: string;
   scheduledDate: string;
-  requestDate: string;
+  payer: string;
+  payerId: string;
   status: "pending" | "approved" | "denied" | "requires_review";
   priority: "standard" | "urgent";
-  authRequiredBy: string;
+  submissionDate?: string;
+  responseDate?: string | null;
+  daysToComplete?: number | null;
+  authorizationNumber?: string | null;
+  estimatedCost: string;
+  medicalNecessity?: string;
+  department: string;
   providerId: string;
   providerName: string;
-  diagnosis: string;
-  clinicalJustification: string;
-  priorAuthNumber: string | null;
-  estimatedCost: string;
+  memberID?: string; // Keep for backwards compatibility if needed
+  requestDate?: string; // Keep for backwards compatibility if needed
+  authRequiredBy?: string; // Keep for backwards compatibility if needed
+  diagnosis?: string; // Keep for backwards compatibility if needed
+  clinicalJustification?: string; // Keep for backwards compatibility if needed
+  priorAuthNumber?: string | null; // Keep for backwards compatibility if needed
 }
 
 interface InsurerCriteria {
   id: string;
-  payer: string;
+  payerId: string;
+  payerName: string;
+  payer: string; // Keep for compatibility
   procedureCode: string;
   procedureName: string;
   requiresAuth: boolean;
@@ -121,7 +132,7 @@ export function PreAuthorizationDashboard() {
 
   const getMatchingCriteria = (procedureCode: string, payerName: string) => {
     const criteria = insurerCriteria.find(c => 
-      c.procedureCode === procedureCode && c.payer === payerName
+      c.procedureCode === procedureCode && (c.payer === payerName || c.payerName === payerName)
     );
     
     if (criteria) {
@@ -605,7 +616,7 @@ export function PreAuthorizationDashboard() {
                             <div>
                               <p className="text-gray-600">Insurer</p>
                               <p className="font-medium">{request.payer}</p>
-                              <p className="text-gray-700">Member: {request.memberID || "N/A"}</p>
+                              <p className="text-gray-700">Payer ID: {request.payerId}</p>
                             </div>
                             
                             <div>
@@ -714,9 +725,9 @@ export function PreAuthorizationDashboard() {
                           <p className="font-bold text-lg">
                             ${request.estimatedCost ? parseFloat(request.estimatedCost).toLocaleString() : "0"}
                           </p>
-                          {request.priorAuthNumber && (
+                          {(request.authorizationNumber || request.priorAuthNumber) && (
                             <p className="text-xs text-green-600 mt-1">
-                              Auth: {request.priorAuthNumber}
+                              Auth: {request.authorizationNumber || request.priorAuthNumber}
                             </p>
                           )}
                           
