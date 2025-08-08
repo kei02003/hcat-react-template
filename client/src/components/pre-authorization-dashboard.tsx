@@ -132,7 +132,7 @@ export function PreAuthorizationDashboard() {
 
   const getMatchingCriteria = (procedureCode: string, insurerName: string) => {
     return insurerCriteria.find(c => 
-      c.procedureCode === procedureCode && c.payerName === insurerName
+      c.procedureCode === procedureCode && c.insurerName === insurerName
     );
   };
 
@@ -370,56 +370,152 @@ export function PreAuthorizationDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {filteredRequests.map((request) => (
-                  <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          {getPriorityIcon(request.priority, request.daysUntilProcedure)}
-                          <h3 className="font-semibold text-gray-900">{request.patientName}</h3>
-                          {getStatusBadge(request.status, request.daysUntilProcedure)}
+                {filteredRequests.map((request) => {
+                  const matchingCriteria = getMatchingCriteria(request.procedureCode, request.insurerName);
+                  return (
+                    <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            {getPriorityIcon(request.priority, request.daysUntilProcedure)}
+                            <h3 className="font-semibold text-gray-900">{request.patientName}</h3>
+                            {getStatusBadge(request.status, request.daysUntilProcedure)}
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-600">Procedure</p>
+                              <p className="font-medium">{request.procedureCode}</p>
+                              <p className="text-gray-700">{request.procedureName}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="text-gray-600">Insurer</p>
+                              <p className="font-medium">{request.insurerName}</p>
+                              <p className="text-gray-700">Member: {request.memberID}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="text-gray-600">Scheduled</p>
+                              <p className="font-medium">
+                                {new Date(request.scheduledDate).toLocaleDateString()}
+                              </p>
+                              <p className="text-gray-700">{request.daysUntilProcedure} days until</p>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-3">
+                            <p className="text-sm text-gray-600">Diagnosis</p>
+                            <p className="text-sm font-medium">{request.diagnosis}</p>
+                          </div>
+                          
+                          {/* Payer Criteria Information */}
+                          {matchingCriteria && (
+                            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-start justify-between mb-2">
+                                <h4 className="text-sm font-semibold text-blue-900 flex items-center">
+                                  <Building className="h-4 w-4 mr-1" />
+                                  Payer Authorization Criteria
+                                </h4>
+                                <div className="flex items-center space-x-2 text-xs">
+                                  {matchingCriteria.requiresAuth ? (
+                                    <Badge className="bg-orange-100 text-orange-800">Auth Required</Badge>
+                                  ) : (
+                                    <Badge className="bg-green-100 text-green-800">No Auth Needed</Badge>
+                                  )}
+                                  <Badge variant="outline" className="text-blue-700 border-blue-300">
+                                    {matchingCriteria.timeFrameRequired} days processing
+                                  </Badge>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                {matchingCriteria.medicalNecessityCriteria.length > 0 && (
+                                  <div>
+                                    <p className="font-medium text-blue-800 mb-1">Medical Necessity Requirements:</p>
+                                    <ul className="text-blue-700 space-y-1">
+                                      {matchingCriteria.medicalNecessityCriteria.slice(0, 3).map((criteria, idx) => (
+                                        <li key={idx} className="flex items-start">
+                                          <span className="text-blue-500 mr-1">•</span>
+                                          <span className="line-clamp-1">{criteria}</span>
+                                        </li>
+                                      ))}
+                                      {matchingCriteria.medicalNecessityCriteria.length > 3 && (
+                                        <li className="text-blue-600 italic">+{matchingCriteria.medicalNecessityCriteria.length - 3} more criteria</li>
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
+                                
+                                {matchingCriteria.denialReasons.length > 0 && (
+                                  <div>
+                                    <p className="font-medium text-red-800 mb-1">Common Denial Reasons:</p>
+                                    <ul className="text-red-700 space-y-1">
+                                      {matchingCriteria.denialReasons.slice(0, 2).map((reason, idx) => (
+                                        <li key={idx} className="flex items-start">
+                                          <span className="text-red-500 mr-1">•</span>
+                                          <span className="line-clamp-1">{reason}</span>
+                                        </li>
+                                      ))}
+                                      {matchingCriteria.denialReasons.length > 2 && (
+                                        <li className="text-red-600 italic">+{matchingCriteria.denialReasons.length - 2} more reasons</li>
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="mt-2 flex items-center justify-between text-xs text-blue-700">
+                                <span>Authorization valid for {matchingCriteria.authValidityDays} days</span>
+                                <span className="flex items-center">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  Submit {matchingCriteria.timeFrameRequired} days before procedure
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Warning if no criteria found */}
+                          {!matchingCriteria && (
+                            <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+                              <div className="flex items-center">
+                                <AlertCircle className="h-3 w-3 mr-1" />
+                                No specific payer criteria found for this procedure combination. Manual review may be required.
+                              </div>
+                            </div>
+                          )}
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <p className="text-gray-600">Procedure</p>
-                            <p className="font-medium">{request.procedureCode}</p>
-                            <p className="text-gray-700">{request.procedureName}</p>
-                          </div>
-                          
-                          <div>
-                            <p className="text-gray-600">Insurer</p>
-                            <p className="font-medium">{request.insurerName}</p>
-                            <p className="text-gray-700">Member: {request.memberID}</p>
-                          </div>
-                          
-                          <div>
-                            <p className="text-gray-600">Scheduled</p>
-                            <p className="font-medium">
-                              {new Date(request.scheduledDate).toLocaleDateString()}
+                        <div className="ml-4 text-right">
+                          <p className="text-sm text-gray-600">Estimated Value</p>
+                          <p className="font-bold text-lg">${request.estimatedValue.toLocaleString()}</p>
+                          {request.priorAuthNumber && (
+                            <p className="text-xs text-green-600 mt-1">
+                              Auth: {request.priorAuthNumber}
                             </p>
-                            <p className="text-gray-700">{request.daysUntilProcedure} days until</p>
-                          </div>
+                          )}
+                          
+                          {/* Timeline indicator based on criteria */}
+                          {matchingCriteria && (
+                            <div className="mt-2 text-xs">
+                              {request.daysUntilProcedure <= matchingCriteria.timeFrameRequired ? (
+                                <div className="flex items-center text-red-600">
+                                  <AlertCircle className="h-3 w-3 mr-1" />
+                                  <span>Time Critical</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center text-green-600">
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  <span>On Schedule</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        
-                        <div className="mt-3">
-                          <p className="text-sm text-gray-600">Diagnosis</p>
-                          <p className="text-sm font-medium">{request.diagnosis}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="ml-4 text-right">
-                        <p className="text-sm text-gray-600">Estimated Value</p>
-                        <p className="font-bold text-lg">${request.estimatedValue.toLocaleString()}</p>
-                        {request.priorAuthNumber && (
-                          <p className="text-xs text-green-600 mt-1">
-                            Auth: {request.priorAuthNumber}
-                          </p>
-                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
