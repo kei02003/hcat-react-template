@@ -821,18 +821,20 @@ export function PreAuthorizationDashboard() {
                                 // Handle flag for review - update status to requires_review
                                 console.log('Flagging request for review:', request.id);
                                 
-                                // In a real implementation, this would call an API to update the status
-                                // await apiRequest(`/api/pre-auth-requests/${request.id}`, {
-                                //   method: 'PATCH',
-                                //   body: JSON.stringify({ status: 'requires_review', flaggedAt: new Date().toISOString() })
-                                // });
+                                // Call the API to update the status
+                                await apiRequest(`/api/pre-auth-requests/${request.id}`, {
+                                  method: 'PATCH',
+                                  body: JSON.stringify({ 
+                                    status: 'requires_review', 
+                                    flaggedAt: new Date().toISOString(),
+                                    reviewerNotes: 'Flagged for manual review'
+                                  })
+                                });
                                 
-                                // For demo purposes, we'll show immediate visual feedback
-                                // The status change would be reflected after data refresh in a real app
-                                console.log(`Request ${request.id} flagged for review with visible tag`);
+                                console.log(`Request ${request.id} flagged for review successfully`);
                                 
-                                // Refresh data to show updated status
-                                // queryClient.invalidateQueries({ queryKey: ['/api/pre-auth-requests'] });
+                                // Refresh data to show updated status with visual tags
+                                queryClient.invalidateQueries({ queryKey: ['/api/pre-auth-requests'] });
                                 
                               } catch (error) {
                                 console.error('Failed to flag request for review:', error);

@@ -123,7 +123,7 @@ export interface IStorage {
   // Pre-Authorization Management
   getPreAuthRequests(): Promise<PreAuthRequest[]>;
   createPreAuthRequest(request: InsertPreAuthRequest): Promise<PreAuthRequest>;
-  updatePreAuthRequest(id: string, request: Partial<InsertPreAuthRequest>): Promise<PreAuthRequest | undefined>;
+  updatePreAuthRequest(id: string, updates: Partial<PreAuthRequest>): Promise<PreAuthRequest | undefined>;
   getInsurerCriteria(): Promise<InsurerCriteria[]>;
   getProcedureAuthRequirements(): Promise<ProcedureAuthRequirement[]>;
   
@@ -1940,10 +1940,10 @@ export class MemStorage implements IStorage {
     return preAuthRequest;
   }
 
-  async updatePreAuthRequest(id: string, request: Partial<InsertPreAuthRequest>): Promise<PreAuthRequest | undefined> {
+  async updatePreAuthRequest(id: string, updates: Partial<PreAuthRequest>): Promise<PreAuthRequest | undefined> {
     const existing = this.preAuthRequests.get(id);
     if (!existing) return undefined;
-    const updated: PreAuthRequest = { ...existing, ...request, updatedAt: new Date() };
+    const updated: PreAuthRequest = { ...existing, ...updates, id, updatedAt: new Date() };
     this.preAuthRequests.set(id, updated);
     return updated;
   }
@@ -2232,8 +2232,8 @@ export class DatabaseStorage implements IStorage {
     return this.memStorage.createPreAuthRequest(request);
   }
 
-  async updatePreAuthRequest(id: string, request: Partial<InsertPreAuthRequest>): Promise<PreAuthRequest | undefined> {
-    return this.memStorage.updatePreAuthRequest(id, request);
+  async updatePreAuthRequest(id: string, updates: Partial<PreAuthRequest>): Promise<PreAuthRequest | undefined> {
+    return this.memStorage.updatePreAuthRequest(id, updates);
   }
 
   async getInsurerCriteria(): Promise<InsurerCriteria[]> {

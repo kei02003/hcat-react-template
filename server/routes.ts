@@ -253,6 +253,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update pre-auth request status
+  app.patch("/api/pre-auth-requests/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, flaggedAt, reviewerNotes } = req.body;
+      
+      const updatedRequest = await storage.updatePreAuthRequest(id, {
+        status,
+        flaggedAt,
+        reviewerNotes,
+        updatedAt: new Date()
+      });
+      
+      res.json(updatedRequest);
+    } catch (error) {
+      console.error("Failed to update pre-auth request:", error);
+      res.status(500).json({ message: "Failed to update pre-auth request" });
+    }
+  });
+
   // Clinical Decision Support routes
   app.get("/api/patient-status-monitoring", async (req, res) => {
     try {
