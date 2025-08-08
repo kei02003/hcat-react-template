@@ -1,142 +1,111 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, Target, Users } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
+import { TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
 
 const dischargeLocationData = [
   {
     location: "Oncology Wing",
-    systemPoint: "System Point",
-    balance: 866724.94,
-    worse: false,
-    better: true,
-    directionOfGood: true,
-    forecast: 900000,
-    cluster: "A"
+    balance: 866724,
+    target: 800000,
+    performance: "above",
+    shortName: "Oncology"
   },
   {
     location: "Outpatient Plaza", 
-    systemPoint: "System Point",
-    balance: 534821.45,
-    worse: true,
-    better: false,
-    directionOfGood: false,
-    forecast: 480000,
-    cluster: "B"
+    balance: 534821,
+    target: 480000,
+    performance: "above",
+    shortName: "Out Plaza"
   },
   {
     location: "Outpatient Center",
-    systemPoint: "System Point", 
-    balance: 423156.78,
-    worse: false,
-    better: false,
-    directionOfGood: true,
-    forecast: 420000,
-    cluster: "B"
+    balance: 423157,
+    target: 420000,
+    performance: "at_target",
+    shortName: "Out Center"
   },
   {
     location: "Day Surgery Center",
-    systemPoint: "System Point",
-    balance: 398234.56,
-    worse: true,
-    better: false,
-    directionOfGood: false,
-    forecast: 350000,
-    cluster: "C"
+    balance: 398235,
+    target: 350000,
+    performance: "above",
+    shortName: "Day Surgery"
   },
   {
     location: "Main Hospital",
-    systemPoint: "System Point",
-    balance: 312567.89,
-    worse: false,
-    better: true,
-    directionOfGood: true,
-    forecast: 340000,
-    cluster: "A"
+    balance: 312568,
+    target: 340000,
+    performance: "below",
+    shortName: "Main Hosp"
   },
   {
     location: "Second Floor",
-    systemPoint: "System Point",
-    balance: 287943.12,
-    worse: true,
-    better: false,
-    directionOfGood: false,
-    forecast: 250000,
-    cluster: "C"
+    balance: 287943,
+    target: 250000,
+    performance: "above",
+    shortName: "2nd Floor"
   },
   {
     location: "Medical Floor",
-    systemPoint: "System Point",
-    balance: 245678.34,
-    worse: false,
-    better: true,
-    directionOfGood: true,
-    forecast: 260000,
-    cluster: "B"
+    balance: 245678,
+    target: 260000,
+    performance: "below",
+    shortName: "Med Floor"
   },
   {
     location: "North Wing",
-    systemPoint: "System Point",
-    balance: 198456.78,
-    worse: true,
-    better: false,
-    directionOfGood: false,
-    forecast: 180000,
-    cluster: "C"
+    balance: 198457,
+    target: 180000,
+    performance: "above",
+    shortName: "North Wing"
   },
   {
     location: "South Tower",
-    systemPoint: "System Point",
-    balance: 156789.23,
-    worse: false,
-    better: false,
-    directionOfGood: true,
-    forecast: 155000,
-    cluster: "B"
+    balance: 156789,
+    target: 155000,
+    performance: "at_target",
+    shortName: "South Tower"
   }
-];
+].sort((a, b) => b.balance - a.balance);
 
 const getBarColor = (item: any) => {
-  if (item.worse) return "#DC2626"; // Red for worse performance
-  if (item.better) return "#16A34A"; // Green for better performance
-  return "#6B7280"; // Gray for neutral
+  if (item.performance === "above") return "#DC2626"; // Red for above target (concerning in collections)
+  if (item.performance === "below") return "#16A34A"; // Green for below target (good in collections)
+  return "#F59E0B"; // Amber for at target
+};
+
+const getPerformanceIcon = (performance: string) => {
+  switch (performance) {
+    case "above": return <AlertTriangle className="h-3 w-3 text-red-600" />;
+    case "below": return <TrendingDown className="h-3 w-3 text-green-600" />;
+    case "at_target": return <TrendingUp className="h-3 w-3 text-amber-600" />;
+    default: return null;
+  }
 };
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
+    const variance = data.balance - data.target;
+    const variancePercent = ((variance / data.target) * 100).toFixed(1);
+    
     return (
-      <div className="bg-white p-4 border rounded shadow-lg">
-        <p className="font-semibold text-gray-900">{label}</p>
-        <p className="text-sm text-gray-600">{data.systemPoint}</p>
-        <div className="mt-2 space-y-1">
-          <p className="text-sm">
-            <span className="font-medium">Current Balance:</span> ${data.balance.toLocaleString()}
+      <div className="bg-white p-3 border rounded shadow-lg">
+        <p className="font-semibold text-gray-900 mb-2">{data.location}</p>
+        <div className="space-y-1 text-sm">
+          <p>
+            <span className="font-medium">Current Balance:</span> <span className="text-blue-600">${data.balance.toLocaleString()}</span>
           </p>
-          <p className="text-sm">
-            <span className="font-medium">Forecast:</span> ${data.forecast.toLocaleString()}
+          <p>
+            <span className="font-medium">Target:</span> <span className="text-gray-600">${data.target.toLocaleString()}</span>
           </p>
-          <p className="text-sm">
-            <span className="font-medium">Cluster:</span> {data.cluster}
+          <p className={`flex items-center space-x-1 ${
+            variance > 0 ? 'text-red-600' : variance < 0 ? 'text-green-600' : 'text-amber-600'
+          }`}>
+            {getPerformanceIcon(data.performance)}
+            <span className="font-medium">
+              {variance > 0 ? '+' : ''}${variance.toLocaleString()} ({variancePercent}%)
+            </span>
           </p>
-          <div className="flex items-center space-x-2 mt-2">
-            {data.worse && (
-              <div className="flex items-center space-x-1 text-red-600">
-                <TrendingDown className="h-3 w-3" />
-                <span className="text-xs">Worse</span>
-              </div>
-            )}
-            {data.better && (
-              <div className="flex items-center space-x-1 text-green-600">
-                <TrendingUp className="h-3 w-3" />
-                <span className="text-xs">Better</span>
-              </div>
-            )}
-            {data.directionOfGood && (
-              <div className="flex items-center space-x-1 text-blue-600">
-                <Target className="h-3 w-3" />
-                <span className="text-xs">Direction of Good</span>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     );
@@ -145,8 +114,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function DischargeLocationsChart() {
-  // Debug: Log the data to ensure it's properly loaded
-  console.log('DischargeLocationsChart data:', dischargeLocationData);
+  const averageTarget = dischargeLocationData.reduce((sum, item) => sum + item.target, 0) / dischargeLocationData.length;
   
   return (
     <div className="space-y-4">
@@ -154,35 +122,38 @@ export function DischargeLocationsChart() {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={dischargeLocationData}
-            layout="horizontal"
             margin={{
               top: 20,
               right: 30,
-              left: 120,
-              bottom: 5,
+              left: 20,
+              bottom: 60,
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
             <XAxis 
-              type="number"
-              tick={{ fontSize: 11 }}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
-              axisLine={{ stroke: '#E2E8F0' }}
-              domain={[0, 'dataMax']}
+              dataKey="shortName"
+              tick={{ fontSize: 10 }}
+              angle={-45}
+              textAnchor="end"
+              height={60}
+              axisLine={{ stroke: '#D1D5DB' }}
             />
             <YAxis 
-              type="category"
-              dataKey="location"
-              tick={{ fontSize: 10 }}
-              width={110}
-              axisLine={{ stroke: '#E2E8F0' }}
+              tick={{ fontSize: 11 }}
+              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+              axisLine={{ stroke: '#D1D5DB' }}
             />
             <Tooltip content={<CustomTooltip />} />
+            <ReferenceLine 
+              y={averageTarget} 
+              stroke="#6B7280" 
+              strokeDasharray="5 5" 
+              label={{ value: "Average Target", fontSize: 10 }}
+            />
             <Bar 
               dataKey="balance" 
-              radius={[0, 2, 2, 0]}
-              minPointSize={5}
-              fill="#8884d8"
+              radius={[4, 4, 0, 0]}
+              fill="#3B82F6"
             >
               {dischargeLocationData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={getBarColor(entry)} />
@@ -192,55 +163,47 @@ export function DischargeLocationsChart() {
         </ResponsiveContainer>
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-4 justify-center text-sm">
+      {/* Performance Legend */}
+      <div className="flex flex-wrap gap-6 justify-center text-sm">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 rounded bg-red-600" />
-          <TrendingDown className="h-4 w-4 text-red-600" />
-          <span>Worse</span>
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <span>Above Target (Needs Attention)</span>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 rounded bg-green-600" />
-          <TrendingUp className="h-4 w-4 text-green-600" />
-          <span>Better</span>
+          <TrendingDown className="h-4 w-4 text-green-600" />
+          <span>Below Target (Good Performance)</span>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded bg-blue-600" />
-          <Target className="h-4 w-4 text-blue-600" />
-          <span>Direction of Good</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded bg-gray-600" />
-          <span>Forecast</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Users className="h-4 w-4 text-purple-600" />
-          <span>Cluster</span>
+          <div className="w-3 h-3 rounded bg-amber-500" />
+          <TrendingUp className="h-4 w-4 text-amber-600" />
+          <span>At Target</span>
         </div>
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-        <div className="bg-gray-50 p-3 rounded">
-          <p className="text-gray-600">Total Balance</p>
-          <p className="font-semibold text-blue-600">
+      {/* Performance Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        <div className="bg-blue-50 p-3 rounded">
+          <p className="text-blue-700 font-medium">Total Balance</p>
+          <p className="font-bold text-blue-900">
             ${dischargeLocationData.reduce((sum, item) => sum + item.balance, 0).toLocaleString()}
           </p>
         </div>
         <div className="bg-gray-50 p-3 rounded">
-          <p className="text-gray-600">Locations</p>
-          <p className="font-semibold">{dischargeLocationData.length}</p>
+          <p className="text-gray-700 font-medium">Locations</p>
+          <p className="font-bold text-gray-900">{dischargeLocationData.length}</p>
         </div>
         <div className="bg-red-50 p-3 rounded">
-          <p className="text-red-600">Worse Performing</p>
-          <p className="font-semibold text-red-600">
-            {dischargeLocationData.filter(item => item.worse).length}
+          <p className="text-red-700 font-medium">Above Target</p>
+          <p className="font-bold text-red-900">
+            {dischargeLocationData.filter(item => item.performance === "above").length}
           </p>
         </div>
         <div className="bg-green-50 p-3 rounded">
-          <p className="text-green-600">Better Performing</p>
-          <p className="font-semibold text-green-600">
-            {dischargeLocationData.filter(item => item.better).length}
+          <p className="text-green-700 font-medium">Below Target</p>
+          <p className="font-bold text-green-900">
+            {dischargeLocationData.filter(item => item.performance === "below").length}
           </p>
         </div>
       </div>
