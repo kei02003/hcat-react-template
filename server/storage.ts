@@ -929,99 +929,229 @@ export class MemStorage implements IStorage {
     // Sample insurer criteria (BCBS medical necessity guidelines)
     const bcbsCriteria: InsurerCriteria = {
       id: "ins-001",
-      payerName: "Blue Cross Blue Shield",
       payerId: "BCBS",
+      payerName: "Blue Cross Blue Shield",
       procedureCode: "CPT-29881",
       procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
-      requiresAuth: true,
-      medicalNecessityCriteria: [
-        "Mechanical symptoms (locking, catching, giving way)",
-        "Failed conservative treatment for 6+ weeks",
-        "MRI confirmation of meniscal tear",
-        "Functional limitation documented"
-      ],
-      timeFrameRequired: 72,
-      authValidityDays: 30,
-      denialReasons: [
-        "Insufficient conservative treatment",
-        "Lack of MRI documentation",
-        "Procedure not medically necessary"
-      ],
-      createdAt: new Date(),
+      criteriaType: "medical_necessity",
+      criteria: {
+        requiresAuth: true,
+        medicalNecessityCriteria: [
+          "Mechanical symptoms (locking, catching, giving way)",
+          "Failed conservative treatment for 6+ weeks",
+          "MRI confirmation of meniscal tear",
+          "Functional limitation documented"
+        ],
+        timeFrameRequired: 72,
+        authValidityDays: 30,
+        denialReasons: [
+          "Insufficient conservative treatment",
+          "Lack of MRI documentation",
+          "Procedure not medically necessary"
+        ]
+      },
+      effectiveDate: new Date("2024-01-01"),
+      expirationDate: null,
+      isActive: true,
       updatedAt: new Date()
     };
     
     const aetnaCriteria: InsurerCriteria = {
-      id: "ins-002", 
-      payerName: "Aetna",
+      id: "ins-002",
       payerId: "AETNA",
+      payerName: "Aetna",
       procedureCode: "CPT-64483",
       procedureName: "Injection, anesthetic agent; transforaminal epidural",
-      requiresAuth: true,
-      medicalNecessityCriteria: [
-        "Radicular pain correlating with imaging findings",
-        "Failed oral medications and physical therapy",
-        "No more than 3 injections per 6-month period",
-        "Documented functional impairment"
-      ],
-      timeFrameRequired: 48,
-      authValidityDays: 90,
-      denialReasons: [
-        "Exceeded injection frequency limits",
-        "Insufficient prior treatment documentation",
-        "Imaging does not correlate with symptoms"
-      ],
-      createdAt: new Date(),
+      criteriaType: "medical_necessity",
+      criteria: {
+        requiresAuth: true,
+        medicalNecessityCriteria: [
+          "Radicular pain correlating with imaging findings",
+          "Failed oral medications and physical therapy",
+          "No more than 3 injections per 6-month period",
+          "Documented functional impairment"
+        ],
+        timeFrameRequired: 48,
+        authValidityDays: 90,
+        denialReasons: [
+          "Exceeded injection frequency limits",
+          "Insufficient prior treatment documentation",
+          "Imaging does not correlate with symptoms"
+        ]
+      },
+      effectiveDate: new Date("2024-01-01"),
+      expirationDate: null,
+      isActive: true,
       updatedAt: new Date()
     };
 
     // Additional BCBS criteria for more procedures
     const bcbsKneeCriteria: InsurerCriteria = {
       id: "ins-003",
-      payerName: "Blue Cross Blue Shield", 
       payerId: "BCBS",
+      payerName: "Blue Cross Blue Shield",
       procedureCode: "CPT-27447",
       procedureName: "Arthroplasty, knee, condyle and plateau; medial compartment",
-      requiresAuth: true,
-      medicalNecessityCriteria: [
-        "Documented bone-on-bone osteoarthritis on imaging",
-        "Failed conservative treatment for minimum 12 months",
-        "Significant functional limitation affecting activities of daily living",
-        "BMI under 40 or documented medical clearance",
-        "Patient age appropriate for procedure longevity"
-      ],
-      timeFrameRequired: 72,
-      authValidityDays: 30,
-      denialReasons: [
-        "Conservative treatment period insufficient",
-        "BMI above acceptable limits without clearance", 
-        "Functional limitation not adequately documented"
-      ],
-      createdAt: new Date(),
+      criteriaType: "medical_necessity",
+      criteria: {
+        requiresAuth: true,
+        medicalNecessityCriteria: [
+          "Documented bone-on-bone osteoarthritis on imaging",
+          "Failed conservative treatment for minimum 12 months",
+          "Significant functional limitation affecting activities of daily living",
+          "BMI under 40 or documented medical clearance",
+          "Patient age appropriate for procedure longevity"
+        ],
+        timeFrameRequired: 72,
+        authValidityDays: 30,
+        denialReasons: [
+          "Conservative treatment period insufficient",
+          "BMI above acceptable limits without clearance",
+          "Functional limitation not adequately documented"
+        ]
+      },
+      effectiveDate: new Date("2024-01-01"),
+      expirationDate: null,
+      isActive: true,
       updatedAt: new Date()
     };
 
     const bcbsGeneralCriteria: InsurerCriteria = {
       id: "ins-004",
+      payerId: "BCBS",
       payerName: "Blue Cross Blue Shield",
-      payerId: "BCBS", 
       procedureCode: "CPT-43280",
       procedureName: "Laparoscopy, surgical, esophagogastroduodenoscopy",
-      requiresAuth: true,
-      medicalNecessityCriteria: [
-        "BMI ≥35 with documented comorbidities or BMI ≥40",
-        "Documented 6-month physician-supervised weight loss attempt", 
-        "Psychological evaluation completed",
-        "No contraindications to surgery documented"
-      ],
-      timeFrameRequired: 168, // 7 days
-      authValidityDays: 60,
-      denialReasons: [
-        "BMI criteria not met",
-        "Insufficient weight loss documentation",
-        "Missing psychological evaluation"
-      ],
-      createdAt: new Date(),
+      criteriaType: "medical_necessity",
+      criteria: {
+        requiresAuth: true,
+        medicalNecessityCriteria: [
+          "BMI ≥35 with documented comorbidities or BMI ≥40",
+          "Documented 6-month physician-supervised weight loss attempt",
+          "Psychological evaluation completed",
+          "No contraindications to surgery documented"
+        ],
+        timeFrameRequired: 168, // 7 days
+        authValidityDays: 60,
+        denialReasons: [
+          "BMI criteria not met",
+          "Insufficient weight loss documentation",
+          "Missing psychological evaluation"
+        ]
+      },
+      effectiveDate: new Date("2024-01-01"),
+      expirationDate: null,
+      isActive: true,
+      updatedAt: new Date()
+    };
+
+    // Additional insurer criteria for more diverse scenarios
+    const medicareCriteria: InsurerCriteria = {
+      id: "ins-005",
+      payerId: "MEDICARE",
+      payerName: "Medicare",
+      procedureCode: "CPT-93458",
+      procedureName: "Catheter placement in coronary artery for coronary angiography",
+      criteriaType: "medical_necessity",
+      criteria: {
+        requiresAuth: false,
+        medicalNecessityCriteria: [
+          "Documented chest pain with positive stress test",
+          "Previous MI or known CAD with worsening symptoms",
+          "High-risk features on non-invasive testing"
+        ],
+        timeFrameRequired: 24,
+        authValidityDays: 365,
+        denialReasons: [
+          "Routine screening without symptoms",
+          "Recent normal stress test <6 months"
+        ]
+      },
+      effectiveDate: new Date("2024-01-01"),
+      expirationDate: null,
+      isActive: true,
+      updatedAt: new Date()
+    };
+
+    const medicaidCriteria: InsurerCriteria = {
+      id: "ins-006",
+      payerId: "MEDICAID",
+      payerName: "Medicaid",
+      procedureCode: "CPT-70553",
+      procedureName: "MRI brain without and with contrast",
+      criteriaType: "medical_necessity",
+      criteria: {
+        requiresAuth: true,
+        medicalNecessityCriteria: [
+          "Neurological symptoms warranting investigation",
+          "Failed initial diagnostic workup",
+          "Clinical indication documented by neurologist"
+        ],
+        timeFrameRequired: 72,
+        authValidityDays: 30,
+        denialReasons: [
+          "Insufficient clinical documentation",
+          "Alternative imaging not attempted first",
+          "Non-urgent indication"
+        ]
+      },
+      effectiveDate: new Date("2024-01-01"),
+      expirationDate: null,
+      isActive: true,
+      updatedAt: new Date()
+    };
+
+    const uhcCriteria: InsurerCriteria = {
+      id: "ins-007",
+      payerId: "UHC",
+      payerName: "UnitedHealthcare",
+      procedureCode: "CPT-19307",
+      procedureName: "Mastectomy, modified radical",
+      criteriaType: "medical_necessity",
+      criteria: {
+        requiresAuth: true,
+        medicalNecessityCriteria: [
+          "Confirmed malignancy with pathology report",
+          "Multidisciplinary team recommendation",
+          "Staging studies completed"
+        ],
+        timeFrameRequired: 48,
+        authValidityDays: 60,
+        denialReasons: [
+          "Incomplete staging workup",
+          "Missing oncology consultation"
+        ]
+      },
+      effectiveDate: new Date("2024-01-01"),
+      expirationDate: null,
+      isActive: true,
+      updatedAt: new Date()
+    };
+
+    const cignaCriteria: InsurerCriteria = {
+      id: "ins-008",
+      payerId: "CIGNA",
+      payerName: "Cigna",
+      procedureCode: "CPT-47562",
+      procedureName: "Laparoscopy, surgical; cholecystectomy",
+      criteriaType: "medical_necessity",
+      criteria: {
+        requiresAuth: false,
+        medicalNecessityCriteria: [
+          "Symptomatic cholelithiasis",
+          "Conservative management failed",
+          "No contraindications to surgery"
+        ],
+        timeFrameRequired: 0,
+        authValidityDays: 90,
+        denialReasons: [
+          "Asymptomatic gallstones",
+          "High surgical risk without benefit"
+        ]
+      },
+      effectiveDate: new Date("2024-01-01"),
+      expirationDate: null,
+      isActive: true,
       updatedAt: new Date()
     };
 
@@ -1029,6 +1159,10 @@ export class MemStorage implements IStorage {
     this.insurerCriteria.set(aetnaCriteria.id, aetnaCriteria);
     this.insurerCriteria.set(bcbsKneeCriteria.id, bcbsKneeCriteria);
     this.insurerCriteria.set(bcbsGeneralCriteria.id, bcbsGeneralCriteria);
+    this.insurerCriteria.set(medicareCriteria.id, medicareCriteria);
+    this.insurerCriteria.set(medicaidCriteria.id, medicaidCriteria);
+    this.insurerCriteria.set(uhcCriteria.id, uhcCriteria);
+    this.insurerCriteria.set(cignaCriteria.id, cignaCriteria);
 
     // Sample procedure authorization requirements
     const procedures: ProcedureAuthRequirement[] = [
@@ -1098,6 +1232,70 @@ export class MemStorage implements IStorage {
         ],
         createdAt: new Date(),
         updatedAt: new Date()
+      },
+      {
+        id: "proc-005",
+        procedureCode: "CPT-93458",
+        procedureName: "Catheter placement in coronary artery for coronary angiography",
+        category: "Cardiology",
+        requiresAuth: false,
+        riskLevel: "Medium",
+        averageProcessingDays: 1,
+        approvalRate: 96.8,
+        commonDenialReasons: [
+          "Routine screening without symptoms",
+          "Recent normal stress test"
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "proc-006",
+        procedureCode: "CPT-70553",
+        procedureName: "MRI brain without and with contrast",
+        category: "Radiology",
+        requiresAuth: true,
+        riskLevel: "Low",
+        averageProcessingDays: 3,
+        approvalRate: 89.2,
+        commonDenialReasons: [
+          "Insufficient clinical documentation",
+          "Alternative imaging not attempted first"
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "proc-007",
+        procedureCode: "CPT-19307",
+        procedureName: "Mastectomy, modified radical",
+        category: "Oncology",
+        requiresAuth: true,
+        riskLevel: "High",
+        averageProcessingDays: 2,
+        approvalRate: 94.7,
+        commonDenialReasons: [
+          "Incomplete staging workup",
+          "Missing oncology consultation"
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "proc-008",
+        procedureCode: "CPT-47562",
+        procedureName: "Laparoscopy, surgical; cholecystectomy",
+        category: "General Surgery",
+        requiresAuth: false,
+        riskLevel: "Low",
+        averageProcessingDays: 0,
+        approvalRate: 98.1,
+        commonDenialReasons: [
+          "Asymptomatic gallstones",
+          "High surgical risk without benefit"
+        ],
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ];
 
@@ -1105,7 +1303,7 @@ export class MemStorage implements IStorage {
       this.procedureAuthRequirements.set(proc.id, proc);
     });
 
-    // Sample pre-authorization requests
+    // Sample pre-authorization requests - diverse scenarios for demo
     const preAuthRequests: PreAuthRequest[] = [
       {
         id: "pre-001",
@@ -1173,6 +1371,213 @@ export class MemStorage implements IStorage {
         clinicalJustification: "Severe osteoarthritis with bone-on-bone contact. Failed conservative treatment including injections, PT, and medications over 12 months. Significant functional limitation and pain affecting quality of life.",
         priorAuthNumber: null,
         estimatedValue: 45000.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-004",
+        patientId: "PAT-22333",
+        patientName: "Anderson, Jennifer L.",
+        memberID: "MEDICARE123456789",
+        insurerName: "Medicare",
+        procedureCode: "CPT-93458",
+        procedureName: "Catheter placement in coronary artery for coronary angiography",
+        scheduledDate: new Date("2025-01-20"),
+        requestDate: new Date("2025-01-09"),
+        status: "approved",
+        priority: "urgent",
+        daysUntilProcedure: 11,
+        authRequiredBy: new Date("2025-01-10"),
+        providerId: "DR-003",
+        providerName: "Dr. Michael Chen",
+        diagnosis: "I25.10 - Atherosclerotic heart disease of native coronary artery",
+        clinicalJustification: "Patient presents with unstable angina and positive stress test. High-risk features on EKG and elevated troponins. Urgent cardiac catheterization indicated for diagnosis and potential intervention.",
+        priorAuthNumber: "MEDICARE-2025-789456",
+        estimatedValue: 8900.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-005",
+        patientId: "PAT-33444",
+        patientName: "Rodriguez, Carmen S.",
+        memberID: "MEDICAID987654321",
+        insurerName: "Medicaid",
+        procedureCode: "CPT-70553",
+        procedureName: "MRI brain without and with contrast",
+        scheduledDate: new Date("2025-01-25"),
+        requestDate: new Date("2025-01-08"),
+        status: "requires_review",
+        priority: "routine",
+        daysUntilProcedure: 16,
+        authRequiredBy: new Date("2025-01-22"),
+        providerId: "DR-004",
+        providerName: "Dr. Lisa Thompson",
+        diagnosis: "G93.1 - Anoxic brain damage, not elsewhere classified",
+        clinicalJustification: "Patient with recent stroke presenting with new neurological deficits. CT scan inconclusive. MRI needed to evaluate extent of brain injury and guide treatment planning.",
+        priorAuthNumber: null,
+        estimatedValue: 3200.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-006",
+        patientId: "PAT-44555",
+        patientName: "Thompson, Michael R.",
+        memberID: "UHC456123789",
+        insurerName: "UnitedHealthcare",
+        procedureCode: "CPT-19307",
+        procedureName: "Mastectomy, modified radical",
+        scheduledDate: new Date("2025-02-05"),
+        requestDate: new Date("2025-01-08"),
+        status: "pending",
+        priority: "urgent",
+        daysUntilProcedure: 28,
+        authRequiredBy: new Date("2025-02-03"),
+        providerId: "DR-005",
+        providerName: "Dr. Patricia Williams",
+        diagnosis: "C50.911 - Malignant neoplasm of unspecified site of right female breast",
+        clinicalJustification: "Newly diagnosed invasive ductal carcinoma, grade 2. Multidisciplinary team recommends modified radical mastectomy. Patient completed staging studies and oncology consultation.",
+        priorAuthNumber: null,
+        estimatedValue: 32000.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-007",
+        patientId: "PAT-55666",
+        patientName: "Garcia, Pablo J.",
+        memberID: "CIGNA789012345",
+        insurerName: "Cigna",
+        procedureCode: "CPT-47562",
+        procedureName: "Laparoscopy, surgical; cholecystectomy",
+        scheduledDate: new Date("2025-01-14"),
+        requestDate: new Date("2025-01-09"),
+        status: "approved",
+        priority: "routine",
+        daysUntilProcedure: 5,
+        authRequiredBy: new Date("2025-01-11"),
+        providerId: "DR-006",
+        providerName: "Dr. Robert Kumar",
+        diagnosis: "K80.20 - Calculus of gallbladder without obstruction",
+        clinicalJustification: "Symptomatic cholelithiasis with recurrent biliary colic. Conservative management with diet modification failed. Patient experiences frequent pain episodes affecting daily activities.",
+        priorAuthNumber: "CIGNA-PA-20250109",
+        estimatedValue: 15600.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-008",
+        patientId: "PAT-66777",
+        patientName: "Brown, Elizabeth M.",
+        memberID: "BCBS998877665",
+        insurerName: "Blue Cross Blue Shield",
+        procedureCode: "CPT-43280",
+        procedureName: "Laparoscopy, surgical, esophagogastroduodenoscopy",
+        scheduledDate: new Date("2025-02-15"),
+        requestDate: new Date("2025-01-07"),
+        status: "denied",
+        priority: "routine",
+        daysUntilProcedure: 39,
+        authRequiredBy: new Date("2025-02-08"),
+        providerId: "DR-007",
+        providerName: "Dr. Amanda Davis",
+        diagnosis: "E66.01 - Morbid obesity due to excess calories",
+        clinicalJustification: "Patient with BMI 42, hypertension, and diabetes. Documented 4-month physician-supervised weight loss program. Psychology evaluation pending.",
+        priorAuthNumber: null,
+        estimatedValue: 28500.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-009",
+        patientId: "PAT-77888",
+        patientName: "Lee, Christopher H.",
+        memberID: "AETNA321654987",
+        insurerName: "Aetna",
+        procedureCode: "CPT-64483",
+        procedureName: "Injection, anesthetic agent; transforaminal epidural",
+        scheduledDate: new Date("2025-01-13"),
+        requestDate: new Date("2025-01-10"),
+        status: "pending",
+        priority: "routine",
+        daysUntilProcedure: 3,
+        authRequiredBy: new Date("2025-01-11"),
+        providerId: "DR-002",
+        providerName: "Dr. James Park",
+        diagnosis: "M54.12 - Radiculopathy, cervical region",
+        clinicalJustification: "C6-C7 radiculopathy with arm pain and weakness. Failed conservative treatment with medications and PT for 8 weeks. MRI shows disc herniation with nerve root compression.",
+        priorAuthNumber: null,
+        estimatedValue: 2950.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-010",
+        patientId: "PAT-88999",
+        patientName: "Wilson, Margaret A.",
+        memberID: "MEDICARE987123654",
+        insurerName: "Medicare",
+        procedureCode: "CPT-93458",
+        procedureName: "Catheter placement in coronary artery for coronary angiography",
+        scheduledDate: new Date("2025-01-30"),
+        requestDate: new Date("2025-01-09"),
+        status: "approved",
+        priority: "routine",
+        daysUntilProcedure: 21,
+        authRequiredBy: new Date("2025-01-29"),
+        providerId: "DR-003",
+        providerName: "Dr. Michael Chen",
+        diagnosis: "Z51.11 - Encounter for antineoplastic chemotherapy",
+        clinicalJustification: "Pre-operative cardiac clearance for patient scheduled for major oncologic surgery. Baseline cardiac function assessment needed due to history of hypertension and planned chemotherapy.",
+        priorAuthNumber: "MEDICARE-2025-654321",
+        estimatedValue: 7800.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-011",
+        patientId: "PAT-99000",
+        patientName: "Martinez, Diego F.",
+        memberID: "UHC147258369",
+        insurerName: "UnitedHealthcare",
+        procedureCode: "CPT-19307",
+        procedureName: "Mastectomy, modified radical",
+        scheduledDate: new Date("2025-01-16"),
+        requestDate: new Date("2025-01-09"),
+        status: "requires_review",
+        priority: "urgent",
+        daysUntilProcedure: 7,
+        authRequiredBy: new Date("2025-01-14"),
+        providerId: "DR-005",
+        providerName: "Dr. Patricia Williams",
+        diagnosis: "C50.912 - Malignant neoplasm of unspecified site of left female breast",
+        clinicalJustification: "Aggressive triple-negative breast cancer with rapid progression. Multidisciplinary team recommends urgent surgical intervention before neoadjuvant chemotherapy.",
+        priorAuthNumber: null,
+        estimatedValue: 29800.00,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "pre-012",
+        patientId: "PAT-00111",
+        patientName: "Taylor, Susan R.",
+        memberID: "MEDICAID741852963",
+        insurerName: "Medicaid",
+        procedureCode: "CPT-70553",
+        procedureName: "MRI brain without and with contrast",
+        scheduledDate: new Date("2025-03-01"),
+        requestDate: new Date("2025-01-08"),
+        status: "pending",
+        priority: "routine",
+        daysUntilProcedure: 52,
+        authRequiredBy: new Date("2025-02-26"),
+        providerId: "DR-004",
+        providerName: "Dr. Lisa Thompson",
+        diagnosis: "G44.009 - Cluster headache syndrome, unspecified, not intractable",
+        clinicalJustification: "Patient with refractory cluster headaches not responding to standard therapy. Neurologist requests MRI to rule out secondary causes and evaluate for potential surgical interventions.",
+        priorAuthNumber: null,
+        estimatedValue: 3100.00,
         createdAt: new Date(),
         updatedAt: new Date()
       }
