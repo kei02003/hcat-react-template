@@ -148,18 +148,18 @@ export function PreAuthorizationDashboard() {
       req.procedureName.toLowerCase().includes(searchTerm.toLowerCase());
     
     // Procedure filter
-    const matchesProcedure = !filterProcedure || 
+    const matchesProcedure = !filterProcedure || filterProcedure === "all" || 
       req.procedureCode.includes(filterProcedure) || 
       req.procedureName.toLowerCase().includes(filterProcedure.toLowerCase());
     
     // Payer filter
-    const matchesPayer = !filterPayer || req.insurerName === filterPayer;
+    const matchesPayer = !filterPayer || filterPayer === "all" || req.insurerName === filterPayer;
     
     // Status filter
-    const matchesStatus = !filterStatus || req.status === filterStatus;
+    const matchesStatus = !filterStatus || filterStatus === "all" || req.status === filterStatus;
     
     // Days until procedure filter
-    const matchesDaysUntil = !filterDaysUntil || (() => {
+    const matchesDaysUntil = !filterDaysUntil || filterDaysUntil === "all" || (() => {
       const days = req.daysUntilProcedure;
       switch (filterDaysUntil) {
         case "urgent": return days <= 3;
@@ -282,7 +282,7 @@ export function PreAuthorizationDashboard() {
                       <SelectValue placeholder="All procedures" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All procedures</SelectItem>
+                      <SelectItem value="all">All procedures</SelectItem>
                       {Array.from(new Set(preAuthRequests.map(r => r.procedureCode))).map(code => {
                         const request = preAuthRequests.find(r => r.procedureCode === code);
                         return (
@@ -302,7 +302,7 @@ export function PreAuthorizationDashboard() {
                       <SelectValue placeholder="All payers" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All payers</SelectItem>
+                      <SelectItem value="all">All payers</SelectItem>
                       {Array.from(new Set(preAuthRequests.map(r => r.insurerName))).map(payer => (
                         <SelectItem key={payer} value={payer}>{payer}</SelectItem>
                       ))}
@@ -317,7 +317,7 @@ export function PreAuthorizationDashboard() {
                       <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All statuses</SelectItem>
+                      <SelectItem value="all">All statuses</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="approved">Approved</SelectItem>
                       <SelectItem value="denied">Denied</SelectItem>
@@ -333,7 +333,7 @@ export function PreAuthorizationDashboard() {
                       <SelectValue placeholder="All timeframes" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All timeframes</SelectItem>
+                      <SelectItem value="all">All timeframes</SelectItem>
                       <SelectItem value="urgent">≤3 days (Urgent)</SelectItem>
                       <SelectItem value="week">4-7 days</SelectItem>
                       <SelectItem value="month">8-30 days</SelectItem>
@@ -344,21 +344,21 @@ export function PreAuthorizationDashboard() {
               </div>
               
               {/* Filter Summary */}
-              {(filterProcedure || filterPayer || filterStatus || filterDaysUntil) && (
+              {(filterProcedure && filterProcedure !== "all" || filterPayer && filterPayer !== "all" || filterStatus && filterStatus !== "all" || filterDaysUntil && filterDaysUntil !== "all") && (
                 <div className="flex items-center space-x-2 mt-3 text-sm text-gray-600">
                   <span>Active filters:</span>
-                  {filterProcedure && <Badge variant="outline" className="text-xs">Procedure: {filterProcedure}</Badge>}
-                  {filterPayer && <Badge variant="outline" className="text-xs">Payer: {filterPayer}</Badge>}
-                  {filterStatus && <Badge variant="outline" className="text-xs">Status: {filterStatus}</Badge>}
-                  {filterDaysUntil && <Badge variant="outline" className="text-xs">Days: {filterDaysUntil}</Badge>}
+                  {filterProcedure && filterProcedure !== "all" && <Badge variant="outline" className="text-xs">Procedure: {filterProcedure}</Badge>}
+                  {filterPayer && filterPayer !== "all" && <Badge variant="outline" className="text-xs">Payer: {filterPayer}</Badge>}
+                  {filterStatus && filterStatus !== "all" && <Badge variant="outline" className="text-xs">Status: {filterStatus}</Badge>}
+                  {filterDaysUntil && filterDaysUntil !== "all" && <Badge variant="outline" className="text-xs">Days: {filterDaysUntil}</Badge>}
                   <Button 
                     variant="ghost" 
                     size="sm" 
                     onClick={() => {
-                      setFilterProcedure("");
-                      setFilterPayer("");
-                      setFilterStatus("");
-                      setFilterDaysUntil("");
+                      setFilterProcedure("all");
+                      setFilterPayer("all");
+                      setFilterStatus("all");
+                      setFilterDaysUntil("all");
                     }}
                     className="text-xs"
                     data-testid="button-clear-filters"
