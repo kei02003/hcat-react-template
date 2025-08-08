@@ -75,11 +75,18 @@ interface ProcedureAuthRequirement {
   procedureCode: string;
   procedureName: string;
   category: string;
-  requiresPreAuth: boolean;
-  riskLevel: string;
+  requiresAuth: boolean;
+  payerSpecific?: any;
+  clinicalCriteria?: any;
+  documentationRequired?: string[];
+  leadTimeRequired: number;
+  isActive: boolean;
   averageProcessingDays: number;
   approvalRate: number;
   commonDenialReasons: string[];
+  riskLevel?: string; // Optional field for display
+  updatedAt: string;
+  createdAt?: string;
 }
 
 export function PreAuthorizationDashboard() {
@@ -885,7 +892,7 @@ export function PreAuthorizationDashboard() {
                       <div>
                         <p className="text-sm font-medium text-orange-700">Require Pre-Auth</p>
                         <p className="text-2xl font-bold text-orange-800">
-                          {procedureRequirements.filter(p => p.requiresPreAuth).length}
+                          {procedureRequirements.filter(p => p.requiresAuth).length}
                         </p>
                       </div>
                       <AlertCircle className="h-8 w-8 text-orange-500" />
@@ -895,9 +902,9 @@ export function PreAuthorizationDashboard() {
                   <div className="bg-red-50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-red-700">High Risk</p>
+                        <p className="text-sm font-medium text-red-700">Authorization Required</p>
                         <p className="text-2xl font-bold text-red-800">
-                          {procedureRequirements.filter(p => p.riskLevel === "High").length}
+                          {procedureRequirements.filter(p => p.requiresAuth).length}
                         </p>
                       </div>
                       <AlertCircle className="h-8 w-8 text-red-500" />
@@ -932,8 +939,8 @@ export function PreAuthorizationDashboard() {
                         proc.category === selectedCategoryFilter;
                       
                       const matchesAuthFilter = selectedPayerFilter === "" || selectedPayerFilter === "all" || 
-                        (selectedPayerFilter === "required" && proc.requiresPreAuth) ||
-                        (selectedPayerFilter === "not-required" && !proc.requiresPreAuth) ||
+                        (selectedPayerFilter === "required" && proc.requiresAuth) ||
+                        (selectedPayerFilter === "not-required" && !proc.requiresAuth) ||
                         (selectedPayerFilter === "high-risk" && proc.riskLevel === "High") ||
                         (selectedPayerFilter === "medium-risk" && proc.riskLevel === "Medium") ||
                         (selectedPayerFilter === "low-risk" && proc.riskLevel === "Low");
@@ -952,16 +959,18 @@ export function PreAuthorizationDashboard() {
                               <div className="flex items-center space-x-3 mb-2">
                                 <h3 className="font-semibold text-gray-900 text-lg">{proc.procedureCode}</h3>
                                 <Badge className="mt-1" variant="outline">{proc.category}</Badge>
-                                <Badge 
-                                  className={
-                                    proc.riskLevel === "High" ? "bg-red-100 text-red-800" :
-                                    proc.riskLevel === "Medium" ? "bg-yellow-100 text-yellow-800" :
-                                    "bg-green-100 text-green-800"
-                                  }
-                                >
-                                  {proc.riskLevel} Risk
-                                </Badge>
-                                {proc.requiresPreAuth && (
+                                {proc.riskLevel && (
+                                  <Badge 
+                                    className={
+                                      proc.riskLevel === "High" ? "bg-red-100 text-red-800" :
+                                      proc.riskLevel === "Medium" ? "bg-yellow-100 text-yellow-800" :
+                                      "bg-green-100 text-green-800"
+                                    }
+                                  >
+                                    {proc.riskLevel} Risk
+                                  </Badge>
+                                )}
+                                {proc.requiresAuth && (
                                   <Badge className="bg-orange-100 text-orange-800">
                                     Pre-Auth Required
                                   </Badge>
@@ -981,11 +990,11 @@ export function PreAuthorizationDashboard() {
                             <div className="bg-blue-50 p-3 rounded">
                               <p className="font-medium text-blue-700 mb-1">Authorization Status</p>
                               <p className="text-blue-800">
-                                {proc.requiresPreAuth ? "Required" : "Not Required"}
+                                {proc.requiresAuth ? "Required" : "Not Required"}
                               </p>
-                              {proc.requiresPreAuth && (
+                              {proc.requiresAuth && (
                                 <p className="text-xs text-blue-600 mt-1">
-                                  Submit {proc.averageProcessingDays} days before procedure
+                                  Submit {proc.leadTimeRequired || proc.averageProcessingDays} days before procedure
                                 </p>
                               )}
                             </div>
