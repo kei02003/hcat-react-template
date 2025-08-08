@@ -1,18 +1,16 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { AlertCircle, CheckCircle, Clock, Search, Plus, FileText, Calendar, User, Building, Sparkles, Flag, FormInput, CheckSquare, Square, Loader2, Send, Wand2 } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, Search, FileText, Building, Sparkles, Flag, FormInput, CheckSquare, Square, Loader2, Send, Wand2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { FormPrepopulationDemo } from "./form-prepopulation-demo";
-import type { PreAuthRequest as BackendPreAuthRequest, InsurerCriteria as BackendInsurerCriteria, ProcedureAuthRequirement as BackendProcedureAuthRequirement } from "@shared/pre-authorization-schema";
 
 // Frontend interface that matches backend data structure
 interface PreAuthRequest {
@@ -35,19 +33,12 @@ interface PreAuthRequest {
   department: string;
   providerId: string;
   providerName: string;
-  memberID?: string; // Keep for backwards compatibility if needed
-  requestDate?: string; // Keep for backwards compatibility if needed
-  authRequiredBy?: string; // Keep for backwards compatibility if needed
-  diagnosis?: string; // Keep for backwards compatibility if needed
-  clinicalJustification?: string; // Keep for backwards compatibility if needed
-  priorAuthNumber?: string | null; // Keep for backwards compatibility if needed
 }
 
 interface InsurerCriteria {
   id: string;
   payerId: string;
   payerName: string;
-  payer: string; // Keep for compatibility
   procedureCode: string;
   procedureName: string;
   criteriaType: string;
@@ -62,12 +53,6 @@ interface InsurerCriteria {
   expirationDate?: string | null;
   isActive: boolean;
   updatedAt: string;
-  // Flattened properties for compatibility
-  requiresAuth?: boolean;
-  medicalNecessityCriteria?: string[];
-  timeFrameRequired?: number;
-  authValidityDays?: number;
-  denialReasons?: string[];
 }
 
 interface ProcedureAuthRequirement {
@@ -92,7 +77,6 @@ interface ProcedureAuthRequirement {
 export function PreAuthorizationDashboard() {
   const [selectedTab, setSelectedTab] = useState("requests");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedProcedure, setSelectedProcedure] = useState("");
   
   // Bulk operations state
   const [selectedRequestIds, setSelectedRequestIds] = useState<string[]>([]);
@@ -152,7 +136,7 @@ export function PreAuthorizationDashboard() {
 
   const getMatchingCriteria = (procedureCode: string, payerName: string) => {
     const criteria = insurerCriteria.find(c => 
-      c.procedureCode === procedureCode && (c.payer === payerName || c.payerName === payerName)
+      c.procedureCode === procedureCode && c.payerName === payerName
     );
     
     if (criteria && criteria.criteria) {
@@ -160,9 +144,6 @@ export function PreAuthorizationDashboard() {
       const nestedCriteria = criteria.criteria;
       return {
         ...criteria,
-        payerName: criteria.payerName || criteria.payer,
-        procedureCode: criteria.procedureCode,
-        procedureName: criteria.procedureName,
         requiresAuth: nestedCriteria.requiresAuth,
         medicalNecessityCriteria: nestedCriteria.medicalNecessityCriteria || [],
         timeFrameRequired: nestedCriteria.timeFrameRequired || 0,
