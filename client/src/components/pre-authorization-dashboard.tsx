@@ -707,6 +707,7 @@ export function PreAuthorizationDashboard() {
                             </div>
                           )}
                         </div>
+                          </div>
                         
                         <div className="ml-4 text-right">
                           <p className="text-sm text-gray-600">Estimated Cost</p>
