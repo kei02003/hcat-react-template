@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { AlertCircle, CheckCircle, Clock, Search, FileText, Building, Sparkles, Flag, FormInput, CheckSquare, Square, Loader2, Send, Wand2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { FormPrepopulationDemo } from "./form-prepopulation-demo";
+import { PreAuthFormModal } from "./pre-auth-form-modal";
 
 // Frontend interface that matches backend data structure
 interface PreAuthRequest {
@@ -28,8 +29,10 @@ interface PreAuthRequest {
   responseDate?: string | null;
   daysToComplete?: number | null;
   authorizationNumber?: string | null;
+  priorAuthNumber?: string | null;
   estimatedCost: string;
   medicalNecessity?: string;
+  diagnosis?: string;
   department: string;
   providerId: string;
   providerName: string;
@@ -84,6 +87,10 @@ export function PreAuthorizationDashboard() {
   const [isBulkSubmitting, setIsBulkSubmitting] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [bulkOperationResults, setBulkOperationResults] = useState<{successful: string[], failed: string[]}>({successful: [], failed: []});
+  
+  // Modal state for workflow demo
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false);
+  const [selectedRequestForModal, setSelectedRequestForModal] = useState<PreAuthRequest | null>(null);
 
   // Helper function to calculate days until procedure
   const calculateDaysUntilProcedure = (scheduledDate: string): number => {
@@ -781,8 +788,8 @@ export function PreAuthorizationDashboard() {
                         <Button
                           size="sm"
                           onClick={() => {
-                            // Handle auto-populate form
-                            console.log('Auto-populating form for request:', request.id);
+                            setSelectedRequestForModal(request);
+                            setShowWorkflowModal(true);
                           }}
                           className="bg-purple-600 hover:bg-purple-700 text-white"
                           data-testid={`button-auto-populate-${request.id}`}
@@ -1004,31 +1011,31 @@ export function PreAuthorizationDashboard() {
                                 {relatedCriteria.map((criteria, idx) => (
                                   <div key={idx} className="border border-blue-200 rounded p-3 bg-blue-50">
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="font-medium text-blue-800">{criteria.payer}</span>
+                                      <span className="font-medium text-blue-800">{criteria.payerName}</span>
                                       <div className="flex space-x-2">
-                                        {criteria.requiresAuth && (
+                                        {criteria.criteria.requiresAuth && (
                                           <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
                                             {'Medical Necessity'}
                                           </Badge>
                                         )}
                                         <Badge className="bg-blue-100 text-blue-800 text-xs">
-                                          {criteria.timeFrameRequired || 3} days required
+                                          {criteria.criteria.timeFrameRequired || 3} days required
                                         </Badge>
                                       </div>
                                     </div>
-                                    {criteria.medicalNecessityCriteria && criteria.medicalNecessityCriteria.length > 0 && (
+                                    {criteria.criteria.medicalNecessityCriteria && criteria.criteria.medicalNecessityCriteria.length > 0 && (
                                       <div>
                                         <p className="text-xs font-medium text-blue-700 mb-1">Key Requirements:</p>
                                         <ul className="text-xs text-blue-700 space-y-1">
-                                          {criteria.medicalNecessityCriteria.slice(0, 2).map((req, reqIdx) => (
+                                          {criteria.criteria.medicalNecessityCriteria.slice(0, 2).map((req: string, reqIdx: number) => (
                                             <li key={reqIdx} className="flex items-start">
                                               <span className="text-blue-500 mr-1">•</span>
                                               <span>{req}</span>
                                             </li>
                                           ))}
-                                          {criteria.medicalNecessityCriteria.length > 2 && (
+                                          {criteria.criteria.medicalNecessityCriteria.length > 2 && (
                                             <li className="text-blue-600 italic text-xs">
-                                              +{criteria.medicalNecessityCriteria.length - 2} more requirements
+                                              +{criteria.criteria.medicalNecessityCriteria.length - 2} more requirements
                                             </li>
                                           )}
                                         </ul>
@@ -1076,8 +1083,8 @@ export function PreAuthorizationDashboard() {
                       proc.category === selectedCategoryFilter;
                     
                     const matchesAuthFilter = selectedPayerFilter === "" || selectedPayerFilter === "all" || 
-                      (selectedPayerFilter === "required" && proc.requiresPreAuth) ||
-                      (selectedPayerFilter === "not-required" && !proc.requiresPreAuth) ||
+                      (selectedPayerFilter === "required" && proc.requiresAuth) ||
+                      (selectedPayerFilter === "not-required" && !proc.requiresAuth) ||
                       (selectedPayerFilter === "high-risk" && proc.riskLevel === "High") ||
                       (selectedPayerFilter === "medium-risk" && proc.riskLevel === "Medium") ||
                       (selectedPayerFilter === "low-risk" && proc.riskLevel === "Low");
@@ -1268,6 +1275,87 @@ export function PreAuthorizationDashboard() {
           <FormPrepopulationDemo />
         </TabsContent>
       </Tabs>
+
+      {/* Workflow Demo Modal */}
+      {selectedRequestForModal && (
+        <PreAuthFormModal
+          isOpen={showWorkflowModal}
+          onClose={() => {
+            setShowWorkflowModal(false);
+            setSelectedRequestForModal(null);
+          }}
+          request={selectedRequestForModal}
+          insurerCriteria={getMatchingCriteria(selectedRequestForModal.procedureCode, selectedRequestForModal.payer)}
+          patientData={getSamplePatientData(selectedRequestForModal.patientId)}
+        />
+      )}
     </div>
   );
+
+  // Helper function to get sample patient data for demo
+  function getSamplePatientData(patientId: string) {
+    // Sample patient data for demonstration
+    const samplePatients = {
+      "PAT-001": {
+        patientId: "PAT-001",
+        firstName: "Maria",
+        lastName: "Rodriguez", 
+        dateOfBirth: "1978-03-15",
+        memberID: "BCB123456789",
+        groupNumber: "GRP001234",
+        primaryInsurance: "Blue Cross Blue Shield",
+        address: "123 Main St, Las Vegas, NV 89101",
+        phone: "(555) 123-4567",
+        primaryCareProvider: "Dr. Sarah Johnson",
+        referringProvider: "Dr. Michael Chen",
+        diagnosisCode: "M17.11",
+        diagnosisDescription: "Unilateral primary osteoarthritis, right knee",
+        procedureCode: "27447",
+        procedureDescription: "Total knee replacement, right knee",
+        scheduledDate: "2025-02-15",
+        urgency: "routine" as const,
+        clinicalHistory: "Progressive knee pain and stiffness over 3 years, conservative treatment failed",
+        priorTreatments: "Physical therapy (6 months), NSAIDs, cortisone injections (3)",
+        currentMedications: "Ibuprofen 600mg TID, Glucosamine 1500mg daily",
+        allergies: "Penicillin (rash)",
+        vitalSigns: {
+          bloodPressure: "128/84",
+          heartRate: "72",
+          temperature: "98.6°F",
+          weight: "165 lbs"
+        }
+      },
+      "PAT-002": {
+        patientId: "PAT-002",
+        firstName: "James",
+        lastName: "Wilson",
+        dateOfBirth: "1965-11-22",
+        memberID: "UHC987654321", 
+        groupNumber: "GRP005678",
+        primaryInsurance: "United Healthcare",
+        address: "456 Oak Ave, Las Vegas, NV 89102",
+        phone: "(555) 987-6543",
+        primaryCareProvider: "Dr. Lisa Thompson",
+        referringProvider: "Dr. Robert Kumar",
+        diagnosisCode: "I25.10",
+        diagnosisDescription: "Atherosclerotic heart disease of native coronary artery",
+        procedureCode: "92928",
+        procedureDescription: "Percutaneous transcatheter placement of intracoronary stent(s)",
+        scheduledDate: "2025-01-20",
+        urgency: "urgent" as const,
+        clinicalHistory: "Recent onset chest pain, positive stress test, 70% LAD stenosis on catheterization",
+        priorTreatments: "Medical management with beta-blockers, statins, antiplatelet therapy",
+        currentMedications: "Metoprolol 50mg BID, Atorvastatin 40mg daily, Clopidogrel 75mg daily",
+        allergies: "Shellfish (anaphylaxis)",
+        vitalSigns: {
+          bloodPressure: "142/92",
+          heartRate: "68",
+          temperature: "98.4°F",
+          weight: "185 lbs"
+        }
+      }
+    };
+
+    return samplePatients[patientId as keyof typeof samplePatients] || samplePatients["PAT-001"];
+  }
 }
