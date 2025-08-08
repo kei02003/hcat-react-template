@@ -140,7 +140,7 @@ export function DischargeLocationsChart() {
             />
             <YAxis 
               tick={{ fontSize: 11 }}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+              tickFormatter={(value) => `$${(value / 1000000).toFixed(1)}M`}
               axisLine={{ stroke: '#D1D5DB' }}
             />
             <Tooltip content={<CustomTooltip />} />
