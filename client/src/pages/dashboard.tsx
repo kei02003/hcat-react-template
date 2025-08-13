@@ -61,11 +61,33 @@ export default function Dashboard() {
           </div>
           
           {/* User Controls */}
-          <div className="flex items-center space-x-4">
-            {/* Persona Switcher */}
-            <PersonaSwitcher />
+          <div className="flex items-center space-x-6">
+            {/* Globe Icon */}
+            <svg className="h-5 w-5 text-white/80 hover:text-white cursor-pointer" data-testid="globe-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
             
-            <HelpCircle className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer" />
+            {/* Help Icon */}
+            <HelpCircle className="h-5 w-5 text-white/80 hover:text-white cursor-pointer" data-testid="help-icon" />
+            
+            {/* Pipe Separator */}
+            <div className="h-6 w-px bg-white/30"></div>
+            
+            {/* User Name with Dropdown */}
+            <div className="flex items-center space-x-2 cursor-pointer hover:text-white/90" data-testid="user-dropdown">
+              <span className="text-white font-medium">Emily Tew</span>
+              <svg className="h-4 w-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            
+            {/* DEMO Dropdown */}
+            <div className="flex items-center space-x-2 cursor-pointer hover:text-white/90" data-testid="demo-dropdown">
+              <span className="text-white font-medium">DEMO</span>
+              <svg className="h-4 w-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
         </div>
         
