@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { HelpCircle, ChevronDown, Home, FileText } from "lucide-react";
 
 interface CustomHealthcareNavbarProps {
@@ -15,16 +20,16 @@ interface CustomHealthcareNavbarProps {
   onHelpClick?: () => void;
 }
 
-export function CustomHealthcareNavbar({ 
+export function CustomHealthcareNavbar({
   appIcon,
-  brandIcon, 
+  brandIcon,
   cobrandIcon,
   homeUri = "/",
   userName = "Christine K.",
   userSubtext = "Millrock Hospital",
   onHomeClick,
   onReportsClick,
-  onHelpClick
+  onHelpClick,
 }: CustomHealthcareNavbarProps) {
   const [activeLink, setActiveLink] = useState("home");
 
@@ -35,25 +40,13 @@ export function CustomHealthcareNavbar({
         {/* Brand Icons */}
         <div className="flex items-center space-x-3">
           {brandIcon && (
-            <img 
-              src={brandIcon} 
-              alt="Brand" 
-              className="h-8 w-auto"
-            />
+            <img src={brandIcon} alt="Brand" className="h-8 w-auto" />
           )}
           {appIcon && (
-            <img 
-              src={appIcon} 
-              alt="App Logo" 
-              className="h-8 w-auto"
-            />
+            <img src={appIcon} alt="App Logo" className="h-8 w-auto" />
           )}
           {cobrandIcon && (
-            <img 
-              src={cobrandIcon} 
-              alt="Cobrand" 
-              className="h-8 w-auto"
-            />
+            <img src={cobrandIcon} alt="Cobrand" className="h-8 w-auto" />
           )}
         </div>
 
@@ -71,9 +64,9 @@ export function CustomHealthcareNavbar({
             }}
           >
             <Home className="h-4 w-4 mr-2" />
-            Home
+            Summary
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -86,7 +79,7 @@ export function CustomHealthcareNavbar({
             }}
           >
             <FileText className="h-4 w-4 mr-2" />
-            Reports
+            AR Management
           </Button>
         </div>
       </div>
@@ -110,7 +103,7 @@ export function CustomHealthcareNavbar({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="ghost" 
+              variant="ghost"
               size="sm"
               className="text-white hover:bg-white/10 flex items-center space-x-2"
             >

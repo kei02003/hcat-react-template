@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,7 +11,8 @@ import {
   Avatar,
   Chip,
   Divider,
-} from '@mui/material';
+} from "@mui/material";
+import { useLocation } from "wouter";
 import {
   AccountCircle,
   Settings,
@@ -19,7 +20,8 @@ import {
   Dashboard,
   LocalHospital,
   Assessment,
-} from '@mui/icons-material';
+  Person,
+} from "@mui/icons-material";
 
 interface HealthcareNavbarProps {
   user?: {
@@ -33,6 +35,7 @@ interface HealthcareNavbarProps {
 
 export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [, setLocation] = useLocation();
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -40,6 +43,11 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleProfileClick = () => {
+    handleClose();
+    setLocation('/profile');
   };
 
   const handleLogout = () => {
@@ -51,40 +59,44 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
     <AppBar position="fixed" elevation={2}>
       <Toolbar>
         <LocalHospital sx={{ mr: 2 }} />
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
-          Healthcare Revenue Cycle
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, fontWeight: 600 }}
+        >
+          Revenue Cycle
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Button
             color="inherit"
             startIcon={<Dashboard />}
-            sx={{ textTransform: 'none' }}
+            sx={{ textTransform: "none" }}
           >
             Dashboard
           </Button>
-          
+
           <Button
             color="inherit"
             startIcon={<Assessment />}
-            sx={{ textTransform: 'none' }}
+            sx={{ textTransform: "none" }}
           >
             Analytics
           </Button>
 
           {user && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Chip
                 label={user.role}
                 size="small"
                 variant="outlined"
                 sx={{
-                  color: 'white',
-                  borderColor: 'rgba(255,255,255,0.3)',
-                  fontSize: '0.75rem',
+                  color: "white",
+                  borderColor: "rgba(255,255,255,0.3)",
+                  fontSize: "0.75rem",
                 }}
               />
-              
+
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -99,18 +111,18 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
                   <AccountCircle />
                 )}
               </IconButton>
-              
+
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
+                  vertical: "bottom",
+                  horizontal: "right",
                 }}
                 keepMounted
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
@@ -129,14 +141,19 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
                     {user.email}
                   </Typography>
                 </Box>
-                
+
                 <Divider />
-                
+
+                <MenuItem onClick={handleProfileClick}>
+                  <Person sx={{ mr: 2 }} />
+                  Profile
+                </MenuItem>
+
                 <MenuItem onClick={handleClose}>
                   <Settings sx={{ mr: 2 }} />
                   Settings
                 </MenuItem>
-                
+
                 <MenuItem onClick={handleLogout}>
                   <ExitToApp sx={{ mr: 2 }} />
                   Logout
