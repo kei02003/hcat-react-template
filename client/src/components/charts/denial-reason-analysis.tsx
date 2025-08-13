@@ -198,77 +198,48 @@ export function DenialReasonAnalysis() {
 export function PayerDenialPatterns() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar Chart */}
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={payerDenialPatterns}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 60,
-              }}
+      {/* Bar Chart */}
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={payerDenialPatterns}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 60,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+            <XAxis 
+              dataKey="payer"
+              tick={{ fontSize: 10 }}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+              axisLine={{ stroke: '#E2E8F0' }}
+            />
+            <YAxis 
+              tick={{ fontSize: 12 }}
+              axisLine={{ stroke: '#E2E8F0' }}
+            />
+            <Tooltip 
+              formatter={(value: any, name: string) => [
+                name === 'denials' ? `${value} denials` : `${value}%`,
+                name === 'denials' ? 'Total Denials' : 'Denial Rate'
+              ]}
+              labelStyle={{ color: '#374151' }}
+            />
+            <Bar 
+              dataKey="denials" 
+              radius={[4, 4, 0, 0]}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-              <XAxis 
-                dataKey="payer"
-                tick={{ fontSize: 10 }}
-                angle={-45}
-                textAnchor="end"
-                height={80}
-                axisLine={{ stroke: '#E2E8F0' }}
-              />
-              <YAxis 
-                tick={{ fontSize: 12 }}
-                axisLine={{ stroke: '#E2E8F0' }}
-              />
-              <Tooltip 
-                formatter={(value: any, name: string) => [
-                  name === 'denials' ? `${value} denials` : `${value}%`,
-                  name === 'denials' ? 'Total Denials' : 'Denial Rate'
-                ]}
-                labelStyle={{ color: '#374151' }}
-              />
-              <Bar 
-                dataKey="denials" 
-                radius={[4, 4, 0, 0]}
-              >
-                {payerDenialPatterns.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Pie Chart */}
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={payerDenialPatterns}
-                cx="50%"
-                cy="50%"
-                innerRadius={40}
-                outerRadius={80}
-                paddingAngle={2}
-                dataKey="denials"
-                label={({ payer, percentage }) => 
-                  percentage > 8 ? payer : ''
-                }
-              >
-                {payerDenialPatterns.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip 
-                formatter={(value: any) => [`${value} denials`, 'Count']}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+              {payerDenialPatterns.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Payer Details Table */}
