@@ -92,7 +92,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-8 flex-1">
             <div className="flex items-center space-x-2" data-testid="logo">
               <span className="text-xl font-semibold">RevenueCycle</span>
             </div>
