@@ -94,7 +94,6 @@ export default function Dashboard() {
 
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2" data-testid="logo">
-              <ChartLine className="h-6 w-6" />
               <span className="text-xl font-semibold">RevenueCycle</span>
             </div>
 
