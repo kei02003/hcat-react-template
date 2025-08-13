@@ -14,10 +14,24 @@ import { SummaryDashboard } from "@/components/summary-dashboard";
 import { PersonaSwitcher } from "@/components/persona-switcher";
 import { ChartLine, HelpCircle } from "lucide-react";
 
+interface DemoUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  profileImageUrl?: string;
+  employeeId: string;
+  department: string;
+  jobTitle: string;
+  phoneNumber: string;
+  roles: string[];
+}
+
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [activeMainTab, setActiveMainTab] = useState("Summary");
   const [activeSubTab, setActiveSubTab] = useState("Clinical Denials");
+  const [currentPersona, setCurrentPersona] = useState<DemoUser | null>(null);
   const [dateRange, setDateRange] = useState({
     start: "2024-01-15",
     end: "2024-12-31"
@@ -25,6 +39,10 @@ export default function Dashboard() {
 
   const handleUserProfileClick = () => {
     setLocation('/profile');
+  };
+
+  const handlePersonaChange = (persona: DemoUser) => {
+    setCurrentPersona(persona);
   };
 
   const mainTabs = ["Summary", "AR", "Pre-Auth", "Denials", "Collections", "Opportunities"];
@@ -79,25 +97,11 @@ export default function Dashboard() {
             {/* Pipe Separator */}
             <div className="h-6 w-px bg-white/30"></div>
             
-            {/* User Name with Dropdown */}
-            <div 
-              className="flex items-center space-x-2 cursor-pointer hover:text-white/90" 
-              data-testid="user-dropdown"
-              onClick={handleUserProfileClick}
-            >
-              <span className="text-white font-medium">Emily Tew</span>
-              <svg className="h-4 w-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-            
-            {/* DEMO Dropdown */}
-            <div className="flex items-center space-x-2 cursor-pointer hover:text-white/90" data-testid="demo-dropdown">
-              <span className="text-white font-medium">DEMO</span>
-              <svg className="h-4 w-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+            {/* Demo User Switcher */}
+            <PersonaSwitcher 
+              currentPersona={currentPersona} 
+              onPersonaChange={handlePersonaChange}
+            />
           </div>
         </div>
         
