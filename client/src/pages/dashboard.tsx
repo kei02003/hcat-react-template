@@ -57,7 +57,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Navigation */}
-      <header className="healthcare-header shadow-lg">
+      <header className="healthcare-header shadow-lg relative">
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2" data-testid="logo">
@@ -66,8 +66,8 @@ export default function Dashboard() {
             </div>
             
             {/* Main Navigation Tabs */}
-            <nav className="flex items-end space-x-6">
-              {mainTabs.map((tab) => (
+            <nav className="flex items-end space-x-6 relative">
+              {mainTabs.map((tab, index) => (
                 <div key={tab} className="relative">
                   <button
                     onClick={() => setActiveMainTab(tab)}
@@ -80,11 +80,16 @@ export default function Dashboard() {
                   >
                     {tab}
                   </button>
-                  {/* Blue underline bar for active tab */}
+                  {/* Blue underline bar for active tab - positioned at bottom of navbar */}
                   {activeMainTab === tab && (
                     <div 
-                      className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-200"
-                      style={{ backgroundColor: '#00aeff' }}
+                      className="absolute h-1 transition-all duration-200"
+                      style={{ 
+                        backgroundColor: '#00aeff',
+                        left: 0,
+                        right: 0,
+                        bottom: '-12px'
+                      }}
                     />
                   )}
                 </div>
@@ -115,7 +120,7 @@ export default function Dashboard() {
         
         {/* Secondary Navigation for Denials */}
         {activeMainTab === "Denials" && (
-          <div className="healthcare-secondary-header px-6 py-2">
+          <div className="healthcare-secondary-header px-6 py-2 relative">
             <nav className="flex space-x-6">
               {subTabs.map((tab) => (
                 <div key={tab.name} className="relative">
@@ -135,11 +140,16 @@ export default function Dashboard() {
                       </span>
                     )}
                   </button>
-                  {/* Blue underline bar for active sub-tab */}
+                  {/* Blue underline bar for active sub-tab - positioned at bottom of secondary navbar */}
                   {activeSubTab === tab.name && (
                     <div 
-                      className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-200"
-                      style={{ backgroundColor: '#00aeff' }}
+                      className="absolute h-0.5 transition-all duration-200"
+                      style={{ 
+                        backgroundColor: '#00aeff',
+                        left: 0,
+                        right: 0,
+                        bottom: '-8px'
+                      }}
                     />
                   )}
                 </div>
