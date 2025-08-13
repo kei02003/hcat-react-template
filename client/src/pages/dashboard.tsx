@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { MetricsPanel } from "@/components/metrics-panel";
 import { DocumentationDashboard } from "@/components/documentation-dashboard";
 import { PredictiveDashboard } from "@/components/predictive-dashboard";
@@ -14,12 +15,17 @@ import { PersonaSwitcher } from "@/components/persona-switcher";
 import { ChartLine, HelpCircle } from "lucide-react";
 
 export default function Dashboard() {
+  const [, setLocation] = useLocation();
   const [activeMainTab, setActiveMainTab] = useState("Summary");
   const [activeSubTab, setActiveSubTab] = useState("Clinical Denials");
   const [dateRange, setDateRange] = useState({
     start: "2024-01-15",
     end: "2024-12-31"
   });
+
+  const handleUserProfileClick = () => {
+    setLocation('/profile');
+  };
 
   const mainTabs = ["Summary", "AR", "Pre-Auth", "Denials", "Collections", "Opportunities"];
   const subTabs = [
@@ -74,7 +80,11 @@ export default function Dashboard() {
             <div className="h-6 w-px bg-white/30"></div>
             
             {/* User Name with Dropdown */}
-            <div className="flex items-center space-x-2 cursor-pointer hover:text-white/90" data-testid="user-dropdown">
+            <div 
+              className="flex items-center space-x-2 cursor-pointer hover:text-white/90" 
+              data-testid="user-dropdown"
+              onClick={handleUserProfileClick}
+            >
               <span className="text-white font-medium">Emily Tew</span>
               <svg className="h-4 w-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
