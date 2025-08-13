@@ -1,5 +1,17 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, ComposedChart } from 'recharts';
-import { format, subDays } from 'date-fns';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  ComposedChart,
+} from "recharts";
+import { format, subDays } from "date-fns";
 
 const denialTrendsData = [
   {
@@ -14,7 +26,7 @@ const denialTrendsData = [
     authorization: 31,
     coverage: 28,
     coding: 19,
-    documentation: 15
+    documentation: 15,
   },
   {
     date: "2024-11-02",
@@ -28,7 +40,7 @@ const denialTrendsData = [
     authorization: 29,
     coverage: 25,
     coding: 18,
-    documentation: 12
+    documentation: 12,
   },
   {
     date: "2024-11-03",
@@ -42,7 +54,7 @@ const denialTrendsData = [
     authorization: 35,
     coverage: 31,
     coding: 22,
-    documentation: 13
+    documentation: 13,
   },
   {
     date: "2024-11-04",
@@ -56,7 +68,7 @@ const denialTrendsData = [
     authorization: 37,
     coverage: 33,
     coding: 21,
-    documentation: 14
+    documentation: 14,
   },
   {
     date: "2024-11-05",
@@ -70,7 +82,7 @@ const denialTrendsData = [
     authorization: 32,
     coverage: 27,
     coding: 20,
-    documentation: 13
+    documentation: 13,
   },
   {
     date: "2024-11-06",
@@ -84,7 +96,7 @@ const denialTrendsData = [
     authorization: 39,
     coverage: 34,
     coding: 23,
-    documentation: 15
+    documentation: 15,
   },
   {
     date: "2024-11-07",
@@ -98,8 +110,8 @@ const denialTrendsData = [
     authorization: 34,
     coverage: 29,
     coding: 21,
-    documentation: 15
-  }
+    documentation: 15,
+  },
 ];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -108,25 +120,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="bg-white p-4 border rounded shadow-lg max-w-xs">
         <p className="font-semibold text-gray-900 mb-2">
-          {format(new Date(label), 'MMM dd, yyyy')}
+          {format(new Date(label), "MMM dd, yyyy")}
         </p>
         <div className="space-y-1 text-sm">
           <p>
-            <span className="inline-block w-3 h-3 bg-red-500 rounded mr-2"></span>
+            <span className="inline-block w-3 h-3 bg-primary rounded mr-2"></span>
             Total Denials: {data.totalDenials}
           </p>
           <p>
-            <span className="inline-block w-3 h-3 bg-blue-500 rounded mr-2"></span>
+            <span className="inline-block w-3 h-3 bg-healthcare-primary rounded mr-2"></span>
             Appealed: {data.appealedDenials}
           </p>
           <p>
-            <span className="inline-block w-3 h-3 bg-green-500 rounded mr-2"></span>
+            <span className="inline-block w-3 h-3 bg-healthcare-success rounded mr-2"></span>
             Overturned: {data.overturnedDenials}
           </p>
           <div className="border-t pt-1 mt-2">
-            <p className="font-medium">
-              Overturn Rate: {data.overturnRate}%
-            </p>
+            <p className="font-medium">Overturn Rate: {data.overturnRate}%</p>
             <p className="font-medium">
               Denied Amount: ${(data.deniedAmount / 1000000).toFixed(1)}M
             </p>
@@ -156,46 +166,46 @@ export function DenialTrendsChart() {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-            <XAxis 
+            <XAxis
               dataKey="date"
               tick={{ fontSize: 11 }}
-              tickFormatter={(value) => format(new Date(value), 'MM/dd')}
-              axisLine={{ stroke: '#E2E8F0' }}
+              tickFormatter={(value) => format(new Date(value), "MM/dd")}
+              axisLine={{ stroke: "#E2E8F0" }}
             />
-            <YAxis 
+            <YAxis
               yAxisId="count"
               tick={{ fontSize: 12 }}
-              axisLine={{ stroke: '#E2E8F0' }}
+              axisLine={{ stroke: "#E2E8F0" }}
             />
-            <YAxis 
+            <YAxis
               yAxisId="rate"
               orientation="right"
               tick={{ fontSize: 12 }}
               tickFormatter={(value) => `${value}%`}
-              axisLine={{ stroke: '#E2E8F0' }}
+              axisLine={{ stroke: "#E2E8F0" }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: '12px' }} />
-            
-            <Bar 
+            <Legend wrapperStyle={{ fontSize: "12px" }} />
+
+            <Bar
               yAxisId="count"
-              dataKey="totalDenials" 
-              fill="#DC2626" 
+              dataKey="totalDenials"
+              fill="#DC2626"
               name="Total Denials"
               radius={[2, 2, 0, 0]}
             />
-            <Bar 
+            <Bar
               yAxisId="count"
-              dataKey="appealedDenials" 
-              fill="#2563EB" 
+              dataKey="appealedDenials"
+              fill="#00aeff"
               name="Appealed Denials"
               radius={[2, 2, 0, 0]}
             />
-            <Line 
+            <Line
               yAxisId="rate"
-              type="monotone" 
-              dataKey="overturnRate" 
-              stroke="#16A34A" 
+              type="monotone"
+              dataKey="overturnRate"
+              stroke="#6e53a3"
               strokeWidth={3}
               name="Overturn Rate (%)"
               dot={{ r: 5 }}
@@ -209,43 +219,79 @@ export function DenialTrendsChart() {
         <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-red-800">Daily Average Denials</h4>
+              <h4 className="text-sm font-semibold text-red-800">
+                Daily Average Denials
+              </h4>
               <p className="text-xl font-bold text-red-900">
-                {Math.round(denialTrendsData.reduce((sum, day) => sum + day.totalDenials, 0) / denialTrendsData.length)}
+                {Math.round(
+                  denialTrendsData.reduce(
+                    (sum, day) => sum + day.totalDenials,
+                    0,
+                  ) / denialTrendsData.length,
+                )}
               </p>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-blue-800">Appeal Rate</h4>
+              <h4 className="text-sm font-semibold text-blue-800">
+                Appeal Rate
+              </h4>
               <p className="text-xl font-bold text-blue-900">
-                {(denialTrendsData.reduce((sum, day) => sum + day.appealedDenials, 0) / 
-                  denialTrendsData.reduce((sum, day) => sum + day.totalDenials, 0) * 100).toFixed(1)}%
+                {(
+                  (denialTrendsData.reduce(
+                    (sum, day) => sum + day.appealedDenials,
+                    0,
+                  ) /
+                    denialTrendsData.reduce(
+                      (sum, day) => sum + day.totalDenials,
+                      0,
+                    )) *
+                  100
+                ).toFixed(1)}
+                %
               </p>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-green-50 border-l-4 border-green-400 p-3 rounded">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-green-800">Average Overturn Rate</h4>
+              <h4 className="text-sm font-semibold text-green-800">
+                Average Overturn Rate
+              </h4>
               <p className="text-xl font-bold text-green-900">
-                {(denialTrendsData.reduce((sum, day) => sum + day.overturnRate, 0) / denialTrendsData.length).toFixed(1)}%
+                {(
+                  denialTrendsData.reduce(
+                    (sum, day) => sum + day.overturnRate,
+                    0,
+                  ) / denialTrendsData.length
+                ).toFixed(1)}
+                %
               </p>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-yellow-800">Total Recovered</h4>
+              <h4 className="text-sm font-semibold text-yellow-800">
+                Total Recovered
+              </h4>
               <p className="text-xl font-bold text-yellow-900">
-                ${(denialTrendsData.reduce((sum, day) => sum + day.recoveredAmount, 0) / 1000000).toFixed(1)}M
+                $
+                {(
+                  denialTrendsData.reduce(
+                    (sum, day) => sum + day.recoveredAmount,
+                    0,
+                  ) / 1000000
+                ).toFixed(1)}
+                M
               </p>
             </div>
           </div>
@@ -257,36 +303,39 @@ export function DenialTrendsChart() {
 
 export function DenialCategoryChart() {
   const categoryData = [
-    { 
-      category: "Medical Necessity", 
-      count: denialTrendsData.reduce((sum, day) => sum + day.medicalNecessity, 0),
+    {
+      category: "Medical Necessity",
+      count: denialTrendsData.reduce(
+        (sum, day) => sum + day.medicalNecessity,
+        0,
+      ),
       percentage: 40.2,
-      color: "#DC2626"
+      color: "#DC2626",
     },
-    { 
-      category: "Authorization", 
+    {
+      category: "Authorization",
       count: denialTrendsData.reduce((sum, day) => sum + day.authorization, 0),
       percentage: 24.8,
-      color: "#EA580C"
+      color: "#EA580C",
     },
-    { 
-      category: "Coverage", 
+    {
+      category: "Coverage",
       count: denialTrendsData.reduce((sum, day) => sum + day.coverage, 0),
       percentage: 19.6,
-      color: "#D97706"
+      color: "#D97706",
     },
-    { 
-      category: "Coding", 
+    {
+      category: "Coding",
       count: denialTrendsData.reduce((sum, day) => sum + day.coding, 0),
       percentage: 14.1,
-      color: "#CA8A04"
+      color: "#CA8A04",
     },
-    { 
-      category: "Documentation", 
+    {
+      category: "Documentation",
       count: denialTrendsData.reduce((sum, day) => sum + day.documentation, 0),
       percentage: 9.3,
-      color: "#65A30D"
-    }
+      color: "#65A30D",
+    },
   ];
 
   return (
@@ -303,27 +352,20 @@ export function DenialCategoryChart() {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-            <XAxis 
+            <XAxis
               dataKey="category"
               tick={{ fontSize: 11 }}
               angle={-45}
               textAnchor="end"
               height={80}
-              axisLine={{ stroke: '#E2E8F0' }}
+              axisLine={{ stroke: "#E2E8F0" }}
             />
-            <YAxis 
-              tick={{ fontSize: 12 }}
-              axisLine={{ stroke: '#E2E8F0' }}
+            <YAxis tick={{ fontSize: 12 }} axisLine={{ stroke: "#E2E8F0" }} />
+            <Tooltip
+              formatter={(value: any, name: string) => [value, "Count"]}
+              labelStyle={{ color: "#374151" }}
             />
-            <Tooltip 
-              formatter={(value: any, name: string) => [value, 'Count']}
-              labelStyle={{ color: '#374151' }}
-            />
-            <Bar 
-              dataKey="count" 
-              radius={[4, 4, 0, 0]}
-              fill="#8884d8"
-            >
+            <Bar dataKey="count" radius={[4, 4, 0, 0]} fill="#8884d8">
               {categoryData.map((entry, index) => (
                 <Bar key={`cell-${index}`} fill={entry.color} />
               ))}
@@ -336,7 +378,7 @@ export function DenialCategoryChart() {
       <div className="grid grid-cols-5 gap-2 text-sm">
         {categoryData.map((category, index) => (
           <div key={index} className="text-center">
-            <div 
+            <div
               className="w-full h-3 rounded mb-2"
               style={{ backgroundColor: category.color }}
             />

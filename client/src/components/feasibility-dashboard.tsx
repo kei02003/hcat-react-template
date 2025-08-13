@@ -1,22 +1,35 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { 
-  TrendingUp, 
-  DollarSign, 
-  Target, 
-  Clock, 
-  BarChart3, 
-  PieChart, 
-  Users, 
+import {
+  TrendingUp,
+  DollarSign,
+  Target,
+  Clock,
+  BarChart3,
+  PieChart,
+  Users,
   AlertCircle,
   CheckCircle,
-  ArrowUpDown
+  ArrowUpDown,
 } from "lucide-react";
 
 interface PayerAnalysis {
@@ -68,12 +81,13 @@ export function FeasibilityDashboard() {
   });
 
   const payerAnalysis: PayerAnalysis[] = analysisData?.payerAnalysis || [];
-  const feasibilityMetrics: FeasibilityMetrics = analysisData?.feasibilityMetrics;
+  const feasibilityMetrics: FeasibilityMetrics =
+    analysisData?.feasibilityMetrics;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -87,16 +101,27 @@ export function FeasibilityDashboard() {
     if (trend > 0) {
       return <TrendingUp className="h-4 w-4 text-green-500" />;
     } else if (trend < 0) {
-      return <TrendingUp className="h-4 w-4 text-red-500 transform rotate-180" />;
+      return (
+        <TrendingUp className="h-4 w-4 text-red-500 transform rotate-180" />
+      );
     } else {
       return <ArrowUpDown className="h-4 w-4 text-gray-500" />;
     }
   };
 
   const getPriorityBadge = (priority: number) => {
-    const colors = ["", "bg-red-100 text-red-800", "bg-orange-100 text-orange-800", "bg-yellow-100 text-yellow-800", "bg-blue-100 text-blue-800", "bg-gray-100 text-gray-800"];
+    const colors = [
+      "",
+      "bg-red-100 text-red-800",
+      "bg-orange-100 text-orange-800",
+      "bg-yellow-100 text-yellow-800",
+      "bg-blue-100 text-blue-800",
+      "bg-gray-100 text-gray-800",
+    ];
     const labels = ["", "High", "High", "Medium", "Medium", "Low"];
-    return <Badge className={colors[priority]}>{labels[priority]} Priority</Badge>;
+    return (
+      <Badge className={colors[priority]}>{labels[priority]} Priority</Badge>
+    );
   };
 
   if (isLoading) {
@@ -121,7 +146,8 @@ export function FeasibilityDashboard() {
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Opportunities</h2>
         <p className="text-muted-foreground">
-          Comprehensive analysis of appeal opportunities and redundant request optimization by payer
+          Comprehensive analysis of appeal opportunities and redundant request
+          optimization by payer
         </p>
       </div>
 
@@ -130,11 +156,15 @@ export function FeasibilityDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Financial Opportunity</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Financial Opportunity
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {formatCurrency(feasibilityMetrics.financialImpact.netFinancialBenefit)}
+                {formatCurrency(
+                  feasibilityMetrics.financialImpact.netFinancialBenefit,
+                )}
               </div>
               <p className="text-xs text-muted-foreground">
                 Recovery potential minus implementation costs
@@ -144,28 +174,36 @@ export function FeasibilityDashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Appeal Opportunities</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Appeal Opportunities
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-primary">
                 {feasibilityMetrics.totalAnalysis.totalAppealOpportunities.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                Across {feasibilityMetrics.totalAnalysis.totalPayers} major payers
+                Across {feasibilityMetrics.totalAnalysis.totalPayers} major
+                payers
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Redundant Requests</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Redundant Requests
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-600">
                 {feasibilityMetrics.totalAnalysis.totalRedundantRequests.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                {formatPercentage(feasibilityMetrics.totalAnalysis.overallRedundancyRate)} redundancy rate
+                {formatPercentage(
+                  feasibilityMetrics.totalAnalysis.overallRedundancyRate,
+                )}{" "}
+                redundancy rate
               </p>
             </CardContent>
           </Card>
@@ -176,7 +214,8 @@ export function FeasibilityDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600">
-                {feasibilityMetrics.financialImpact.overallROI.toLocaleString()}%
+                {feasibilityMetrics.financialImpact.overallROI.toLocaleString()}
+                %
               </div>
               <p className="text-xs text-muted-foreground">
                 Return on automation investment
@@ -189,14 +228,19 @@ export function FeasibilityDashboard() {
       <Tabs defaultValue="by-payer" className="space-y-4">
         <TabsList>
           <TabsTrigger value="by-payer">Analysis by Payer</TabsTrigger>
-          <TabsTrigger value="prioritization">Implementation Priority</TabsTrigger>
+          <TabsTrigger value="prioritization">
+            Implementation Priority
+          </TabsTrigger>
           <TabsTrigger value="comparison">Payer Comparison</TabsTrigger>
         </TabsList>
 
         <TabsContent value="by-payer" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {payerAnalysis.map((payer: PayerAnalysis) => (
-              <Card key={payer.payerId} className="cursor-pointer hover:shadow-lg transition-shadow">
+              <Card
+                key={payer.payerId}
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+              >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{payer.payerName}</CardTitle>
@@ -210,37 +254,58 @@ export function FeasibilityDashboard() {
                   {/* Appeal Opportunities */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Appeal Opportunities</span>
-                      <Target className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm font-medium">
+                        Appeal Opportunities
+                      </span>
+                      <Target className="h-4 w-4 text-primary" />
                     </div>
-                    <div className="text-2xl font-bold text-blue-600">
+                    <div className="text-2xl font-bold text-primary">
                       {payer.appealOpportunities.appealableCount.toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {formatPercentage(payer.appealOpportunities.appealRate)} of denials appealable
+                      {formatPercentage(payer.appealOpportunities.appealRate)}{" "}
+                      of denials appealable
                     </div>
                     <div className="text-sm text-green-600 font-medium">
-                      {formatCurrency(payer.appealOpportunities.estimatedRecovery)} potential recovery
+                      {formatCurrency(
+                        payer.appealOpportunities.estimatedRecovery,
+                      )}{" "}
+                      potential recovery
                     </div>
-                    <Progress value={payer.appealOpportunities.appealRate} className="h-2" />
+                    <Progress
+                      value={payer.appealOpportunities.appealRate}
+                      className="h-2"
+                    />
                   </div>
 
                   {/* Redundant Requests */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Redundant Requests</span>
+                      <span className="text-sm font-medium">
+                        Redundant Requests
+                      </span>
                       <AlertCircle className="h-4 w-4 text-orange-500" />
                     </div>
                     <div className="text-2xl font-bold text-orange-600">
                       {payer.redundantRequestOpportunities.redundantCount.toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {formatPercentage(payer.redundantRequestOpportunities.redundancyRate)} redundancy rate
+                      {formatPercentage(
+                        payer.redundantRequestOpportunities.redundancyRate,
+                      )}{" "}
+                      redundancy rate
                     </div>
                     <div className="text-sm text-green-600 font-medium">
-                      {formatCurrency(payer.redundantRequestOpportunities.automationPotential.estimatedSavings)} potential savings
+                      {formatCurrency(
+                        payer.redundantRequestOpportunities.automationPotential
+                          .estimatedSavings,
+                      )}{" "}
+                      potential savings
                     </div>
-                    <Progress value={payer.redundantRequestOpportunities.redundancyRate} className="h-2" />
+                    <Progress
+                      value={payer.redundantRequestOpportunities.redundancyRate}
+                      className="h-2"
+                    />
                   </div>
 
                   {/* Performance Trends */}
@@ -251,8 +316,12 @@ export function FeasibilityDashboard() {
                         <span className="text-sm font-medium">Denials</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {formatPercentage(Math.abs(payer.performanceMetrics.denialTrend))} 
-                        {payer.performanceMetrics.denialTrend < 0 ? " decrease" : " increase"}
+                        {formatPercentage(
+                          Math.abs(payer.performanceMetrics.denialTrend),
+                        )}
+                        {payer.performanceMetrics.denialTrend < 0
+                          ? " decrease"
+                          : " increase"}
                       </div>
                     </div>
                     <div className="text-center">
@@ -261,13 +330,14 @@ export function FeasibilityDashboard() {
                         <span className="text-sm font-medium">Resolution</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {payer.performanceMetrics.averageResolutionTime} days avg
+                        {payer.performanceMetrics.averageResolutionTime} days
+                        avg
                       </div>
                     </div>
                   </div>
 
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full mt-4"
                     onClick={() => setSelectedPayer(payer.payerId)}
                     data-testid={`button-view-payer-${payer.payerId}`}
@@ -285,7 +355,8 @@ export function FeasibilityDashboard() {
             <CardHeader>
               <CardTitle>Implementation Priority Recommendations</CardTitle>
               <CardDescription>
-                Payers ranked by implementation priority based on ROI, complexity, and potential impact
+                Payers ranked by implementation priority based on ROI,
+                complexity, and potential impact
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -301,49 +372,64 @@ export function FeasibilityDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {feasibilityMetrics.recommendedPrioritization.map((item: any) => {
-                      const payerData = payerAnalysis.find(p => p.payerName === item.payer);
-                      return (
-                        <TableRow key={item.payer}>
-                          <TableCell>
-                            {getPriorityBadge(item.priority)}
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            <div>
-                              <div>{item.payer}</div>
+                    {feasibilityMetrics.recommendedPrioritization.map(
+                      (item: any) => {
+                        const payerData = payerAnalysis.find(
+                          (p) => p.payerName === item.payer,
+                        );
+                        return (
+                          <TableRow key={item.payer}>
+                            <TableCell>
+                              {getPriorityBadge(item.priority)}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              <div>
+                                <div>{item.payer}</div>
+                                {payerData && (
+                                  <div className="text-sm text-muted-foreground">
+                                    {payerData.totalClaims.toLocaleString()}{" "}
+                                    claims
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-green-600 font-medium">
+                                {formatCurrency(item.estimatedImpact)}
+                              </div>
+                            </TableCell>
+                            <TableCell>
                               {payerData && (
-                                <div className="text-sm text-muted-foreground">
-                                  {payerData.totalClaims.toLocaleString()} claims
+                                <div className="space-y-1">
+                                  <div className="text-sm">
+                                    Appeal Rate:{" "}
+                                    {formatPercentage(
+                                      payerData.appealOpportunities.appealRate,
+                                    )}
+                                  </div>
+                                  <div className="text-sm">
+                                    ROI:{" "}
+                                    {formatPercentage(
+                                      payerData.appealOpportunities.roi,
+                                    )}
+                                  </div>
+                                  <div className="text-sm">
+                                    Redundancy:{" "}
+                                    {formatPercentage(
+                                      payerData.redundantRequestOpportunities
+                                        .redundancyRate,
+                                    )}
+                                  </div>
                                 </div>
                               )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-green-600 font-medium">
-                              {formatCurrency(item.estimatedImpact)}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {payerData && (
-                              <div className="space-y-1">
-                                <div className="text-sm">
-                                  Appeal Rate: {formatPercentage(payerData.appealOpportunities.appealRate)}
-                                </div>
-                                <div className="text-sm">
-                                  ROI: {formatPercentage(payerData.appealOpportunities.roi)}
-                                </div>
-                                <div className="text-sm">
-                                  Redundancy: {formatPercentage(payerData.redundantRequestOpportunities.redundancyRate)}
-                                </div>
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell className="max-w-xs">
-                            <div className="text-sm">{item.reasoning}</div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                            </TableCell>
+                            <TableCell className="max-w-xs">
+                              <div className="text-sm">{item.reasoning}</div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      },
+                    )}
                   </TableBody>
                 </Table>
               )}
@@ -356,7 +442,9 @@ export function FeasibilityDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Appeal Opportunity Comparison</CardTitle>
-                <CardDescription>Appeal rates and recovery potential by payer</CardDescription>
+                <CardDescription>
+                  Appeal rates and recovery potential by payer
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -370,20 +458,35 @@ export function FeasibilityDashboard() {
                   </TableHeader>
                   <TableBody>
                     {payerAnalysis
-                      .sort((a, b) => b.appealOpportunities.appealRate - a.appealOpportunities.appealRate)
+                      .sort(
+                        (a, b) =>
+                          b.appealOpportunities.appealRate -
+                          a.appealOpportunities.appealRate,
+                      )
                       .map((payer: PayerAnalysis) => (
                         <TableRow key={payer.payerId}>
-                          <TableCell className="font-medium">{payer.payerName}</TableCell>
+                          <TableCell className="font-medium">
+                            {payer.payerName}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Progress value={payer.appealOpportunities.appealRate} className="h-2 flex-1" />
-                              <span className="text-sm">{formatPercentage(payer.appealOpportunities.appealRate)}</span>
+                              <Progress
+                                value={payer.appealOpportunities.appealRate}
+                                className="h-2 flex-1"
+                              />
+                              <span className="text-sm">
+                                {formatPercentage(
+                                  payer.appealOpportunities.appealRate,
+                                )}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell className="text-green-600 font-medium">
-                            {formatCurrency(payer.appealOpportunities.estimatedRecovery)}
+                            {formatCurrency(
+                              payer.appealOpportunities.estimatedRecovery,
+                            )}
                           </TableCell>
-                          <TableCell className="text-blue-600 font-medium">
+                          <TableCell className="text-primary font-medium">
                             {formatPercentage(payer.appealOpportunities.roi)}
                           </TableCell>
                         </TableRow>
@@ -396,7 +499,9 @@ export function FeasibilityDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Redundancy Optimization Potential</CardTitle>
-                <CardDescription>Cost savings opportunities from automation</CardDescription>
+                <CardDescription>
+                  Cost savings opportunities from automation
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -410,21 +515,45 @@ export function FeasibilityDashboard() {
                   </TableHeader>
                   <TableBody>
                     {payerAnalysis
-                      .sort((a, b) => b.redundantRequestOpportunities.redundancyRate - a.redundantRequestOpportunities.redundancyRate)
+                      .sort(
+                        (a, b) =>
+                          b.redundantRequestOpportunities.redundancyRate -
+                          a.redundantRequestOpportunities.redundancyRate,
+                      )
                       .map((payer: PayerAnalysis) => (
                         <TableRow key={payer.payerId}>
-                          <TableCell className="font-medium">{payer.payerName}</TableCell>
+                          <TableCell className="font-medium">
+                            {payer.payerName}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Progress value={payer.redundantRequestOpportunities.redundancyRate} className="h-2 flex-1" />
-                              <span className="text-sm">{formatPercentage(payer.redundantRequestOpportunities.redundancyRate)}</span>
+                              <Progress
+                                value={
+                                  payer.redundantRequestOpportunities
+                                    .redundancyRate
+                                }
+                                className="h-2 flex-1"
+                              />
+                              <span className="text-sm">
+                                {formatPercentage(
+                                  payer.redundantRequestOpportunities
+                                    .redundancyRate,
+                                )}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell className="text-green-600 font-medium">
-                            {formatCurrency(payer.redundantRequestOpportunities.automationPotential.estimatedSavings)}
+                            {formatCurrency(
+                              payer.redundantRequestOpportunities
+                                .automationPotential.estimatedSavings,
+                            )}
                           </TableCell>
                           <TableCell className="text-purple-600 font-medium">
-                            {payer.redundantRequestOpportunities.automationPotential.paybackPeriod} months
+                            {
+                              payer.redundantRequestOpportunities
+                                .automationPotential.paybackPeriod
+                            }{" "}
+                            months
                           </TableCell>
                         </TableRow>
                       ))}

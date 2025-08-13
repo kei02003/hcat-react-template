@@ -4,8 +4,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, DollarSign, Clock, AlertTriangle, BarChart3, Network } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  TrendingUp,
+  DollarSign,
+  Clock,
+  AlertTriangle,
+  BarChart3,
+  Network,
+} from "lucide-react";
 import { ArTrendsChart } from "./charts/ar-trends-chart";
 import { PayerMixChart } from "./charts/payer-mix-chart";
 
@@ -16,15 +29,15 @@ const arMetrics = [
     previousValue: "$7.8M",
     changePercentage: "+5.1",
     status: "negative" as const,
-    target: "$7.5M"
+    target: "$7.5M",
   },
   {
     name: "AR > 90 Days",
     value: "$2.1M",
-    previousValue: "$1.8M", 
+    previousValue: "$1.8M",
     changePercentage: "+16.7",
     status: "negative" as const,
-    target: "$1.5M"
+    target: "$1.5M",
   },
   {
     name: "Days Sales Outstanding",
@@ -32,7 +45,7 @@ const arMetrics = [
     previousValue: "44.2",
     changePercentage: "+8.1",
     status: "negative" as const,
-    target: "40.0"
+    target: "40.0",
   },
   {
     name: "Collection Rate",
@@ -40,7 +53,7 @@ const arMetrics = [
     previousValue: "95.1%",
     changePercentage: "-0.9",
     status: "negative" as const,
-    target: "96.0%"
+    target: "96.0%",
   },
   {
     name: "Net Collection Rate",
@@ -48,7 +61,7 @@ const arMetrics = [
     previousValue: "97.2%",
     changePercentage: "-0.4",
     status: "negative" as const,
-    target: "98.0%"
+    target: "98.0%",
   },
   {
     name: "Charge Lag Days",
@@ -56,31 +69,94 @@ const arMetrics = [
     previousValue: "2.8",
     changePercentage: "+14.3",
     status: "negative" as const,
-    target: "2.0"
-  }
+    target: "2.0",
+  },
 ];
 
 const arAgingData = [
-  { category: "0-30 days", amount: 3200000, percentage: 39.0, accounts: 5680, color: "#16A34A" },
-  { category: "31-60 days", amount: 1850000, percentage: 22.6, accounts: 3420, color: "#D97706" },
-  { category: "61-90 days", amount: 1250000, percentage: 15.2, accounts: 2890, color: "#EA580C" },
-  { category: "90+ days", amount: 1900000, percentage: 23.2, accounts: 2500, color: "#DC2626" }
+  {
+    category: "0-30 days",
+    amount: 3200000,
+    percentage: 39.0,
+    accounts: 5680,
+    color: "#16A34A",
+  },
+  {
+    category: "31-60 days",
+    amount: 1850000,
+    percentage: 22.6,
+    accounts: 3420,
+    color: "#D97706",
+  },
+  {
+    category: "61-90 days",
+    amount: 1250000,
+    percentage: 15.2,
+    accounts: 2890,
+    color: "#EA580C",
+  },
+  {
+    category: "90+ days",
+    amount: 1900000,
+    percentage: 23.2,
+    accounts: 2500,
+    color: "#DC2626",
+  },
 ];
 
 const financialTrendsData = [
-  { month: "Jan 2024", netCollections: 1250000, grossCharges: 1580000, adjustments: 180000, dso: 45.2 },
-  { month: "Feb 2024", netCollections: 1180000, grossCharges: 1620000, adjustments: 195000, dso: 46.8 },
-  { month: "Mar 2024", netCollections: 1320000, grossCharges: 1650000, adjustments: 168000, dso: 44.1 },
-  { month: "Apr 2024", netCollections: 1290000, grossCharges: 1680000, adjustments: 185000, dso: 47.3 },
-  { month: "May 2024", netCollections: 1410000, grossCharges: 1720000, adjustments: 172000, dso: 46.9 },
-  { month: "Jun 2024", netCollections: 1360000, grossCharges: 1750000, adjustments: 190000, dso: 48.1 }
+  {
+    month: "Jan 2024",
+    netCollections: 1250000,
+    grossCharges: 1580000,
+    adjustments: 180000,
+    dso: 45.2,
+  },
+  {
+    month: "Feb 2024",
+    netCollections: 1180000,
+    grossCharges: 1620000,
+    adjustments: 195000,
+    dso: 46.8,
+  },
+  {
+    month: "Mar 2024",
+    netCollections: 1320000,
+    grossCharges: 1650000,
+    adjustments: 168000,
+    dso: 44.1,
+  },
+  {
+    month: "Apr 2024",
+    netCollections: 1290000,
+    grossCharges: 1680000,
+    adjustments: 185000,
+    dso: 47.3,
+  },
+  {
+    month: "May 2024",
+    netCollections: 1410000,
+    grossCharges: 1720000,
+    adjustments: 172000,
+    dso: 46.9,
+  },
+  {
+    month: "Jun 2024",
+    netCollections: 1360000,
+    grossCharges: 1750000,
+    adjustments: 190000,
+    dso: 48.1,
+  },
 ];
 
 function getStatusColor(status: string) {
   switch (status) {
-    case "positive": return "text-green-600";
-    case "negative": return "text-red-600";
-    default: return "text-gray-600";
+    case "positive":
+      return "text-green-600";
+    case "negative":
+      return "text-red-600";
+    default:
+      return "text-gray-600";
   }
 }
 
@@ -99,12 +175,12 @@ export function ArManagementDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-bold text-gray-900">AR Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight">AR Management</h1>
           </div>
           <div className="flex items-center space-x-4">
             <Link href="/epic-architecture">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex items-center space-x-2 text-sm"
                 data-testid="button-epic-architecture"
               >
@@ -125,15 +201,25 @@ export function ArManagementDashboard() {
               <CardContent className="p-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-600 font-medium">{metric.name}</p>
-                    <span className={`text-xs ${getStatusColor(metric.status)}`}>
+                    <p className="text-xs text-gray-600 font-medium">
+                      {metric.name}
+                    </p>
+                    <span
+                      className={`text-xs ${getStatusColor(metric.status)}`}
+                    >
                       {getChangeIcon(metric.changePercentage)}
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-gray-900">{metric.value}</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    {metric.value}
+                  </p>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500">vs {metric.previousValue}</span>
-                    <span className={`font-medium ${getStatusColor(metric.status)}`}>
+                    <span className="text-gray-500">
+                      vs {metric.previousValue}
+                    </span>
+                    <span
+                      className={`font-medium ${getStatusColor(metric.status)}`}
+                    >
                       {metric.changePercentage}%
                     </span>
                   </div>
@@ -149,15 +235,9 @@ export function ArManagementDashboard() {
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="trends">
-              AR Trends
-            </TabsTrigger>
-            <TabsTrigger value="aging">
-              AR Aging
-            </TabsTrigger>
-            <TabsTrigger value="financial">
-              Financial Trends
-            </TabsTrigger>
+            <TabsTrigger value="trends">AR Trends</TabsTrigger>
+            <TabsTrigger value="aging">AR Aging</TabsTrigger>
+            <TabsTrigger value="financial">Financial Trends</TabsTrigger>
           </TabsList>
 
           {/* AR Trends Tab */}
@@ -170,8 +250,13 @@ export function ArManagementDashboard() {
                   </h3>
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
-                      <label className="text-sm text-gray-600">Select measure:</label>
-                      <Select value={selectedMeasure} onValueChange={setSelectedMeasure}>
+                      <label className="text-sm text-gray-600">
+                        Select measure:
+                      </label>
+                      <Select
+                        value={selectedMeasure}
+                        onValueChange={setSelectedMeasure}
+                      >
                         <SelectTrigger className="w-32">
                           <SelectValue />
                         </SelectTrigger>
@@ -211,12 +296,14 @@ export function ArManagementDashboard() {
                     {arAgingData.map((age, index) => (
                       <div key={index} className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">{age.category}</span>
+                          <span className="text-sm font-medium">
+                            {age.category}
+                          </span>
                           <div className="flex items-center space-x-2">
                             <span className="text-sm font-bold">
                               ${(age.amount / 1000000).toFixed(1)}M
                             </span>
-                            <Badge 
+                            <Badge
                               className="text-white"
                               style={{ backgroundColor: age.color }}
                             >
@@ -225,11 +312,11 @@ export function ArManagementDashboard() {
                           </div>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-3">
-                          <div 
+                          <div
                             className="h-3 rounded-full transition-all duration-300"
-                            style={{ 
+                            style={{
                               width: `${age.percentage}%`,
-                              backgroundColor: age.color 
+                              backgroundColor: age.color,
                             }}
                           />
                         </div>
@@ -251,7 +338,9 @@ export function ArManagementDashboard() {
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                       <div className="flex items-center space-x-2 mb-2">
                         <AlertTriangle className="h-5 w-5 text-red-600" />
-                        <span className="font-semibold text-red-800">Critical Issues</span>
+                        <span className="font-semibold text-red-800">
+                          Critical Issues
+                        </span>
                       </div>
                       <ul className="text-sm text-red-700 space-y-1">
                         <li>• 23.2% of AR is over 90 days ($1.9M)</li>
@@ -263,7 +352,9 @@ export function ArManagementDashboard() {
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                       <div className="flex items-center space-x-2 mb-2">
                         <Clock className="h-5 w-5 text-yellow-600" />
-                        <span className="font-semibold text-yellow-800">Recommendations</span>
+                        <span className="font-semibold text-yellow-800">
+                          Recommendations
+                        </span>
                       </div>
                       <ul className="text-sm text-yellow-700 space-y-1">
                         <li>• Focus collection efforts on 90+ day accounts</li>
@@ -276,16 +367,24 @@ export function ArManagementDashboard() {
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <div className="flex items-center space-x-2 mb-2">
                         <BarChart3 className="h-5 w-5 text-blue-600" />
-                        <span className="font-semibold text-blue-800">Performance Metrics</span>
+                        <span className="font-semibold text-blue-800">
+                          Performance Metrics
+                        </span>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-blue-600 font-medium">Average Age</p>
+                          <p className="text-blue-600 font-medium">
+                            Average Age
+                          </p>
                           <p className="text-blue-900 font-bold">52.4 days</p>
                         </div>
                         <div>
-                          <p className="text-blue-600 font-medium">Collection Priority</p>
-                          <p className="text-blue-900 font-bold">2,500 accounts</p>
+                          <p className="text-blue-600 font-medium">
+                            Collection Priority
+                          </p>
+                          <p className="text-blue-900 font-bold">
+                            2,500 accounts
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -305,9 +404,14 @@ export function ArManagementDashboard() {
                   </h3>
                   <div className="space-y-4">
                     {financialTrendsData.map((month, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4">
+                      <div
+                        key={index}
+                        className="border border-gray-200 rounded-lg p-4"
+                      >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold text-gray-900">{month.month}</span>
+                          <span className="font-semibold text-gray-900">
+                            {month.month}
+                          </span>
                           <span className="text-sm text-gray-600">
                             DSO: {month.dso} days
                           </span>
@@ -346,7 +450,9 @@ export function ArManagementDashboard() {
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">YTD Net Collection Rate</span>
+                        <span className="text-sm text-gray-600">
+                          YTD Net Collection Rate
+                        </span>
                         <span className="font-bold text-green-600">96.8%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -356,7 +462,9 @@ export function ArManagementDashboard() {
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Gross Collection Rate</span>
+                        <span className="text-sm text-gray-600">
+                          Gross Collection Rate
+                        </span>
                         <span className="font-bold text-blue-600">94.2%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -366,7 +474,9 @@ export function ArManagementDashboard() {
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Adjustment Rate</span>
+                        <span className="text-sm text-gray-600">
+                          Adjustment Rate
+                        </span>
                         <span className="font-bold text-orange-600">10.8%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -375,7 +485,9 @@ export function ArManagementDashboard() {
                     </div>
 
                     <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                      <h4 className="font-semibold text-gray-900">Trending Analysis</h4>
+                      <h4 className="font-semibold text-gray-900">
+                        Trending Analysis
+                      </h4>
                       <ul className="text-sm text-gray-700 space-y-1">
                         <li>• DSO trending upward (+8.1% vs target)</li>
                         <li>• Net collections stable at 96.8%</li>

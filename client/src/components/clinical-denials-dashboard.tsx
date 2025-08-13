@@ -3,14 +3,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  AlertCircle, 
-  FileText, 
-  Calendar, 
-  DollarSign, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertCircle,
+  FileText,
+  Calendar,
+  DollarSign,
   TrendingUp,
   Users,
   Phone,
@@ -27,14 +39,19 @@ import {
   Gavel,
   Stethoscope,
   Shield,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
-import { DenialTrendsChart, DenialCategoryChart } from "./charts/denial-trends-chart";
-import { DenialReasonAnalysis, PayerDenialPatterns } from "./charts/denial-reason-analysis";
+import {
+  DenialTrendsChart,
+  DenialCategoryChart,
+} from "./charts/denial-trends-chart";
+import {
+  DenialReasonAnalysis,
+  PayerDenialPatterns,
+} from "./charts/denial-reason-analysis";
 import { PatientAppealModal } from "./patient-appeal-modal";
 import { ClinicalDecisionDashboard } from "./clinical-decision-dashboard";
 import { PreAuthorizationDashboard } from "./pre-authorization-dashboard";
-
 
 const clinicalMetrics = [
   {
@@ -43,7 +60,7 @@ const clinicalMetrics = [
     previousValue: "1,195",
     changePercentage: "+7.6",
     status: "negative" as const,
-    target: "<1,000"
+    target: "<1,000",
   },
   {
     name: "Denied Amount",
@@ -51,7 +68,7 @@ const clinicalMetrics = [
     previousValue: "$19.4M",
     changePercentage: "+12.4",
     status: "negative" as const,
-    target: "<$15M"
+    target: "<$15M",
   },
   {
     name: "Appeal Success Rate",
@@ -59,7 +76,7 @@ const clinicalMetrics = [
     previousValue: "38.9%",
     changePercentage: "+2.8",
     status: "positive" as const,
-    target: ">45%"
+    target: ">45%",
   },
   {
     name: "Avg Review Time",
@@ -67,7 +84,7 @@ const clinicalMetrics = [
     previousValue: "9.7 days",
     changePercentage: "-14.4",
     status: "positive" as const,
-    target: "<7 days"
+    target: "<7 days",
   },
   {
     name: "Pending Appeals",
@@ -75,7 +92,7 @@ const clinicalMetrics = [
     previousValue: "298",
     changePercentage: "+14.8",
     status: "negative" as const,
-    target: "<250"
+    target: "<250",
   },
   {
     name: "Recovered This Month",
@@ -83,8 +100,8 @@ const clinicalMetrics = [
     previousValue: "$6.1M",
     changePercentage: "+18.0",
     status: "positive" as const,
-    target: ">$8M"
-  }
+    target: ">$8M",
+  },
 ];
 
 const activeDenials = [
@@ -105,7 +122,7 @@ const activeDenials = [
     status: "Under Review" as const,
     assignedReviewer: "Dr. Mark Thompson",
     appealLevel: "First Level" as const,
-    lastAction: "2024-11-28"
+    lastAction: "2024-11-28",
   },
   {
     denialId: "DEN-2025-001",
@@ -124,7 +141,7 @@ const activeDenials = [
     status: "Under Review" as const,
     assignedReviewer: "Dr. Lisa Wilson",
     appealLevel: "First Level" as const,
-    lastAction: "2025-01-08"
+    lastAction: "2025-01-08",
   },
   {
     denialId: "DEN-2025-003",
@@ -143,7 +160,7 @@ const activeDenials = [
     status: "Pending Documentation" as const,
     assignedReviewer: "Dr. Mark Thompson",
     appealLevel: null,
-    lastAction: "2025-01-08"
+    lastAction: "2025-01-08",
   },
   {
     denialId: "DN-24-078234",
@@ -162,7 +179,7 @@ const activeDenials = [
     status: "Appeal Submitted" as const,
     assignedReviewer: "Dr. Robert Chen",
     appealLevel: "First Level" as const,
-    lastAction: "2024-12-01"
+    lastAction: "2024-12-01",
   },
   {
     denialId: "DN-24-067123",
@@ -181,7 +198,7 @@ const activeDenials = [
     status: "Pending Documentation" as const,
     assignedReviewer: "Dr. James Anderson",
     appealLevel: null,
-    lastAction: "2024-11-25"
+    lastAction: "2024-11-25",
   },
   {
     denialId: "DN-24-056789",
@@ -200,7 +217,7 @@ const activeDenials = [
     status: "Under Review" as const,
     assignedReviewer: "Dr. Patricia Martinez",
     appealLevel: "First Level" as const,
-    lastAction: "2024-11-30"
+    lastAction: "2024-11-30",
   },
   {
     denialId: "DN-24-045678",
@@ -219,8 +236,8 @@ const activeDenials = [
     status: "Overturned" as const,
     assignedReviewer: "Dr. David Park",
     appealLevel: "First Level" as const,
-    lastAction: "2024-12-02"
-  }
+    lastAction: "2024-12-02",
+  },
 ];
 
 const clinicalReviewers = [
@@ -232,17 +249,17 @@ const clinicalReviewers = [
     activeReviews: 23,
     completedThisMonth: 87,
     appealSuccessRate: 45.8,
-    avgReviewTime: 6.2
+    avgReviewTime: 6.2,
   },
   {
-    reviewerId: "REV-002", 
+    reviewerId: "REV-002",
     name: "Dr. Sarah Martinez",
     credentials: "MD, FACS",
     specialization: "General Surgery",
     activeReviews: 18,
     completedThisMonth: 64,
     appealSuccessRate: 52.3,
-    avgReviewTime: 7.8
+    avgReviewTime: 7.8,
   },
   {
     reviewerId: "REV-003",
@@ -252,15 +269,18 @@ const clinicalReviewers = [
     activeReviews: 31,
     completedThisMonth: 92,
     appealSuccessRate: 41.2,
-    avgReviewTime: 8.9
-  }
+    avgReviewTime: 8.9,
+  },
 ];
 
 function getStatusColor(status: string) {
   switch (status) {
-    case "positive": return "text-green-600";
-    case "negative": return "text-red-600";
-    default: return "text-gray-600";
+    case "positive":
+      return "text-green-600";
+    case "negative":
+      return "text-red-600";
+    default:
+      return "text-gray-600";
   }
 }
 
@@ -271,24 +291,63 @@ function getChangeIcon(changePercentage: string) {
 
 function getStatusBadge(status: string) {
   switch (status) {
-    case "Under Review": return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Under Review</Badge>;
-    case "Appeal Submitted": return <Badge className="bg-purple-100 text-purple-800 border-purple-200">Appeal Submitted</Badge>;
-    case "Pending Documentation": return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending Documentation</Badge>;
-    case "Overturned": return <Badge className="bg-green-100 text-green-800 border-green-200">Overturned</Badge>;
-    case "Upheld": return <Badge className="bg-red-100 text-red-800 border-red-200">Upheld</Badge>;
-    case "Closed": return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Closed</Badge>;
-    default: return <Badge className="bg-gray-100 text-gray-800 border-gray-200">{status}</Badge>;
+    case "Under Review":
+      return (
+        <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+          Under Review
+        </Badge>
+      );
+    case "Appeal Submitted":
+      return (
+        <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+          Appeal Submitted
+        </Badge>
+      );
+    case "Pending Documentation":
+      return (
+        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+          Pending Documentation
+        </Badge>
+      );
+    case "Overturned":
+      return (
+        <Badge className="bg-green-100 text-green-800 border-green-200">
+          Overturned
+        </Badge>
+      );
+    case "Upheld":
+      return (
+        <Badge className="bg-red-100 text-red-800 border-red-200">Upheld</Badge>
+      );
+    case "Closed":
+      return (
+        <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+          Closed
+        </Badge>
+      );
+    default:
+      return (
+        <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+          {status}
+        </Badge>
+      );
   }
 }
 
 function getCategoryColor(category: string) {
   switch (category) {
-    case "Medical Necessity": return "bg-red-100 text-red-800 border-red-200";
-    case "Authorization": return "bg-orange-100 text-orange-800 border-orange-200";
-    case "Coverage": return "bg-blue-100 text-blue-800 border-blue-200";
-    case "Coding": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    case "Documentation": return "bg-green-100 text-green-800 border-green-200";
-    default: return "bg-gray-100 text-gray-800 border-gray-200";
+    case "Medical Necessity":
+      return "bg-red-100 text-red-800 border-red-200";
+    case "Authorization":
+      return "bg-orange-100 text-orange-800 border-orange-200";
+    case "Coverage":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "Coding":
+      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+    case "Documentation":
+      return "bg-green-100 text-green-800 border-green-200";
+    default:
+      return "bg-gray-100 text-gray-800 border-gray-200";
   }
 }
 
@@ -300,28 +359,34 @@ function getDaysToAppealColor(days: number) {
 
 export function ClinicalDenialsDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
-  const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
+  const [selectedDepartment, setSelectedDepartment] =
+    useState("All Departments");
   const [selectedPayer, setSelectedPayer] = useState("All Payers");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDenialForRFP, setSelectedDenialForRFP] = useState<any>(null);
   const [activeRFPModule, setActiveRFPModule] = useState<string | null>(null);
-  const [selectedDenialForAppeal, setSelectedDenialForAppeal] = useState<any>(null);
+  const [selectedDenialForAppeal, setSelectedDenialForAppeal] =
+    useState<any>(null);
   const [showAppealModal, setShowAppealModal] = useState(false);
   const [smartFilterEnabled, setSmartFilterEnabled] = useState(true);
   const [filterCriteria, setFilterCriteria] = useState({
     specialty: "all",
     availability: "all",
     experience: "all",
-    performance: "all"
+    performance: "all",
   });
 
-  const filteredDenials = activeDenials.filter(denial => {
-    const matchesSearch = searchTerm === "" || 
+  const filteredDenials = activeDenials.filter((denial) => {
+    const matchesSearch =
+      searchTerm === "" ||
       denial.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       denial.denialId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = selectedDepartment === "All Departments" || denial.department === selectedDepartment;
-    const matchesPayer = selectedPayer === "All Payers" || denial.payerName === selectedPayer;
-    
+    const matchesDepartment =
+      selectedDepartment === "All Departments" ||
+      denial.department === selectedDepartment;
+    const matchesPayer =
+      selectedPayer === "All Payers" || denial.payerName === selectedPayer;
+
     return matchesSearch && matchesDepartment && matchesPayer;
   });
 
@@ -330,35 +395,45 @@ export function ClinicalDenialsDashboard() {
     const actions = [];
 
     // Appeal Generation - for appealable denials
-    if (denial.daysToAppeal > 0 && denial.status !== "Upheld" && denial.status !== "Closed") {
+    if (
+      denial.daysToAppeal > 0 &&
+      denial.status !== "Upheld" &&
+      denial.status !== "Closed"
+    ) {
       actions.push({
         type: "appeal",
         label: "Generate Appeal",
         icon: Gavel,
         color: "bg-purple-600 hover:bg-purple-700",
-        description: "AI-powered appeal letter generation"
+        description: "AI-powered appeal letter generation",
       });
     }
 
     // Clinical Decision Support - for medical necessity and documentation denials
-    if (denial.category === "Medical Necessity" || denial.category === "Documentation") {
+    if (
+      denial.category === "Medical Necessity" ||
+      denial.category === "Documentation"
+    ) {
       actions.push({
         type: "clinical",
         label: "Clinical Review",
         icon: Stethoscope,
         color: "bg-blue-600 hover:bg-blue-700",
-        description: "Medical record analysis and recommendations"
+        description: "Medical record analysis and recommendations",
       });
     }
 
     // Pre-Authorization Check - for authorization-related denials
-    if (denial.category === "Authorization" || denial.denialReason.includes("authorization")) {
+    if (
+      denial.category === "Authorization" ||
+      denial.denialReason.includes("authorization")
+    ) {
       actions.push({
         type: "preauth",
         label: "Check Pre-Auth",
         icon: Shield,
         color: "bg-green-600 hover:bg-green-700",
-        description: "Pre-authorization status and requirements"
+        description: "Pre-authorization status and requirements",
       });
     }
 
@@ -387,92 +462,119 @@ export function ClinicalDenialsDashboard() {
 
   // Enhanced reviewer data with additional metadata for smart filtering
   const getAllReviewers = () => [
-    { 
+    {
       id: "rev-001",
-      name: "Dr. Sarah Chen", 
-      specialty: "Cardiology", 
-      workload: 12, 
-      avgDays: 2.8, 
+      name: "Dr. Sarah Chen",
+      specialty: "Cardiology",
+      workload: 12,
+      avgDays: 2.8,
       successRate: 89,
       status: "Available",
       experience: "Senior",
-      certifications: ["Board Certified Cardiologist", "Clinical Documentation Improvement"],
-      recentCaseTypes: ["Heart Failure", "Cardiac Surgery", "Interventional Procedures"],
+      certifications: [
+        "Board Certified Cardiologist",
+        "Clinical Documentation Improvement",
+      ],
+      recentCaseTypes: [
+        "Heart Failure",
+        "Cardiac Surgery",
+        "Interventional Procedures",
+      ],
       maxCaseLoad: 20,
       urgentCasesHandled: 45,
       complexityScore: 8.5,
-      departmentExperience: ["Cardiology", "CCU", "Emergency Medicine"]
+      departmentExperience: ["Cardiology", "CCU", "Emergency Medicine"],
     },
-    { 
+    {
       id: "rev-002",
-      name: "Dr. Michael Rodriguez", 
-      specialty: "Internal Medicine", 
-      workload: 8, 
-      avgDays: 3.2, 
+      name: "Dr. Michael Rodriguez",
+      specialty: "Internal Medicine",
+      workload: 8,
+      avgDays: 3.2,
       successRate: 92,
       status: "Available",
       experience: "Senior",
-      certifications: ["Internal Medicine Board", "Quality Improvement", "Utilization Review"],
-      recentCaseTypes: ["Medical Necessity", "Length of Stay", "Discharge Planning"],
+      certifications: [
+        "Internal Medicine Board",
+        "Quality Improvement",
+        "Utilization Review",
+      ],
+      recentCaseTypes: [
+        "Medical Necessity",
+        "Length of Stay",
+        "Discharge Planning",
+      ],
       maxCaseLoad: 18,
       urgentCasesHandled: 62,
       complexityScore: 9.2,
-      departmentExperience: ["Internal Medicine", "ICU", "Hospitalist"]
+      departmentExperience: ["Internal Medicine", "ICU", "Hospitalist"],
     },
-    { 
+    {
       id: "rev-003",
-      name: "Dr. Lisa Thompson", 
-      specialty: "Surgery", 
-      workload: 15, 
-      avgDays: 4.1, 
+      name: "Dr. Lisa Thompson",
+      specialty: "Surgery",
+      workload: 15,
+      avgDays: 4.1,
       successRate: 85,
       status: "Busy",
       experience: "Senior",
       certifications: ["General Surgery Board", "Trauma Surgery"],
-      recentCaseTypes: ["Surgical Necessity", "Post-Op Complications", "Emergency Surgery"],
+      recentCaseTypes: [
+        "Surgical Necessity",
+        "Post-Op Complications",
+        "Emergency Surgery",
+      ],
       maxCaseLoad: 16,
       urgentCasesHandled: 28,
       complexityScore: 8.8,
-      departmentExperience: ["Surgery", "Trauma", "Emergency"]
+      departmentExperience: ["Surgery", "Trauma", "Emergency"],
     },
-    { 
+    {
       id: "rev-004",
-      name: "Dr. James Wilson", 
-      specialty: "Emergency Medicine", 
-      workload: 6, 
-      avgDays: 2.3, 
+      name: "Dr. James Wilson",
+      specialty: "Emergency Medicine",
+      workload: 6,
+      avgDays: 2.3,
       successRate: 94,
       status: "Available",
       experience: "Mid-Level",
       certifications: ["Emergency Medicine Board", "Critical Care"],
-      recentCaseTypes: ["ED Visits", "Observation Status", "Emergency Procedures"],
+      recentCaseTypes: [
+        "ED Visits",
+        "Observation Status",
+        "Emergency Procedures",
+      ],
       maxCaseLoad: 22,
       urgentCasesHandled: 78,
       complexityScore: 7.9,
-      departmentExperience: ["Emergency Medicine", "ICU", "Urgent Care"]
+      departmentExperience: ["Emergency Medicine", "ICU", "Urgent Care"],
     },
-    { 
+    {
       id: "rev-005",
-      name: "Dr. Emily Zhang", 
-      specialty: "Orthopedics", 
-      workload: 10, 
-      avgDays: 3.5, 
+      name: "Dr. Emily Zhang",
+      specialty: "Orthopedics",
+      workload: 10,
+      avgDays: 3.5,
       successRate: 88,
       status: "Available",
       experience: "Senior",
       certifications: ["Orthopedic Surgery Board", "Sports Medicine"],
-      recentCaseTypes: ["Joint Replacements", "Fracture Care", "Sports Injuries"],
+      recentCaseTypes: [
+        "Joint Replacements",
+        "Fracture Care",
+        "Sports Injuries",
+      ],
       maxCaseLoad: 15,
       urgentCasesHandled: 32,
       complexityScore: 8.3,
-      departmentExperience: ["Orthopedics", "Surgery", "Sports Medicine"]
+      departmentExperience: ["Orthopedics", "Surgery", "Sports Medicine"],
     },
-    { 
+    {
       id: "rev-006",
-      name: "Dr. Robert Kumar", 
-      specialty: "Pulmonology", 
-      workload: 7, 
-      avgDays: 2.9, 
+      name: "Dr. Robert Kumar",
+      specialty: "Pulmonology",
+      workload: 7,
+      avgDays: 2.9,
       successRate: 91,
       status: "Available",
       experience: "Junior",
@@ -481,20 +583,20 @@ export function ClinicalDenialsDashboard() {
       maxCaseLoad: 18,
       urgentCasesHandled: 35,
       complexityScore: 7.6,
-      departmentExperience: ["Pulmonology", "ICU", "Internal Medicine"]
-    }
+      departmentExperience: ["Pulmonology", "ICU", "Internal Medicine"],
+    },
   ];
 
   // Smart filtering algorithm for reviewer assignment
   const getSmartFilteredReviewers = (denial: any) => {
     const reviewers = getAllReviewers();
-    
+
     if (!smartFilterEnabled) {
-      return reviewers.filter(r => r.status === "Available");
+      return reviewers.filter((r) => r.status === "Available");
     }
 
     // Calculate match scores for each reviewer
-    const scoredReviewers = reviewers.map(reviewer => {
+    const scoredReviewers = reviewers.map((reviewer) => {
       let score = 0;
       const factors = {
         specialty: 0,
@@ -503,17 +605,25 @@ export function ClinicalDenialsDashboard() {
         experience: 0,
         performance: 0,
         urgency: 0,
-        department: 0
+        department: 0,
       };
 
       // Specialty matching (30% weight)
       const denialDept = denial.department.toLowerCase();
       const reviewerSpecialty = reviewer.specialty.toLowerCase();
-      const reviewerDepts = reviewer.departmentExperience.map(d => d.toLowerCase());
-      
-      if (reviewerSpecialty.includes(denialDept) || reviewerDepts.includes(denialDept)) {
+      const reviewerDepts = reviewer.departmentExperience.map((d) =>
+        d.toLowerCase(),
+      );
+
+      if (
+        reviewerSpecialty.includes(denialDept) ||
+        reviewerDepts.includes(denialDept)
+      ) {
         factors.specialty = 30;
-      } else if (reviewerSpecialty === "internal medicine" || reviewerDepts.includes("internal medicine")) {
+      } else if (
+        reviewerSpecialty === "internal medicine" ||
+        reviewerDepts.includes("internal medicine")
+      ) {
         factors.specialty = 20; // Internal medicine as fallback
       } else {
         factors.specialty = 10; // General medical knowledge
@@ -530,14 +640,30 @@ export function ClinicalDenialsDashboard() {
       }
 
       // Workload balance (15% weight)
-      const workloadScore = Math.max(0, 15 - (reviewer.workload / reviewer.maxCaseLoad * 15));
+      const workloadScore = Math.max(
+        0,
+        15 - (reviewer.workload / reviewer.maxCaseLoad) * 15,
+      );
       factors.workload = workloadScore;
 
       // Experience level (10% weight)
-      if (denial.category === "Medical Necessity" || denial.deniedAmount > 50000) {
-        factors.experience = reviewer.experience === "Senior" ? 10 : reviewer.experience === "Mid-Level" ? 7 : 4;
+      if (
+        denial.category === "Medical Necessity" ||
+        denial.deniedAmount > 50000
+      ) {
+        factors.experience =
+          reviewer.experience === "Senior"
+            ? 10
+            : reviewer.experience === "Mid-Level"
+              ? 7
+              : 4;
       } else {
-        factors.experience = reviewer.experience === "Senior" ? 10 : reviewer.experience === "Mid-Level" ? 9 : 8;
+        factors.experience =
+          reviewer.experience === "Senior"
+            ? 10
+            : reviewer.experience === "Mid-Level"
+              ? 9
+              : 8;
       }
 
       // Performance metrics (10% weight)
@@ -562,24 +688,33 @@ export function ClinicalDenialsDashboard() {
         ...reviewer,
         matchScore: score,
         matchFactors: factors,
-        recommendation: score >= 75 ? "Highly Recommended" : 
-                      score >= 60 ? "Good Match" : 
-                      score >= 45 ? "Fair Match" : "Not Recommended"
+        recommendation:
+          score >= 75
+            ? "Highly Recommended"
+            : score >= 60
+              ? "Good Match"
+              : score >= 45
+                ? "Fair Match"
+                : "Not Recommended",
       };
     });
 
     // Sort by match score and filter available reviewers
     return scoredReviewers
-      .filter(r => r.status === "Available")
+      .filter((r) => r.status === "Available")
       .sort((a, b) => b.matchScore - a.matchScore);
   };
 
   const getRecommendationColor = (recommendation: string) => {
     switch (recommendation) {
-      case "Highly Recommended": return "bg-green-100 text-green-800";
-      case "Good Match": return "bg-blue-100 text-blue-800";
-      case "Fair Match": return "bg-yellow-100 text-yellow-800";
-      default: return "bg-red-100 text-red-800";
+      case "Highly Recommended":
+        return "bg-green-100 text-green-800";
+      case "Good Match":
+        return "bg-blue-100 text-blue-800";
+      case "Fair Match":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-red-100 text-red-800";
     }
   };
 
@@ -589,12 +724,16 @@ export function ClinicalDenialsDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <h1 className="text-2xl font-bold text-gray-900">Clinical Denials</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Clinical Denials
+            </h1>
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4" />
-              <span className="text-sm text-gray-600">Last Updated: Just now</span>
+              <span className="text-sm text-gray-600">
+                Last Updated: Just now
+              </span>
             </div>
             <Button variant="outline" data-testid="button-export-denials">
               <Download className="h-4 w-4 mr-2" />
@@ -610,15 +749,25 @@ export function ClinicalDenialsDashboard() {
               <CardContent className="p-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-600 font-medium">{metric.name}</p>
-                    <span className={`text-xs ${getStatusColor(metric.status)}`}>
+                    <p className="text-xs text-gray-600 font-medium">
+                      {metric.name}
+                    </p>
+                    <span
+                      className={`text-xs ${getStatusColor(metric.status)}`}
+                    >
                       {getChangeIcon(metric.changePercentage)}
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-gray-900">{metric.value}</p>
+                  <p className="text-lg font-bold text-gray-900">
+                    {metric.value}
+                  </p>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500">vs {metric.previousValue}</span>
-                    <span className={`font-medium ${getStatusColor(metric.status)}`}>
+                    <span className="text-gray-500">
+                      vs {metric.previousValue}
+                    </span>
+                    <span
+                      className={`font-medium ${getStatusColor(metric.status)}`}
+                    >
                       {metric.changePercentage}%
                     </span>
                   </div>
@@ -634,7 +783,10 @@ export function ClinicalDenialsDashboard() {
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview" className="flex items-center space-x-2">
+            <TabsTrigger
+              value="overview"
+              className="flex items-center space-x-2"
+            >
               <TrendingUp className="h-4 w-4" />
               <span>Overview</span>
             </TabsTrigger>
@@ -642,7 +794,10 @@ export function ClinicalDenialsDashboard() {
               <FileText className="h-4 w-4" />
               <span>Active Denials</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center space-x-2">
+            <TabsTrigger
+              value="analytics"
+              className="flex items-center space-x-2"
+            >
               <TrendingUp className="h-4 w-4" />
               <span>Analytics</span>
             </TabsTrigger>
@@ -696,35 +851,53 @@ export function ClinicalDenialsDashboard() {
                       data-testid="input-search-denials"
                     />
                   </div>
-                  <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                  <Select
+                    value={selectedDepartment}
+                    onValueChange={setSelectedDepartment}
+                  >
                     <SelectTrigger className="w-48">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="All Departments">All Departments</SelectItem>
+                      <SelectItem value="All Departments">
+                        All Departments
+                      </SelectItem>
                       <SelectItem value="Cardiology">Cardiology</SelectItem>
                       <SelectItem value="Orthopedics">Orthopedics</SelectItem>
-                      <SelectItem value="General Surgery">General Surgery</SelectItem>
-                      <SelectItem value="Emergency Department">Emergency Department</SelectItem>
+                      <SelectItem value="General Surgery">
+                        General Surgery
+                      </SelectItem>
+                      <SelectItem value="Emergency Department">
+                        Emergency Department
+                      </SelectItem>
                       <SelectItem value="Radiology">Radiology</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={selectedPayer} onValueChange={setSelectedPayer}>
+                  <Select
+                    value={selectedPayer}
+                    onValueChange={setSelectedPayer}
+                  >
                     <SelectTrigger className="w-48">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="All Payers">All Payers</SelectItem>
                       <SelectItem value="Medicare">Medicare</SelectItem>
-                      <SelectItem value="Blue Cross Blue Shield">Blue Cross Blue Shield</SelectItem>
+                      <SelectItem value="Blue Cross Blue Shield">
+                        Blue Cross Blue Shield
+                      </SelectItem>
                       <SelectItem value="Aetna">Aetna</SelectItem>
-                      <SelectItem value="UnitedHealthcare">UnitedHealthcare</SelectItem>
+                      <SelectItem value="UnitedHealthcare">
+                        UnitedHealthcare
+                      </SelectItem>
                       <SelectItem value="Humana">Humana</SelectItem>
                     </SelectContent>
                   </Select>
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
                     <Filter className="h-4 w-4" />
-                    <span>{filteredDenials.length} of {activeDenials.length} denials</span>
+                    <span>
+                      {filteredDenials.length} of {activeDenials.length} denials
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -735,37 +908,55 @@ export function ClinicalDenialsDashboard() {
               <CardContent className="p-6">
                 <div className="space-y-4">
                   {filteredDenials.map((denial, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                       data-testid={`denial-${denial.denialId}`}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-start space-x-4">
-                          <div className={`w-3 h-3 rounded-full mt-2 ${
-                            denial.daysToAppeal <= 14 ? "bg-red-500 animate-pulse" :
-                            denial.daysToAppeal <= 30 ? "bg-orange-500" : "bg-green-500"
-                          }`} />
+                          <div
+                            className={`w-3 h-3 rounded-full mt-2 ${
+                              denial.daysToAppeal <= 14
+                                ? "bg-red-500 animate-pulse"
+                                : denial.daysToAppeal <= 30
+                                  ? "bg-orange-500"
+                                  : "bg-green-500"
+                            }`}
+                          />
                           <div>
                             <div className="flex items-center space-x-2 mb-1">
-                              <span className="font-semibold text-gray-900">{denial.denialId}</span>
+                              <span className="font-semibold text-gray-900">
+                                {denial.denialId}
+                              </span>
                               {getStatusBadge(denial.status)}
-                              <Badge className={getCategoryColor(denial.category)}>
+                              <Badge
+                                className={getCategoryColor(denial.category)}
+                              >
                                 {denial.category}
                               </Badge>
                               {denial.appealLevel && (
-                                <Badge variant="outline">{denial.appealLevel}</Badge>
+                                <Badge variant="outline">
+                                  {denial.appealLevel}
+                                </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600 mb-1">{denial.patientName}</p>
+                            <p className="text-sm text-gray-600 mb-1">
+                              {denial.patientName}
+                            </p>
                             <p className="text-xs text-gray-500">
-                              {denial.department} • {denial.provider} • Service Date: {denial.serviceDate}
+                              {denial.department} • {denial.provider} • Service
+                              Date: {denial.serviceDate}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-gray-900">${denial.deniedAmount.toLocaleString()}</p>
-                          <p className={`text-sm ${getDaysToAppealColor(denial.daysToAppeal)}`}>
+                          <p className="font-semibold text-gray-900">
+                            ${denial.deniedAmount.toLocaleString()}
+                          </p>
+                          <p
+                            className={`text-sm ${getDaysToAppealColor(denial.daysToAppeal)}`}
+                          >
                             {denial.daysToAppeal} days to appeal
                           </p>
                           <p className="text-xs text-gray-500">
@@ -777,19 +968,29 @@ export function ClinicalDenialsDashboard() {
                       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                         <div>
                           <span className="text-gray-600">Payer:</span>
-                          <span className="font-medium ml-2">{denial.payerName}</span>
+                          <span className="font-medium ml-2">
+                            {denial.payerName}
+                          </span>
                         </div>
                         <div>
                           <span className="text-gray-600">Denial Reason:</span>
-                          <span className="font-medium ml-2">{denial.denialReason}</span>
+                          <span className="font-medium ml-2">
+                            {denial.denialReason}
+                          </span>
                         </div>
                         <div>
                           <span className="text-gray-600">Denial Date:</span>
-                          <span className="font-medium ml-2">{denial.denialDate}</span>
+                          <span className="font-medium ml-2">
+                            {denial.denialDate}
+                          </span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Appeal Deadline:</span>
-                          <span className="font-medium ml-2">{denial.appealDeadline}</span>
+                          <span className="text-gray-600">
+                            Appeal Deadline:
+                          </span>
+                          <span className="font-medium ml-2">
+                            {denial.appealDeadline}
+                          </span>
                         </div>
                       </div>
 
@@ -797,31 +998,53 @@ export function ClinicalDenialsDashboard() {
                         {/* Essential Administrative Actions */}
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" data-testid={`button-assign-${denial.denialId}`}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              data-testid={`button-assign-${denial.denialId}`}
+                            >
                               <Users className="h-4 w-4 mr-2" />
                               Assign Reviewer
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-2xl">
                             <DialogHeader>
-                              <DialogTitle>Assign Clinical Reviewer - {denial.denialId}</DialogTitle>
+                              <DialogTitle>
+                                Assign Clinical Reviewer - {denial.denialId}
+                              </DialogTitle>
                             </DialogHeader>
                             <div className="space-y-6">
                               {/* Denial Details */}
                               <div className="bg-gray-50 p-4 rounded">
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                   <div>
-                                    <span className="font-medium">Patient:</span> {denial.patientName}
+                                    <span className="font-medium">
+                                      Patient:
+                                    </span>{" "}
+                                    {denial.patientName}
                                   </div>
                                   <div>
-                                    <span className="font-medium">Amount:</span> ${denial.deniedAmount.toLocaleString()}
+                                    <span className="font-medium">Amount:</span>{" "}
+                                    ${denial.deniedAmount.toLocaleString()}
                                   </div>
                                   <div>
-                                    <span className="font-medium">Category:</span> {denial.category}
+                                    <span className="font-medium">
+                                      Category:
+                                    </span>{" "}
+                                    {denial.category}
                                   </div>
                                   <div>
-                                    <span className="font-medium">Days to Appeal:</span> 
-                                    <span className={getDaysToAppealColor(denial.daysToAppeal)}> {denial.daysToAppeal} days</span>
+                                    <span className="font-medium">
+                                      Days to Appeal:
+                                    </span>
+                                    <span
+                                      className={getDaysToAppealColor(
+                                        denial.daysToAppeal,
+                                      )}
+                                    >
+                                      {" "}
+                                      {denial.daysToAppeal} days
+                                    </span>
                                   </div>
                                 </div>
                               </div>
@@ -830,15 +1053,23 @@ export function ClinicalDenialsDashboard() {
                               <div className="space-y-4">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center space-x-2">
-                                    <h3 className="font-semibold text-gray-900">Clinical Reviewer Assignment</h3>
-                                    <Badge className="bg-orange-100 text-orange-800 text-xs">BETA</Badge>
+                                    <h3 className="font-semibold text-gray-900">
+                                      Clinical Reviewer Assignment
+                                    </h3>
+                                    <Badge className="bg-orange-100 text-orange-800 text-xs">
+                                      BETA
+                                    </Badge>
                                   </div>
                                   <div className="flex items-center space-x-2">
-                                    <label className="text-sm text-gray-600">Smart Matching:</label>
+                                    <label className="text-sm text-gray-600">
+                                      Smart Matching:
+                                    </label>
                                     <input
                                       type="checkbox"
                                       checked={smartFilterEnabled}
-                                      onChange={(e) => setSmartFilterEnabled(e.target.checked)}
+                                      onChange={(e) =>
+                                        setSmartFilterEnabled(e.target.checked)
+                                      }
                                       className="rounded"
                                     />
                                   </div>
@@ -848,236 +1079,380 @@ export function ClinicalDenialsDashboard() {
                                   <div className="bg-blue-50 p-3 rounded-lg border border-orange-200">
                                     <div className="flex items-center space-x-2 mb-2">
                                       <Shield className="h-4 w-4 text-blue-600" />
-                                      <span className="text-sm font-medium text-blue-900">AI-Powered Matching Enabled</span>
-                                      <Badge className="bg-orange-100 text-orange-800 text-xs">BETA</Badge>
+                                      <span className="text-sm font-medium text-blue-900">
+                                        AI-Powered Matching Enabled
+                                      </span>
+                                      <Badge className="bg-orange-100 text-orange-800 text-xs">
+                                        BETA
+                                      </Badge>
                                     </div>
                                     <p className="text-xs text-blue-700">
-                                      Reviewers are automatically ranked by specialty match, workload, experience, and performance metrics.
+                                      Reviewers are automatically ranked by
+                                      specialty match, workload, experience, and
+                                      performance metrics.
                                     </p>
                                     <p className="text-xs text-orange-700 mt-1 italic">
-                                      Beta feature - algorithm is being refined based on user feedback.
+                                      Beta feature - algorithm is being refined
+                                      based on user feedback.
                                     </p>
                                   </div>
                                 )}
 
                                 {/* Reviewers List */}
                                 <div className="space-y-3 max-h-96 overflow-y-auto">
-                                  {getSmartFilteredReviewers(denial).map((reviewer, index) => (
-                                    <div key={reviewer.id} className={`border rounded p-4 transition-all ${
-                                      index === 0 && smartFilterEnabled ? "border-green-200 bg-green-50" :
-                                      index === 1 && smartFilterEnabled ? "border-blue-200 bg-blue-50" :
-                                      "border-gray-200 hover:bg-gray-50"
-                                    }`}>
-                                      <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center space-x-3">
-                                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                            index === 0 && smartFilterEnabled ? "bg-green-100" :
-                                            index === 1 && smartFilterEnabled ? "bg-blue-100" :
-                                            "bg-gray-100"
-                                          }`}>
-                                            <Stethoscope className={`h-5 w-5 ${
-                                              index === 0 && smartFilterEnabled ? "text-green-600" :
-                                              index === 1 && smartFilterEnabled ? "text-blue-600" :
-                                              "text-gray-600"
-                                            }`} />
+                                  {getSmartFilteredReviewers(denial).map(
+                                    (reviewer, index) => (
+                                      <div
+                                        key={reviewer.id}
+                                        className={`border rounded p-4 transition-all ${
+                                          index === 0 && smartFilterEnabled
+                                            ? "border-green-200 bg-green-50"
+                                            : index === 1 && smartFilterEnabled
+                                              ? "border-blue-200 bg-blue-50"
+                                              : "border-gray-200 hover:bg-gray-50"
+                                        }`}
+                                      >
+                                        <div className="flex items-start justify-between mb-3">
+                                          <div className="flex items-center space-x-3">
+                                            <div
+                                              className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                                index === 0 &&
+                                                smartFilterEnabled
+                                                  ? "bg-green-100"
+                                                  : index === 1 &&
+                                                      smartFilterEnabled
+                                                    ? "bg-blue-100"
+                                                    : "bg-gray-100"
+                                              }`}
+                                            >
+                                              <Stethoscope
+                                                className={`h-5 w-5 ${
+                                                  index === 0 &&
+                                                  smartFilterEnabled
+                                                    ? "text-green-600"
+                                                    : index === 1 &&
+                                                        smartFilterEnabled
+                                                      ? "text-blue-600"
+                                                      : "text-gray-600"
+                                                }`}
+                                              />
+                                            </div>
+                                            <div>
+                                              <div className="flex items-center space-x-2">
+                                                <p className="font-medium text-gray-900">
+                                                  {reviewer.name}
+                                                </p>
+                                                {index === 0 &&
+                                                  smartFilterEnabled && (
+                                                    <Badge className="bg-green-100 text-green-800 text-xs">
+                                                      #1 Match
+                                                    </Badge>
+                                                  )}
+                                                {index === 1 &&
+                                                  smartFilterEnabled && (
+                                                    <Badge className="bg-blue-100 text-blue-800 text-xs">
+                                                      #2 Match
+                                                    </Badge>
+                                                  )}
+                                              </div>
+                                              <p className="text-sm text-gray-600">
+                                                {reviewer.specialty}
+                                              </p>
+                                              <p className="text-xs text-gray-500">
+                                                {reviewer.experience} Level
+                                              </p>
+                                            </div>
+                                          </div>
+                                          <div className="text-right">
+                                            {smartFilterEnabled && (
+                                              <Badge
+                                                className={getRecommendationColor(
+                                                  reviewer.recommendation,
+                                                )}
+                                              >
+                                                {reviewer.recommendation}
+                                              </Badge>
+                                            )}
+                                            <div className="mt-1">
+                                              <Badge className="bg-green-100 text-green-800">
+                                                Available
+                                              </Badge>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* Performance Metrics */}
+                                        <div className="grid grid-cols-3 gap-3 text-xs text-gray-600 mb-3">
+                                          <div>
+                                            <span className="font-medium">
+                                              Cases:
+                                            </span>{" "}
+                                            {reviewer.workload}/
+                                            {reviewer.maxCaseLoad}
                                           </div>
                                           <div>
-                                            <div className="flex items-center space-x-2">
-                                              <p className="font-medium text-gray-900">{reviewer.name}</p>
-                                              {index === 0 && smartFilterEnabled && (
-                                                <Badge className="bg-green-100 text-green-800 text-xs">
-                                                  #1 Match
-                                                </Badge>
-                                              )}
-                                              {index === 1 && smartFilterEnabled && (
-                                                <Badge className="bg-blue-100 text-blue-800 text-xs">
-                                                  #2 Match
-                                                </Badge>
-                                              )}
+                                            <span className="font-medium">
+                                              Avg Days:
+                                            </span>{" "}
+                                            {reviewer.avgDays}
+                                          </div>
+                                          <div>
+                                            <span className="font-medium">
+                                              Success:
+                                            </span>{" "}
+                                            {reviewer.successRate}%
+                                          </div>
+                                        </div>
+
+                                        {/* Smart Matching Details */}
+                                        {smartFilterEnabled && (
+                                          <div className="mb-3">
+                                            <div className="flex items-center space-x-1 mb-2">
+                                              <span className="text-xs font-medium text-gray-700">
+                                                Match Score:
+                                              </span>
+                                              <span className="text-xs font-bold text-gray-900">
+                                                {reviewer.matchScore.toFixed(1)}
+                                                /100
+                                              </span>
+                                              <div className="flex-1 mx-2">
+                                                <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                                  <div
+                                                    className={`h-1.5 rounded-full ${
+                                                      reviewer.matchScore >= 75
+                                                        ? "bg-green-500"
+                                                        : reviewer.matchScore >=
+                                                            60
+                                                          ? "bg-blue-500"
+                                                          : reviewer.matchScore >=
+                                                              45
+                                                            ? "bg-yellow-500"
+                                                            : "bg-red-500"
+                                                    }`}
+                                                    style={{
+                                                      width: `${reviewer.matchScore}%`,
+                                                    }}
+                                                  ></div>
+                                                </div>
+                                              </div>
                                             </div>
-                                            <p className="text-sm text-gray-600">{reviewer.specialty}</p>
-                                            <p className="text-xs text-gray-500">{reviewer.experience} Level</p>
-                                          </div>
-                                        </div>
-                                        <div className="text-right">
-                                          {smartFilterEnabled && (
-                                            <Badge className={getRecommendationColor(reviewer.recommendation)}>
-                                              {reviewer.recommendation}
-                                            </Badge>
-                                          )}
-                                          <div className="mt-1">
-                                            <Badge className="bg-green-100 text-green-800">
-                                              Available
-                                            </Badge>
-                                          </div>
-                                        </div>
-                                      </div>
 
-                                      {/* Performance Metrics */}
-                                      <div className="grid grid-cols-3 gap-3 text-xs text-gray-600 mb-3">
-                                        <div>
-                                          <span className="font-medium">Cases:</span> {reviewer.workload}/{reviewer.maxCaseLoad}
-                                        </div>
-                                        <div>
-                                          <span className="font-medium">Avg Days:</span> {reviewer.avgDays}
-                                        </div>
-                                        <div>
-                                          <span className="font-medium">Success:</span> {reviewer.successRate}%
-                                        </div>
-                                      </div>
-
-                                      {/* Smart Matching Details */}
-                                      {smartFilterEnabled && (
-                                        <div className="mb-3">
-                                          <div className="flex items-center space-x-1 mb-2">
-                                            <span className="text-xs font-medium text-gray-700">Match Score:</span>
-                                            <span className="text-xs font-bold text-gray-900">{reviewer.matchScore.toFixed(1)}/100</span>
-                                            <div className="flex-1 mx-2">
-                                              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                                <div 
-                                                  className={`h-1.5 rounded-full ${
-                                                    reviewer.matchScore >= 75 ? "bg-green-500" :
-                                                    reviewer.matchScore >= 60 ? "bg-blue-500" :
-                                                    reviewer.matchScore >= 45 ? "bg-yellow-500" : "bg-red-500"
-                                                  }`}
-                                                  style={{width: `${reviewer.matchScore}%`}}
-                                                ></div>
+                                            {/* Key Match Factors */}
+                                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                              <div className="flex justify-between">
+                                                <span className="text-gray-600">
+                                                  Specialty:
+                                                </span>
+                                                <span className="font-medium">
+                                                  {reviewer.matchFactors.specialty.toFixed(
+                                                    0,
+                                                  )}
+                                                  %
+                                                </span>
+                                              </div>
+                                              <div className="flex justify-between">
+                                                <span className="text-gray-600">
+                                                  Availability:
+                                                </span>
+                                                <span className="font-medium">
+                                                  {reviewer.matchFactors.availability.toFixed(
+                                                    0,
+                                                  )}
+                                                  %
+                                                </span>
+                                              </div>
+                                              <div className="flex justify-between">
+                                                <span className="text-gray-600">
+                                                  Workload:
+                                                </span>
+                                                <span className="font-medium">
+                                                  {reviewer.matchFactors.workload.toFixed(
+                                                    0,
+                                                  )}
+                                                  %
+                                                </span>
+                                              </div>
+                                              <div className="flex justify-between">
+                                                <span className="text-gray-600">
+                                                  Performance:
+                                                </span>
+                                                <span className="font-medium">
+                                                  {reviewer.matchFactors.performance.toFixed(
+                                                    0,
+                                                  )}
+                                                  %
+                                                </span>
                                               </div>
                                             </div>
                                           </div>
-                                          
-                                          {/* Key Match Factors */}
-                                          <div className="grid grid-cols-2 gap-2 text-xs">
-                                            <div className="flex justify-between">
-                                              <span className="text-gray-600">Specialty:</span>
-                                              <span className="font-medium">{reviewer.matchFactors.specialty.toFixed(0)}%</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                              <span className="text-gray-600">Availability:</span>
-                                              <span className="font-medium">{reviewer.matchFactors.availability.toFixed(0)}%</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                              <span className="text-gray-600">Workload:</span>
-                                              <span className="font-medium">{reviewer.matchFactors.workload.toFixed(0)}%</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                              <span className="text-gray-600">Performance:</span>
-                                              <span className="font-medium">{reviewer.matchFactors.performance.toFixed(0)}%</span>
-                                            </div>
+                                        )}
+
+                                        {/* Certifications & Experience */}
+                                        <div className="mb-3">
+                                          <p className="text-xs text-gray-600 mb-1">
+                                            Specializations:
+                                          </p>
+                                          <div className="flex flex-wrap gap-1">
+                                            {reviewer.departmentExperience
+                                              .slice(0, 3)
+                                              .map((dept, idx) => (
+                                                <Badge
+                                                  key={idx}
+                                                  variant="outline"
+                                                  className="text-xs"
+                                                >
+                                                  {dept}
+                                                </Badge>
+                                              ))}
+                                            {reviewer.departmentExperience
+                                              .length > 3 && (
+                                              <Badge
+                                                variant="outline"
+                                                className="text-xs"
+                                              >
+                                                +
+                                                {reviewer.departmentExperience
+                                                  .length - 3}{" "}
+                                                more
+                                              </Badge>
+                                            )}
                                           </div>
                                         </div>
-                                      )}
 
-                                      {/* Certifications & Experience */}
-                                      <div className="mb-3">
-                                        <p className="text-xs text-gray-600 mb-1">Specializations:</p>
-                                        <div className="flex flex-wrap gap-1">
-                                          {reviewer.departmentExperience.slice(0, 3).map((dept, idx) => (
-                                            <Badge key={idx} variant="outline" className="text-xs">
-                                              {dept}
-                                            </Badge>
-                                          ))}
-                                          {reviewer.departmentExperience.length > 3 && (
-                                            <Badge variant="outline" className="text-xs">
-                                              +{reviewer.departmentExperience.length - 3} more
-                                            </Badge>
-                                          )}
-                                        </div>
+                                        {/* Assignment Button */}
+                                        <Button
+                                          size="sm"
+                                          className={`w-full ${
+                                            index === 0 && smartFilterEnabled
+                                              ? "bg-green-600 hover:bg-green-700"
+                                              : index === 1 &&
+                                                  smartFilterEnabled
+                                                ? "bg-blue-600 hover:bg-blue-700"
+                                                : "bg-gray-600 hover:bg-gray-700"
+                                          }`}
+                                          data-testid={`button-assign-to-${reviewer.id}`}
+                                        >
+                                          <div className="flex items-center justify-center space-x-1">
+                                            <span>
+                                              {index === 0 &&
+                                                smartFilterEnabled &&
+                                                "🏆 "}
+                                              Assign to{" "}
+                                              {reviewer.name.split(" ")[1]}
+                                              {smartFilterEnabled &&
+                                                ` (${reviewer.matchScore.toFixed(0)} pts)`}
+                                            </span>
+                                            {smartFilterEnabled && (
+                                              <Badge className="bg-orange-100 text-orange-800 text-xs ml-1">
+                                                β
+                                              </Badge>
+                                            )}
+                                          </div>
+                                        </Button>
                                       </div>
-
-                                      {/* Assignment Button */}
-                                      <Button 
-                                        size="sm" 
-                                        className={`w-full ${
-                                          index === 0 && smartFilterEnabled ? "bg-green-600 hover:bg-green-700" :
-                                          index === 1 && smartFilterEnabled ? "bg-blue-600 hover:bg-blue-700" :
-                                          "bg-gray-600 hover:bg-gray-700"
-                                        }`}
-                                        data-testid={`button-assign-to-${reviewer.id}`}
-                                      >
-                                        <div className="flex items-center justify-center space-x-1">
-                                          <span>
-                                            {index === 0 && smartFilterEnabled && "🏆 "}
-                                            Assign to {reviewer.name.split(' ')[1]}
-                                            {smartFilterEnabled && ` (${reviewer.matchScore.toFixed(0)} pts)`}
-                                          </span>
-                                          {smartFilterEnabled && (
-                                            <Badge className="bg-orange-100 text-orange-800 text-xs ml-1">β</Badge>
-                                          )}
-                                        </div>
-                                      </Button>
-                                    </div>
-                                  ))}
+                                    ),
+                                  )}
                                 </div>
                               </div>
 
                               {/* Performance Overview */}
                               <div className="bg-blue-50 p-4 rounded">
-                                <h4 className="font-medium text-blue-900 mb-2">Team Performance Summary</h4>
+                                <h4 className="font-medium text-blue-900 mb-2">
+                                  Team Performance Summary
+                                </h4>
                                 <div className="grid grid-cols-4 gap-4 text-sm">
                                   <div className="text-center">
-                                    <p className="font-semibold text-blue-900">41</p>
-                                    <p className="text-blue-600">Total Active Cases</p>
+                                    <p className="font-semibold text-blue-900">
+                                      41
+                                    </p>
+                                    <p className="text-blue-600">
+                                      Total Active Cases
+                                    </p>
                                   </div>
                                   <div className="text-center">
-                                    <p className="font-semibold text-blue-900">3.1</p>
-                                    <p className="text-blue-600">Avg Review Days</p>
+                                    <p className="font-semibold text-blue-900">
+                                      3.1
+                                    </p>
+                                    <p className="text-blue-600">
+                                      Avg Review Days
+                                    </p>
                                   </div>
                                   <div className="text-center">
-                                    <p className="font-semibold text-blue-900">90%</p>
-                                    <p className="text-blue-600">Success Rate</p>
+                                    <p className="font-semibold text-blue-900">
+                                      90%
+                                    </p>
+                                    <p className="text-blue-600">
+                                      Success Rate
+                                    </p>
                                   </div>
                                   <div className="text-center">
-                                    <p className="font-semibold text-blue-900">$12.4M</p>
-                                    <p className="text-blue-600">Recovered YTD</p>
+                                    <p className="font-semibold text-blue-900">
+                                      $12.4M
+                                    </p>
+                                    <p className="text-blue-600">
+                                      Recovered YTD
+                                    </p>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </DialogContent>
                         </Dialog>
-                        
+
                         {/* Contextual RFP Module Actions */}
                         {getContextualActions(denial).length > 0 ? (
                           <div className="flex gap-2">
-                            {getContextualActions(denial).map((action, actionIndex) => {
-                              const IconComponent = action.icon;
-                              return (
-                                <Dialog key={actionIndex}>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      className={`text-white ${action.color}`}
-                                      title={action.description}
-                                      data-testid={`button-${action.type}-${denial.denialId}`}
-                                      onClick={() => handleRFPModuleOpen(denial, action.type)}
-                                    >
-                                      <IconComponent className="h-4 w-4 mr-1" />
-                                      {action.label}
-                                      <ExternalLink className="h-3 w-3 ml-1" />
-                                    </Button>
-                                  </DialogTrigger>
-                                </Dialog>
-                              );
-                            })}
+                            {getContextualActions(denial).map(
+                              (action, actionIndex) => {
+                                const IconComponent = action.icon;
+                                return (
+                                  <Dialog key={actionIndex}>
+                                    <DialogTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        className={`text-white ${action.color}`}
+                                        title={action.description}
+                                        data-testid={`button-${action.type}-${denial.denialId}`}
+                                        onClick={() =>
+                                          handleRFPModuleOpen(
+                                            denial,
+                                            action.type,
+                                          )
+                                        }
+                                      >
+                                        <IconComponent className="h-4 w-4 mr-1" />
+                                        {action.label}
+                                        <ExternalLink className="h-3 w-3 ml-1" />
+                                      </Button>
+                                    </DialogTrigger>
+                                  </Dialog>
+                                );
+                              },
+                            )}
                           </div>
                         ) : (
                           /* Fallback actions for denials without contextual RFP modules */
                           <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               className="bg-blue-600 hover:bg-blue-700 text-white"
                               data-testid={`button-review-${denial.denialId}`}
                             >
                               <Eye className="h-4 w-4 mr-2" />
                               Review Details
                             </Button>
-                            {denial.daysToAppeal > 0 && denial.status !== "Upheld" && denial.status !== "Closed" && (
-                              <Button size="sm" variant="outline" data-testid={`button-appeal-${denial.denialId}`}>
-                                <FileText className="h-4 w-4 mr-2" />
-                                Manual Appeal
-                              </Button>
-                            )}
+                            {denial.daysToAppeal > 0 &&
+                              denial.status !== "Upheld" &&
+                              denial.status !== "Closed" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  data-testid={`button-appeal-${denial.denialId}`}
+                                >
+                                  <FileText className="h-4 w-4 mr-2" />
+                                  Manual Appeal
+                                </Button>
+                              )}
                           </div>
                         )}
                       </div>
@@ -1088,10 +1463,6 @@ export function ClinicalDenialsDashboard() {
             </Card>
           </TabsContent>
 
-
-
-
-
           {/* Analytics Tab - Lessons Learned */}
           <TabsContent value="analytics" className="space-y-6">
             {/* Key Insights Summary */}
@@ -1099,21 +1470,35 @@ export function ClinicalDenialsDashboard() {
               <Card className="healthcare-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Prevention Opportunities</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Prevention Opportunities
+                    </h3>
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   </div>
                   <div className="space-y-3">
                     <div className="bg-red-50 p-3 rounded">
-                      <p className="text-sm font-medium text-red-800">30% of Medical Necessity denials</p>
-                      <p className="text-xs text-red-600">Missing comprehensive documentation</p>
+                      <p className="text-sm font-medium text-red-800">
+                        30% of Medical Necessity denials
+                      </p>
+                      <p className="text-xs text-red-600">
+                        Missing comprehensive documentation
+                      </p>
                     </div>
                     <div className="bg-orange-50 p-3 rounded">
-                      <p className="text-sm font-medium text-orange-800">25% of Authorization denials</p>
-                      <p className="text-xs text-orange-600">Pre-auth not obtained timely</p>
+                      <p className="text-sm font-medium text-orange-800">
+                        25% of Authorization denials
+                      </p>
+                      <p className="text-xs text-orange-600">
+                        Pre-auth not obtained timely
+                      </p>
                     </div>
                     <div className="bg-yellow-50 p-3 rounded">
-                      <p className="text-sm font-medium text-yellow-800">18% of Coverage denials</p>
-                      <p className="text-xs text-yellow-600">LCD criteria not verified</p>
+                      <p className="text-sm font-medium text-yellow-800">
+                        18% of Coverage denials
+                      </p>
+                      <p className="text-xs text-yellow-600">
+                        LCD criteria not verified
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -1122,21 +1507,35 @@ export function ClinicalDenialsDashboard() {
               <Card className="healthcare-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Success Stories</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Success Stories
+                    </h3>
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   </div>
                   <div className="space-y-3">
                     <div className="bg-green-50 p-3 rounded">
-                      <p className="text-sm font-medium text-green-800">42% reduction in M80 denials</p>
-                      <p className="text-xs text-green-600">Enhanced documentation training</p>
+                      <p className="text-sm font-medium text-green-800">
+                        42% reduction in M80 denials
+                      </p>
+                      <p className="text-xs text-green-600">
+                        Enhanced documentation training
+                      </p>
                     </div>
                     <div className="bg-blue-50 p-3 rounded">
-                      <p className="text-sm font-medium text-blue-800">35% improvement in appeal success</p>
-                      <p className="text-xs text-blue-600">Clinical decision support adoption</p>
+                      <p className="text-sm font-medium text-blue-800">
+                        35% improvement in appeal success
+                      </p>
+                      <p className="text-xs text-blue-600">
+                        Clinical decision support adoption
+                      </p>
                     </div>
                     <div className="bg-purple-50 p-3 rounded">
-                      <p className="text-sm font-medium text-purple-800">28% faster resolution time</p>
-                      <p className="text-xs text-purple-600">Streamlined reviewer assignment</p>
+                      <p className="text-sm font-medium text-purple-800">
+                        28% faster resolution time
+                      </p>
+                      <p className="text-xs text-purple-600">
+                        Streamlined reviewer assignment
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -1145,29 +1544,45 @@ export function ClinicalDenialsDashboard() {
               <Card className="healthcare-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Action Items</h3>
-                    <Badge className="bg-blue-100 text-blue-800">High Priority</Badge>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Action Items
+                    </h3>
+                    <Badge className="bg-blue-100 text-blue-800">
+                      High Priority
+                    </Badge>
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-start space-x-2">
                       <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Implement pre-auth checklist</p>
-                        <p className="text-xs text-gray-600">Target: Reduce N425 denials by 40%</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          Implement pre-auth checklist
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Target: Reduce N425 denials by 40%
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-2">
                       <Clock className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Enhance LCD verification</p>
-                        <p className="text-xs text-gray-600">Target: 90% compliance by Q2</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          Enhance LCD verification
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Target: 90% compliance by Q2
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-start space-x-2">
                       <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">Documentation training</p>
-                        <p className="text-xs text-gray-600">Focus: Medical necessity support</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          Documentation training
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          Focus: Medical necessity support
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1185,76 +1600,142 @@ export function ClinicalDenialsDashboard() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Issue Pattern</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Frequency</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Financial Impact</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Root Cause</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prevention Action</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Issue Pattern
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Frequency
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Financial Impact
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Root Cause
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Prevention Action
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                          Status
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Missing Clinical Support</div>
-                          <div className="text-sm text-gray-500">Medical Necessity Documentation</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            Missing Clinical Support
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Medical Necessity Documentation
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">30%</span>
+                          <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">
+                            30%
+                          </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$2.85M</td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">Incomplete clinical notes</div>
-                          <div className="text-sm text-gray-500">Lack of necessity justification</div>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          $2.85M
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">Enhanced documentation templates</div>
-                          <div className="text-sm text-gray-500">Clinical decision support integration</div>
+                          <div className="text-sm text-gray-900">
+                            Incomplete clinical notes
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Lack of necessity justification
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">
+                            Enhanced documentation templates
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Clinical decision support integration
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
+                          <Badge className="bg-yellow-100 text-yellow-800">
+                            In Progress
+                          </Badge>
                         </td>
                       </tr>
                       <tr className="bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">Late Pre-Authorization</div>
-                          <div className="text-sm text-gray-500">Timing and Process Issues</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            Late Pre-Authorization
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Timing and Process Issues
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded">25%</span>
+                          <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded">
+                            25%
+                          </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$1.89M</td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">Manual tracking systems</div>
-                          <div className="text-sm text-gray-500">Inconsistent follow-up</div>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          $1.89M
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">Automated pre-auth tracking</div>
-                          <div className="text-sm text-gray-500">3+ day advance requirement</div>
+                          <div className="text-sm text-gray-900">
+                            Manual tracking systems
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Inconsistent follow-up
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">
+                            Automated pre-auth tracking
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            3+ day advance requirement
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <Badge className="bg-green-100 text-green-800">Implemented</Badge>
+                          <Badge className="bg-green-100 text-green-800">
+                            Implemented
+                          </Badge>
                         </td>
                       </tr>
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">LCD Criteria Gaps</div>
-                          <div className="text-sm text-gray-500">Coverage Determination</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            LCD Criteria Gaps
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Coverage Determination
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">18%</span>
+                          <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">
+                            18%
+                          </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$1.45M</td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">Outdated coverage policies</div>
-                          <div className="text-sm text-gray-500">Insufficient criteria verification</div>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          $1.45M
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">Real-time LCD verification</div>
-                          <div className="text-sm text-gray-500">Automated policy updates</div>
+                          <div className="text-sm text-gray-900">
+                            Outdated coverage policies
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Insufficient criteria verification
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">
+                            Real-time LCD verification
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Automated policy updates
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <Badge className="bg-blue-100 text-blue-800">Planned</Badge>
+                          <Badge className="bg-blue-100 text-blue-800">
+                            Planned
+                          </Badge>
                         </td>
                       </tr>
                     </tbody>
@@ -1281,37 +1762,57 @@ export function ClinicalDenialsDashboard() {
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Documentation Enhancement</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        Documentation Enhancement
+                      </span>
                       <div className="flex items-center space-x-2">
                         <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-green-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                          <div
+                            className="bg-green-600 h-2 rounded-full"
+                            style={{ width: "75%" }}
+                          ></div>
                         </div>
                         <span className="text-sm text-gray-600">75%</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Pre-Auth Automation</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        Pre-Auth Automation
+                      </span>
                       <div className="flex items-center space-x-2">
                         <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-blue-600 h-2 rounded-full" style={{ width: '90%' }}></div>
+                          <div
+                            className="bg-blue-600 h-2 rounded-full"
+                            style={{ width: "90%" }}
+                          ></div>
                         </div>
                         <span className="text-sm text-gray-600">90%</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">LCD Verification System</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        LCD Verification System
+                      </span>
                       <div className="flex items-center space-x-2">
                         <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-yellow-600 h-2 rounded-full" style={{ width: '45%' }}></div>
+                          <div
+                            className="bg-yellow-600 h-2 rounded-full"
+                            style={{ width: "45%" }}
+                          ></div>
                         </div>
                         <span className="text-sm text-gray-600">45%</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">Staff Training Program</span>
+                      <span className="text-sm font-medium text-gray-900">
+                        Staff Training Program
+                      </span>
                       <div className="flex items-center space-x-2">
                         <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div className="bg-purple-600 h-2 rounded-full" style={{ width: '60%' }}></div>
+                          <div
+                            className="bg-purple-600 h-2 rounded-full"
+                            style={{ width: "60%" }}
+                          ></div>
                         </div>
                         <span className="text-sm text-gray-600">60%</span>
                       </div>
@@ -1327,12 +1828,17 @@ export function ClinicalDenialsDashboard() {
         {selectedDenialForRFP && (
           <>
             {/* Appeal Generation Modal */}
-            <Dialog open={activeRFPModule === "appeal"} onOpenChange={closeRFPModule}>
+            <Dialog
+              open={activeRFPModule === "appeal"}
+              onOpenChange={closeRFPModule}
+            >
               <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="flex items-center space-x-2">
                     <Gavel className="h-5 w-5 text-purple-600" />
-                    <span>Appeal Generation - {selectedDenialForRFP.denialId}</span>
+                    <span>
+                      Appeal Generation - {selectedDenialForRFP.denialId}
+                    </span>
                     <Badge className="ml-2 bg-purple-100 text-purple-800">
                       {selectedDenialForRFP.patientName}
                     </Badge>
@@ -1340,23 +1846,33 @@ export function ClinicalDenialsDashboard() {
                 </DialogHeader>
                 <div className="mt-4">
                   <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                    <h4 className="font-medium text-gray-900 mb-2">Denial Context</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Denial Context
+                    </h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Denial Reason:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.denialReason}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.denialReason}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Denied Amount:</span>
-                        <span className="ml-2 font-medium">${selectedDenialForRFP.deniedAmount?.toLocaleString()}</span>
+                        <span className="ml-2 font-medium">
+                          ${selectedDenialForRFP.deniedAmount?.toLocaleString()}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Category:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.category}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.category}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Days to Appeal:</span>
-                        <span className={`ml-2 font-medium ${getDaysToAppealColor(selectedDenialForRFP.daysToAppeal)}`}>
+                        <span
+                          className={`ml-2 font-medium ${getDaysToAppealColor(selectedDenialForRFP.daysToAppeal)}`}
+                        >
                           {selectedDenialForRFP.daysToAppeal} days
                         </span>
                       </div>
@@ -1365,9 +1881,10 @@ export function ClinicalDenialsDashboard() {
                   {/* This modal now shows patient-specific appeal generation */}
                   <div className="text-center py-8">
                     <p className="text-gray-600">
-                      Patient-specific appeal generation is now available via the "Generate Appeal" button 
-                      on individual denial records. For comprehensive appeal management, navigate to 
-                      Denials → Appeals Management.
+                      Patient-specific appeal generation is now available via
+                      the "Generate Appeal" button on individual denial records.
+                      For comprehensive appeal management, navigate to Denials →
+                      Appeals Management.
                     </p>
                   </div>
                 </div>
@@ -1375,12 +1892,18 @@ export function ClinicalDenialsDashboard() {
             </Dialog>
 
             {/* Clinical Decision Support Modal */}
-            <Dialog open={activeRFPModule === "clinical"} onOpenChange={closeRFPModule}>
+            <Dialog
+              open={activeRFPModule === "clinical"}
+              onOpenChange={closeRFPModule}
+            >
               <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="flex items-center space-x-2">
                     <Stethoscope className="h-5 w-5 text-blue-600" />
-                    <span>Clinical Decision Support - {selectedDenialForRFP.denialId}</span>
+                    <span>
+                      Clinical Decision Support -{" "}
+                      {selectedDenialForRFP.denialId}
+                    </span>
                     <Badge className="ml-2 bg-blue-100 text-blue-800">
                       {selectedDenialForRFP.patientName}
                     </Badge>
@@ -1388,23 +1911,33 @@ export function ClinicalDenialsDashboard() {
                 </DialogHeader>
                 <div className="mt-4">
                   <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                    <h4 className="font-medium text-gray-900 mb-2">Medical Necessity Review Context</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Medical Necessity Review Context
+                    </h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Denial Reason:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.denialReason}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.denialReason}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Department:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.department}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.department}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Provider:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.provider}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.provider}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Service Date:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.serviceDate}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.serviceDate}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1413,48 +1946,124 @@ export function ClinicalDenialsDashboard() {
                     {/* Patient Overview */}
                     <Card>
                       <CardContent className="p-4">
-                        <h4 className="font-semibold text-gray-900 mb-4">Patient Medical Record Analysis</h4>
+                        <h4 className="font-semibold text-gray-900 mb-4">
+                          Patient Medical Record Analysis
+                        </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-4">
                             <div>
-                              <h5 className="font-medium text-gray-700 mb-2">Patient Demographics</h5>
+                              <h5 className="font-medium text-gray-700 mb-2">
+                                Patient Demographics
+                              </h5>
                               <div className="text-sm space-y-1">
-                                <p><span className="text-gray-600">Name:</span> <span className="font-medium">{selectedDenialForRFP.patientName}</span></p>
-                                <p><span className="text-gray-600">Patient ID:</span> <span className="font-medium">{selectedDenialForRFP.patientId || 'PAT-' + Math.random().toString(36).substr(2, 5).toUpperCase()}</span></p>
-                                <p><span className="text-gray-600">Date of Birth:</span> <span className="font-medium">03/15/1965</span></p>
-                                <p><span className="text-gray-600">Age:</span> <span className="font-medium">59 years</span></p>
-                                <p><span className="text-gray-600">Gender:</span> <span className="font-medium">Female</span></p>
+                                <p>
+                                  <span className="text-gray-600">Name:</span>{" "}
+                                  <span className="font-medium">
+                                    {selectedDenialForRFP.patientName}
+                                  </span>
+                                </p>
+                                <p>
+                                  <span className="text-gray-600">
+                                    Patient ID:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    {selectedDenialForRFP.patientId ||
+                                      "PAT-" +
+                                        Math.random()
+                                          .toString(36)
+                                          .substr(2, 5)
+                                          .toUpperCase()}
+                                  </span>
+                                </p>
+                                <p>
+                                  <span className="text-gray-600">
+                                    Date of Birth:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    03/15/1965
+                                  </span>
+                                </p>
+                                <p>
+                                  <span className="text-gray-600">Age:</span>{" "}
+                                  <span className="font-medium">59 years</span>
+                                </p>
+                                <p>
+                                  <span className="text-gray-600">Gender:</span>{" "}
+                                  <span className="font-medium">Female</span>
+                                </p>
                               </div>
                             </div>
                             <div>
-                              <h5 className="font-medium text-gray-700 mb-2">Admission Details</h5>
+                              <h5 className="font-medium text-gray-700 mb-2">
+                                Admission Details
+                              </h5>
                               <div className="text-sm space-y-1">
-                                <p><span className="text-gray-600">Admission Date:</span> <span className="font-medium">{selectedDenialForRFP.serviceDate}</span></p>
-                                <p><span className="text-gray-600">Department:</span> <span className="font-medium">{selectedDenialForRFP.department}</span></p>
-                                <p><span className="text-gray-600">Attending Physician:</span> <span className="font-medium">{selectedDenialForRFP.provider}</span></p>
-                                <p><span className="text-gray-600">Primary Diagnosis:</span> <span className="font-medium">I50.9 - Heart failure, unspecified</span></p>
+                                <p>
+                                  <span className="text-gray-600">
+                                    Admission Date:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    {selectedDenialForRFP.serviceDate}
+                                  </span>
+                                </p>
+                                <p>
+                                  <span className="text-gray-600">
+                                    Department:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    {selectedDenialForRFP.department}
+                                  </span>
+                                </p>
+                                <p>
+                                  <span className="text-gray-600">
+                                    Attending Physician:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    {selectedDenialForRFP.provider}
+                                  </span>
+                                </p>
+                                <p>
+                                  <span className="text-gray-600">
+                                    Primary Diagnosis:
+                                  </span>{" "}
+                                  <span className="font-medium">
+                                    I50.9 - Heart failure, unspecified
+                                  </span>
+                                </p>
                               </div>
                             </div>
                           </div>
                           <div className="space-y-4">
                             <div>
-                              <h5 className="font-medium text-gray-700 mb-2">Clinical Indicators</h5>
+                              <h5 className="font-medium text-gray-700 mb-2">
+                                Clinical Indicators
+                              </h5>
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between p-2 bg-red-50 rounded">
-                                  <span className="text-sm">Ejection Fraction</span>
-                                  <Badge className="bg-red-100 text-red-800">35% (Severe)</Badge>
+                                  <span className="text-sm">
+                                    Ejection Fraction
+                                  </span>
+                                  <Badge className="bg-red-100 text-red-800">
+                                    35% (Severe)
+                                  </Badge>
                                 </div>
                                 <div className="flex items-center justify-between p-2 bg-yellow-50 rounded">
                                   <span className="text-sm">BNP Level</span>
-                                  <Badge className="bg-yellow-100 text-yellow-800">850 pg/mL (Elevated)</Badge>
+                                  <Badge className="bg-yellow-100 text-yellow-800">
+                                    850 pg/mL (Elevated)
+                                  </Badge>
                                 </div>
                                 <div className="flex items-center justify-between p-2 bg-red-50 rounded">
                                   <span className="text-sm">Creatinine</span>
-                                  <Badge className="bg-red-100 text-red-800">2.1 mg/dL (High)</Badge>
+                                  <Badge className="bg-red-100 text-red-800">
+                                    2.1 mg/dL (High)
+                                  </Badge>
                                 </div>
                                 <div className="flex items-center justify-between p-2 bg-green-50 rounded">
                                   <span className="text-sm">Chest X-Ray</span>
-                                  <Badge className="bg-green-100 text-green-800">Pulmonary Edema</Badge>
+                                  <Badge className="bg-green-100 text-green-800">
+                                    Pulmonary Edema
+                                  </Badge>
                                 </div>
                               </div>
                             </div>
@@ -1466,7 +2075,9 @@ export function ClinicalDenialsDashboard() {
                     {/* Clinical Documentation Analysis */}
                     <Card>
                       <CardContent className="p-4">
-                        <h4 className="font-semibold text-gray-900 mb-4">Documentation Assessment</h4>
+                        <h4 className="font-semibold text-gray-900 mb-4">
+                          Documentation Assessment
+                        </h4>
                         <div className="space-y-4">
                           {[
                             {
@@ -1477,8 +2088,8 @@ export function ClinicalDenialsDashboard() {
                                 "✓ H&P completed within 24 hours",
                                 "✓ Admission orders documented",
                                 "✓ Progress notes daily",
-                                "✓ Physician signatures present"
-                              ]
+                                "✓ Physician signatures present",
+                              ],
                             },
                             {
                               category: "Medical Necessity Criteria",
@@ -1488,8 +2099,8 @@ export function ClinicalDenialsDashboard() {
                                 "✓ Acute exacerbation of heart failure",
                                 "✓ IV diuretic therapy required",
                                 "✓ Monitoring for fluid overload",
-                                "✓ Inability to manage outpatient"
-                              ]
+                                "✓ Inability to manage outpatient",
+                              ],
                             },
                             {
                               category: "Potential Documentation Gaps",
@@ -1498,24 +2109,35 @@ export function ClinicalDenialsDashboard() {
                               items: [
                                 "⚠ Social work assessment incomplete",
                                 "⚠ Discharge planning note missing",
-                                "⚠ Patient education documentation needed"
-                              ]
-                            }
+                                "⚠ Patient education documentation needed",
+                              ],
+                            },
                           ].map((section, index) => (
                             <div key={index} className="border rounded-lg p-4">
                               <div className="flex items-center justify-between mb-3">
-                                <h5 className="font-medium text-gray-900">{section.category}</h5>
-                                <Badge className={
-                                  section.color === "green" ? "bg-green-100 text-green-800" :
-                                  section.color === "orange" ? "bg-orange-100 text-orange-800" :
-                                  "bg-red-100 text-red-800"
-                                }>
+                                <h5 className="font-medium text-gray-900">
+                                  {section.category}
+                                </h5>
+                                <Badge
+                                  className={
+                                    section.color === "green"
+                                      ? "bg-green-100 text-green-800"
+                                      : section.color === "orange"
+                                        ? "bg-orange-100 text-orange-800"
+                                        : "bg-red-100 text-red-800"
+                                  }
+                                >
                                   {section.status}
                                 </Badge>
                               </div>
                               <div className="space-y-1">
                                 {section.items.map((item, idx) => (
-                                  <p key={idx} className="text-sm text-gray-700">{item}</p>
+                                  <p
+                                    key={idx}
+                                    className="text-sm text-gray-700"
+                                  >
+                                    {item}
+                                  </p>
                                 ))}
                               </div>
                             </div>
@@ -1527,30 +2149,46 @@ export function ClinicalDenialsDashboard() {
                     {/* AI Recommendations */}
                     <Card>
                       <CardContent className="p-4">
-                        <h4 className="font-semibold text-gray-900 mb-4">AI Clinical Recommendations</h4>
+                        <h4 className="font-semibold text-gray-900 mb-4">
+                          AI Clinical Recommendations
+                        </h4>
                         <div className="space-y-4">
                           <div className="bg-blue-50 p-4 rounded-lg">
                             <div className="flex items-start space-x-3">
                               <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
                               <div>
-                                <h5 className="font-medium text-blue-900">Appeal Probability: High (85%)</h5>
+                                <h5 className="font-medium text-blue-900">
+                                  Appeal Probability: High (85%)
+                                </h5>
                                 <p className="text-sm text-blue-700 mt-1">
-                                  Clinical documentation strongly supports inpatient status. Patient meets InterQual criteria for inpatient care with severe heart failure exacerbation requiring IV therapy and close monitoring.
+                                  Clinical documentation strongly supports
+                                  inpatient status. Patient meets InterQual
+                                  criteria for inpatient care with severe heart
+                                  failure exacerbation requiring IV therapy and
+                                  close monitoring.
                                 </p>
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="bg-green-50 p-4 rounded-lg">
                             <div className="flex items-start space-x-3">
                               <Stethoscope className="h-5 w-5 text-green-600 mt-0.5" />
                               <div>
-                                <h5 className="font-medium text-green-900">Recommended Actions</h5>
+                                <h5 className="font-medium text-green-900">
+                                  Recommended Actions
+                                </h5>
                                 <ul className="text-sm text-green-700 mt-1 space-y-1">
-                                  <li>• Obtain complete social work assessment</li>
-                                  <li>• Document discharge planning discussion</li>
+                                  <li>
+                                    • Obtain complete social work assessment
+                                  </li>
+                                  <li>
+                                    • Document discharge planning discussion
+                                  </li>
                                   <li>• Add patient education notes</li>
-                                  <li>• Include family conference documentation</li>
+                                  <li>
+                                    • Include family conference documentation
+                                  </li>
                                 </ul>
                               </div>
                             </div>
@@ -1560,9 +2198,15 @@ export function ClinicalDenialsDashboard() {
                             <div className="flex items-start space-x-3">
                               <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
                               <div>
-                                <h5 className="font-medium text-yellow-900">Appeal Strategy</h5>
+                                <h5 className="font-medium text-yellow-900">
+                                  Appeal Strategy
+                                </h5>
                                 <p className="text-sm text-yellow-700 mt-1">
-                                  Focus on medical necessity with emphasis on acute decompensation requiring IV diuretics, monitoring, and inability to manage symptoms outpatient. Include cardiology consultation and echo results.
+                                  Focus on medical necessity with emphasis on
+                                  acute decompensation requiring IV diuretics,
+                                  monitoring, and inability to manage symptoms
+                                  outpatient. Include cardiology consultation
+                                  and echo results.
                                 </p>
                               </div>
                             </div>
@@ -1592,12 +2236,18 @@ export function ClinicalDenialsDashboard() {
             </Dialog>
 
             {/* Pre-Authorization Check Modal */}
-            <Dialog open={activeRFPModule === "preauth"} onOpenChange={closeRFPModule}>
+            <Dialog
+              open={activeRFPModule === "preauth"}
+              onOpenChange={closeRFPModule}
+            >
               <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="flex items-center space-x-2">
                     <Shield className="h-5 w-5 text-green-600" />
-                    <span>Pre-Authorization Analysis - {selectedDenialForRFP.denialId}</span>
+                    <span>
+                      Pre-Authorization Analysis -{" "}
+                      {selectedDenialForRFP.denialId}
+                    </span>
                     <Badge className="ml-2 bg-green-100 text-green-800">
                       {selectedDenialForRFP.patientName}
                     </Badge>
@@ -1605,23 +2255,33 @@ export function ClinicalDenialsDashboard() {
                 </DialogHeader>
                 <div className="mt-4">
                   <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                    <h4 className="font-medium text-gray-900 mb-2">Authorization Context</h4>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Authorization Context
+                    </h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Payer:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.payerName}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.payerName}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Denial Reason:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.denialReason}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.denialReason}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Service Date:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.serviceDate}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.serviceDate}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-600">Procedure:</span>
-                        <span className="ml-2 font-medium">{selectedDenialForRFP.procedureCode || "N/A"}</span>
+                        <span className="ml-2 font-medium">
+                          {selectedDenialForRFP.procedureCode || "N/A"}
+                        </span>
                       </div>
                     </div>
                   </div>
