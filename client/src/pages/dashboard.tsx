@@ -13,6 +13,7 @@ import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
 import { PersonaSwitcher } from "@/components/persona-switcher";
 import { ChartLine, HelpCircle } from "lucide-react";
+import logoUrl from "@assets/generated_images/Healthcare_RCM_Logo_6707fed0.png";
 
 interface DemoUser {
   id: string;
@@ -58,7 +59,18 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* Header Navigation */}
       <header className="healthcare-header shadow-lg relative">
-        <div className="flex items-center justify-between px-6 py-3">
+        <div className="flex items-center justify-between pl-0 pr-6" style={{ height: '60px' }}>
+          {/* Brand Logo - Left Justified, Full Height */}
+          <div className="h-full">
+            <img 
+              src={logoUrl} 
+              alt="Healthcare RCM Logo" 
+              className="h-full w-auto object-cover"
+              style={{ aspectRatio: '1/1' }}
+              data-testid="brand-logo"
+            />
+          </div>
+          
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2" data-testid="logo">
               <ChartLine className="h-6 w-6" />
