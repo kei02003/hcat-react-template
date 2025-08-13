@@ -1361,68 +1361,154 @@ export function PreAuthorizationDashboard() {
 
   // Helper function to get sample patient data for demo
   function getSamplePatientData(patientId: string) {
-    // Sample patient data for demonstration
+    // Sample patient data mapped to actual patientIds from the pre-auth requests
     const samplePatients = {
-      "PAT-001": {
-        patientId: "PAT-001",
-        firstName: "Maria",
-        lastName: "Rodriguez", 
-        dateOfBirth: "1978-03-15",
-        memberID: "BCB123456789",
+      "PAT-12345": {
+        patientId: "PAT-12345",
+        firstName: "Robert",
+        lastName: "Johnson", 
+        dateOfBirth: "1975-06-15",
+        memberID: "BCBS123456789",
         groupNumber: "GRP001234",
         primaryInsurance: "Blue Cross Blue Shield",
         address: "123 Main St, Las Vegas, NV 89101",
         phone: "(555) 123-4567",
-        primaryCareProvider: "Dr. Sarah Johnson",
-        referringProvider: "Dr. Michael Chen",
-        diagnosisCode: "M17.11",
-        diagnosisDescription: "Unilateral primary osteoarthritis, right knee",
-        procedureCode: "27447",
-        procedureDescription: "Total knee replacement, right knee",
-        scheduledDate: "2025-02-15",
+        primaryCareProvider: "Dr. Sarah Mitchell",
+        referringProvider: "Dr. Sarah Mitchell",
+        diagnosisCode: "M23.201",
+        diagnosisDescription: "Derangement of medial meniscus due to old tear, right knee",
+        procedureCode: "CPT-29881",
+        procedureDescription: "Arthroscopy, knee, surgical; with meniscectomy",
+        scheduledDate: "2025-08-15",
         urgency: "routine" as const,
-        clinicalHistory: "Progressive knee pain and stiffness over 3 years, conservative treatment failed",
-        priorTreatments: "Physical therapy (6 months), NSAIDs, cortisone injections (3)",
+        clinicalHistory: "Patient presents with mechanical symptoms of right knee locking and catching. Conservative treatment with PT for 8 weeks has failed. MRI shows complex medial meniscal tear with functional limitation.",
+        priorTreatments: "Physical therapy (8 weeks), NSAIDs, activity modification",
         currentMedications: "Ibuprofen 600mg TID, Glucosamine 1500mg daily",
-        allergies: "Penicillin (rash)",
+        allergies: "None known",
         vitalSigns: {
           bloodPressure: "128/84",
           heartRate: "72",
           temperature: "98.6°F",
-          weight: "165 lbs"
+          weight: "185 lbs"
         }
       },
-      "PAT-002": {
-        patientId: "PAT-002",
-        firstName: "James",
-        lastName: "Wilson",
-        dateOfBirth: "1965-11-22",
+      "PAT-67890": {
+        patientId: "PAT-67890",
+        firstName: "Jennifer",
+        lastName: "Smith",
+        dateOfBirth: "1968-09-22",
         memberID: "UHC987654321", 
         groupNumber: "GRP005678",
-        primaryInsurance: "United Healthcare",
+        primaryInsurance: "UnitedHealthcare",
         address: "456 Oak Ave, Las Vegas, NV 89102",
         phone: "(555) 987-6543",
-        primaryCareProvider: "Dr. Lisa Thompson",
-        referringProvider: "Dr. Robert Kumar",
+        primaryCareProvider: "Dr. Robert Davis",
+        referringProvider: "Dr. Robert Davis",
         diagnosisCode: "I25.10",
-        diagnosisDescription: "Atherosclerotic heart disease of native coronary artery",
-        procedureCode: "92928",
-        procedureDescription: "Percutaneous transcatheter placement of intracoronary stent(s)",
-        scheduledDate: "2025-01-20",
+        diagnosisDescription: "Atherosclerotic heart disease of native coronary artery without angina pectoris",
+        procedureCode: "CPT-93458",
+        procedureDescription: "Catheter placement in coronary artery(s) for coronary angiography",
+        scheduledDate: "2025-09-10",
         urgency: "urgent" as const,
-        clinicalHistory: "Recent onset chest pain, positive stress test, 70% LAD stenosis on catheterization",
-        priorTreatments: "Medical management with beta-blockers, statins, antiplatelet therapy",
-        currentMedications: "Metoprolol 50mg BID, Atorvastatin 40mg daily, Clopidogrel 75mg daily",
+        clinicalHistory: "3-month history of exertional chest pain and shortness of breath. Recent stress test positive for ischemia. Family history of CAD.",
+        priorTreatments: "Medical management with beta-blockers, statins, antiplatelet therapy for 6 months",
+        currentMedications: "Metoprolol 50mg BID, Atorvastatin 40mg daily, Aspirin 81mg daily",
         allergies: "Shellfish (anaphylaxis)",
         vitalSigns: {
           bloodPressure: "142/92",
           heartRate: "68",
           temperature: "98.4°F",
-          weight: "185 lbs"
+          weight: "175 lbs"
+        }
+      },
+      "PAT-11111": {
+        patientId: "PAT-11111",
+        firstName: "Michael",
+        lastName: "Thompson",
+        dateOfBirth: "1982-02-10",
+        memberID: "AETNA456789123",
+        groupNumber: "GRP002468",
+        primaryInsurance: "Aetna",
+        address: "789 Pine St, Las Vegas, NV 89103",
+        phone: "(555) 456-7890",
+        primaryCareProvider: "Dr. Emily Wilson",
+        referringProvider: "Dr. Emily Wilson",
+        diagnosisCode: "M54.16",
+        diagnosisDescription: "Radiculopathy, lumbar region",
+        procedureCode: "CPT-63047",
+        procedureDescription: "Laminectomy, facetectomy and foraminotomy (unilateral or bilateral)",
+        scheduledDate: "2025-10-20",
+        urgency: "routine" as const,
+        clinicalHistory: "6-month history of lower back pain with left leg radiculopathy. Failed conservative treatment including PT and epidural injections. MRI shows L4-L5 disc herniation with nerve root compression.",
+        priorTreatments: "Physical therapy (12 weeks), epidural steroid injections (2), NSAIDs",
+        currentMedications: "Gabapentin 300mg TID, Ibuprofen 400mg BID",
+        allergies: "Penicillin (rash)",
+        vitalSigns: {
+          bloodPressure: "135/88",
+          heartRate: "74",
+          temperature: "98.5°F",
+          weight: "200 lbs"
+        }
+      },
+      "PAT-77888": {
+        patientId: "PAT-77888",
+        firstName: "Christopher",
+        lastName: "Lee",
+        dateOfBirth: "1970-12-05",
+        memberID: "AETNA789012345",
+        groupNumber: "GRP003579",
+        primaryInsurance: "Aetna",
+        address: "321 Cedar Ave, Las Vegas, NV 89104",
+        phone: "(555) 234-5678",
+        primaryCareProvider: "Dr. James Park",
+        referringProvider: "Dr. James Park",
+        diagnosisCode: "M54.12",
+        diagnosisDescription: "Radiculopathy, cervical region",
+        procedureCode: "CPT-64483",
+        procedureDescription: "Injection, anesthetic agent; transforaminal epidural",
+        scheduledDate: "2025-10-15",
+        urgency: "routine" as const,
+        clinicalHistory: "C6-C7 radiculopathy with arm pain and weakness. Failed conservative treatment with medications and PT for 8 weeks. MRI shows disc herniation with nerve root compression.",
+        priorTreatments: "Physical therapy (8 weeks), oral medications, activity modification",
+        currentMedications: "Gabapentin 400mg TID, Meloxicam 15mg daily",
+        allergies: "Codeine (nausea)",
+        vitalSigns: {
+          bloodPressure: "130/85",
+          heartRate: "70",
+          temperature: "98.7°F",
+          weight: "180 lbs"
         }
       }
     };
 
-    return samplePatients[patientId as keyof typeof samplePatients] || samplePatients["PAT-001"];
+    return samplePatients[patientId as keyof typeof samplePatients] || {
+      patientId: patientId,
+      firstName: "Unknown",
+      lastName: "Patient",
+      dateOfBirth: "1980-01-01",
+      memberID: "UNKNOWN123456789",
+      groupNumber: "GRP999999",
+      primaryInsurance: "Unknown Insurance",
+      address: "Address not available",
+      phone: "(555) 000-0000",
+      primaryCareProvider: "Dr. Unknown",
+      referringProvider: "Dr. Unknown",
+      diagnosisCode: "Z00.00",
+      diagnosisDescription: "General examination",
+      procedureCode: "00000",
+      procedureDescription: "Unknown procedure",
+      scheduledDate: new Date().toISOString().split('T')[0],
+      urgency: "routine" as const,
+      clinicalHistory: "No clinical history available",
+      priorTreatments: "None documented",
+      currentMedications: "None documented",
+      allergies: "Unknown",
+      vitalSigns: {
+        bloodPressure: "120/80",
+        heartRate: "72",
+        temperature: "98.6°F",
+        weight: "Unknown"
+      }
+    };
   }
 }
