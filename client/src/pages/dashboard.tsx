@@ -68,18 +68,26 @@ export default function Dashboard() {
             {/* Main Navigation Tabs */}
             <nav className="flex items-end space-x-6">
               {mainTabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveMainTab(tab)}
-                  className={`px-4 py-2 rounded-md transition-all ${
-                    activeMainTab === tab 
-                      ? "font-bold text-white" 
-                      : "font-normal text-white/80 hover:text-white hover:bg-white/10"
-                  }`}
-                  data-testid={`main-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  {tab}
-                </button>
+                <div key={tab} className="relative">
+                  <button
+                    onClick={() => setActiveMainTab(tab)}
+                    className={`px-4 py-2 transition-all relative ${
+                      activeMainTab === tab 
+                        ? "font-bold text-white" 
+                        : "font-normal text-white/80 hover:text-white"
+                    }`}
+                    data-testid={`main-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {tab}
+                  </button>
+                  {/* Blue underline bar for active tab */}
+                  {activeMainTab === tab && (
+                    <div 
+                      className="absolute bottom-0 left-0 right-0 h-1 transition-all duration-200"
+                      style={{ backgroundColor: '#00aeff' }}
+                    />
+                  )}
+                </div>
               ))}
             </nav>
           </div>
@@ -110,23 +118,31 @@ export default function Dashboard() {
           <div className="healthcare-secondary-header px-6 py-2">
             <nav className="flex space-x-6">
               {subTabs.map((tab) => (
-                <button
-                  key={tab.name}
-                  onClick={() => setActiveSubTab(tab.name)}
-                  className={`px-3 py-1 text-sm rounded transition-colors flex items-center space-x-2 ${
-                    activeSubTab === tab.name 
-                      ? "bg-gray-600" 
-                      : "hover:bg-gray-600"
-                  }`}
-                  data-testid={`sub-tab-${tab.name.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  <span>{tab.name}</span>
-                  {tab.warning && (
-                    <span className="bg-yellow-500 text-yellow-900 text-xs px-1.5 py-0.5 rounded-full font-medium">
-                      BETA
-                    </span>
+                <div key={tab.name} className="relative">
+                  <button
+                    onClick={() => setActiveSubTab(tab.name)}
+                    className={`px-3 py-1 text-sm transition-colors flex items-center space-x-2 ${
+                      activeSubTab === tab.name 
+                        ? "text-white" 
+                        : "text-white/80 hover:text-white"
+                    }`}
+                    data-testid={`sub-tab-${tab.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <span>{tab.name}</span>
+                    {tab.warning && (
+                      <span className="bg-yellow-500 text-yellow-900 text-xs px-1.5 py-0.5 rounded-full font-medium">
+                        BETA
+                      </span>
+                    )}
+                  </button>
+                  {/* Blue underline bar for active sub-tab */}
+                  {activeSubTab === tab.name && (
+                    <div 
+                      className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-200"
+                      style={{ backgroundColor: '#00aeff' }}
+                    />
                   )}
-                </button>
+                </div>
               ))}
             </nav>
           </div>
