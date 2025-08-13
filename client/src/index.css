@@ -23,14 +23,14 @@
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
   --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
-  
+
   /* Healthcare Dashboard Colors */
-  --healthcare-primary: hsl(217, 19%, 35%);
+  --healthcare-primary: hsl(211, 21%, 28%);
   --healthcare-secondary: hsl(217, 19%, 27%);
   --healthcare-accent: hsl(207, 90%, 54%);
-  --healthcare-success: hsl(142, 71%, 45%);
+  --healthcare-success: hsl(152, 100%, 33%);
   --healthcare-warning: hsl(45, 93%, 47%);
-  --healthcare-danger: hsl(0, 84%, 60%);
+  --healthcare-danger: hsl(357, 87%, 59%);
   --healthcare-gray-50: hsl(210, 40%, 98%);
   --healthcare-gray-100: hsl(210, 40%, 95%);
   --healthcare-gray-200: hsl(214, 32%, 91%);
@@ -110,13 +110,13 @@
 }
 
 .status-indicator-green {
-  background-color: hsl(142, 71%, 94%);
-  color: hsl(142, 76%, 36%);
+  background-color: hsl(152, 71%, 94%);
+  color: hsl(152, 100%, 33%);
 }
 
 .status-indicator-red {
-  background-color: hsl(0, 93%, 94%);
-  color: hsl(0, 84%, 37%);
+  background-color: hsl(357, 93%, 94%);
+  color: hsl(357, 87%, 59%);
 }
 
 .status-indicator-yellow {
@@ -126,7 +126,7 @@
 
 .status-indicator-blue {
   background-color: hsl(207, 90%, 94%);
-  color: hsl(207, 90%, 42%);
+  color: hsl(199, 100%, 50%);
 }
 
 .heat-map-cell-high {
