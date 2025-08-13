@@ -13,7 +13,8 @@ import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
 import { PersonaSwitcher } from "@/components/persona-switcher";
 import { ChartLine, HelpCircle } from "lucide-react";
-import logoUrl from "@assets/generated_images/Healthcare_RCM_Logo_6707fed0.png";
+// Using TriFlame SVG from Health Catalyst
+const triFlameLogoUrl = "https://cashmere.healthcatalyst.net/assets/TriFlame.svg";
 
 interface DemoUser {
   id: string;
@@ -63,9 +64,9 @@ export default function Dashboard() {
           {/* Brand Logo - Left Justified, Full Height */}
           <div className="h-full">
             <img 
-              src={logoUrl} 
-              alt="Healthcare RCM Logo" 
-              className="h-full w-auto object-cover"
+              src={triFlameLogoUrl} 
+              alt="TriFlame Logo" 
+              className="h-full w-auto object-contain"
               style={{ aspectRatio: '1/1' }}
               data-testid="brand-logo"
             />
