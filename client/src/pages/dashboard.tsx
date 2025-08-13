@@ -42,7 +42,7 @@ export default function Dashboard() {
             </div>
             
             {/* Main Navigation Tabs */}
-            <nav className="flex space-x-6">
+            <nav className="flex items-end space-x-6">
               {mainTabs.map((tab) => (
                 <button
                   key={tab}
