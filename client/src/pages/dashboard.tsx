@@ -60,16 +60,25 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* Header Navigation */}
       <header className="healthcare-header shadow-lg relative">
-        <div className="flex items-center justify-between pl-0 pr-6" style={{ height: '60px' }}>
-          {/* Brand Logo - Left Justified, Full Height */}
-          <div className="h-full">
-            <img 
-              src={triFlameLogoUrl} 
-              alt="TriFlame Logo" 
-              className="h-full w-auto object-contain"
-              style={{ aspectRatio: '1/1' }}
-              data-testid="brand-logo"
-            />
+        <div className="flex items-center justify-between pl-4 pr-6" style={{ height: '60px' }}>
+          {/* Brand Logo - 40px x 40px with blue background */}
+          <div className="flex items-center">
+            <div 
+              className="flex items-center justify-center"
+              style={{ 
+                width: '40px', 
+                height: '40px', 
+                backgroundColor: '#00aeff',
+                borderRadius: '4px'
+              }}
+            >
+              <img 
+                src={triFlameLogoUrl} 
+                alt="TriFlame Logo" 
+                className="w-8 h-8 object-contain"
+                data-testid="brand-logo"
+              />
+            </div>
           </div>
           
           <div className="flex items-center space-x-8">
