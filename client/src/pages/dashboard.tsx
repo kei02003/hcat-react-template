@@ -62,25 +62,6 @@ export default function Dashboard() {
           
           {/* User Controls */}
           <div className="flex items-center space-x-4">
-            {/* Date Range Selector */}
-            <div className="flex items-center space-x-2">
-              <input 
-                type="date" 
-                value={dateRange.start}
-                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
-                data-testid="date-input-start"
-              />
-              <span className="text-sm">to</span>
-              <input 
-                type="date" 
-                value={dateRange.end}
-                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                className="px-3 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white"
-                data-testid="date-input-end"
-              />
-            </div>
-
             {/* Persona Switcher */}
             <PersonaSwitcher />
             
