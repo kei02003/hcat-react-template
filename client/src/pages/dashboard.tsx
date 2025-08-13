@@ -47,10 +47,10 @@ export default function Dashboard() {
                 <button
                   key={tab}
                   onClick={() => setActiveMainTab(tab)}
-                  className={`px-4 py-2 rounded-md transition-colors ${
+                  className={`px-4 py-2 rounded-md transition-all ${
                     activeMainTab === tab 
-                      ? "bg-gray-700" 
-                      : "hover:bg-gray-700"
+                      ? "font-bold text-white" 
+                      : "font-normal text-white/80 hover:text-white hover:bg-white/10"
                   }`}
                   data-testid={`main-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`}
                 >
