@@ -36,9 +36,10 @@ export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwit
   const [selectedPersona, setSelectedPersona] = useState<DemoUser | null>(currentPersona || null);
 
   // Fetch demo users
-  const { data: demoUsers = [], isLoading } = useQuery<DemoUser[]>({
+  const { data: demoUsers = [], isLoading, error } = useQuery<DemoUser[]>({
     queryKey: ['/api/demo-users'],
     retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   const handlePersonaSwitch = (persona: DemoUser) => {
@@ -60,6 +61,30 @@ export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwit
       color: roleInfo?.color || "bg-gray-100 text-gray-800"
     };
   };
+
+  // Handle production environment where demo users are not available
+  if (error || (demoUsers.length === 0 && !isLoading)) {
+    // In production, return a simple user indicator without the demo user functionality
+    return (
+      <div className="flex items-center space-x-3 px-3 py-2">
+        <Avatar className="h-8 w-8">
+          <AvatarFallback className="bg-blue-600 text-white text-sm">
+            U
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col items-start">
+          <span className="text-sm font-medium text-white">
+            Healthcare User
+          </span>
+          <Badge 
+            className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 border-0"
+          >
+            Staff
+          </Badge>
+        </div>
+      </div>
+    );
+  }
 
   // Default to first demo user if none selected
   const currentUser = selectedPersona || demoUsers[0];
