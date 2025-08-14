@@ -178,7 +178,8 @@ export function ArManagementDashboard() {
             <h1 className="text-3xl font-bold tracking-tight">AR Management</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/epic-architecture">
+            {/* Epic Integration button temporarily hidden */}
+            {/* <Link href="/epic-architecture">
               <Button
                 variant="outline"
                 className="flex items-center space-x-2 text-sm"
@@ -187,7 +188,7 @@ export function ArManagementDashboard() {
                 <Network className="h-4 w-4" />
                 <span>Epic Integration Architecture</span>
               </Button>
-            </Link>
+            </Link> */}
             <Button variant="outline" data-testid="button-export-ar">
               Export Report
             </Button>

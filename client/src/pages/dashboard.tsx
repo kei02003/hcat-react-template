@@ -94,7 +94,10 @@ export default function Dashboard() {
 
           <div className="flex items-center space-x-8 flex-1">
             <div className="flex items-center space-x-2" data-testid="logo">
-              <span className="text-xl font-semibold ml-2.5"> RevenueCycle</span>
+              <span className="text-xl font-semibold ml-2.5">
+                {" "}
+                RevenueCycle
+              </span>
             </div>
 
             {/* Main Navigation Tabs */}
@@ -131,22 +134,6 @@ export default function Dashboard() {
 
           {/* User Controls */}
           <div className="flex items-center space-x-6">
-            {/* Globe Icon */}
-            <svg
-              className="h-5 w-5 text-white hover:text-white cursor-pointer"
-              data-testid="globe-icon"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-              />
-            </svg>
-
             {/* Help Icon */}
             <HelpCircle
               className="h-5 w-5 text-white hover:text-white cursor-pointer"
@@ -174,8 +161,8 @@ export default function Dashboard() {
                     onClick={() => setActiveSubTab(tab.name)}
                     className={`px-3 py-1 text-sm transition-colors flex items-center space-x-2 ${
                       activeSubTab === tab.name
-                        ? "text-white"
-                        : "text-white/80 hover:text-white"
+                        ? "text-healthcare-gray-800 font-bold"
+                        : "text-healthcare-gray-800/80 hover:text-healthcare-gray-800"
                     }`}
                     data-testid={`sub-tab-${tab.name.toLowerCase().replace(/\s+/g, "-")}`}
                   >
@@ -271,7 +258,7 @@ export default function Dashboard() {
                 </h2>
                 <p className="text-gray-600">
                   This section is under development. Available dashboards
-                  include all major revenue cycle modules plus new RFP features:
+                  include all major revenue cycle modules plus new features:
                   Pre-Authorization Management, Clinical Decision Support, and
                   Appeal Generation.
                 </p>

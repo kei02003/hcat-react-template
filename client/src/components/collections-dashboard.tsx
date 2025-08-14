@@ -224,7 +224,8 @@ export function CollectionsDashboard() {
             <h1 className="text-3xl font-bold text-gray-900">Collections</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <Link href="/epic-architecture">
+            {/* Epic Integration button temporarily hidden */}
+            {/* <Link href="/epic-architecture">
               <Button
                 variant="outline"
                 className="flex items-center space-x-2"
@@ -233,7 +234,7 @@ export function CollectionsDashboard() {
                 <Network className="h-4 w-4" />
                 <span className="text-sm">Epic Integration Architecture</span>
               </Button>
-            </Link>
+            </Link> */}
             <Button variant="outline" data-testid="button-export-collections">
               Export Report
             </Button>

@@ -26,7 +26,7 @@
 
   /* Healthcare Dashboard Colors */
   --healthcare-primary: hsl(211, 21%, 28%);
-  --healthcare-secondary: hsl(217, 19%, 27%);
+  --healthcare-secondary: hsl(0, 0%, 100%);
   --healthcare-accent: hsl(207, 90%, 54%);
   --healthcare-success: hsl(152, 100%, 33%);
   --healthcare-warning: hsl(45, 93%, 47%);
@@ -84,7 +84,7 @@
 
 .healthcare-secondary-header {
   background-color: var(--healthcare-secondary);
-  color: white;
+  color: black;
 }
 
 .healthcare-sidebar {
