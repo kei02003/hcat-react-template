@@ -94,7 +94,7 @@ export default function Dashboard() {
 
           <div className="flex items-center space-x-8 flex-1">
             <div className="flex items-center space-x-2" data-testid="logo">
-              <span className="text-xl font-semibold"> RevenueCycle</span>
+              <span className="text-xl font-semibold ml-2.5"> RevenueCycle</span>
             </div>
 
             {/* Main Navigation Tabs */}
