@@ -69,16 +69,18 @@ export default function Dashboard() {
       {/* Header Navigation */}
       <header className="healthcare-header shadow-lg relative">
         <div
-          className="flex items-center justify-between pr-6"
+          className="flex items-left justify-between pr-7"
           style={{ height: "60px" }}
         >
-          {/* Brand Logo - 40px x 40px with blue background, flush left */}
-          <div className="flex items-center h-full">
+          {/* Brand Logo - 40px x 40px with blue background */}
+          <div className="flex items-left">
             <div
-              className="flex items-center justify-center h-full"
+              className="flex items-center justify-center"
               style={{
-                width: "40px",
+                width: "60px",
+                height: "60px",
                 backgroundColor: "#00aeff",
+                borderRadius: "0px",
               }}
             >
               <img
@@ -92,7 +94,7 @@ export default function Dashboard() {
 
           <div className="flex items-center space-x-8 flex-1">
             <div className="flex items-center space-x-2" data-testid="logo">
-              <span className="text-xl font-semibold">RevenueCycle</span>
+              <span className="text-xl font-semibold"> RevenueCycle</span>
             </div>
 
             {/* Main Navigation Tabs */}
