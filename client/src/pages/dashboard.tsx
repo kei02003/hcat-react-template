@@ -69,18 +69,16 @@ export default function Dashboard() {
       {/* Header Navigation */}
       <header className="healthcare-header shadow-lg relative">
         <div
-          className="flex items-center justify-between pl-4 pr-6"
+          className="flex items-center justify-between pr-6"
           style={{ height: "60px" }}
         >
-          {/* Brand Logo - 40px x 40px with blue background */}
-          <div className="flex items-center">
+          {/* Brand Logo - 40px x 40px with blue background, flush left */}
+          <div className="flex items-center h-full">
             <div
-              className="flex items-center justify-center"
+              className="flex items-center justify-center h-full"
               style={{
-                width: "60px",
-                height: "60px",
+                width: "40px",
                 backgroundColor: "#00aeff",
-                borderRadius: "10px",
               }}
             >
               <img
