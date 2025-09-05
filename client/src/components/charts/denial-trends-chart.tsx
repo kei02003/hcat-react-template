@@ -10,6 +10,7 @@ import {
   BarChart,
   Bar,
   ComposedChart,
+  Cell,
 } from "recharts";
 import { format, subDays } from "date-fns";
 
@@ -365,9 +366,9 @@ export function DenialCategoryChart() {
               formatter={(value: any, name: string) => [value, "Count"]}
               labelStyle={{ color: "#374151" }}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]} fill="#8884d8">
+            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
               {categoryData.map((entry, index) => (
-                <Bar key={`cell-${index}`} fill={entry.color} />
+                <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Bar>
           </BarChart>
