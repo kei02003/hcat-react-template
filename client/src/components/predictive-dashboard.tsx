@@ -103,7 +103,7 @@ export function PredictiveDashboard() {
             </h1>
           </div>
           <div className="flex space-x-2">
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white" data-testid="button-run-analysis">
+            <Button className="text-white" style={{backgroundColor: "#6e53a3"}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#5a4285"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#6e53a3"} data-testid="button-run-analysis">
               Run Analysis
             </Button>
             <Button variant="outline" data-testid="button-export-predictions">
