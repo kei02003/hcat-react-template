@@ -242,6 +242,95 @@ export const appealCases = [
     status: "not_recommended",
     createdAt: "2025-01-07T00:00:00Z",
     updatedAt: "2025-01-09T00:00:00Z"
+  },
+  {
+    id: "appeal-004",
+    patientName: "Brown, David A.",
+    patientId: "PAT-67123",
+    admissionId: "ADM-2024-067",
+    claimId: "CLM-24-067123",
+    denialId: "DN-24-067123",
+    payer: "Aetna",
+    payerId: "AETNA-001",
+    denialReason: "LCD Coverage - N432",
+    denialCode: "LCD-432",
+    denialDate: "2024-11-10T00:00:00Z",
+    appealProbability: 78, // Good probability >70%
+    denialAmount: "$29,300.00",
+    department: "General Surgery",
+    attendingPhysician: "Dr. Amanda Wilson, MD",
+    clinicalEvidence: {
+      vitalSigns: {
+        findings: [
+          "Blood pressure 140/90 mmHg (hypertension)",
+          "Heart rate 95 bpm (mild tachycardia)",
+          "Temperature 99.8°F (low-grade fever)",
+          "Oxygen saturation 96% on room air"
+        ],
+        supportingDocumentation: "Vital signs flow sheet 10/12/24 0600-2200"
+      },
+      labResults: {
+        findings: [
+          "White cell count 12,800/μL (elevated, indicating infection)",
+          "Hemoglobin 10.2 g/dL (mild anemia)",
+          "Platelets 420,000/μL (thrombocytosis)",
+          "ESR 45 mm/hr (elevated inflammatory markers)"
+        ],
+        supportingDocumentation: "Laboratory results 10/12/24 0800"
+      },
+      imaging: {
+        findings: [
+          "CT abdomen/pelvis: acute appendicitis with wall thickening",
+          "No evidence of perforation or abscess formation",
+          "Mild fluid collection in pelvis",
+          "Appendiceal wall enhancement consistent with acute inflammation"
+        ],
+        supportingDocumentation: "Radiology report 10/12/24 by Dr. Jennifer Lee"
+      },
+      physicianNotes: {
+        findings: [
+          "Patient presents with classic signs of acute appendicitis",
+          "Clinical presentation warrants urgent surgical intervention",
+          "Meets criteria for laparoscopic appendectomy",
+          "No contraindications to surgical approach"
+        ],
+        supportingDocumentation: "Progress notes 10/12/24 Dr. Amanda Wilson"
+      }
+    },
+    insurerCriteria: {
+      medicalNecessity: [
+        "Patient with acute appendicitis confirmed by imaging",
+        "Clinical signs consistent with inflammatory process",
+        "Urgent surgical intervention medically necessary",
+        "Standard of care treatment for acute appendicitis"
+      ],
+      supportingGuidelines: [
+        "Aetna Clinical Policy Bulletin - Appendectomy",
+        "American College of Surgeons Guidelines for Acute Appendicitis",
+        "Society of American Gastrointestinal Surgeons Practice Guidelines"
+      ]
+    },
+    appealStrength: {
+      strongPoints: [
+        "Clear radiologic evidence of acute appendicitis",
+        "Elevated white cell count supporting infection",
+        "Standard of care surgical intervention",
+        "Appropriate clinical documentation and imaging"
+      ],
+      medicalJustification: "Patient meets all criteria for acute appendicitis requiring urgent laparoscopic appendectomy as standard of care treatment",
+      regulatorySupport: "Meets Aetna guidelines for medically necessary surgical intervention for acute appendicitis"
+    },
+    generatedLetter: {
+      letterType: "initial_appeal",
+      priority: "standard",
+      expectedOutcome: "partial_approval",
+      confidenceScore: 78,
+      generatedDate: "2024-11-25T00:00:00Z",
+      submissionDeadline: "2025-01-09T23:59:59Z"
+    },
+    status: "pending_generation",
+    createdAt: "2024-11-25T00:00:00Z",
+    updatedAt: "2024-11-25T00:00:00Z"
   }
 ];
 
