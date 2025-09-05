@@ -118,7 +118,7 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
 
   const generateAppeal = useMutation({
     mutationFn: async (data: { denialId: string; notes?: string; urgency?: string }) => {
-      return apiRequest(`/api/challenge-letters/generate`, "POST", data);
+      return apiRequest("POST", `/api/challenge-letters/generate`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/challenge-letters", denial.denialId] });
@@ -128,7 +128,7 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
 
   const submitAppeal = useMutation({
     mutationFn: async (data: { denialId: string; challengeLetter: string }) => {
-      return apiRequest(`/api/appeals/submit`, "POST", data);
+      return apiRequest("POST", `/api/appeals/submit`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/appeal-cases"] });
