@@ -354,8 +354,8 @@ export const feasibilityMetrics = {
     totalWastedCosts: 97685.00,
     potentialSavings: 73263.25,
     netFinancialBenefit: 3869028.00,
-    implementationCost: 48000.00,
-    overallROI: 8060.0
+    implementationCost: 650000.00,
+    overallROI: 495.2
   },
   operationalImpact: {
     totalStaffHoursWasted: 4556.5,
