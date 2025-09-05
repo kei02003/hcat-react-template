@@ -331,6 +331,343 @@ export const appealCases = [
     status: "pending_generation",
     createdAt: "2024-11-25T00:00:00Z",
     updatedAt: "2024-11-25T00:00:00Z"
+  },
+  {
+    id: "appeal-005",
+    patientName: "Johnson, Michael R.",
+    patientId: "PAT-89456",
+    admissionId: "ADM-2024-089",
+    claimId: "CLM-24-089456",
+    denialId: "DN-24-089456",
+    payer: "Medicare",
+    payerId: "MEDICARE-001",
+    denialReason: "Medical Necessity - N386",
+    denialCode: "N386",
+    denialDate: "2024-11-15T00:00:00Z",
+    appealProbability: 85, // High probability >70%
+    denialAmount: "$45,600.00",
+    department: "Cardiology",
+    attendingPhysician: "Dr. Sarah Wilson, MD",
+    clinicalEvidence: {
+      vitalSigns: {
+        findings: [
+          "Blood pressure 180/95 mmHg (severe hypertension)",
+          "Heart rate 115 bpm (tachycardia)",
+          "Oxygen saturation 91% on room air (mild hypoxia)",
+          "Temperature 99.4°F (low-grade fever)"
+        ],
+        supportingDocumentation: "Vital signs flow sheet 10/15/24 0600-2200"
+      },
+      labResults: {
+        findings: [
+          "Troponin I 2.1 ng/mL (significantly elevated, MI confirmed)",
+          "CK-MB 45 ng/mL (elevated cardiac enzymes)",
+          "BNP 850 pg/mL (elevated, heart failure)",
+          "Creatinine 1.6 mg/dL (acute kidney injury)"
+        ],
+        supportingDocumentation: "Laboratory results 10/15/24 0800"
+      },
+      imaging: {
+        findings: [
+          "ECG: ST elevation in leads II, III, aVF (inferior STEMI)",
+          "Echocardiogram: EF 35%, wall motion abnormalities",
+          "Chest X-ray: Pulmonary edema, cardiomegaly"
+        ],
+        supportingDocumentation: "Cardiology reports 10/15/24 by Dr. Sarah Wilson"
+      },
+      physicianNotes: {
+        findings: [
+          "Patient with acute ST-elevation myocardial infarction",
+          "Requires immediate cardiac intervention and monitoring",
+          "High-risk features warrant inpatient management",
+          "Complex case with multiple comorbidities"
+        ],
+        supportingDocumentation: "Progress notes 10/15/24 Dr. Sarah Wilson"
+      }
+    },
+    insurerCriteria: {
+      medicalNecessity: [
+        "Patient with confirmed acute myocardial infarction",
+        "ST-elevation pattern requires immediate intervention",
+        "Hemodynamic instability requiring intensive monitoring",
+        "Standard of care for STEMI management"
+      ],
+      supportingGuidelines: [
+        "Medicare Coverage Guidelines for Acute MI",
+        "American Heart Association STEMI Guidelines",
+        "CMS National Coverage Determination for Cardiac Care"
+      ]
+    },
+    appealStrength: {
+      strongPoints: [
+        "Clear ECG evidence of ST-elevation MI",
+        "Elevated cardiac biomarkers confirming diagnosis",
+        "Hemodynamic instability documented",
+        "Appropriate standard of care treatment"
+      ],
+      medicalJustification: "Patient meets all criteria for acute STEMI requiring immediate intervention and inpatient cardiac monitoring",
+      regulatorySupport: "Meets Medicare guidelines for medically necessary cardiac care"
+    },
+    generatedLetter: {
+      letterType: "initial_appeal",
+      priority: "high",
+      expectedOutcome: "overturn",
+      confidenceScore: 85,
+      generatedDate: "2024-11-28T00:00:00Z",
+      submissionDeadline: "2025-01-14T23:59:59Z"
+    },
+    status: "pending_generation",
+    createdAt: "2024-11-28T00:00:00Z",
+    updatedAt: "2024-11-28T00:00:00Z"
+  },
+  {
+    id: "appeal-006",
+    patientName: "Williams, Jennifer L.",
+    patientId: "PAT-78234",
+    admissionId: "ADM-2024-078",
+    claimId: "CLM-24-078234",
+    denialId: "DN-24-078234",
+    payer: "Blue Cross Blue Shield",
+    payerId: "BCBS-001",
+    denialReason: "Authorization Required - N425",
+    denialCode: "N425",
+    denialDate: "2024-11-18T00:00:00Z",
+    appealProbability: 82, // High probability >70%
+    denialAmount: "$38,900.00",
+    department: "Orthopedics",
+    attendingPhysician: "Dr. Lisa Rodriguez, MD",
+    clinicalEvidence: {
+      vitalSigns: {
+        findings: [
+          "Blood pressure 145/88 mmHg (mild hypertension)",
+          "Heart rate 88 bpm (normal)",
+          "Temperature 98.6°F (normal)",
+          "Pain scale 8/10 (severe pain)"
+        ],
+        supportingDocumentation: "Vital signs flow sheet 10/20/24 0800-2000"
+      },
+      imaging: {
+        findings: [
+          "MRI knee: Complete ACL tear with bone bruising",
+          "Meniscal tear involving posterior horn",
+          "Joint effusion and inflammation",
+          "Mechanical instability demonstrated"
+        ],
+        supportingDocumentation: "Radiology report 10/20/24 by Dr. Jennifer Lee"
+      },
+      physicianNotes: {
+        findings: [
+          "Patient is competitive athlete requiring surgical repair",
+          "Conservative treatment failed over 6 months",
+          "Significant functional limitation and instability",
+          "Surgery medically necessary for return to function"
+        ],
+        supportingDocumentation: "Orthopedic consultation 10/20/24 Dr. Lisa Rodriguez"
+      }
+    },
+    insurerCriteria: {
+      medicalNecessity: [
+        "Complete ACL tear with functional instability",
+        "Failed conservative treatment documented",
+        "Young active patient with high functional demands",
+        "Surgery required for return to normal activity"
+      ],
+      supportingGuidelines: [
+        "BCBS Medical Policy for ACL Reconstruction",
+        "American Orthopedic Society Guidelines",
+        "Evidence-based criteria for surgical intervention"
+      ]
+    },
+    appealStrength: {
+      strongPoints: [
+        "Clear MRI evidence of complete ACL tear",
+        "Failed conservative treatment documented",
+        "Functional instability affecting daily activities",
+        "Age-appropriate surgical candidate"
+      ],
+      medicalJustification: "Patient meets all criteria for ACL reconstruction with complete tear and failed conservative management",
+      regulatorySupport: "Meets BCBS guidelines for orthopedic surgical intervention"
+    },
+    generatedLetter: {
+      letterType: "initial_appeal",
+      priority: "standard",
+      expectedOutcome: "partial_approval",
+      confidenceScore: 82,
+      generatedDate: "2024-12-01T00:00:00Z",
+      submissionDeadline: "2025-01-17T23:59:59Z"
+    },
+    status: "pending_generation",
+    createdAt: "2024-12-01T00:00:00Z",
+    updatedAt: "2024-12-01T00:00:00Z"
+  },
+  {
+    id: "appeal-007",
+    patientName: "Davis, Mary K.",
+    patientId: "PAT-56789",
+    admissionId: "ADM-2024-056",
+    claimId: "CLM-24-056789",
+    denialId: "DN-24-056789",
+    payer: "UnitedHealthcare",
+    payerId: "UHC-001",
+    denialReason: "Same Day Service - N428",
+    denialCode: "N428",
+    denialDate: "2024-11-22T00:00:00Z",
+    appealProbability: 75, // Good probability >70%
+    denialAmount: "$52,100.00",
+    department: "Emergency Department",
+    attendingPhysician: "Dr. Michael Garcia, MD",
+    clinicalEvidence: {
+      vitalSigns: {
+        findings: [
+          "Blood pressure 95/60 mmHg (hypotension)",
+          "Heart rate 125 bpm (tachycardia)",
+          "Temperature 101.8°F (fever)",
+          "Oxygen saturation 94% on room air"
+        ],
+        supportingDocumentation: "ED vital signs 10/25/24 1400-2200"
+      },
+      labResults: {
+        findings: [
+          "White cell count 18,500/μL (severe leukocytosis)",
+          "Lactate 3.2 mmol/L (elevated, sepsis)",
+          "Procalcitonin 4.8 ng/mL (severe bacterial infection)",
+          "Blood cultures positive for E. coli"
+        ],
+        supportingDocumentation: "Emergency lab results 10/25/24 1500"
+      },
+      physicianNotes: {
+        findings: [
+          "Patient presents with severe sepsis and shock",
+          "Requires immediate IV antibiotics and fluid resuscitation",
+          "Multiple organ dysfunction developing",
+          "Not same-day service - continuous emergency care required"
+        ],
+        supportingDocumentation: "ED physician notes 10/25/24 Dr. Michael Garcia"
+      }
+    },
+    insurerCriteria: {
+      medicalNecessity: [
+        "Patient with severe sepsis requiring immediate intervention",
+        "Hemodynamic instability with shock",
+        "Continuous monitoring and treatment required",
+        "Not elective or routine same-day service"
+      ],
+      supportingGuidelines: [
+        "UnitedHealthcare Emergency Services Policy",
+        "Sepsis Management Guidelines",
+        "Emergency Medical Treatment and Labor Act requirements"
+      ]
+    },
+    appealStrength: {
+      strongPoints: [
+        "Clear evidence of severe sepsis with shock",
+        "Positive blood cultures confirming infection",
+        "Hemodynamic instability requiring immediate care",
+        "Emergency presentation, not elective service"
+      ],
+      medicalJustification: "Patient presents with life-threatening sepsis requiring immediate emergency intervention, not same-day elective service",
+      regulatorySupport: "Meets UnitedHealthcare guidelines for emergency medical services"
+    },
+    generatedLetter: {
+      letterType: "initial_appeal",
+      priority: "high",
+      expectedOutcome: "overturn",
+      confidenceScore: 75,
+      generatedDate: "2024-11-30T00:00:00Z",
+      submissionDeadline: "2025-01-21T23:59:59Z"
+    },
+    status: "pending_generation",
+    createdAt: "2024-11-30T00:00:00Z",
+    updatedAt: "2024-11-30T00:00:00Z"
+  },
+  {
+    id: "appeal-008",
+    patientName: "Miller, Christopher J.",
+    patientId: "PAT-45678",
+    admissionId: "ADM-2024-045",
+    claimId: "CLM-24-045678",
+    denialId: "DN-24-045678",
+    payer: "Humana",
+    payerId: "HUMANA-001",
+    denialReason: "Medical Necessity - M80",
+    denialCode: "M80",
+    denialDate: "2024-11-25T00:00:00Z",
+    appealProbability: 88, // Very high probability >70%
+    denialAmount: "$18,700.00",
+    department: "Radiology",
+    attendingPhysician: "Dr. Jennifer Kim, MD",
+    clinicalEvidence: {
+      vitalSigns: {
+        findings: [
+          "Blood pressure 160/90 mmHg (hypertension)",
+          "Heart rate 92 bpm (normal)",
+          "Temperature 98.8°F (normal)",
+          "Patient reports severe abdominal pain"
+        ],
+        supportingDocumentation: "Vital signs 10/30/24 1000-1600"
+      },
+      imaging: {
+        findings: [
+          "CT abdomen/pelvis: Multiple renal stones bilateral",
+          "Hydronephrosis right kidney moderate",
+          "Ureteral obstruction confirmed",
+          "Signs of acute kidney injury"
+        ],
+        supportingDocumentation: "Radiology report 10/30/24 by Dr. Jennifer Kim"
+      },
+      labResults: {
+        findings: [
+          "Creatinine 2.4 mg/dL (acute kidney injury)",
+          "BUN 45 mg/dL (elevated)",
+          "Hematuria 3+ (blood in urine)",
+          "Urine culture shows infection"
+        ],
+        supportingDocumentation: "Laboratory results 10/30/24 1100"
+      },
+      physicianNotes: {
+        findings: [
+          "Patient with obstructive uropathy requiring intervention",
+          "Acute kidney injury secondary to obstruction",
+          "Advanced imaging necessary for surgical planning",
+          "Medical necessity clearly documented"
+        ],
+        supportingDocumentation: "Radiology consultation 10/30/24 Dr. Jennifer Kim"
+      }
+    },
+    insurerCriteria: {
+      medicalNecessity: [
+        "Patient with obstructive kidney stones",
+        "Acute kidney injury documented",
+        "Advanced imaging required for treatment planning",
+        "Standard of care for urological emergencies"
+      ],
+      supportingGuidelines: [
+        "Humana Medical Policy for Advanced Imaging",
+        "American Urological Association Guidelines",
+        "Evidence-based imaging criteria for kidney stones"
+      ]
+    },
+    appealStrength: {
+      strongPoints: [
+        "Clear evidence of obstructive uropathy",
+        "Acute kidney injury documented",
+        "Medical necessity for advanced imaging",
+        "Standard of care imaging protocol"
+      ],
+      medicalJustification: "Patient requires advanced imaging for obstructive kidney stones with acute kidney injury - medically necessary for treatment planning",
+      regulatorySupport: "Meets Humana guidelines for medically necessary imaging services"
+    },
+    generatedLetter: {
+      letterType: "initial_appeal",
+      priority: "standard",
+      expectedOutcome: "overturn",
+      confidenceScore: 88,
+      generatedDate: "2024-12-02T00:00:00Z",
+      submissionDeadline: "2025-01-24T23:59:59Z"
+    },
+    status: "pending_generation",
+    createdAt: "2024-12-02T00:00:00Z",
+    updatedAt: "2024-12-02T00:00:00Z"
   }
 ];
 
