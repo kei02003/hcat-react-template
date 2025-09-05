@@ -48,7 +48,7 @@ export function TimelyFilingDashboard() {
       if (departmentFilter !== "all") params.append("department", departmentFilter);
       if (billerFilter !== "all") params.append("assignedBiller", billerFilter);
       if (payerFilter !== "all") params.append("payer", payerFilter);
-      
+
       const response = await fetch(`/api/timely-filing-claims?${params.toString()}`);
       if (!response.ok) throw new Error('Failed to fetch timely filing claims');
       return response.json();
@@ -68,9 +68,9 @@ export function TimelyFilingDashboard() {
       claim.claimId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       claim.payer.toLowerCase().includes(searchQuery.toLowerCase()) ||
       claim.procedureDescription.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesPayer = payerFilter === "all" || claim.payer === payerFilter;
-    
+
     return matchesSearch && matchesPayer;
   });
 

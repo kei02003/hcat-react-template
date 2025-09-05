@@ -192,6 +192,9 @@ export function ArManagementDashboard() {
             <Button variant="outline" data-testid="button-export-ar">
               Export Report
             </Button>
+            <Button className="text-white" style={{backgroundColor: "#00aeff"}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#0090e0"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#00aeff"} data-testid="button-generate-report">
+              Generate Report
+            </Button>
           </div>
         </div>
 

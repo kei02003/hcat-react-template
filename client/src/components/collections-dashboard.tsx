@@ -396,7 +396,7 @@ export function CollectionsDashboard() {
                         <p className="text-sm text-gray-600">
                           {account.patientName}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm text-gray-500">
                           {account.location} • {account.payerClass}
                         </p>
                       </div>
@@ -448,7 +448,10 @@ export function CollectionsDashboard() {
                     </Button>
                     <Button
                       size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      className="text-white"
+                      style={{backgroundColor: "#00aeff"}}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#0090e0"}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#00aeff"}
                       data-testid={`button-view-${account.accountId}`}
                     >
                       <FileText className="h-4 w-4 mr-2" />

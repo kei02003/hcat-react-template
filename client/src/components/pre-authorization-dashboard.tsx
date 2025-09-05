@@ -80,18 +80,18 @@ interface ProcedureAuthRequirement {
 export function PreAuthorizationDashboard() {
   const [selectedTab, setSelectedTab] = useState("requests");
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Bulk operations state
   const [selectedRequestIds, setSelectedRequestIds] = useState<string[]>([]);
   const [isBulkAutoPopulating, setIsBulkAutoPopulating] = useState(false);
   const [isBulkSubmitting, setIsBulkSubmitting] = useState(false);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
   const [bulkOperationResults, setBulkOperationResults] = useState<{successful: string[], failed: string[]}>({successful: [], failed: []});
-  
+
   // Modal state for workflow demo
   const [showWorkflowModal, setShowWorkflowModal] = useState(false);
   const [selectedRequestForModal, setSelectedRequestForModal] = useState<PreAuthRequest | null>(null);
-  
+
   // Filter state
   const [showOnlyPreAuthRequired, setShowOnlyPreAuthRequired] = useState(true);
 
@@ -101,13 +101,13 @@ export function PreAuthorizationDashboard() {
     const scheduled = new Date(scheduledDate);
     return Math.ceil((scheduled.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   };
-  
+
   // Filter states for pre-auth requests
   const [filterProcedure, setFilterProcedure] = useState("");
   const [filterPayer, setFilterPayer] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterDaysUntil, setFilterDaysUntil] = useState("");
-  
+
   // Search state for procedure requirements
   const [procedureSearchTerm, setProcedureSearchTerm] = useState("");
   const [selectedPayerFilter, setSelectedPayerFilter] = useState("");
@@ -148,7 +148,7 @@ export function PreAuthorizationDashboard() {
     const criteria = insurerCriteria.find(c => 
       c.procedureCode === procedureCode && c.payerName === payerName
     );
-    
+
     if (criteria && criteria.criteria) {
       // Extract the nested criteria structure
       const nestedCriteria = criteria.criteria;
@@ -183,36 +183,36 @@ export function PreAuthorizationDashboard() {
 
   const handleBulkAutoPopulate = async () => {
     if (selectedRequestIds.length === 0) return;
-    
+
     setIsBulkAutoPopulating(true);
     setBulkProgress({ current: 0, total: selectedRequestIds.length });
     setBulkOperationResults({ successful: [], failed: [] });
-    
+
     const results: { successful: string[], failed: string[] } = { successful: [], failed: [] };
-    
+
     for (let i = 0; i < selectedRequestIds.length; i++) {
       const requestId = selectedRequestIds[i];
       setBulkProgress({ current: i + 1, total: selectedRequestIds.length });
-      
+
       try {
         // Simulate auto-populating form for each request
         console.log('Auto-populating form for request:', requestId);
         await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing time
-        
+
         // Here you would call your actual auto-populate API
         // await apiRequest(`/api/pre-auth-requests/${requestId}/auto-populate`, { method: 'POST' });
-        
+
         results.successful.push(requestId);
       } catch (error) {
         console.error(`Failed to auto-populate request ${requestId}:`, error);
         results.failed.push(requestId);
       }
     }
-    
+
     setBulkOperationResults(results);
     setIsBulkAutoPopulating(false);
     setBulkProgress({ current: 0, total: 0 });
-    
+
     // Clear selection after completion
     setTimeout(() => {
       setSelectedRequestIds([]);
@@ -221,36 +221,36 @@ export function PreAuthorizationDashboard() {
 
   const handleBulkSubmit = async () => {
     if (selectedRequestIds.length === 0) return;
-    
+
     setIsBulkSubmitting(true);
     setBulkProgress({ current: 0, total: selectedRequestIds.length });
     setBulkOperationResults({ successful: [], failed: [] });
-    
+
     const results: { successful: string[], failed: string[] } = { successful: [], failed: [] };
-    
+
     for (let i = 0; i < selectedRequestIds.length; i++) {
       const requestId = selectedRequestIds[i];
       setBulkProgress({ current: i + 1, total: selectedRequestIds.length });
-      
+
       try {
         // Simulate submitting each request
         console.log('Submitting request:', requestId);
         await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing time
-        
+
         // Here you would call your actual submit API
         // await apiRequest(`/api/pre-auth-requests/${requestId}/submit`, { method: 'POST' });
-        
+
         results.successful.push(requestId);
       } catch (error) {
         console.error(`Failed to submit request ${requestId}:`, error);
         results.failed.push(requestId);
       }
     }
-    
+
     setBulkOperationResults(results);
     setIsBulkSubmitting(false);
     setBulkProgress({ current: 0, total: 0 });
-    
+
     // Refresh the data and clear selection
     queryClient.invalidateQueries({ queryKey: ['/api/pre-auth-requests'] });
     setTimeout(() => {
@@ -267,23 +267,23 @@ export function PreAuthorizationDashboard() {
         return false;
       }
     }
-    
+
     // Search filter
     const matchesSearch = req.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.procedureCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.procedureName.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     // Procedure filter
     const matchesProcedure = !filterProcedure || filterProcedure === "all" || 
       req.procedureCode.includes(filterProcedure) || 
       req.procedureName.toLowerCase().includes(filterProcedure.toLowerCase());
-    
+
     // Payer filter
     const matchesPayer = !filterPayer || filterPayer === "all" || req.payer === filterPayer;
-    
+
     // Status filter
     const matchesStatus = !filterStatus || filterStatus === "all" || req.status === filterStatus;
-    
+
     // Days until procedure filter
     const matchesDaysUntil = !filterDaysUntil || filterDaysUntil === "all" || (() => {
       const today = new Date();
@@ -297,7 +297,7 @@ export function PreAuthorizationDashboard() {
         default: return true;
       }
     })();
-    
+
     return matchesSearch && matchesProcedure && matchesPayer && matchesStatus && matchesDaysUntil;
   });
 
@@ -404,7 +404,7 @@ export function PreAuthorizationDashboard() {
                   />
                 </div>
               </div>
-              
+
               {/* Pre-Auth Required Toggle Filter */}
               <div className="flex items-center space-x-2 mt-4 mb-4 p-3 bg-blue-50 rounded-lg border">
                 <input
@@ -444,7 +444,7 @@ export function PreAuthorizationDashboard() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <Label className="text-sm">Filter by Payer</Label>
                   <Select value={filterPayer} onValueChange={setFilterPayer}>
@@ -459,7 +459,7 @@ export function PreAuthorizationDashboard() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <Label className="text-sm">Filter by Status</Label>
                   <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -475,7 +475,7 @@ export function PreAuthorizationDashboard() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <Label className="text-sm">Filter by Days Until Procedure</Label>
                   <Select value={filterDaysUntil} onValueChange={setFilterDaysUntil}>
@@ -492,7 +492,7 @@ export function PreAuthorizationDashboard() {
                   </Select>
                 </div>
               </div>
-              
+
               {/* Filter Summary */}
               {(filterProcedure && filterProcedure !== "all" || filterPayer && filterPayer !== "all" || filterStatus && filterStatus !== "all" || filterDaysUntil && filterDaysUntil !== "all") && (
                 <div className="flex items-center space-x-2 mt-3 text-sm text-gray-600">
@@ -517,7 +517,7 @@ export function PreAuthorizationDashboard() {
                   </Button>
                 </div>
               )}
-              
+
               {/* Bulk Actions */}
               {filteredRequests.length > 0 && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
@@ -542,14 +542,14 @@ export function PreAuthorizationDashboard() {
                           }
                         </span>
                       </Button>
-                      
+
                       {selectedRequestIds.length > 0 && (
                         <div className="text-sm text-gray-600">
                           {selectedRequestIds.length} request{selectedRequestIds.length !== 1 ? 's' : ''} selected
                         </div>
                       )}
                     </div>
-                    
+
                     {selectedRequestIds.length > 0 && (
                       <div className="flex items-center space-x-2">
                         <Button
@@ -570,7 +570,7 @@ export function PreAuthorizationDashboard() {
                             </>
                           )}
                         </Button>
-                        
+
                         <Button
                           onClick={handleBulkSubmit}
                           disabled={isBulkSubmitting || isBulkAutoPopulating}
@@ -592,7 +592,7 @@ export function PreAuthorizationDashboard() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Bulk Operation Results */}
                   {(bulkOperationResults.successful.length > 0 || bulkOperationResults.failed.length > 0) && (
                     <div className="mt-3 p-3 bg-white rounded border">
@@ -650,7 +650,7 @@ export function PreAuthorizationDashboard() {
                             {getPriorityIcon(request.priority, calculateDaysUntilProcedure(request.scheduledDate))}
                             <h3 className="font-semibold text-gray-900">{request.patientName}</h3>
                             {getStatusBadge(request.status, calculateDaysUntilProcedure(request.scheduledDate))}
-                            
+
                             {/* Flagged for Review Tag */}
                             {request.status === "requires_review" && (
                               <Badge className="bg-orange-100 text-orange-800 border-orange-300 flex items-center space-x-1 animate-pulse">
@@ -658,26 +658,26 @@ export function PreAuthorizationDashboard() {
                                 <span>Flagged for Review</span>
                               </Badge>
                             )}
-                            
+
                             {/* Visual indicator in the card border for flagged items */}
                             {request.status === "requires_review" && (
                               <div className="absolute top-0 left-0 w-1 h-full bg-orange-500 rounded-l-lg"></div>
                             )}
                           </div>
-                          
+
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div>
                               <p className="text-gray-600">Procedure</p>
                               <p className="font-medium">{request.procedureCode || "N/A"}</p>
                               <p className="text-gray-700">{request.procedureName || "Procedure name not available"}</p>
                             </div>
-                            
+
                             <div>
                               <p className="text-gray-600">Insurer</p>
                               <p className="font-medium">{request.payer}</p>
                               <p className="text-gray-700">Payer ID: {request.payerId}</p>
                             </div>
-                            
+
                             <div>
                               <p className="text-gray-600">Scheduled</p>
                               <p className="font-medium">
@@ -688,12 +688,12 @@ export function PreAuthorizationDashboard() {
                               </p>
                             </div>
                           </div>
-                          
+
                           <div className="mt-3">
                             <p className="text-sm text-gray-600">Diagnosis</p>
                             <p className="text-sm font-medium">{request.diagnosis || "Not specified"}</p>
                           </div>
-                          
+
                           {/* Payer Criteria Information - Accordion */}
                           {matchingCriteria && (
                             <div className="mt-4">
@@ -735,7 +735,7 @@ export function PreAuthorizationDashboard() {
                                           </ul>
                                         </div>
                                       )}
-                                      
+
                                       {matchingCriteria.denialReasons && matchingCriteria.denialReasons.length > 0 && (
                                         <div>
                                           <p className="font-medium text-red-800 mb-1">Common Denial Reasons:</p>
@@ -753,7 +753,7 @@ export function PreAuthorizationDashboard() {
                                         </div>
                                       )}
                                     </div>
-                                    
+
                                     <div className="mt-3 pt-2 border-t border-blue-300 flex items-center justify-between text-xs text-blue-700">
                                       <span>Authorization valid for {matchingCriteria.authValidityDays} days</span>
                                       <span className="flex items-center">
@@ -766,7 +766,7 @@ export function PreAuthorizationDashboard() {
                               </Accordion>
                             </div>
                           )}
-                          
+
                           {/* Warning if no criteria found */}
                           {!matchingCriteria && (
                             <div className="mt-4 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
@@ -778,7 +778,7 @@ export function PreAuthorizationDashboard() {
                           )}
                         </div>
                           </div>
-                        
+
                         <div className="ml-4 text-right">
                           <p className="text-sm text-gray-600">Estimated Cost</p>
                           <p className="font-bold text-lg">
@@ -789,7 +789,7 @@ export function PreAuthorizationDashboard() {
                               Auth: {request.authorizationNumber || request.priorAuthNumber}
                             </p>
                           )}
-                          
+
                           {/* Timeline indicator based on criteria */}
                           {matchingCriteria && (
                             <div className="mt-2 text-xs">
@@ -808,7 +808,7 @@ export function PreAuthorizationDashboard() {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Action Buttons */}
                       <div className="mt-4 pt-3 border-t border-gray-200 flex items-center justify-end space-x-2">
                         {/* Flag for Review button - show for pending or requires_review status */}
@@ -820,7 +820,7 @@ export function PreAuthorizationDashboard() {
                               try {
                                 // Handle flag for review - update status to requires_review
                                 console.log('Flagging request for review:', request.id);
-                                
+
                                 // Call the API to update the status
                                 await apiRequest(
                                   'PATCH',
@@ -831,12 +831,12 @@ export function PreAuthorizationDashboard() {
                                     reviewerNotes: 'Flagged for manual review'
                                   }
                                 );
-                                
+
                                 console.log(`Request ${request.id} flagged for review successfully`);
-                                
+
                                 // Refresh data to show updated status with visual tags
                                 queryClient.invalidateQueries({ queryKey: ['/api/pre-auth-requests'] });
-                                
+
                               } catch (error) {
                                 console.error('Failed to flag request for review:', error);
                               }
@@ -850,7 +850,7 @@ export function PreAuthorizationDashboard() {
                             {request.status === "requires_review" ? "Review Flagged" : "Flag for Review"}
                           </Button>
                         )}
-                        
+
                         {/* Auto-Populate Form button */}
                         <Button
                           size="sm"
@@ -892,7 +892,7 @@ export function PreAuthorizationDashboard() {
                   />
                 </div>
               </div>
-              
+
               {/* Filter Controls */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
@@ -909,7 +909,7 @@ export function PreAuthorizationDashboard() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <Label className="text-sm">Filter by Authorization Required</Label>
                   <Select value={selectedPayerFilter} onValueChange={setSelectedPayerFilter}>
@@ -941,7 +941,7 @@ export function PreAuthorizationDashboard() {
                       <FileText className="h-8 w-8 text-blue-500" />
                     </div>
                   </div>
-                  
+
                   <div className="bg-orange-50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
@@ -953,7 +953,7 @@ export function PreAuthorizationDashboard() {
                       <AlertCircle className="h-8 w-8 text-orange-500" />
                     </div>
                   </div>
-                  
+
                   <div className="bg-red-50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
@@ -965,7 +965,7 @@ export function PreAuthorizationDashboard() {
                       <AlertCircle className="h-8 w-8 text-red-500" />
                     </div>
                   </div>
-                  
+
                   <div className="bg-green-50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
@@ -989,24 +989,24 @@ export function PreAuthorizationDashboard() {
                         proc.procedureName.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
                         proc.category.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
                         proc.commonDenialReasons.some(reason => reason.toLowerCase().includes(procedureSearchTerm.toLowerCase()));
-                      
+
                       const matchesCategory = selectedCategoryFilter === "" || selectedCategoryFilter === "all" || 
                         proc.category === selectedCategoryFilter;
-                      
+
                       const matchesAuthFilter = selectedPayerFilter === "" || selectedPayerFilter === "all" || 
                         (selectedPayerFilter === "required" && proc.requiresAuth) ||
                         (selectedPayerFilter === "not-required" && !proc.requiresAuth) ||
                         (selectedPayerFilter === "high-risk" && proc.riskLevel === "High") ||
                         (selectedPayerFilter === "medium-risk" && proc.riskLevel === "Medium") ||
                         (selectedPayerFilter === "low-risk" && proc.riskLevel === "Low");
-                      
+
                       return matchesSearch && matchesCategory && matchesAuthFilter;
                     });
-                    
+
                     return filtered.map((proc) => {
                       // Find matching insurer criteria for this procedure
                       const relatedCriteria = insurerCriteria.filter(c => c.procedureCode === proc.procedureCode);
-                      
+
                       return (
                         <div key={proc.id} className="border rounded-lg p-4 hover:bg-gray-50">
                           <div className="flex items-start justify-between mb-4">
@@ -1039,7 +1039,7 @@ export function PreAuthorizationDashboard() {
                               <p className="text-xs text-gray-500">{proc.averageProcessingDays} days avg</p>
                             </div>
                           </div>
-                          
+
                           {/* Key Requirements Summary */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm">
                             <div className="bg-blue-50 p-3 rounded">
@@ -1053,20 +1053,20 @@ export function PreAuthorizationDashboard() {
                                 </p>
                               )}
                             </div>
-                            
+
                             <div className="bg-gray-50 p-3 rounded">
                               <p className="font-medium text-gray-700 mb-1">Processing Time</p>
                               <p className="text-gray-800">{proc.averageProcessingDays} days average</p>
                               <p className="text-xs text-gray-600 mt-1">Based on historical data</p>
                             </div>
-                            
+
                             <div className="bg-green-50 p-3 rounded">
                               <p className="font-medium text-green-700 mb-1">Success Rate</p>
                               <p className="text-green-800">{proc.approvalRate}% approved</p>
                               <p className="text-xs text-green-600 mt-1">Historical approval rate</p>
                             </div>
                           </div>
-                          
+
                           {/* Payer-Specific Criteria */}
                           {relatedCriteria.length > 0 && (
                             <div className="mb-4">
@@ -1113,7 +1113,7 @@ export function PreAuthorizationDashboard() {
                               </div>
                             </div>
                           )}
-                          
+
                           {/* Common Denial Reasons */}
                           {proc.commonDenialReasons.length > 0 && (
                             <div className="bg-red-50 border border-red-200 rounded p-3">
@@ -1137,7 +1137,7 @@ export function PreAuthorizationDashboard() {
                   })()
                   }
                 </div>
-                
+
                 {/* No results message */}
                 {(() => {
                   const filteredCount = procedureRequirements.filter(proc => {
@@ -1145,20 +1145,20 @@ export function PreAuthorizationDashboard() {
                       proc.procedureCode.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
                       proc.procedureName.toLowerCase().includes(procedureSearchTerm.toLowerCase()) ||
                       proc.category.toLowerCase().includes(procedureSearchTerm.toLowerCase());
-                    
+
                     const matchesCategory = selectedCategoryFilter === "" || selectedCategoryFilter === "all" || 
                       proc.category === selectedCategoryFilter;
-                    
+
                     const matchesAuthFilter = selectedPayerFilter === "" || selectedPayerFilter === "all" || 
                       (selectedPayerFilter === "required" && proc.requiresAuth) ||
                       (selectedPayerFilter === "not-required" && !proc.requiresAuth) ||
                       (selectedPayerFilter === "high-risk" && proc.riskLevel === "High") ||
                       (selectedPayerFilter === "medium-risk" && proc.riskLevel === "Medium") ||
                       (selectedPayerFilter === "low-risk" && proc.riskLevel === "Low");
-                    
+
                     return matchesSearch && matchesCategory && matchesAuthFilter;
                   }).length;
-                  
+
                   return filteredCount === 0 && procedureRequirements.length > 0 ? (
                     <div className="text-center py-8">
                       <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -1192,7 +1192,7 @@ export function PreAuthorizationDashboard() {
                       <CheckCircle className="h-8 w-8 text-green-500" />
                     </div>
                   </div>
-                  
+
                   <div className="bg-blue-50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1203,7 +1203,7 @@ export function PreAuthorizationDashboard() {
                       <Clock className="h-8 w-8 text-blue-500" />
                     </div>
                   </div>
-                  
+
                   <div className="bg-purple-50 p-4 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>

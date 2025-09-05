@@ -17,7 +17,7 @@ export function DocumentationDashboard() {
           </h1>
           <div className="flex space-x-2">
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="text-white" style={{backgroundColor: "#00aeff"}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#0090e0"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#00aeff"}
               data-testid="button-export-report"
             >
               <Download className="h-4 w-4 mr-2" />

@@ -735,8 +735,7 @@ export function ClinicalDenialsDashboard() {
                 Last Updated: Just now
               </span>
             </div>
-            <Button variant="outline" data-testid="button-export-denials">
-              <Download className="h-4 w-4 mr-2" />
+            <Button className="text-white" style={{backgroundColor: "#00aeff"}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#0090e0"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#00aeff"} data-testid="button-export-report">
               Export Report
             </Button>
           </div>
