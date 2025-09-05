@@ -63,21 +63,21 @@ export function MetricsPanel() {
           subtitle="Avg: 399.46K (+128.51%)"
           status="positive"
         />
-        
+
         <MetricCard
           title="AR Days"
           value="44.7"
           subtitle="Avg: 40.4 (+10.73%)"
           status="positive"
         />
-        
+
         <MetricCard
           title="Denied Dollars"
           value="$57.32K"
           subtitle="Avg: $51.35K (+11.62%)"
           status="negative"
         />
-        
+
         <MetricCard
           title="Documentation Requests"
           value="342"
@@ -85,7 +85,7 @@ export function MetricsPanel() {
           status="warning"
           borderColor="border-l-yellow-500"
         />
-        
+
         <MetricCard
           title="Redundant Doc Requests"
           value="128"
@@ -93,7 +93,7 @@ export function MetricsPanel() {
           status="negative"
           borderColor="border-l-red-500"
         />
-        
+
         <MetricCard
           title="Timely Filing at Risk"
           value="$142.5K"
@@ -101,7 +101,7 @@ export function MetricsPanel() {
           status="negative"
           borderColor="border-l-red-500"
         />
-        
+
         <MetricCard
           title="Appeal Window Expiring"
           value="$38.2K"
@@ -109,7 +109,7 @@ export function MetricsPanel() {
           status="warning"
           borderColor="border-l-yellow-500"
         />
-        
+
         <MetricCard
           title="Auto-Detected Duplicates"
           value="89"
@@ -117,21 +117,21 @@ export function MetricsPanel() {
           status="positive"
           borderColor="border-l-green-500"
         />
-        
+
         <MetricCard
           title="Clean Claim Rate"
           value="88%"
           subtitle="Target: 98%"
           status="neutral"
         />
-        
+
         <MetricCard
           title="Doc Request Response Time"
           value="6.2 days"
           subtitle="Target: <3 days"
           status="neutral"
         />
-        
+
         <MetricCard
           title="Payments"
           value="($232.62K)"
