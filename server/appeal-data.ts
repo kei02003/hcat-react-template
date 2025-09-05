@@ -94,7 +94,7 @@ export const appealCases = [
     },
     status: "pending_generation",
     createdAt: "2025-01-08T00:00:00Z",
-    updatedAt: "2025-01-09T00:00:00Z"
+    updatedAt: "2025-01-08T00:00:00Z"
   },
   {
     id: "appeal-002",
@@ -241,7 +241,7 @@ export const appealCases = [
     },
     status: "not_recommended",
     createdAt: "2025-01-07T00:00:00Z",
-    updatedAt: "2025-01-09T00:00:00Z"
+    updatedAt: "2025-01-07T00:00:00Z"
   },
   {
     id: "appeal-004",
