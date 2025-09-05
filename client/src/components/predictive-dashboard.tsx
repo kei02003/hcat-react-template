@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Target, AlertCircle, TrendingUp, Shield, Zap } from "lucide-react";
 import { PredictiveRiskChart } from "./charts/predictive-risk-chart";
 import { DenialForecastChart } from "./charts/denial-forecast-chart";
 import { AIRecommendations } from "./ai-recommendations";
@@ -105,11 +104,9 @@ export function PredictiveDashboard() {
           </div>
           <div className="flex space-x-2">
             <Button className="bg-purple-600 hover:bg-purple-700 text-white" data-testid="button-run-analysis">
-              <Zap className="h-4 w-4 mr-2" />
               Run Analysis
             </Button>
             <Button variant="outline" data-testid="button-export-predictions">
-              <Target className="h-4 w-4 mr-2" />
               Export Predictions
             </Button>
           </div>
@@ -119,52 +116,40 @@ export function PredictiveDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="healthcare-card">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Predicted Denials</p>
-                  <p className="text-2xl font-bold text-red-600">23</p>
-                  <p className="text-xs text-gray-500">Next 7 days</p>
-                </div>
-                <AlertCircle className="h-8 w-8 text-red-600" />
+              <div>
+                <p className="text-sm text-gray-600">Predicted Denials</p>
+                <p className="text-2xl font-bold text-red-600">23</p>
+                <p className="text-xs text-gray-500">Next 7 days</p>
               </div>
             </CardContent>
           </Card>
           
           <Card className="healthcare-card">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">At-Risk Amount</p>
-                  <p className="text-2xl font-bold text-orange-600">$145.6K</p>
-                  <p className="text-xs text-gray-500">82.3% confidence</p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-orange-600" />
+              <div>
+                <p className="text-sm text-gray-600">At-Risk Amount</p>
+                <p className="text-2xl font-bold text-orange-600">$145.6K</p>
+                <p className="text-xs text-gray-500">82.3% confidence</p>
               </div>
             </CardContent>
           </Card>
           
           <Card className="healthcare-card">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Prevention Score</p>
-                  <p className="text-2xl font-bold text-green-600">78%</p>
-                  <p className="text-xs text-gray-500">Preventable denials</p>
-                </div>
-                <Shield className="h-8 w-8 text-green-600" />
+              <div>
+                <p className="text-sm text-gray-600">Prevention Score</p>
+                <p className="text-2xl font-bold text-green-600">78%</p>
+                <p className="text-xs text-gray-500">Preventable denials</p>
               </div>
             </CardContent>
           </Card>
           
           <Card className="healthcare-card">
             <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Model Accuracy</p>
-                  <p className="text-2xl font-bold text-blue-600">89.2%</p>
-                  <p className="text-xs text-gray-500">Last 30 days</p>
-                </div>
-                <Brain className="h-8 w-8 text-blue-600" />
+              <div>
+                <p className="text-sm text-gray-600">Model Accuracy</p>
+                <p className="text-2xl font-bold text-blue-600">89.2%</p>
+                <p className="text-xs text-gray-500">Last 30 days</p>
               </div>
             </CardContent>
           </Card>
