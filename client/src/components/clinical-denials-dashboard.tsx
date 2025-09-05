@@ -735,17 +735,7 @@ export function ClinicalDenialsDashboard() {
                 Last Updated: Just now
               </span>
             </div>
-            <Button
-              className="text-white"
-              style={{ backgroundColor: "#00aeff" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#0090e0")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "#00aeff")
-              }
-              data-testid="button-export-report"
-            >
+            <Button className="text-white" style={{backgroundColor: "#00aeff"}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#0090e0"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#00aeff"} data-testid="button-export-report">
               Export Report
             </Button>
           </div>
@@ -796,15 +786,18 @@ export function ClinicalDenialsDashboard() {
               value="overview"
               className="flex items-center space-x-2"
             >
+              <TrendingUp className="h-4 w-4" />
               <span>Overview</span>
             </TabsTrigger>
             <TabsTrigger value="active" className="flex items-center space-x-2">
+              <FileText className="h-4 w-4" />
               <span>Active Denials</span>
             </TabsTrigger>
             <TabsTrigger
               value="analytics"
               className="flex items-center space-x-2"
             >
+              <TrendingUp className="h-4 w-4" />
               <span>Analytics</span>
             </TabsTrigger>
           </TabsList>

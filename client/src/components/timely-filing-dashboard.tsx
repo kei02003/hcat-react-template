@@ -77,40 +77,15 @@ export function TimelyFilingDashboard() {
   const getAgingBadge = (agingCategory: string, daysRemaining: number) => {
     switch (agingCategory) {
       case "safe":
-        return (
-          <div className="text-center">
-            <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">Safe</Badge>
-            <div className="text-xs text-muted-foreground mt-1">{daysRemaining}d</div>
-          </div>
-        );
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">{daysRemaining}d Safe</Badge>;
       case "warning":
-        return (
-          <div className="text-center">
-            <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">Warning</Badge>
-            <div className="text-xs text-muted-foreground mt-1">{daysRemaining}d</div>
-          </div>
-        );
+        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">{daysRemaining}d Warning</Badge>;
       case "critical":
-        return (
-          <div className="text-center">
-            <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100">Critical</Badge>
-            <div className="text-xs text-muted-foreground mt-1">{daysRemaining}d</div>
-          </div>
-        );
+        return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100">{daysRemaining}d Critical</Badge>;
       case "overdue":
-        return (
-          <div className="text-center">
-            <Badge className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">Overdue</Badge>
-            <div className="text-xs text-muted-foreground mt-1">{Math.abs(daysRemaining)}d</div>
-          </div>
-        );
+        return <Badge className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">{Math.abs(daysRemaining)}d Overdue</Badge>;
       case "severely_overdue":
-        return (
-          <div className="text-center">
-            <Badge className="bg-red-200 text-red-900 dark:bg-red-900 dark:text-red-100">Severe</Badge>
-            <div className="text-xs text-muted-foreground mt-1">{Math.abs(daysRemaining)}d</div>
-          </div>
-        );
+        return <Badge className="bg-red-200 text-red-900 dark:bg-red-900 dark:text-red-100">{Math.abs(daysRemaining)}d Severe</Badge>;
       default:
         return <Badge variant="secondary">{agingCategory}</Badge>;
     }
