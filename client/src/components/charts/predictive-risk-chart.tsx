@@ -1,5 +1,4 @@
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { AlertTriangle, TrendingUp, Shield } from 'lucide-react';
 
 const riskData = [
   {
@@ -59,15 +58,6 @@ const getRiskColor = (level: string) => {
   }
 };
 
-const getRiskIcon = (level: string) => {
-  switch (level) {
-    case "critical": return <AlertTriangle className="h-4 w-4 text-red-600" />;
-    case "high": return <TrendingUp className="h-4 w-4 text-orange-600" />;
-    case "medium": return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-    case "low": return <Shield className="h-4 w-4 text-green-600" />;
-    default: return null;
-  }
-};
 
 export function PredictiveRiskChart() {
   return (

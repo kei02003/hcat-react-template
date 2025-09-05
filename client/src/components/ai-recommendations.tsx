@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Lightbulb, TrendingUp, AlertTriangle, CheckCircle, Clock, DollarSign } from "lucide-react";
 
 const aiRecommendations = [
   {
@@ -106,15 +105,6 @@ function getPriorityColor(priority: string) {
   }
 }
 
-function getTypeIcon(type: string) {
-  switch (type) {
-    case "urgent": return <AlertTriangle className="h-5 w-5 text-red-600" />;
-    case "optimization": return <TrendingUp className="h-5 w-5 text-blue-600" />;
-    case "prediction": return <Brain className="h-5 w-5 text-purple-600" />;
-    case "insight": return <Lightbulb className="h-5 w-5 text-yellow-600" />;
-    default: return <CheckCircle className="h-5 w-5 text-gray-600" />;
-  }
-}
 
 function getRiskColor(risk: string) {
   switch (risk) {
@@ -132,8 +122,7 @@ export function AIRecommendations() {
       <Card className="healthcare-card">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <Brain className="h-6 w-6 text-blue-600" />
+            <div>
               <h3 className="text-lg font-semibold text-gray-900">AI-Powered Recommendations</h3>
             </div>
             <Badge className="bg-blue-100 text-blue-800 border-blue-200">
@@ -149,12 +138,9 @@ export function AIRecommendations() {
                 data-testid={`ai-recommendation-${recommendation.id}`}
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    {getTypeIcon(recommendation.type)}
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{recommendation.title}</h4>
-                      <p className="text-sm text-gray-600">{recommendation.category}</p>
-                    </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{recommendation.title}</h4>
+                    <p className="text-sm text-gray-600">{recommendation.category}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Badge className={`${getPriorityColor(recommendation.priority)} border`}>
@@ -187,11 +173,8 @@ export function AIRecommendations() {
                   </div>
                   
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        {recommendation.timeframe}
-                      </div>
+                    <div className="text-sm text-gray-500">
+                      {recommendation.timeframe}
                     </div>
                     <div className="flex space-x-2">
                       <Button size="sm" variant="outline" data-testid={`button-dismiss-${recommendation.id}`}>
@@ -213,8 +196,7 @@ export function AIRecommendations() {
       <Card className="healthcare-card">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <Lightbulb className="h-6 w-6 text-yellow-600" />
+            <div>
               <h3 className="text-lg font-semibold text-gray-900">Smart Actions Available</h3>
             </div>
             <div className="text-right">
@@ -263,7 +245,6 @@ export function AIRecommendations() {
                   size="sm"
                   data-testid={`button-activate-${index}`}
                 >
-                  <DollarSign className="h-4 w-4 mr-2" />
                   Activate
                 </Button>
               </div>
