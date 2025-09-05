@@ -132,6 +132,7 @@ export function PreAuthorizationDashboard() {
   const getStatusBadge = (status: string, daysUntil: number) => {
     if (status === "approved") return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
     if (status === "denied") return <Badge className="bg-red-100 text-red-800">Denied</Badge>;
+    if (daysUntil < 0) return <Badge className="bg-red-100 text-red-800">Overdue - {Math.abs(daysUntil)} days</Badge>;
     if (daysUntil <= 3) return <Badge className="bg-red-100 text-red-800">Urgent - {daysUntil} days</Badge>;
     if (status === "requires_review") return <Badge className="bg-yellow-100 text-yellow-800">Review Required</Badge>;
     return <Badge className="bg-blue-100 text-blue-800">Pending</Badge>;
