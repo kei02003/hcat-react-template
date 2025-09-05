@@ -74,10 +74,12 @@ export function SummaryDashboard() {
   });
 
   // Fetch recent activity
-  const { data: activities = [] } = useQuery({
-    queryKey: ["/api/recent-activity"],
+  const { data: activities = [] } = useQuery<RecentActivity[]>({
+    queryKey: ["/api/recent-activity", selectedPeriod],
     queryFn: async () => {
-      const response = await fetch("/api/recent-activity");
+      const response = await fetch(
+        `/api/recent-activity?period=${selectedPeriod}`,
+      );
       if (!response.ok) throw new Error("Failed to fetch recent activity");
       return response.json();
     },
@@ -235,12 +237,12 @@ export function SummaryDashboard() {
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockMetrics.totalRevenue}</div>
+            <div className="text-2xl font-bold">{metrics?.totalRevenue || mockMetrics.totalRevenue}</div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(mockMetrics.revenueChange)}
-              <span className={getTrendColor(mockMetrics.revenueChange)}>
-                {mockMetrics.revenueChange > 0 ? "+" : ""}
-                {mockMetrics.revenueChange}%
+              {getTrendIcon(metrics?.revenueChange || mockMetrics.revenueChange)}
+              <span className={getTrendColor(metrics?.revenueChange || mockMetrics.revenueChange)}>
+                {(metrics?.revenueChange || mockMetrics.revenueChange) > 0 ? "+" : ""}
+                {metrics?.revenueChange || mockMetrics.revenueChange}%
               </span>
               <span className="text-muted-foreground">vs last period</span>
             </div>
@@ -252,12 +254,12 @@ export function SummaryDashboard() {
             <CardTitle className="text-sm font-medium">Denial Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockMetrics.denialRate}%</div>
+            <div className="text-2xl font-bold">{metrics?.denialRate || mockMetrics.denialRate}%</div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(mockMetrics.denialChange)}
-              <span className={getTrendColor(mockMetrics.denialChange, true)}>
-                {mockMetrics.denialChange > 0 ? "+" : ""}
-                {mockMetrics.denialChange}%
+              {getTrendIcon(metrics?.denialChange || mockMetrics.denialChange)}
+              <span className={getTrendColor(metrics?.denialChange || mockMetrics.denialChange, true)}>
+                {(metrics?.denialChange || mockMetrics.denialChange) > 0 ? "+" : ""}
+                {metrics?.denialChange || mockMetrics.denialChange}%
               </span>
               <span className="text-muted-foreground">vs last period</span>
             </div>
@@ -272,13 +274,13 @@ export function SummaryDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockMetrics.appealSuccessRate}%
+              {metrics?.appealSuccessRate || mockMetrics.appealSuccessRate}%
             </div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(mockMetrics.appealChange)}
-              <span className={getTrendColor(mockMetrics.appealChange)}>
-                {mockMetrics.appealChange > 0 ? "+" : ""}
-                {mockMetrics.appealChange}%
+              {getTrendIcon(metrics?.appealChange || mockMetrics.appealChange)}
+              <span className={getTrendColor(metrics?.appealChange || mockMetrics.appealChange)}>
+                {(metrics?.appealChange || mockMetrics.appealChange) > 0 ? "+" : ""}
+                {metrics?.appealChange || mockMetrics.appealChange}%
               </span>
               <span className="text-muted-foreground">vs last period</span>
             </div>
@@ -290,12 +292,12 @@ export function SummaryDashboard() {
             <CardTitle className="text-sm font-medium">AR Days</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockMetrics.arDays}</div>
+            <div className="text-2xl font-bold">{metrics?.arDays || mockMetrics.arDays}</div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(mockMetrics.arChange)}
-              <span className={getTrendColor(mockMetrics.arChange, true)}>
-                {mockMetrics.arChange > 0 ? "+" : ""}
-                {mockMetrics.arChange}%
+              {getTrendIcon(metrics?.arChange || mockMetrics.arChange)}
+              <span className={getTrendColor(metrics?.arChange || mockMetrics.arChange, true)}>
+                {(metrics?.arChange || mockMetrics.arChange) > 0 ? "+" : ""}
+                {metrics?.arChange || mockMetrics.arChange}%
               </span>
               <span className="text-muted-foreground">vs last period</span>
             </div>
@@ -308,13 +310,13 @@ export function SummaryDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockMetrics.timelyFilingRate}%
+              {metrics?.timelyFilingRate || mockMetrics.timelyFilingRate}%
             </div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(mockMetrics.timelyFilingChange)}
-              <span className={getTrendColor(mockMetrics.timelyFilingChange)}>
-                {mockMetrics.timelyFilingChange > 0 ? "+" : ""}
-                {mockMetrics.timelyFilingChange}%
+              {getTrendIcon(metrics?.timelyFilingChange || mockMetrics.timelyFilingChange)}
+              <span className={getTrendColor(metrics?.timelyFilingChange || mockMetrics.timelyFilingChange)}>
+                {(metrics?.timelyFilingChange || mockMetrics.timelyFilingChange) > 0 ? "+" : ""}
+                {metrics?.timelyFilingChange || mockMetrics.timelyFilingChange}%
               </span>
               <span className="text-muted-foreground">vs last period</span>
             </div>
@@ -366,7 +368,7 @@ export function SummaryDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockActivities.map((activity, index) => (
+              {activities.map((activity, index) => (
                 <div key={activity.id}>
                   <div className="flex items-start space-x-3">
                     <div className="flex-shrink-0">

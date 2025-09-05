@@ -261,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const updatedRequest = await storage.updatePreAuthRequest(id, {
         status,
-        flaggedAt,
+        // flaggedAt,
         reviewerNotes,
         updatedAt: new Date()
       });
@@ -493,20 +493,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { period = "30d" } = req.query;
       
-      // Mock summary metrics based on period
-      const summaryMetrics = {
-        totalRevenue: "$2.4M",
-        revenueChange: period === "7d" ? 3.2 : period === "30d" ? 8.2 : 12.5,
-        denialRate: 12.3,
-        denialChange: period === "7d" ? -0.8 : period === "30d" ? -2.1 : -3.4,
-        appealSuccessRate: 87.5,
-        appealChange: period === "7d" ? 2.1 : period === "30d" ? 5.3 : 8.7,
-        arDays: 42.1,
-        arChange: period === "7d" ? -1.2 : period === "30d" ? -3.4 : -5.8,
-        timelyFilingRate: 94.7,
-        timelyFilingChange: period === "7d" ? 1.1 : period === "30d" ? 2.8 : 4.2
+      // Enhanced period-based metrics with more realistic variations
+      const getMetricsForPeriod = (periodType: string) => {
+        switch (periodType) {
+          case "7d":
+            return {
+              totalRevenue: "$580K",
+              revenueChange: 3.2,
+              denialRate: 11.8,
+              denialChange: -0.8,
+              appealSuccessRate: 89.2,
+              appealChange: 2.1,
+              arDays: 41.5,
+              arChange: -1.2,
+              timelyFilingRate: 96.1,
+              timelyFilingChange: 1.1
+            };
+          case "90d":
+            return {
+              totalRevenue: "$7.2M",
+              revenueChange: 12.5,
+              denialRate: 11.2,
+              denialChange: -3.4,
+              appealSuccessRate: 91.8,
+              appealChange: 8.7,
+              arDays: 39.8,
+              arChange: -5.8,
+              timelyFilingRate: 97.3,
+              timelyFilingChange: 4.2
+            };
+          default: // 30d
+            return {
+              totalRevenue: "$2.4M",
+              revenueChange: 8.2,
+              denialRate: 12.3,
+              denialChange: -2.1,
+              appealSuccessRate: 87.5,
+              appealChange: 5.3,
+              arDays: 42.1,
+              arChange: -3.4,
+              timelyFilingRate: 94.7,
+              timelyFilingChange: 2.8
+            };
+        }
       };
       
+      const summaryMetrics = getMetricsForPeriod(period as string);
       res.json(summaryMetrics);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch summary metrics" });
@@ -515,49 +547,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/recent-activity", async (req, res) => {
     try {
-      const recentActivity = [
-        {
-          id: "1",
-          type: "appeal",
-          message: "Elena Martinez appeal approved - $12,450 recovered",
-          timestamp: "2025-01-08 14:30",
-          priority: "high",
-          status: "completed"
-        },
-        {
-          id: "2", 
-          type: "denial",
-          message: "New denial received: Johnson, Michael R. - Medical necessity",
-          timestamp: "2025-01-08 13:15",
-          priority: "medium",
-          status: "pending"
-        },
-        {
-          id: "3",
-          type: "filing",
-          message: "Critical: Thompson, Robert K. filing deadline in 5 days",
-          timestamp: "2025-01-08 12:45",
-          priority: "high",
-          status: "overdue"
-        },
-        {
-          id: "4",
-          type: "collection",
-          message: "Payment received: $8,750 - Wilson, Sarah M.",
-          timestamp: "2025-01-08 11:20",
-          priority: "low",
-          status: "completed"
-        },
-        {
-          id: "5",
-          type: "appeal",
-          message: "Sarah Thompson appeal generated - 95% success probability",
-          timestamp: "2025-01-08 10:15",
-          priority: "medium",
-          status: "pending"
-        }
-      ];
+      const { period = "30d" } = req.query;
       
+      // Generate period-specific activity data
+      const now = new Date();
+      const getActivityForPeriod = (periodType: string) => {
+        const baseActivities = [
+          {
+            id: "1",
+            type: "appeal",
+            message: "Elena Martinez appeal approved - $12,450 recovered",
+            timestamp: "2025-01-08 14:30",
+            priority: "high",
+            status: "completed"
+          },
+          {
+            id: "2", 
+            type: "denial",
+            message: "New denial received: Johnson, Michael R. - Medical necessity",
+            timestamp: "2025-01-08 13:15",
+            priority: "medium",
+            status: "pending"
+          },
+          {
+            id: "3",
+            type: "filing",
+            message: "Critical: Thompson, Robert K. filing deadline in 5 days",
+            timestamp: "2025-01-08 12:45",
+            priority: "high",
+            status: "overdue"
+          },
+          {
+            id: "4",
+            type: "collection",
+            message: "Payment received: $8,750 - Wilson, Sarah M.",
+            timestamp: "2025-01-08 11:20",
+            priority: "low",
+            status: "completed"
+          },
+          {
+            id: "5",
+            type: "appeal",
+            message: "Sarah Thompson appeal generated - 95% success probability",
+            timestamp: "2025-01-08 10:15",
+            priority: "medium",
+            status: "pending"
+          }
+        ];
+        
+        if (periodType === "7d") {
+          return baseActivities.slice(0, 3); // Show fewer activities for 7 days
+        } else if (periodType === "90d") {
+          // Add more historical activities for 90 days
+          return [
+            ...baseActivities,
+            {
+              id: "6",
+              type: "collection",
+              message: "Large payment received: $25,000 - Insurance settlement",
+              timestamp: "2025-01-07 16:45",
+              priority: "high",
+              status: "completed"
+            },
+            {
+              id: "7",
+              type: "denial",
+              message: "Complex case resolved: Rodriguez, Maria A. - Prior auth issue",
+              timestamp: "2025-01-06 09:30",
+              priority: "medium",
+              status: "completed"
+            }
+          ];
+        }
+        return baseActivities; // Default 30d
+      };
+      
+      const recentActivity = getActivityForPeriod(period as string);
       res.json(recentActivity);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch recent activity" });
