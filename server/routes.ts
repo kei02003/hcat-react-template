@@ -441,6 +441,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate challenge letter endpoint
+  app.post("/api/challenge-letters/generate", async (req, res) => {
+    try {
+      const { denialId, notes, urgency } = req.body;
+      const { appealCases, challengeLetterTemplate } = await import("./appeal-data");
+      
+      // Find appeal case by denial ID
+      let appealCase = appealCases.find(appeal => appeal.denialId === denialId);
+      
+      if (!appealCase) {
+        return res.status(404).json({ message: "Appeal case not found for denial ID: " + denialId });
+      }
+
+      // Generate challenge letter with specific clinical evidence
+      const challengeLetter = generateChallengeLetter(appealCase, challengeLetterTemplate);
+      
+      // Update the case status to indicate letter has been generated
+      appealCase.status = "letter_generated";
+      appealCase.updatedAt = new Date().toISOString();
+      
+      res.json({
+        appealCase,
+        challengeLetter,
+        clinicalEvidence: appealCase.clinicalEvidence,
+        appealProbability: appealCase.appealProbability,
+        success: true,
+        message: "Appeal letter generated successfully"
+      });
+    } catch (error) {
+      console.error("Error generating challenge letter:", error);
+      res.status(500).json({ message: "Failed to generate challenge letter" });
+    }
+  });
+
   // Clinical decision routes
   app.get("/api/clinical-decisions", async (req, res) => {
     try {
