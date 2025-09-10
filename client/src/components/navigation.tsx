@@ -32,9 +32,7 @@ export function Navigation() {
 
   const handleDemoReset = async () => {
     try {
-      const response = await apiRequest("/api/demo/reset", {
-        method: "POST",
-      });
+      const response: any = await apiRequest("/api/demo/reset", "POST");
       
       // Invalidate all appeal-related queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ["appeal-cases"] });
