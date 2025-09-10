@@ -60,12 +60,12 @@ export function AppealGenerationDashboard() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'ready':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Ready</Badge>;
+      case 'pending_generation':
+        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending Generation</Badge>;
       case 'generated':
         return <Badge className="bg-blue-100 text-blue-800"><FileText className="w-3 h-3 mr-1" />Generated</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+      case 'not_recommended':
+        return <Badge className="bg-gray-100 text-gray-800">Not Recommended</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
@@ -286,7 +286,7 @@ export function AppealGenerationDashboard() {
                     {getStatusBadge(appealCase.status)}
                   </TableCell>
                   <TableCell>
-                    {appealCase.status === 'ready' ? (
+                    {appealCase.status === 'pending_generation' ? (
                       <Button
                         variant="outline"
                         size="sm"
