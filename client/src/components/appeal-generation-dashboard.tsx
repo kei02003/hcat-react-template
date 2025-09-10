@@ -296,6 +296,16 @@ export function AppealGenerationDashboard() {
                         <FileText className="w-4 h-4 mr-1" />
                         Generate Appeal
                       </Button>
+                    ) : appealCase.status === 'generated' ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleGenerateAppeal(appealCase)}
+                        data-testid={`button-regenerate-appeal-${appealCase.id}`}
+                      >
+                        <FileText className="w-4 h-4 mr-1" />
+                        Regenerate Appeal
+                      </Button>
                     ) : (
                       <span className="text-sm text-gray-500">-</span>
                     )}
