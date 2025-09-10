@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,12 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -32,6 +22,23 @@ import {
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { 
+  FileText, 
+  AlertTriangle, 
+  CheckCircle, 
+  Clock, 
+  User,
+  Calendar,
+  DollarSign,
+  Building,
+  Stethoscope,
+  Mail,
+  Download,
+  RefreshCw,
+  Target,
+  TrendingUp,
+  ExternalLink
+} from "lucide-react";
 
 interface PatientAppealModalProps {
   denial: {
@@ -87,24 +94,38 @@ interface AppealData {
   };
 }
 
-export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealModalProps) {
+export function PatientAppealModal({
+  denial,
+  isOpen,
+  onClose,
+}: PatientAppealModalProps) {
   const [activeTab, setActiveTab] = useState("generate");
   const [isGenerating, setIsGenerating] = useState(false);
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [urgencyLevel, setUrgencyLevel] = useState("standard");
 
   // Fetch or generate appeal data for this specific patient/claim
-  const { data: appealData, isLoading, refetch } = useQuery<AppealData>({
+  const {
+    data: appealData,
+    isLoading,
+    refetch,
+  } = useQuery<AppealData>({
     queryKey: ["/api/challenge-letters", denial.denialId],
     enabled: isOpen,
   });
 
   const generateAppeal = useMutation({
-    mutationFn: async (data: { denialId: string; notes?: string; urgency?: string }) => {
+    mutationFn: async (data: {
+      denialId: string;
+      notes?: string;
+      urgency?: string;
+    }) => {
       return apiRequest("POST", `/api/challenge-letters/generate`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/challenge-letters", denial.denialId] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/challenge-letters", denial.denialId],
+      });
       queryClient.invalidateQueries({ queryKey: ["/api/appeal-cases"] });
     },
   });
@@ -173,14 +194,18 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
                   <DollarSign className="h-4 w-4 text-gray-400" />
                   <div>
                     <span className="text-gray-600">Amount:</span>
-                    <p className="font-semibold">${denial.deniedAmount.toLocaleString()}</p>
+                    <p className="font-semibold">
+                      ${denial.deniedAmount.toLocaleString()}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-4 w-4 text-gray-400" />
                   <div>
                     <span className="text-gray-600">Days to Appeal:</span>
-                    <p className={`font-semibold ${getDaysToAppealColor(denial.daysToAppeal)}`}>
+                    <p
+                      className={`font-semibold ${getDaysToAppealColor(denial.daysToAppeal)}`}
+                    >
                       {denial.daysToAppeal} days
                     </p>
                   </div>
@@ -204,7 +229,9 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Denial Reason:</span>
-                  <p className="font-medium text-red-600">{denial.denialReason}</p>
+                  <p className="font-medium text-red-600">
+                    {denial.denialReason}
+                  </p>
                 </div>
                 <div>
                   <span className="text-gray-600">Provider:</span>
@@ -215,17 +242,31 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
           </Card>
 
           {/* Main Tab Interface */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="generate" className="flex items-center space-x-2">
-                <Target className="h-4 w-4" />
+              <TabsTrigger
+                value="generate"
+                className="flex items-center space-x-2"
+              >
                 <span>Generate Appeal</span>
               </TabsTrigger>
-              <TabsTrigger value="review" className="flex items-center space-x-2" disabled={!appealData}>
+              <TabsTrigger
+                value="review"
+                className="flex items-center space-x-2"
+                disabled={!appealData}
+              >
                 <FileText className="h-4 w-4" />
                 <span>Review Letter</span>
               </TabsTrigger>
-              <TabsTrigger value="evidence" className="flex items-center space-x-2" disabled={!appealData}>
+              <TabsTrigger
+                value="evidence"
+                className="flex items-center space-x-2"
+                disabled={!appealData}
+              >
                 <CheckCircle className="h-4 w-4" />
                 <span>Clinical Evidence</span>
               </TabsTrigger>
@@ -236,22 +277,33 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Target className="h-4 w-4 text-purple-600" />
+                    
                     <span>Appeal Generation</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Appeal Urgency</label>
-                      <Select value={urgencyLevel} onValueChange={setUrgencyLevel}>
+                      <label className="block text-sm font-medium mb-2">
+                        Appeal Urgency
+                      </label>
+                      <Select
+                        value={urgencyLevel}
+                        onValueChange={setUrgencyLevel}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select urgency level" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="urgent">Urgent (&lt; 15 days)</SelectItem>
-                          <SelectItem value="standard">Standard (15-30 days)</SelectItem>
-                          <SelectItem value="routine">Routine (&gt; 30 days)</SelectItem>
+                          <SelectItem value="urgent">
+                            Urgent (&lt; 15 days)
+                          </SelectItem>
+                          <SelectItem value="standard">
+                            Standard (15-30 days)
+                          </SelectItem>
+                          <SelectItem value="routine">
+                            Routine (&gt; 30 days)
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -263,7 +315,9 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
                       <Textarea
                         placeholder="Enter any additional clinical context, specific medical justifications, or special circumstances that should be included in the appeal letter..."
                         value={additionalNotes}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAdditionalNotes(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                          setAdditionalNotes(e.target.value)
+                        }
                         rows={4}
                       />
                     </div>
@@ -304,10 +358,14 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
                     <div className="mt-4 p-4 bg-green-50 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <CheckCircle className="h-5 w-5 text-green-600" />
-                        <span className="font-semibold text-green-800">Appeal Generated Successfully</span>
+                        <span className="font-semibold text-green-800">
+                          Appeal Generated Successfully
+                        </span>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${getProbabilityColor(appealData.appealProbability)}`}>
+                        <div
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${getProbabilityColor(appealData.appealProbability)}`}
+                        >
                           Success Probability: {appealData.appealProbability}%
                         </div>
                         <Button
@@ -334,7 +392,9 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
                     <CardTitle className="flex items-center space-x-2">
                       <FileText className="h-4 w-4 text-purple-600" />
                       <span>Challenge Letter</span>
-                      <div className={`px-2 py-1 rounded text-xs font-medium ${getProbabilityColor(appealData.appealProbability)}`}>
+                      <div
+                        className={`px-2 py-1 rounded text-xs font-medium ${getProbabilityColor(appealData.appealProbability)}`}
+                      >
                         {appealData.appealProbability}% Success Rate
                       </div>
                     </CardTitle>
@@ -343,13 +403,15 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
                         <Download className="h-4 w-4 mr-1" />
                         Download PDF
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() => submitAppeal.mutate({ 
-                          denialId: denial.denialId, 
-                          challengeLetter: appealData.challengeLetter 
-                        })}
+                        onClick={() =>
+                          submitAppeal.mutate({
+                            denialId: denial.denialId,
+                            challengeLetter: appealData.challengeLetter,
+                          })
+                        }
                         disabled={submitAppeal.isPending}
                       >
                         {submitAppeal.isPending ? (
@@ -381,31 +443,43 @@ export function PatientAppealModal({ denial, isOpen, onClose }: PatientAppealMod
             <TabsContent value="evidence" className="space-y-4">
               {appealData?.clinicalEvidence && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {Object.entries(appealData.clinicalEvidence).map(([key, evidence]) => (
-                    <Card key={key}>
-                      <CardHeader>
-                        <CardTitle className="text-base capitalize">
-                          {key.replace(/([A-Z])/g, ' $1').trim()}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div>
-                            <h4 className="font-medium text-sm text-gray-700 mb-1">Key Findings:</h4>
-                            <ul className="list-disc list-inside text-sm space-y-1">
-                              {evidence.findings?.map((finding: string, index: number) => (
-                                <li key={index} className="text-gray-600">{finding}</li>
-                              ))}
-                            </ul>
+                  {Object.entries(appealData.clinicalEvidence).map(
+                    ([key, evidence]) => (
+                      <Card key={key}>
+                        <CardHeader>
+                          <CardTitle className="text-base capitalize">
+                            {key.replace(/([A-Z])/g, " $1").trim()}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <div>
+                              <h4 className="font-medium text-sm text-gray-700 mb-1">
+                                Key Findings:
+                              </h4>
+                              <ul className="list-disc list-inside text-sm space-y-1">
+                                {evidence.findings?.map(
+                                  (finding: string, index: number) => (
+                                    <li key={index} className="text-gray-600">
+                                      {finding}
+                                    </li>
+                                  ),
+                                )}
+                              </ul>
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-sm text-gray-700 mb-1">
+                                Documentation:
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                {evidence.supportingDocumentation}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-medium text-sm text-gray-700 mb-1">Documentation:</h4>
-                            <p className="text-sm text-gray-600">{evidence.supportingDocumentation}</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ),
+                  )}
                 </div>
               )}
             </TabsContent>

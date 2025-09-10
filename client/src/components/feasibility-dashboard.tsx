@@ -257,7 +257,6 @@ export function FeasibilityDashboard() {
                       <span className="text-sm font-medium">
                         Appeal Opportunities
                       </span>
-                      <Target className="h-4 w-4 text-primary" />
                     </div>
                     <div className="text-2xl font-bold text-primary">
                       {payer.appealOpportunities.appealableCount.toLocaleString()}

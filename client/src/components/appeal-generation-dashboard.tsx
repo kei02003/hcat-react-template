@@ -233,7 +233,7 @@ export function AppealGenerationDashboard() {
           />
         </div>
         <Badge variant="outline" className="text-green-600 border-green-600">
-          <Target className="w-3 h-3 mr-1" />
+          
           Showing High-Probability Cases (&gt;70%)
         </Badge>
       </div>

@@ -1,5 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { 
+  TrendingUp, 
+  FileText, 
+  DollarSign, 
+  Users,
+  Shield,
+  Activity,
+  BarChart3,
+  Clock,
+  AlertTriangle,
+  CheckCircle
+} from "lucide-react";
 
 export default function Landing() {
   return (
