@@ -370,10 +370,7 @@ export function SummaryDashboard() {
             <div className="space-y-4">
               {activities.map((activity, index) => (
                 <div key={activity.id}>
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      {getActivityIcon(activity.type)}
-                    </div>
+                  <div className="flex items-start">
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {activity.message}
