@@ -1,30 +1,41 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  Clock, 
-  User, 
-  Building, 
-  FileText, 
-  Sparkles, 
-  Send, 
+import {
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  User,
+  Building,
+  FileText,
+  Sparkles,
+  Send,
   Loader2,
   Eye,
   Shield,
   Wand2,
   Target,
   Copy,
-  Download
+  Download,
 } from "lucide-react";
 
 interface PreAuthRequest {
@@ -113,7 +124,13 @@ interface PreAuthFormModalProps {
   patientData: PatientData | null;
 }
 
-export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, patientData }: PreAuthFormModalProps) {
+export function PreAuthFormModal({
+  isOpen,
+  onClose,
+  request,
+  insurerCriteria,
+  patientData,
+}: PreAuthFormModalProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -127,81 +144,153 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
   const formFields: FormField[] = [
     { id: "member_id", label: "Member ID", type: "text", required: true },
     { id: "group_number", label: "Group Number", type: "text", required: true },
-    { id: "patient_name", label: "Patient Full Name", type: "text", required: true },
+    {
+      id: "patient_name",
+      label: "Patient Full Name",
+      type: "text",
+      required: true,
+    },
     { id: "patient_dob", label: "Date of Birth", type: "date", required: true },
     { id: "provider_npi", label: "Provider NPI", type: "text", required: true },
-    { id: "provider_name", label: "Provider Name", type: "text", required: true },
-    { id: "diagnosis_code", label: "Primary Diagnosis Code (ICD-10)", type: "text", required: true },
-    { id: "diagnosis_desc", label: "Diagnosis Description", type: "textarea", required: true },
-    { id: "procedure_code", label: "Procedure Code (CPT)", type: "text", required: true },
-    { id: "procedure_desc", label: "Procedure Description", type: "textarea", required: true },
-    { id: "service_date", label: "Requested Service Date", type: "date", required: true },
-    { id: "urgency", label: "Urgency Level", type: "select", required: true, options: ["Routine", "Urgent", "Emergent"] },
-    { id: "clinical_rationale", label: "Clinical Rationale", type: "textarea", required: true },
-    { id: "prior_treatments", label: "Previous Conservative Treatments", type: "textarea", required: true },
-    { id: "duration_symptoms", label: "Duration of Symptoms", type: "text", required: false },
-    { id: "supporting_documentation", label: "Supporting Documentation", type: "textarea", required: false }
+    {
+      id: "provider_name",
+      label: "Provider Name",
+      type: "text",
+      required: true,
+    },
+    {
+      id: "diagnosis_code",
+      label: "Primary Diagnosis Code (ICD-10)",
+      type: "text",
+      required: true,
+    },
+    {
+      id: "diagnosis_desc",
+      label: "Diagnosis Description",
+      type: "textarea",
+      required: true,
+    },
+    {
+      id: "procedure_code",
+      label: "Procedure Code (CPT)",
+      type: "text",
+      required: true,
+    },
+    {
+      id: "procedure_desc",
+      label: "Procedure Description",
+      type: "textarea",
+      required: true,
+    },
+    {
+      id: "service_date",
+      label: "Requested Service Date",
+      type: "date",
+      required: true,
+    },
+    {
+      id: "urgency",
+      label: "Urgency Level",
+      type: "select",
+      required: true,
+      options: ["Routine", "Urgent", "Emergent"],
+    },
+    {
+      id: "clinical_rationale",
+      label: "Clinical Rationale",
+      type: "textarea",
+      required: true,
+    },
+    {
+      id: "prior_treatments",
+      label: "Previous Conservative Treatments",
+      type: "textarea",
+      required: true,
+    },
+    {
+      id: "duration_symptoms",
+      label: "Duration of Symptoms",
+      type: "text",
+      required: false,
+    },
+    {
+      id: "supporting_documentation",
+      label: "Supporting Documentation",
+      type: "textarea",
+      required: false,
+    },
   ];
 
   // Handler functions for form actions
   const handlePreviewForm = () => {
-    const formContent = formFields.map(field => {
-      const value = formData[field.id] || (field.autoFilled ? field.value : '');
-      return `${field.label}: ${value || 'Not filled'}`;
-    }).join('\n');
-    
-    alert(`Form Preview:\n\n${formContent}\n\nRequest: ${request?.procedureName || 'N/A'}\nPayer: ${request?.payer || 'N/A'}`);
+    const formContent = formFields
+      .map((field) => {
+        const value =
+          formData[field.id] || (field.autoFilled ? field.value : "");
+        return `${field.label}: ${value || "Not filled"}`;
+      })
+      .join("\n");
+
+    alert(
+      `Form Preview:\n\n${formContent}\n\nRequest: ${request?.procedureName || "N/A"}\nPayer: ${request?.payer || "N/A"}`,
+    );
   };
 
   const handleCopyForm = async () => {
-    const formContent = formFields.map(field => {
-      const value = formData[field.id] || (field.autoFilled ? field.value : '');
-      return `${field.label}: ${value || 'Not filled'}`;
-    }).join('\n');
-    
+    const formContent = formFields
+      .map((field) => {
+        const value =
+          formData[field.id] || (field.autoFilled ? field.value : "");
+        return `${field.label}: ${value || "Not filled"}`;
+      })
+      .join("\n");
+
     try {
       await navigator.clipboard.writeText(formContent);
-      alert('Form content copied to clipboard successfully!');
+      alert("Form content copied to clipboard successfully!");
     } catch (err) {
-      alert('Failed to copy to clipboard. Please try again.');
+      alert("Failed to copy to clipboard. Please try again.");
     }
   };
 
   const handleExportForm = () => {
-    const formContent = formFields.map(field => {
-      const value = formData[field.id] || (field.autoFilled ? field.value : '');
-      return `${field.label}: ${value || 'Not filled'}`;
-    }).join('\n');
-    
-    const blob = new Blob([formContent], { type: 'text/plain' });
+    const formContent = formFields
+      .map((field) => {
+        const value =
+          formData[field.id] || (field.autoFilled ? field.value : "");
+        return `${field.label}: ${value || "Not filled"}`;
+      })
+      .join("\n");
+
+    const blob = new Blob([formContent], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `pre-auth-form-${request?.id || 'export'}.txt`;
+    a.download = `pre-auth-form-${request?.id || "export"}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
-    alert('Form exported successfully!');
+
+    alert("Form exported successfully!");
   };
 
   // Auto-fill form based on patient data
   const autoPopulateForm = async () => {
     if (!patientData || !request) return;
-    
+
     setIsProcessing(true);
-    
+
     // Simulate AI processing time
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     const mappedData: Record<string, string> = {};
-    
+
     // Smart mapping based on field IDs and patient data
-    formFields.forEach(field => {
+    formFields.forEach((field) => {
       let value = "";
       let confidence = 0;
-      
+
       switch (field.id) {
         case "member_id":
           value = patientData.memberID;
@@ -244,7 +333,9 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
           confidence = 100;
           break;
         case "urgency":
-          value = patientData.urgency.charAt(0).toUpperCase() + patientData.urgency.slice(1);
+          value =
+            patientData.urgency.charAt(0).toUpperCase() +
+            patientData.urgency.slice(1);
           confidence = 90;
           break;
         case "clinical_rationale":
@@ -264,18 +355,18 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
           confidence = 75;
           break;
       }
-      
+
       if (value) {
         mappedData[field.id] = value;
         // Mark field as auto-filled with confidence
-        const fieldIndex = formFields.findIndex(f => f.id === field.id);
+        const fieldIndex = formFields.findIndex((f) => f.id === field.id);
         if (fieldIndex !== -1) {
           formFields[fieldIndex].autoFilled = true;
           formFields[fieldIndex].confidence = confidence;
         }
       }
     });
-    
+
     setFormData(mappedData);
     setIsProcessing(false);
   };
@@ -283,47 +374,58 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
   // Validate against insurer criteria
   const validateAgainstCriteria = () => {
     if (!insurerCriteria) return;
-    
+
     const results = {
       passed: [] as string[],
       failed: [] as string[],
-      warnings: [] as string[]
+      warnings: [] as string[],
     };
-    
+
     // Check medical necessity criteria
     if (insurerCriteria.criteria.medicalNecessityCriteria) {
-      insurerCriteria.criteria.medicalNecessityCriteria.forEach(criteria => {
-        if (formData.clinical_rationale?.toLowerCase().includes(criteria.toLowerCase().substring(0, 10))) {
+      insurerCriteria.criteria.medicalNecessityCriteria.forEach((criteria) => {
+        if (
+          formData.clinical_rationale
+            ?.toLowerCase()
+            .includes(criteria.toLowerCase().substring(0, 10))
+        ) {
           results.passed.push(`Medical necessity: ${criteria}`);
         } else {
           results.warnings.push(`Consider addressing: ${criteria}`);
         }
       });
     }
-    
+
     // Check timing requirements
     if (request && insurerCriteria.criteria.timeFrameRequired) {
       const daysUntilProcedure = Math.ceil(
-        (new Date(request.scheduledDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+        (new Date(request.scheduledDate).getTime() - new Date().getTime()) /
+          (1000 * 60 * 60 * 24),
       );
-      
+
       if (daysUntilProcedure >= insurerCriteria.criteria.timeFrameRequired) {
-        results.passed.push(`Timing: ${daysUntilProcedure} days notice provided (${insurerCriteria.criteria.timeFrameRequired} required)`);
+        results.passed.push(
+          `Timing: ${daysUntilProcedure} days notice provided (${insurerCriteria.criteria.timeFrameRequired} required)`,
+        );
       } else {
-        results.failed.push(`Insufficient notice: Only ${daysUntilProcedure} days (${insurerCriteria.criteria.timeFrameRequired} required)`);
+        results.failed.push(
+          `Insufficient notice: Only ${daysUntilProcedure} days (${insurerCriteria.criteria.timeFrameRequired} required)`,
+        );
       }
     }
-    
+
     // Check required fields
-    const requiredFields = formFields.filter(f => f.required);
-    const missingFields = requiredFields.filter(f => !formData[f.id]);
-    
+    const requiredFields = formFields.filter((f) => f.required);
+    const missingFields = requiredFields.filter((f) => !formData[f.id]);
+
     if (missingFields.length === 0) {
       results.passed.push("All required fields completed");
     } else {
-      results.failed.push(`Missing required fields: ${missingFields.map(f => f.label).join(", ")}`);
+      results.failed.push(
+        `Missing required fields: ${missingFields.map((f) => f.label).join(", ")}`,
+      );
     }
-    
+
     setValidationResults(results);
   };
 
@@ -352,10 +454,14 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h3 className="text-lg font-semibold mb-2">Step 1: Flag Procedure for Pre-Authorization</h3>
-              <p className="text-gray-600">Review procedure details and requirements</p>
+              <h3 className="text-lg font-semibold mb-2">
+                Step 1: Flag Procedure for Pre-Authorization
+              </h3>
+              <p className="text-gray-600">
+                Review procedure details and requirements
+              </p>
             </div>
-            
+
             {request && (
               <Card>
                 <CardHeader>
@@ -372,22 +478,29 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Procedure</Label>
-                      <p className="text-gray-900">{request.procedureCode} - {request.procedureName}</p>
+                      <p className="text-gray-900">
+                        {request.procedureCode} - {request.procedureName}
+                      </p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium">Payer</Label>
                       <p className="text-gray-900">{request.payer}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Scheduled Date</Label>
-                      <p className="text-gray-900">{new Date(request.scheduledDate).toLocaleDateString()}</p>
+                      <Label className="text-sm font-medium">
+                        Scheduled Date
+                      </Label>
+                      <p className="text-gray-900">
+                        {new Date(request.scheduledDate).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <Alert>
                     <Target className="h-4 w-4" />
                     <AlertDescription>
-                      This procedure has been automatically flagged for pre-authorization based on payer requirements.
+                      This procedure has been automatically flagged for
+                      pre-authorization based on payer requirements.
                     </AlertDescription>
                   </Alert>
                 </CardContent>
@@ -400,10 +513,14 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h3 className="text-lg font-semibold mb-2">Step 2: Compare Against Insurer Criteria</h3>
-              <p className="text-gray-600">Review payer-specific authorization requirements</p>
+              <h3 className="text-lg font-semibold mb-2">
+                Step 2: Compare Against Insurer Criteria
+              </h3>
+              <p className="text-gray-600">
+                Review payer-specific authorization requirements
+              </p>
             </div>
-            
+
             {insurerCriteria && (
               <Card>
                 <CardHeader>
@@ -415,41 +532,71 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium">Authorization Required</Label>
-                      <Badge className={insurerCriteria.criteria.requiresAuth ? "bg-orange-100 text-orange-800" : "bg-green-100 text-green-800"}>
+                      <Label className="text-sm font-medium">
+                        Authorization Required
+                      </Label>
+                      <Badge
+                        className={
+                          insurerCriteria.criteria.requiresAuth
+                            ? "bg-orange-100 text-orange-800"
+                            : "bg-green-100 text-green-800"
+                        }
+                      >
                         {insurerCriteria.criteria.requiresAuth ? "Yes" : "No"}
                       </Badge>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium">Processing Time</Label>
-                      <p className="text-gray-900">{insurerCriteria.criteria.timeFrameRequired} days</p>
+                      <Label className="text-sm font-medium">
+                        Processing Time
+                      </Label>
+                      <p className="text-gray-900">
+                        {insurerCriteria.criteria.timeFrameRequired} days
+                      </p>
                     </div>
                   </div>
-                  
+
                   {insurerCriteria.criteria.medicalNecessityCriteria && (
                     <div>
-                      <Label className="text-sm font-medium mb-2 block">Medical Necessity Criteria</Label>
+                      <Label className="text-sm font-medium mb-2 block">
+                        Medical Necessity Criteria
+                      </Label>
                       <ul className="space-y-2">
-                        {insurerCriteria.criteria.medicalNecessityCriteria.map((criteria, idx) => (
-                          <li key={idx} className="flex items-start space-x-2">
-                            <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-gray-700">{criteria}</span>
-                          </li>
-                        ))}
+                        {insurerCriteria.criteria.medicalNecessityCriteria.map(
+                          (criteria, idx) => (
+                            <li
+                              key={idx}
+                              className="flex items-start space-x-2"
+                            >
+                              <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-gray-700">
+                                {criteria}
+                              </span>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   )}
-                  
+
                   {insurerCriteria.criteria.denialReasons && (
                     <div>
-                      <Label className="text-sm font-medium mb-2 block">Common Denial Reasons</Label>
+                      <Label className="text-sm font-medium mb-2 block">
+                        Common Denial Reasons
+                      </Label>
                       <ul className="space-y-2">
-                        {insurerCriteria.criteria.denialReasons.map((reason, idx) => (
-                          <li key={idx} className="flex items-start space-x-2">
-                            <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-gray-700">{reason}</span>
-                          </li>
-                        ))}
+                        {insurerCriteria.criteria.denialReasons.map(
+                          (reason, idx) => (
+                            <li
+                              key={idx}
+                              className="flex items-start space-x-2"
+                            >
+                              <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-gray-700">
+                                {reason}
+                              </span>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   )}
@@ -463,10 +610,14 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h3 className="text-lg font-semibold mb-2">Step 3: Pre-populate Authorization Form</h3>
-              <p className="text-gray-600">AI-powered form completion with validation</p>
+              <h3 className="text-lg font-semibold mb-2">
+                Step 3: Pre-populate Authorization Form
+              </h3>
+              <p className="text-gray-600">
+                AI-powered form completion with validation
+              </p>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <Button
                 onClick={autoPopulateForm}
@@ -485,10 +636,10 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                   </>
                 )}
               </Button>
-              
+
               <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={handlePreviewForm}
                   data-testid="button-preview-form"
@@ -496,8 +647,8 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                   <Eye className="h-4 w-4 mr-2" />
                   Preview
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={handleCopyForm}
                   data-testid="button-copy-form"
@@ -505,8 +656,8 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                   <Copy className="h-4 w-4 mr-2" />
                   Copy
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={handleExportForm}
                   data-testid="button-export-form"
@@ -516,7 +667,7 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                 </Button>
               </div>
             </div>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle>Pre-Authorization Request Form</CardTitle>
@@ -524,35 +675,59 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
               <CardContent className="space-y-4 max-h-96 overflow-y-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {formFields.map((field) => (
-                    <div key={field.id} className={field.type === "textarea" ? "md:col-span-2" : ""}>
+                    <div
+                      key={field.id}
+                      className={
+                        field.type === "textarea" ? "md:col-span-2" : ""
+                      }
+                    >
                       <Label className="text-sm font-medium">
                         {field.label}
-                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                        {field.required && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
                         {field.autoFilled && field.confidence && (
-                          <Badge variant="outline" className={`ml-2 text-xs ${getConfidenceColor(field.confidence)}`}>
+                          <Badge
+                            variant="outline"
+                            className={`ml-2 text-xs ${getConfidenceColor(field.confidence)}`}
+                          >
                             {field.confidence}% confidence
                           </Badge>
                         )}
                       </Label>
-                      
+
                       {field.type === "textarea" ? (
                         <Textarea
                           value={formData[field.id] || ""}
-                          onChange={(e) => setFormData(prev => ({ ...prev, [field.id]: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              [field.id]: e.target.value,
+                            }))
+                          }
                           className={`mt-1 ${getFieldBorderColor(field)}`}
                           rows={3}
                         />
                       ) : field.type === "select" ? (
-                        <Select 
-                          value={formData[field.id] || ""} 
-                          onValueChange={(value) => setFormData(prev => ({ ...prev, [field.id]: value }))}
+                        <Select
+                          value={formData[field.id] || ""}
+                          onValueChange={(value) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              [field.id]: value,
+                            }))
+                          }
                         >
-                          <SelectTrigger className={`mt-1 ${getFieldBorderColor(field)}`}>
+                          <SelectTrigger
+                            className={`mt-1 ${getFieldBorderColor(field)}`}
+                          >
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {field.options?.map(option => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
+                            {field.options?.map((option) => (
+                              <SelectItem key={option} value={option}>
+                                {option}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -560,7 +735,12 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                         <Input
                           type={field.type}
                           value={formData[field.id] || ""}
-                          onChange={(e) => setFormData(prev => ({ ...prev, [field.id]: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              [field.id]: e.target.value,
+                            }))
+                          }
                           className={`mt-1 ${getFieldBorderColor(field)}`}
                         />
                       )}
@@ -569,9 +749,11 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Validation Results */}
-            {validationResults.passed.length > 0 || validationResults.failed.length > 0 || validationResults.warnings.length > 0 ? (
+            {validationResults.passed.length > 0 ||
+            validationResults.failed.length > 0 ||
+            validationResults.warnings.length > 0 ? (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -586,14 +768,14 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                       <span className="text-sm text-green-700">{item}</span>
                     </div>
                   ))}
-                  
+
                   {validationResults.warnings.map((item, idx) => (
                     <div key={idx} className="flex items-start space-x-2">
                       <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5" />
                       <span className="text-sm text-yellow-700">{item}</span>
                     </div>
                   ))}
-                  
+
                   {validationResults.failed.map((item, idx) => (
                     <div key={idx} className="flex items-start space-x-2">
                       <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5" />
@@ -619,30 +801,36 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Sparkles className="h-5 w-5 text-purple-600" />
-            <span>Pre-Authorization Workflow Demo</span>
+            <span>Pre-Authorization Workflow</span>
           </DialogTitle>
         </DialogHeader>
-        
+
         {/* Progress Steps */}
         <div className="flex items-center justify-center space-x-4 mb-6">
-          {[1, 2, 3].map(step => (
+          {[1, 2, 3].map((step) => (
             <div key={step} className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                currentStep >= step ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
-              }`}>
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  currentStep >= step
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
                 {step}
               </div>
               {step < 3 && (
-                <div className={`w-16 h-1 mx-2 ${
-                  currentStep > step ? "bg-blue-600" : "bg-gray-200"
-                }`} />
+                <div
+                  className={`w-16 h-1 mx-2 ${
+                    currentStep > step ? "bg-blue-600" : "bg-gray-200"
+                  }`}
+                />
               )}
             </div>
           ))}
         </div>
-        
+
         {renderStepContent()}
-        
+
         {/* Navigation */}
         <div className="flex items-center justify-between pt-4 border-t">
           <Button
@@ -652,7 +840,7 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
           >
             Previous
           </Button>
-          
+
           <div className="flex space-x-2">
             {currentStep < 3 ? (
               <Button
@@ -670,7 +858,7 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
                 Submit Request
               </Button>
             )}
-            
+
             <Button variant="outline" onClick={onClose}>
               Close
             </Button>

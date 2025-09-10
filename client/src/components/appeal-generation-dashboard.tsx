@@ -286,15 +286,19 @@ export function AppealGenerationDashboard() {
                     {getStatusBadge(appealCase.status)}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleGenerateAppeal(appealCase)}
-                      data-testid={`button-generate-appeal-${appealCase.id}`}
-                    >
-                      <FileText className="w-4 h-4 mr-1" />
-                      Generate Appeal
-                    </Button>
+                    {appealCase.status === 'ready' ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleGenerateAppeal(appealCase)}
+                        data-testid={`button-generate-appeal-${appealCase.id}`}
+                      >
+                        <FileText className="w-4 h-4 mr-1" />
+                        Generate Appeal
+                      </Button>
+                    ) : (
+                      <span className="text-sm text-gray-500">-</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
