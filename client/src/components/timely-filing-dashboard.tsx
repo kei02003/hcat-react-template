@@ -73,8 +73,8 @@ export function TimelyFilingDashboard() {
     queryKey: ["/api/timely-filing-metrics"],
   });
 
-  const metrics = metricsData?.metrics;
-  const categories = metricsData?.categories;
+  const metrics = metricsData?.metrics || {};
+  const categories = metricsData?.categories || [];
 
   const filteredClaims = claims.filter((claim: TimelyFilingClaim) => {
     const matchesSearch = claim.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
