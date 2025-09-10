@@ -38,6 +38,19 @@ export function TimelyFilingDashboard() {
   const [billerFilter, setBillerFilter] = useState("all");
   const [payerFilter, setPayerFilter] = useState("all");
 
+  // Handler functions for action buttons
+  const handleViewClaim = (claim: TimelyFilingClaim) => {
+    alert(`Viewing claim details for ${claim.claimId}:\n\nPatient: ${claim.patientName}\nPayer: ${claim.payer}\nAmount: ${claim.claimAmount}\nDeadline: ${claim.filingDeadline}\nStatus: ${claim.denialStatus}\nDepartment: ${claim.department}\nBiller: ${claim.assignedBiller}`);
+  };
+
+  const handleAppealClaim = (claim: TimelyFilingClaim) => {
+    alert(`Appeal process initiated for claim ${claim.claimId}.\n\nPatient: ${claim.patientName}\nDenial Reason: ${claim.denialReason || 'No reason specified'}\nNext Steps: Documentation will be reviewed and appeal letter generated automatically.`);
+  };
+
+  const handleExpediteClaim = (claim: TimelyFilingClaim) => {
+    alert(`Expedite process started for claim ${claim.claimId}.\n\nPatient: ${claim.patientName}\nDeadline: ${claim.filingDeadline}\nDays Remaining: ${claim.daysRemaining}\nAction: Priority processing queue activated.`);
+  };
+
   // Fetch timely filing claims with filters
   const { data: claims = [], isLoading: isLoadingClaims } = useQuery({
     queryKey: ["/api/timely-filing-claims", agingFilter, denialFilter, departmentFilter, billerFilter, payerFilter],
@@ -349,17 +362,34 @@ export function TimelyFilingDashboard() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" data-testid={`button-view-claim-${claim.id}`}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        data-testid={`button-view-claim-${claim.id}`}
+                        onClick={() => handleViewClaim(claim)}
+                      >
                         <FileText className="w-3 h-3 mr-1" />
                         View
                       </Button>
                       {claim.denialStatus === 'denied' && (
-                        <Button variant="outline" size="sm" className="text-blue-600" data-testid={`button-appeal-${claim.id}`}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-blue-600" 
+                          data-testid={`button-appeal-${claim.id}`}
+                          onClick={() => handleAppealClaim(claim)}
+                        >
                           Appeal
                         </Button>
                       )}
                       {claim.daysRemaining <= 14 && claim.denialStatus !== 'denied' && (
-                        <Button variant="outline" size="sm" className="text-orange-600" data-testid={`button-expedite-${claim.id}`}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-orange-600" 
+                          data-testid={`button-expedite-${claim.id}`}
+                          onClick={() => handleExpediteClaim(claim)}
+                        >
                           Expedite
                         </Button>
                       )}
