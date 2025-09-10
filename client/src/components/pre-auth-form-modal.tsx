@@ -143,6 +143,49 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
     { id: "supporting_documentation", label: "Supporting Documentation", type: "textarea", required: false }
   ];
 
+  // Handler functions for form actions
+  const handlePreviewForm = () => {
+    const formContent = formFields.map(field => {
+      const value = formData[field.id] || (field.autoFilled ? field.value : '');
+      return `${field.label}: ${value || 'Not filled'}`;
+    }).join('\n');
+    
+    alert(`Form Preview:\n\n${formContent}\n\nRequest: ${request?.procedureName || 'N/A'}\nPayer: ${request?.payer || 'N/A'}`);
+  };
+
+  const handleCopyForm = async () => {
+    const formContent = formFields.map(field => {
+      const value = formData[field.id] || (field.autoFilled ? field.value : '');
+      return `${field.label}: ${value || 'Not filled'}`;
+    }).join('\n');
+    
+    try {
+      await navigator.clipboard.writeText(formContent);
+      alert('Form content copied to clipboard successfully!');
+    } catch (err) {
+      alert('Failed to copy to clipboard. Please try again.');
+    }
+  };
+
+  const handleExportForm = () => {
+    const formContent = formFields.map(field => {
+      const value = formData[field.id] || (field.autoFilled ? field.value : '');
+      return `${field.label}: ${value || 'Not filled'}`;
+    }).join('\n');
+    
+    const blob = new Blob([formContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pre-auth-form-${request?.id || 'export'}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    alert('Form exported successfully!');
+  };
+
   // Auto-fill form based on patient data
   const autoPopulateForm = async () => {
     if (!patientData || !request) return;
@@ -444,15 +487,30 @@ export function PreAuthFormModal({ isOpen, onClose, request, insurerCriteria, pa
               </Button>
               
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handlePreviewForm}
+                  data-testid="button-preview-form"
+                >
                   <Eye className="h-4 w-4 mr-2" />
                   Preview
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCopyForm}
+                  data-testid="button-copy-form"
+                >
                   <Copy className="h-4 w-4 mr-2" />
                   Copy
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleExportForm}
+                  data-testid="button-export-form"
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Export
                 </Button>
