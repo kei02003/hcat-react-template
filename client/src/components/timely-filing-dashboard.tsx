@@ -349,16 +349,10 @@ export function TimelyFilingDashboard() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Building className="w-3 h-3 text-muted-foreground" />
-                      {claim.department}
-                    </div>
+                    {claim.department}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1">
-                      <User className="w-3 h-3 text-muted-foreground" />
-                      {claim.assignedBiller}
-                    </div>
+                    {claim.assignedBiller}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -368,7 +362,6 @@ export function TimelyFilingDashboard() {
                         data-testid={`button-view-claim-${claim.id}`}
                         onClick={() => handleViewClaim(claim)}
                       >
-                        <FileText className="w-3 h-3 mr-1" />
                         View
                       </Button>
                       {claim.denialStatus === 'denied' && (
@@ -402,7 +395,6 @@ export function TimelyFilingDashboard() {
 
           {filteredClaims.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No claims found matching the current filters</p>
               <p className="text-sm">Adjust filters to see more results</p>
             </div>
