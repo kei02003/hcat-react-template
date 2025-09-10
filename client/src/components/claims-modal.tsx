@@ -71,6 +71,19 @@ export function ClaimsModal({ isOpen, onClose, documentType, payer, count, rate 
   const [sortBy, setSortBy] = useState("submissionDate");
   
   const claims = generateMockClaims(documentType, payer, count);
+
+  // Handler functions for claim actions
+  const handleReviewClaim = (claim: Claim) => {
+    alert(`Reviewing claim details:\n\nClaim ID: ${claim.claimId}\nPatient: ${claim.patientName}\nSubmission Date: ${claim.submissionDate}\nStatus: ${claim.redundancyStatus}\nPrevious Submissions: ${claim.previousSubmissions}\nAssigned To: ${claim.assignedTo}\nNotes: ${claim.notes}`);
+  };
+
+  const handleContactPayer = (claim: Claim) => {
+    alert(`Contacting payer for claim:\n\nClaim ID: ${claim.claimId}\nPatient: ${claim.patientName}\nPayer: ${payer}\nRedundancy Status: Confirmed\n\nAction: Automated contact request will be sent to payer to resolve redundant documentation requests.`);
+  };
+
+  const handleMarkResolved = (claim: Claim) => {
+    alert(`Marking claim as resolved:\n\nClaim ID: ${claim.claimId}\nPatient: ${claim.patientName}\nStatus: Changing from 'Suspected' to 'Resolved'\n\nThis will remove the claim from pending review queue.`);
+  };
   
   const filteredClaims = claims.filter(claim => {
     const matchesSearch = claim.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -242,7 +255,12 @@ export function ClaimsModal({ isOpen, onClose, documentType, payer, count, rate 
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      <Button variant="outlined" size="small" data-testid={`button-review-${claim.id}`}>
+                      <Button 
+                        variant="outlined" 
+                        size="small" 
+                        data-testid={`button-review-${claim.id}`}
+                        onClick={() => handleReviewClaim(claim)}
+                      >
                         Review
                       </Button>
                       {claim.redundancyStatus === "confirmed" && (
@@ -251,6 +269,8 @@ export function ClaimsModal({ isOpen, onClose, documentType, payer, count, rate 
                           size="small" 
                           color="error"
                           startIcon={<AlertTriangle size={16} />}
+                          onClick={() => handleContactPayer(claim)}
+                          data-testid={`button-contact-payer-${claim.id}`}
                         >
                           Contact Payer
                         </Button>
@@ -261,6 +281,8 @@ export function ClaimsModal({ isOpen, onClose, documentType, payer, count, rate 
                           size="small" 
                           color="success"
                           startIcon={<CheckCircle size={16} />}
+                          onClick={() => handleMarkResolved(claim)}
+                          data-testid={`button-mark-resolved-${claim.id}`}
                         >
                           Mark Resolved
                         </Button>
