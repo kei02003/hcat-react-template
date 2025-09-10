@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { FileText, User, DollarSign, Calendar, Building, Stethoscope, CheckCircle, Download } from "lucide-react";
 
 interface PatientAppealModalProps {
   denial: {
