@@ -376,6 +376,28 @@ export function ClinicalDenialsDashboard() {
     performance: "all",
   });
 
+  // Handler functions for the action buttons
+  const handleGenerateClinicalSummary = () => {
+    if (!selectedDenialForRFP) return;
+    
+    alert(`Clinical Summary generated for ${selectedDenialForRFP.patientName}.\n\nSummary includes:\n• Medical history review\n• Clinical indicators analysis\n• Treatment plan assessment\n• Discharge planning notes`);
+  };
+
+  const handleGenerateAppealLetter = () => {
+    if (!selectedDenialForRFP) return;
+    
+    // Navigate to the appeal letter generation (could open patient appeal modal)
+    setSelectedDenialForAppeal(selectedDenialForRFP);
+    setShowAppealModal(true);
+    setActiveRFPModule(null); // Close current modal
+  };
+
+  const handleViewFullMedicalRecord = () => {
+    if (!selectedDenialForRFP) return;
+    
+    alert(`Opening full medical record for ${selectedDenialForRFP.patientName}.\n\nRecord includes:\n• Complete medical history\n• All diagnostic results\n• Treatment notes\n• Medication records\n• Care team communications`);
+  };
+
   const filteredDenials = activeDenials.filter((denial) => {
     const matchesSearch =
       searchTerm === "" ||
@@ -2216,15 +2238,27 @@ export function ClinicalDenialsDashboard() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3">
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Button 
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={handleGenerateClinicalSummary}
+                        data-testid="button-generate-clinical-summary"
+                      >
                         <FileText className="h-4 w-4 mr-2" />
                         Generate Clinical Summary
                       </Button>
-                      <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                      <Button 
+                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                        onClick={handleGenerateAppealLetter}
+                        data-testid="button-generate-appeal-letter"
+                      >
                         <Gavel className="h-4 w-4 mr-2" />
                         Generate Appeal Letter
                       </Button>
-                      <Button variant="outline">
+                      <Button 
+                        variant="outline"
+                        onClick={handleViewFullMedicalRecord}
+                        data-testid="button-view-medical-record"
+                      >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         View Full Medical Record
                       </Button>
