@@ -165,7 +165,7 @@ export function Navigation() {
                 </DropdownMenuItem>
 
                 {/* Development-only items */}
-                {process.env.NODE_ENV === 'development' && (
+                {import.meta.env.MODE === 'development' && (
                   <>
                     <DropdownMenuSeparator />
                     <Link href="/demo-users">
