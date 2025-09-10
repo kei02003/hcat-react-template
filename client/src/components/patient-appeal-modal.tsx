@@ -23,6 +23,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { FileText, User, DollarSign, Calendar, Building, Stethoscope, CheckCircle, Download, RefreshCw, ExternalLink, Mail } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface PatientAppealModalProps {
   denial: {
@@ -87,6 +88,7 @@ export function PatientAppealModal({
   const [isGenerating, setIsGenerating] = useState(false);
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [urgencyLevel, setUrgencyLevel] = useState("standard");
+  const { toast } = useToast();
 
   // Fetch or generate appeal data for this specific patient/claim
   const {
@@ -131,6 +133,14 @@ export function PatientAppealModal({
         denialId: denial.denialId,
         notes: additionalNotes,
         urgency: urgencyLevel,
+      });
+      // Switch to review tab after successful generation
+      setActiveTab("review");
+      // Show success toast
+      toast({
+        title: "Appeal Generated Successfully",
+        description: "AI appeal letter has been generated and is ready for review.",
+        variant: "default",
       });
     } finally {
       setIsGenerating(false);
@@ -311,7 +321,8 @@ export function PatientAppealModal({
                     <Button
                       onClick={handleGenerateAppeal}
                       disabled={isGenerating || generateAppeal.isPending}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      className={`${isGenerating || generateAppeal.isPending ? 'bg-purple-500' : 'bg-purple-600 hover:bg-purple-700'} text-white transition-all duration-200`}
+                      size="lg"
                     >
                       {isGenerating || generateAppeal.isPending ? (
                         <>
