@@ -259,13 +259,13 @@ export function DenialTrendsChart() {
           </div>
         </div>
 
-        <div className="bg-green-50 border-l-4 border-green-400 p-3 rounded">
+        <div className="bg-purple-50 border-l-4 border-purple-400 p-3 rounded">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-green-800">
+              <h4 className="text-sm font-semibold text-purple-800">
                 Average Overturn Rate
               </h4>
-              <p className="text-xl font-bold text-green-900">
+              <p className="text-xl font-bold text-purple-900">
                 {(
                   denialTrendsData.reduce(
                     (sum, day) => sum + day.overturnRate,
