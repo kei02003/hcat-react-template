@@ -12,7 +12,6 @@ import { AppealGenerationDashboard } from "@/components/appeal-generation-dashbo
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
 import { PersonaSwitcher } from "@/components/persona-switcher";
-import { ChartLine, HelpCircle } from "lucide-react";
 // Using TriFlame SVG from Health Catalyst
 const triFlameLogoUrl =
   "https://cashmere.healthcatalyst.net/assets/TriFlame.svg";
@@ -134,11 +133,6 @@ export default function Dashboard() {
 
           {/* User Controls */}
           <div className="flex items-center space-x-6">
-            {/* Help Icon */}
-            <HelpCircle
-              className="h-5 w-5 text-white hover:text-white cursor-pointer"
-              data-testid="help-icon"
-            />
 
             {/* Pipe Separator */}
             <div className="h-6 w-0.5 bg-white"></div>

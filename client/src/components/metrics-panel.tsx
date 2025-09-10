@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-react";
 
 interface MetricCardProps {
   title: string;
@@ -10,18 +9,6 @@ interface MetricCardProps {
 }
 
 function MetricCard({ title, value, subtitle, status = "neutral", borderColor }: MetricCardProps) {
-  const getStatusIcon = () => {
-    switch (status) {
-      case "positive":
-        return <TrendingUp className="h-4 w-4 text-green-600" />;
-      case "negative":
-        return <TrendingDown className="h-4 w-4 text-red-600" />;
-      case "warning":
-        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      default:
-        return null;
-    }
-  };
 
   const getStatusColor = () => {
     switch (status) {
@@ -45,7 +32,6 @@ function MetricCard({ title, value, subtitle, status = "neutral", borderColor }:
         <div className="text-sm text-gray-600 font-medium">{title}</div>
         <div className="text-2xl font-bold text-gray-900 flex items-center gap-1">
           {value}
-          {getStatusIcon()}
         </div>
         <div className={`text-xs ${getStatusColor()}`}>{subtitle}</div>
       </CardContent>

@@ -11,23 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  DollarSign,
-  FileText,
-  Users,
-  Calendar,
-  Target,
-  Activity,
-  HeartHandshake,
-  Shield,
-  Brain,
-  Zap,
-} from "lucide-react";
 
 interface SummaryMetrics {
   totalRevenue: string;
@@ -140,52 +123,30 @@ export function SummaryDashboard() {
     },
   ];
 
-  const getTrendIcon = (change: number) => {
-    if (change > 0) return <TrendingUp className="h-4 w-4 text-green-500" />;
-    if (change < 0) return <TrendingDown className="h-4 w-4 text-red-500" />;
-    return <Activity className="h-4 w-4 text-gray-500" />;
-  };
 
   const getTrendColor = (change: number, isReverse = false) => {
     const positive = isReverse ? change < 0 : change > 0;
     return positive ? "text-green-600" : "text-red-600";
   };
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case "denial":
-        return <Shield className="h-4 w-4 text-red-500" />;
-      case "appeal":
-        return <HeartHandshake className="h-4 w-4 text-blue-500" />;
-      case "filing":
-        return <Calendar className="h-4 w-4 text-orange-500" />;
-      case "collection":
-        return <DollarSign className="h-4 w-4 text-green-500" />;
-      default:
-        return <Activity className="h-4 w-4 text-gray-500" />;
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
         return (
           <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-            <CheckCircle className="w-3 h-3 mr-1" />
             Completed
           </Badge>
         );
       case "pending":
         return (
           <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
-            <Clock className="w-3 h-3 mr-1" />
             Pending
           </Badge>
         );
       case "overdue":
         return (
           <Badge variant="destructive">
-            <AlertTriangle className="w-3 h-3 mr-1" />
             Overdue
           </Badge>
         );
@@ -239,7 +200,6 @@ export function SummaryDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{metrics?.totalRevenue || mockMetrics.totalRevenue}</div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(metrics?.revenueChange || mockMetrics.revenueChange)}
               <span className={getTrendColor(metrics?.revenueChange || mockMetrics.revenueChange)}>
                 {(metrics?.revenueChange || mockMetrics.revenueChange) > 0 ? "+" : ""}
                 {metrics?.revenueChange || mockMetrics.revenueChange}%
@@ -256,7 +216,6 @@ export function SummaryDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{metrics?.denialRate || mockMetrics.denialRate}%</div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(metrics?.denialChange || mockMetrics.denialChange)}
               <span className={getTrendColor(metrics?.denialChange || mockMetrics.denialChange, true)}>
                 {(metrics?.denialChange || mockMetrics.denialChange) > 0 ? "+" : ""}
                 {metrics?.denialChange || mockMetrics.denialChange}%
@@ -277,7 +236,6 @@ export function SummaryDashboard() {
               {metrics?.appealSuccessRate || mockMetrics.appealSuccessRate}%
             </div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(metrics?.appealChange || mockMetrics.appealChange)}
               <span className={getTrendColor(metrics?.appealChange || mockMetrics.appealChange)}>
                 {(metrics?.appealChange || mockMetrics.appealChange) > 0 ? "+" : ""}
                 {metrics?.appealChange || mockMetrics.appealChange}%
@@ -294,7 +252,6 @@ export function SummaryDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{metrics?.arDays || mockMetrics.arDays}</div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(metrics?.arChange || mockMetrics.arChange)}
               <span className={getTrendColor(metrics?.arChange || mockMetrics.arChange, true)}>
                 {(metrics?.arChange || mockMetrics.arChange) > 0 ? "+" : ""}
                 {metrics?.arChange || mockMetrics.arChange}%
@@ -313,7 +270,6 @@ export function SummaryDashboard() {
               {metrics?.timelyFilingRate || mockMetrics.timelyFilingRate}%
             </div>
             <div className="flex items-center space-x-1 text-xs">
-              {getTrendIcon(metrics?.timelyFilingChange || mockMetrics.timelyFilingChange)}
               <span className={getTrendColor(metrics?.timelyFilingChange || mockMetrics.timelyFilingChange)}>
                 {(metrics?.timelyFilingChange || mockMetrics.timelyFilingChange) > 0 ? "+" : ""}
                 {metrics?.timelyFilingChange || mockMetrics.timelyFilingChange}%
