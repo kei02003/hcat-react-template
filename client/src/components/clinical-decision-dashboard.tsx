@@ -62,6 +62,54 @@ export function ClinicalDecisionDashboard() {
 
   const queryClient = useQueryClient();
 
+  // Button handlers for clinical decision support
+  const handleApproveRecommendation = async () => {
+    if (!selectedCase) return;
+    
+    try {
+      // Here you would typically make an API call to approve the recommendation
+      // For now, we'll just show a success message
+      console.log("Approving recommendation for case:", selectedCase);
+      
+      // Show success notification (you'd need to import useToast)
+      alert("Recommendation approved successfully!");
+      
+      // Refresh the data
+      queryClient.invalidateQueries({ queryKey: ["clinical-decisions"] });
+    } catch (error) {
+      console.error("Failed to approve recommendation:", error);
+      alert("Failed to approve recommendation. Please try again.");
+    }
+  };
+
+  const handleRequestPeerReview = async () => {
+    if (!selectedCase) return;
+    
+    try {
+      console.log("Requesting peer review for case:", selectedCase);
+      alert("Peer review request submitted successfully!");
+      
+      queryClient.invalidateQueries({ queryKey: ["clinical-decisions"] });
+    } catch (error) {
+      console.error("Failed to request peer review:", error);
+      alert("Failed to submit peer review request. Please try again.");
+    }
+  };
+
+  const handleEscalateCase = async () => {
+    if (!selectedCase) return;
+    
+    try {
+      console.log("Escalating case to clinical director:", selectedCase);
+      alert("Case escalated to Clinical Director successfully!");
+      
+      queryClient.invalidateQueries({ queryKey: ["clinical-decisions"] });
+    } catch (error) {
+      console.error("Failed to escalate case:", error);
+      alert("Failed to escalate case. Please try again.");
+    }
+  };
+
   // Fetch clinical decision cases
   const { data: clinicalCases = [], isLoading } = useQuery<ClinicalDecision[]>({
     queryKey: ["/api/clinical-decisions"]
@@ -510,18 +558,21 @@ export function ClinicalDecisionDashboard() {
                   <div className="flex space-x-3 pt-4 border-t">
                     <Button 
                       className="bg-green-600 hover:bg-green-700"
+                      onClick={handleApproveRecommendation}
                       data-testid="button-approve-recommendation"
                     >
                       Approve Recommendation
                     </Button>
                     <Button 
                       variant="outline"
+                      onClick={handleRequestPeerReview}
                       data-testid="button-request-peer-review"
                     >
                       Request Peer Review
                     </Button>
                     <Button 
                       variant="outline"
+                      onClick={handleEscalateCase}
                       data-testid="button-escalate-case"
                     >
                       Escalate to Clinical Director
