@@ -22,23 +22,6 @@ import {
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { 
-  FileText, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
-  User,
-  Calendar,
-  DollarSign,
-  Building,
-  Stethoscope,
-  Mail,
-  Download,
-  RefreshCw,
-  Target,
-  TrendingUp,
-  ExternalLink
-} from "lucide-react";
 
 interface PatientAppealModalProps {
   denial: {
@@ -390,7 +373,7 @@ export function PatientAppealModal({
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="flex items-center space-x-2">
-                      <FileText className="h-4 w-4 text-purple-600" />
+                      
                       <span>Challenge Letter</span>
                       <div
                         className={`px-2 py-1 rounded text-xs font-medium ${getProbabilityColor(appealData.appealProbability)}`}
