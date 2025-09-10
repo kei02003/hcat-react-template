@@ -65,6 +65,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(500).json({ message: "Failed to remove demo users" });
       }
     });
+
+    app.post('/api/demo/reset', async (req, res) => {
+      try {
+        // Import appeal data to reset statuses
+        const { appealCases } = await import('./appeal-data.js');
+        
+        // Reset all appeal cases to initial state
+        appealCases.forEach(appealCase => {
+          appealCase.status = "pending_generation";
+          appealCase.updatedAt = appealCase.createdAt;
+        });
+        
+        res.json({ 
+          message: "Demo reset completed successfully",
+          resetCount: appealCases.length,
+          timestamp: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error("Demo reset error:", error);
+        res.status(500).json({ message: "Failed to reset demo state" });
+      }
+    });
   }
 
   // Metrics routes (authentication disabled for now)
