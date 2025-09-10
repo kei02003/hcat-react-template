@@ -11,24 +11,10 @@ import {
   Typography,
   Chip,
 } from '@mui/material';
-import {
-  Dashboard,
-  Assignment,
-  TrendingUp,
-  AccountBalance,
-  Collections,
-  Schedule,
-  LocalHospital,
-  Psychology,
-  Gavel,
-  Assessment,
-  ShowChart,
-} from '@mui/icons-material';
 
 interface SidebarItem {
   id: string;
   label: string;
-  icon: React.ReactNode;
   badge?: number;
   active?: boolean;
   section?: string;
@@ -44,73 +30,62 @@ const menuItems: SidebarItem[] = [
   {
     id: 'overview',
     label: 'Overview',
-    icon: <Dashboard />,
     section: 'Dashboard',
   },
   {
     id: 'documentation',
     label: 'Documentation',
-    icon: <Assignment />,
     badge: 23,
     section: 'Core Modules',
   },
   {
     id: 'predictive',
     label: 'Predictive Analytics',
-    icon: <TrendingUp />,
     section: 'Core Modules',
   },
   {
     id: 'ar-management',
     label: 'AR Management',
-    icon: <AccountBalance />,
     badge: 8,
     section: 'Core Modules',
   },
   {
     id: 'collections',
     label: 'Collections',
-    icon: <Collections />,
     section: 'Core Modules',
   },
   {
     id: 'timely-filing',
     label: 'Timely Filing',
-    icon: <Schedule />,
     badge: 12,
     section: 'Core Modules',
   },
   {
     id: 'clinical-denials',
     label: 'Clinical Denials',
-    icon: <LocalHospital />,
     badge: 15,
     section: 'Core Modules',
   },
   {
     id: 'pre-authorization',
     label: 'Pre-Authorization',
-    icon: <Assessment />,
     badge: 6,
     section: 'RFP Modules',
   },
   {
     id: 'clinical-decision',
     label: 'Clinical Decision Support',
-    icon: <Psychology />,
     badge: 4,
     section: 'RFP Modules',
   },
   {
     id: 'appeal-generation',
     label: 'Appeal Generation',
-    icon: <Gavel />,
     section: 'RFP Modules',
   },
   {
     id: 'analytics',
     label: 'Advanced Analytics',
-    icon: <ShowChart />,
     section: 'Analytics',
   },
 ];
@@ -162,14 +137,6 @@ export function HealthcareSidebar({ open, onItemClick, activeItem = 'overview' }
                 },
               }}
             >
-              <ListItemIcon
-                sx={{
-                  minWidth: 40,
-                  color: activeItem === item.id ? 'inherit' : 'primary.main',
-                }}
-              >
-                {item.icon}
-              </ListItemIcon>
               <ListItemText
                 primary={item.label}
                 primaryTypographyProps={{

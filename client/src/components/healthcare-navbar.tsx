@@ -13,15 +13,6 @@ import {
   Divider,
 } from "@mui/material";
 import { useLocation } from "wouter";
-import {
-  AccountCircle,
-  Settings,
-  ExitToApp,
-  Dashboard,
-  LocalHospital,
-  Assessment,
-  Person,
-} from "@mui/icons-material";
 
 interface HealthcareNavbarProps {
   user?: {
@@ -58,7 +49,6 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
   return (
     <AppBar position="fixed" elevation={2}>
       <Toolbar>
-        <LocalHospital sx={{ mr: 2 }} />
         <Typography
           variant="h6"
           component="div"
@@ -70,7 +60,6 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Button
             color="inherit"
-            startIcon={<Dashboard />}
             sx={{ textTransform: "none" }}
           >
             Dashboard
@@ -78,7 +67,6 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
 
           <Button
             color="inherit"
-            startIcon={<Assessment />}
             sx={{ textTransform: "none" }}
           >
             Analytics
@@ -105,11 +93,9 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
                 onClick={handleMenu}
                 color="inherit"
               >
-                {user.avatar ? (
-                  <Avatar src={user.avatar} sx={{ width: 32, height: 32 }} />
-                ) : (
-                  <AccountCircle />
-                )}
+                <Avatar src={user.avatar} sx={{ width: 32, height: 32 }}>
+                  {!user.avatar && user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </Avatar>
               </IconButton>
 
               <Menu
@@ -145,17 +131,14 @@ export function HealthcareNavbar({ user, onLogout }: HealthcareNavbarProps) {
                 <Divider />
 
                 <MenuItem onClick={handleProfileClick}>
-                  <Person sx={{ mr: 2 }} />
                   Profile
                 </MenuItem>
 
                 <MenuItem onClick={handleClose}>
-                  <Settings sx={{ mr: 2 }} />
                   Settings
                 </MenuItem>
 
                 <MenuItem onClick={handleLogout}>
-                  <ExitToApp sx={{ mr: 2 }} />
                   Logout
                 </MenuItem>
               </Menu>

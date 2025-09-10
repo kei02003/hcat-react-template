@@ -10,17 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  Activity, 
-  User, 
-  Users, 
-  LogOut, 
-  Settings,
-  Shield,
-  BarChart3,
-  Home,
-  RotateCcw
-} from "lucide-react";
 import { getRoleDisplayInfo } from "@/lib/authUtils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -60,8 +49,8 @@ export function Navigation() {
   const roleInfo = primaryRole ? getRoleDisplayInfo(primaryRole.name) : null;
 
   const navigationItems = [
-    { path: "/", label: "Dashboard", icon: Home },
-    { path: "/demo-users", label: "Demo Users", icon: Users, devOnly: true },
+    { path: "/", label: "Dashboard" },
+    { path: "/demo-users", label: "Demo Users", devOnly: true },
   ];
 
   return (
@@ -71,8 +60,7 @@ export function Navigation() {
           {/* Logo and Navigation */}
           <div className="flex items-center space-x-8">
             <div className="flex items-center">
-              <Activity className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">
+              <span className="text-xl font-bold text-gray-900">
                 Healthcare RCM
               </span>
             </div>
@@ -85,7 +73,6 @@ export function Navigation() {
                   return null;
                 }
 
-                const Icon = item.icon;
                 const isActive = location === item.path;
 
                 return (
@@ -99,7 +86,6 @@ export function Navigation() {
                       }`}
                       data-testid={`nav-link-${item.path.replace('/', '') || 'home'}`}
                     >
-                      <Icon className="h-4 w-4" />
                       <span>{item.label}</span>
                     </Button>
                   </Link>
@@ -113,7 +99,6 @@ export function Navigation() {
             {/* Role Badge */}
             {primaryRole && roleInfo && (
               <Badge className={`${roleInfo.color} hidden sm:inline-flex`}>
-                <Shield className="h-3 w-3 mr-1" />
                 {roleInfo.displayName}
               </Badge>
             )}
@@ -154,13 +139,11 @@ export function Navigation() {
 
                 <Link href="/profile">
                   <DropdownMenuItem className="cursor-pointer" data-testid="menu-profile">
-                    <User className="h-4 w-4 mr-2" />
                     Profile
                   </DropdownMenuItem>
                 </Link>
 
                 <DropdownMenuItem className="cursor-pointer" data-testid="menu-settings">
-                  <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </DropdownMenuItem>
 
@@ -170,7 +153,6 @@ export function Navigation() {
                     <DropdownMenuSeparator />
                     <Link href="/demo-users">
                       <DropdownMenuItem className="cursor-pointer text-orange-600" data-testid="menu-demo-users">
-                        <Users className="h-4 w-4 mr-2" />
                         Demo Users
                       </DropdownMenuItem>
                     </Link>
@@ -180,7 +162,6 @@ export function Navigation() {
                       onClick={handleDemoReset}
                       data-testid="menu-demo-reset"
                     >
-                      <RotateCcw className="h-4 w-4 mr-2" />
                       Reset Demo
                     </DropdownMenuItem>
                   </>
@@ -193,7 +174,6 @@ export function Navigation() {
                   onClick={() => window.location.href = "/api/logout"}
                   data-testid="menu-logout"
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
