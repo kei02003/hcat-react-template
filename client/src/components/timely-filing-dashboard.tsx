@@ -186,7 +186,7 @@ export function TimelyFilingDashboard() {
               <XCircle className="h-4 w-4 text-red-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">${metrics.totalDenialAmount.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-red-600">${metrics.totalDenialAmount?.toLocaleString() || '0'}</div>
               <p className="text-xs text-muted-foreground">Due to timely filing denials</p>
             </CardContent>
           </Card>
