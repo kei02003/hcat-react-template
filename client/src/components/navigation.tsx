@@ -18,13 +18,41 @@ import {
   Settings,
   Shield,
   BarChart3,
-  Home
+  Home,
+  RotateCcw
 } from "lucide-react";
 import { getRoleDisplayInfo } from "@/lib/authUtils";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export function Navigation() {
   const { user, isAuthenticated, getPrimaryRole } = useAuth();
   const [location] = useLocation();
+  const { toast } = useToast();
+
+  const handleDemoReset = async () => {
+    try {
+      const response = await apiRequest("/api/demo/reset", {
+        method: "POST",
+      });
+      
+      // Invalidate all appeal-related queries to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ["appeal-cases"] });
+      queryClient.invalidateQueries({ queryKey: ["challenge-letters"] });
+      
+      toast({
+        title: "Demo Reset Successful",
+        description: `Reset ${response.resetCount} appeal cases to initial state`,
+      });
+    } catch (error) {
+      console.error("Demo reset failed:", error);
+      toast({
+        title: "Demo Reset Failed",
+        description: "Failed to reset demo state. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (!isAuthenticated || !user) {
     return null;
@@ -148,6 +176,15 @@ export function Navigation() {
                         Demo Users
                       </DropdownMenuItem>
                     </Link>
+                    
+                    <DropdownMenuItem 
+                      className="cursor-pointer text-blue-600" 
+                      onClick={handleDemoReset}
+                      data-testid="menu-demo-reset"
+                    >
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      Reset Demo
+                    </DropdownMenuItem>
                   </>
                 )}
 
