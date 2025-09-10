@@ -9,23 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  Clock, 
-  User, 
-  Building, 
-  FileText, 
-  Sparkles, 
-  Send, 
-  Loader2,
-  Eye,
-  Shield,
-  Wand2,
-  Target,
-  Copy,
-  Download
-} from "lucide-react";
 
 interface PreAuthRequest {
   id: string;

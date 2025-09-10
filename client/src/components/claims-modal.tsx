@@ -19,7 +19,6 @@ import {
   Typography,
   InputAdornment,
 } from '@mui/material';
-import { FileText, User, Calendar, AlertTriangle, CheckCircle, Search, Filter } from "lucide-react";
 
 interface Claim {
   id: string;
