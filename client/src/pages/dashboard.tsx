@@ -55,8 +55,6 @@ export default function Dashboard() {
   const subTabs = [
     { name: "Clinical Denials", warning: false },
     { name: "Timely Filing", warning: false },
-    { name: "Documentation Requests", warning: false },
-    { name: "Appeals Management", warning: false },
     { name: "Write-Off Analytics", warning: false },
   ];
 
@@ -195,17 +193,11 @@ export default function Dashboard() {
         {/* Main Content Area */}
         {activeMainTab === "Summary" ? (
           <SummaryDashboard />
-        ) : activeMainTab === "Denials" &&
-          activeSubTab === "Documentation Requests" ? (
-          <DocumentationDashboard />
         ) : activeMainTab === "Denials" && activeSubTab === "Timely Filing" ? (
           <TimelyFilingDashboard />
         ) : activeMainTab === "Denials" &&
           activeSubTab === "Clinical Denials" ? (
           <ClinicalDenialsDashboard />
-        ) : activeMainTab === "Denials" &&
-          activeSubTab === "Appeals Management" ? (
-          <AppealGenerationDashboard />
         ) : activeMainTab === "Denials" &&
           activeSubTab === "Write-Off Analytics" ? (
           <WriteOffAnalyticsDashboard />
