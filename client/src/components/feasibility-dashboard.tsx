@@ -102,7 +102,7 @@ export function FeasibilityDashboard() {
       return <TrendingUp className="h-4 w-4 text-green-500" />;
     } else if (trend < 0) {
       return (
-        <TrendingUp className="h-4 w-4 text-red-500 transform rotate-180" />
+        <TrendingUp className="h-4 w-4 text-[#f13c45]/80 transform rotate-180" />
       );
     } else {
       return <ArrowUpDown className="h-4 w-4 text-gray-500" />;
@@ -112,8 +112,8 @@ export function FeasibilityDashboard() {
   const getPriorityBadge = (priority: number) => {
     const colors = [
       "",
-      "bg-red-100 text-red-800",
-      "bg-orange-100 text-orange-800",
+      "bg-[#f13c45]/20 text-[#f13c45]/95",
+      "bg-[#f8961d]/20 text-[#f8961d]/95",
       "bg-yellow-100 text-yellow-800",
       "bg-[#006d9a]/20 text-[#006d9a]",
       "bg-gray-100 text-gray-800",
@@ -196,7 +196,7 @@ export function FeasibilityDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-2xl font-bold text-[#f8961d]">
                 {feasibilityMetrics.totalAnalysis.totalRedundantRequests.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
@@ -283,9 +283,9 @@ export function FeasibilityDashboard() {
                       <span className="text-sm font-medium">
                         Redundant Requests
                       </span>
-                      <AlertCircle className="h-4 w-4 text-orange-500" />
+                      <AlertCircle className="h-4 w-4 text-[#f8961d]/80" />
                     </div>
-                    <div className="text-2xl font-bold text-orange-600">
+                    <div className="text-2xl font-bold text-[#f8961d]">
                       {payer.redundantRequestOpportunities.redundantCount.toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground">

@@ -175,7 +175,7 @@ function getStatusColor(status: string) {
     case "positive":
       return "text-green-600";
     case "negative":
-      return "text-red-600";
+      return "text-[#f13c45]";
     case "neutral":
       return "text-gray-600";
     default:
@@ -198,7 +198,7 @@ function getReasonBadge(reason: string) {
       );
     case "bad_debt":
       return (
-        <Badge className="bg-red-100 text-red-800 border-red-200">
+        <Badge className="bg-[#f13c45]/20 text-[#f13c45]/95 border-[#f13c45]/30">
           Bad Debt
         </Badge>
       );
@@ -259,8 +259,8 @@ function getStatusBadge(status: string) {
 }
 
 function getAmountColor(amount: number) {
-  if (amount > 10000) return "text-red-600 font-semibold";
-  if (amount > 5000) return "text-orange-600";
+  if (amount > 10000) return "text-[#f13c45] font-semibold";
+  if (amount > 5000) return "text-[#f8961d]";
   return "text-gray-900";
 }
 
@@ -409,7 +409,7 @@ function WriteOffDashboardContent() {
                 variant="outline"
                 size="sm"
                 onClick={clearFilters}
-                className="text-red-600 hover:text-red-700"
+                className="text-[#f13c45] hover:text-[#f13c45]/90"
                 data-testid="button-clear-filters"
               >
                 <X className="h-4 w-4 mr-2" />
@@ -458,14 +458,14 @@ function WriteOffDashboardContent() {
                 <div className="mb-4 p-3 bg-[#006d9a]/10 border border-[#006d9a]/30 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Filter className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium text-blue-900">Active Filters:</span>
+                      <Filter className="h-4 w-4 text-[#006d9a]" />
+                      <span className="text-sm font-medium text-[#006d9a]">Active Filters:</span>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={clearFilters}
-                      className="text-blue-600 hover:text-blue-700"
+                      className="text-[#006d9a] hover:text-[#006d9a]/90"
                       data-testid="button-clear-active-filters"
                     >
                       Clear All
@@ -516,7 +516,7 @@ function WriteOffDashboardContent() {
                             {getReasonBadge(writeOff.reason)}
                             {getStatusBadge(writeOff.status)}
                             {writeOff.badDebtFlag && (
-                              <Badge className="bg-red-100 text-red-800 border-red-200" data-testid={`badge-bad-debt-${writeOff.writeOffId}`}>
+                              <Badge className="bg-[#f13c45]/20 text-[#f13c45]/95 border-[#f13c45]/30" data-testid={`badge-bad-debt-${writeOff.writeOffId}`}>
                                 Bad Debt
                               </Badge>
                             )}

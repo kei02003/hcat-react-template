@@ -77,7 +77,7 @@ export function UserProfile() {
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    className="text-red-600 hover:text-red-700"
+                    className="text-[#f13c45] hover:text-[#f13c45]/90"
                     onClick={() => window.location.href = "/api/logout"}
                     data-testid="button-logout"
                   >
@@ -174,7 +174,7 @@ export function UserProfile() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Status:</span>
-                      <Badge className={user.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                      <Badge className={user.isActive ? "bg-green-100 text-green-800" : "bg-[#f13c45]/20 text-[#f13c45]/95"}>
                         {user.isActive ? "Active" : "Inactive"}
                       </Badge>
                     </div>
@@ -324,8 +324,8 @@ export function UserProfile() {
                 </div>
                 
                 <div className="mt-6 p-4 bg-[#006d9a]/10 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-2">Security Notice</h4>
-                  <p className="text-sm text-blue-800">
+                  <h4 className="font-semibold text-[#006d9a] mb-2">Security Notice</h4>
+                  <p className="text-sm text-[#006d9a]/90">
                     Your account activity is monitored for security purposes. All actions are logged
                     in accordance with healthcare data protection regulations.
                   </p>

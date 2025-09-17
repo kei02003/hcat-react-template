@@ -276,7 +276,7 @@ export function TemplateFieldMapper({ templateFields, onMappingChange, onSave, t
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <span className="font-medium text-sm">{field.label}</span>
-                      {field.required && <Badge className="bg-red-100 text-red-800 text-xs">Required</Badge>}
+                      {field.required && <Badge className="bg-[#f13c45]/20 text-[#f13c45]/95 text-xs">Required</Badge>}
                     </div>
                     <Badge variant="outline" className="text-xs">{field.type}</Badge>
                   </div>
@@ -401,7 +401,7 @@ export function TemplateFieldMapper({ templateFields, onMappingChange, onSave, t
                           </div>
                         </>
                       ) : (
-                        <div className="text-sm text-red-600 bg-red-100 px-2 py-1 rounded">
+                        <div className="text-sm text-[#f13c45] bg-[#f13c45]/20 px-2 py-1 rounded">
                           Not mapped
                         </div>
                       )}

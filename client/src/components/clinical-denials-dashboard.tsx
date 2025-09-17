@@ -279,7 +279,7 @@ function getStatusColor(status: string) {
     case "positive":
       return "text-green-600";
     case "negative":
-      return "text-red-600";
+      return "text-[#f13c45]";
     default:
       return "text-gray-600";
   }
@@ -318,7 +318,7 @@ function getStatusBadge(status: string) {
       );
     case "Upheld":
       return (
-        <Badge className="bg-red-100 text-red-800 border-red-200">Upheld</Badge>
+        <Badge className="bg-[#f13c45]/20 text-[#f13c45]/95 border-[#f13c45]/30">Upheld</Badge>
       );
     case "Closed":
       return (
@@ -338,9 +338,9 @@ function getStatusBadge(status: string) {
 function getCategoryColor(category: string) {
   switch (category) {
     case "Medical Necessity":
-      return "bg-red-100 text-red-800 border-red-200";
+      return "bg-[#f13c45]/20 text-[#f13c45]/95 border-[#f13c45]/30";
     case "Authorization":
-      return "bg-orange-100 text-orange-800 border-orange-200";
+      return "bg-[#f8961d]/20 text-[#f8961d]/95 border-[#f8961d]/30";
     case "Coverage":
       return "bg-[#006d9a]/20 text-[#006d9a] border-[#006d9a]/30";
     case "Coding":
@@ -353,8 +353,8 @@ function getCategoryColor(category: string) {
 }
 
 function getDaysToAppealColor(days: number) {
-  if (days <= 14) return "text-red-600 font-semibold";
-  if (days <= 30) return "text-orange-600";
+  if (days <= 14) return "text-[#f13c45] font-semibold";
+  if (days <= 30) return "text-[#f8961d]";
   return "text-green-600";
 }
 
@@ -759,7 +759,7 @@ function DenialsDashboardContent() {
       case "Fair Match":
         return "bg-yellow-100 text-yellow-800";
       default:
-        return "bg-red-100 text-red-800";
+        return "bg-[#f13c45]/20 text-[#f13c45]/95";
     }
   };
 
@@ -947,7 +947,7 @@ function DenialsDashboardContent() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <Filter className="h-4 w-4 text-[#006d9a]" />
-                        <span className="text-sm font-medium text-blue-900">Active Filters:</span>
+                        <span className="text-sm font-medium text-[#006d9a]">Active Filters:</span>
                         <div className="flex flex-wrap gap-2">
                           {filters.category && (
                             <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
@@ -1000,9 +1000,9 @@ function DenialsDashboardContent() {
                           <div
                             className={`w-3 h-3 rounded-full mt-2 ${
                               denial.daysToAppeal <= 14
-                                ? "bg-red-500 animate-pulse"
+                                ? "bg-[#f13c45]/80 animate-pulse"
                                 : denial.daysToAppeal <= 30
-                                  ? "bg-orange-500"
+                                  ? "bg-[#f8961d]/80"
                                   : "bg-green-500"
                             }`}
                           />
@@ -1138,7 +1138,7 @@ function DenialsDashboardContent() {
                                     <h3 className="font-semibold text-gray-900">
                                       Clinical Reviewer Assignment
                                     </h3>
-                                    <Badge className="bg-orange-100 text-orange-800 text-xs">
+                                    <Badge className="bg-[#f8961d]/20 text-[#f8961d]/95 text-xs">
                                       BETA
                                     </Badge>
                                   </div>
@@ -1161,10 +1161,10 @@ function DenialsDashboardContent() {
                                   <div className="bg-[#006d9a]/10 p-3 rounded-lg border border-orange-200">
                                     <div className="flex items-center space-x-2 mb-2">
                                       <Shield className="h-4 w-4 text-[#006d9a]" />
-                                      <span className="text-sm font-medium text-blue-900">
+                                      <span className="text-sm font-medium text-[#006d9a]">
                                         AI-Powered Matching Enabled
                                       </span>
-                                      <Badge className="bg-orange-100 text-orange-800 text-xs">
+                                      <Badge className="bg-[#f8961d]/20 text-[#f8961d]/95 text-xs">
                                         BETA
                                       </Badge>
                                     </div>
@@ -1173,7 +1173,7 @@ function DenialsDashboardContent() {
                                       specialty match, workload, experience, and
                                       performance metrics.
                                     </p>
-                                    <p className="text-xs text-orange-700 mt-1 italic">
+                                    <p className="text-xs text-[#f8961d]/90 mt-1 italic">
                                       Beta feature - algorithm is being refined
                                       based on user feedback.
                                     </p>
@@ -1309,7 +1309,7 @@ function DenialsDashboardContent() {
                                                           : reviewer.matchScore >=
                                                               45
                                                             ? "bg-yellow-500"
-                                                            : "bg-red-500"
+                                                            : "bg-[#f13c45]/80"
                                                     }`}
                                                     style={{
                                                       width: `${reviewer.matchScore}%`,
@@ -1425,7 +1425,7 @@ function DenialsDashboardContent() {
                                                 ` (${reviewer.matchScore.toFixed(0)} pts)`}
                                             </span>
                                             {smartFilterEnabled && (
-                                              <Badge className="bg-orange-100 text-orange-800 text-xs ml-1">
+                                              <Badge className="bg-[#f8961d]/20 text-[#f8961d]/95 text-xs ml-1">
                                                 β
                                               </Badge>
                                             )}
@@ -1439,12 +1439,12 @@ function DenialsDashboardContent() {
 
                               {/* Performance Overview */}
                               <div className="bg-[#006d9a]/10 p-4 rounded">
-                                <h4 className="font-medium text-blue-900 mb-2">
+                                <h4 className="font-medium text-[#006d9a] mb-2">
                                   Team Performance Summary
                                 </h4>
                                 <div className="grid grid-cols-4 gap-4 text-sm">
                                   <div className="text-center">
-                                    <p className="font-semibold text-blue-900">
+                                    <p className="font-semibold text-[#006d9a]">
                                       41
                                     </p>
                                     <p className="text-[#006d9a]">
@@ -1452,7 +1452,7 @@ function DenialsDashboardContent() {
                                     </p>
                                   </div>
                                   <div className="text-center">
-                                    <p className="font-semibold text-blue-900">
+                                    <p className="font-semibold text-[#006d9a]">
                                       3.1
                                     </p>
                                     <p className="text-[#006d9a]">
@@ -1460,7 +1460,7 @@ function DenialsDashboardContent() {
                                     </p>
                                   </div>
                                   <div className="text-center">
-                                    <p className="font-semibold text-blue-900">
+                                    <p className="font-semibold text-[#006d9a]">
                                       90%
                                     </p>
                                     <p className="text-[#006d9a]">
@@ -1468,7 +1468,7 @@ function DenialsDashboardContent() {
                                     </p>
                                   </div>
                                   <div className="text-center">
-                                    <p className="font-semibold text-blue-900">
+                                    <p className="font-semibold text-[#006d9a]">
                                       $12.4M
                                     </p>
                                     <p className="text-[#006d9a]">
@@ -1598,7 +1598,7 @@ function DenialsDashboardContent() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <Filter className="h-4 w-4 text-[#006d9a]" />
-                            <span className="text-sm font-medium text-blue-900">Active Filters:</span>
+                            <span className="text-sm font-medium text-[#006d9a]">Active Filters:</span>
                             <div className="flex flex-wrap gap-2">
                               {filters.category && (
                                 <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
@@ -1655,9 +1655,9 @@ function DenialsDashboardContent() {
                                   <div
                                     className={`w-2 h-2 rounded-full mt-2 ${
                                       denial.daysToAppeal <= 14
-                                        ? "bg-red-500 animate-pulse"
+                                        ? "bg-[#f13c45]/80 animate-pulse"
                                         : denial.daysToAppeal <= 30
-                                          ? "bg-orange-500"
+                                          ? "bg-[#f8961d]/80"
                                           : "bg-green-500"
                                     }`}
                                   />
@@ -1957,7 +1957,7 @@ function DenialsDashboardContent() {
                                 Clinical Indicators
                               </h5>
                               <div className="space-y-2">
-                                <div className="flex items-center justify-between p-2 bg-red-50 rounded">
+                                <div className="flex items-center justify-between p-2 bg-[#f13c45]/10 rounded">
                                   <span className="text-sm">
                                     Ejection Fraction
                                   </span>
@@ -1971,7 +1971,7 @@ function DenialsDashboardContent() {
                                     850 pg/mL (Elevated)
                                   </Badge>
                                 </div>
-                                <div className="flex items-center justify-between p-2 bg-red-50 rounded">
+                                <div className="flex items-center justify-between p-2 bg-[#f13c45]/10 rounded">
                                   <span className="text-sm">Creatinine</span>
                                   <Badge className="bg-red-100 text-red-800">
                                     2.1 mg/dL (High)
@@ -2041,7 +2041,7 @@ function DenialsDashboardContent() {
                                     section.color === "green"
                                       ? "bg-green-100 text-green-800"
                                       : section.color === "orange"
-                                        ? "bg-orange-100 text-orange-800"
+                                        ? "bg-[#f8961d]/20 text-[#f8961d]/95"
                                         : "bg-red-100 text-red-800"
                                   }
                                 >
@@ -2075,7 +2075,7 @@ function DenialsDashboardContent() {
                             <div className="flex items-start space-x-3">
                               <CheckCircle className="h-5 w-5 text-[#006d9a] mt-0.5" />
                               <div>
-                                <h5 className="font-medium text-blue-900">
+                                <h5 className="font-medium text-[#006d9a]">
                                   Appeal Probability: High (85%)
                                 </h5>
                                 <p className="text-sm text-blue-700 mt-1">

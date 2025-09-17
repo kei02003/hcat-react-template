@@ -98,7 +98,7 @@ const smartActions = [
 
 function getPriorityColor(priority: string) {
   switch (priority) {
-    case "High": return "bg-red-100 text-red-800 border-red-200";
+    case "High": return "bg-[#f13c45]/20 text-[#f13c45]/95 border-[#f13c45]/30";
     case "Medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
     case "Low": return "bg-green-100 text-green-800 border-green-200";
     default: return "bg-gray-100 text-gray-800 border-gray-200";
@@ -110,7 +110,7 @@ function getRiskColor(risk: string) {
   switch (risk) {
     case "Low": return "text-green-600";
     case "Medium": return "text-yellow-600";
-    case "High": return "text-red-600";
+    case "High": return "text-[#f13c45]";
     default: return "text-gray-600";
   }
 }

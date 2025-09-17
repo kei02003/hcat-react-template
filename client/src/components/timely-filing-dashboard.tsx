@@ -94,11 +94,11 @@ export function TimelyFilingDashboard() {
       case "warning":
         return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">{daysRemaining}d Warning</Badge>;
       case "critical":
-        return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100">{daysRemaining}d Critical</Badge>;
+        return <Badge className="bg-[#f8961d]/20 text-[#f8961d] dark:bg-[#f8961d]/20 dark:text-[#f8961d]">{daysRemaining}d Critical</Badge>;
       case "overdue":
-        return <Badge className="bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">{Math.abs(daysRemaining)}d Overdue</Badge>;
+        return <Badge className="bg-[#f13c45]/20 text-[#f13c45] dark:bg-[#f13c45]/20 dark:text-[#f13c45]">{Math.abs(daysRemaining)}d Overdue</Badge>;
       case "severely_overdue":
-        return <Badge className="bg-red-200 text-red-900 dark:bg-red-900 dark:text-red-100">{Math.abs(daysRemaining)}d Severe</Badge>;
+        return <Badge className="bg-[#f13c45]/30 text-[#f13c45] dark:bg-[#f13c45]/20 dark:text-[#f13c45]">{Math.abs(daysRemaining)}d Severe</Badge>;
       default:
         return <Badge variant="secondary">{agingCategory}</Badge>;
     }
@@ -113,7 +113,7 @@ export function TimelyFilingDashboard() {
       case "pending":
         return <Badge className="bg-[#006d9a]/20 text-[#006d9a] dark:bg-[#006d9a]/95 dark:text-white"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case "at_risk":
-        return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100"><AlertTriangle className="w-3 h-3 mr-1" />At Risk</Badge>;
+        return <Badge className="bg-[#f8961d]/20 text-[#f8961d] dark:bg-[#f8961d]/20 dark:text-[#f8961d]"><AlertTriangle className="w-3 h-3 mr-1" />At Risk</Badge>;
       default:
         return <Badge variant="secondary">{denialStatus}</Badge>;
     }
@@ -121,7 +121,7 @@ export function TimelyFilingDashboard() {
 
   const getPriorityIcon = (priority: string, daysRemaining: number) => {
     if (priority === "urgent" || priority === "critical" || daysRemaining <= 7) {
-      return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      return <AlertTriangle className="h-4 w-4 text-[#f13c45]/80" />;
     }
     if (priority === "medium" || daysRemaining <= 14) {
       return <Clock className="h-4 w-4 text-yellow-500" />;
@@ -161,10 +161,10 @@ export function TimelyFilingDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Critical Action Required</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-red-500" />
+              <AlertTriangle className="h-4 w-4 text-[#f13c45]/80" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{metrics.criticalActionRequired}</div>
+              <div className="text-2xl font-bold text-[#f13c45]">{metrics.criticalActionRequired}</div>
               <p className="text-xs text-muted-foreground">Claims requiring immediate attention</p>
             </CardContent>
           </Card>
@@ -175,7 +175,7 @@ export function TimelyFilingDashboard() {
               <CheckCircle className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{metrics.filingSuccessRate}%</div>
+              <div className="text-2xl font-bold text-[#006d9a]">{metrics.filingSuccessRate}%</div>
               <p className="text-xs text-muted-foreground">Claims filed on time</p>
             </CardContent>
           </Card>
@@ -183,10 +183,10 @@ export function TimelyFilingDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Denial Amount</CardTitle>
-              <XCircle className="h-4 w-4 text-red-500" />
+              <XCircle className="h-4 w-4 text-[#f13c45]/80" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">${metrics.totalDenialAmount?.toLocaleString() || '0'}</div>
+              <div className="text-2xl font-bold text-[#f13c45]">${metrics.totalDenialAmount?.toLocaleString() || '0'}</div>
               <p className="text-xs text-muted-foreground">Due to timely filing denials</p>
             </CardContent>
           </Card>
@@ -343,7 +343,7 @@ export function TimelyFilingDashboard() {
                   <TableCell>
                     {getDenialStatusBadge(claim.denialStatus)}
                     {claim.denialReason && (
-                      <div className="text-xs text-red-600 mt-1 max-w-xs truncate" title={claim.denialReason}>
+                      <div className="text-xs text-[#f13c45] mt-1 max-w-xs truncate" title={claim.denialReason}>
                         {claim.denialReason}
                       </div>
                     )}
@@ -368,7 +368,7 @@ export function TimelyFilingDashboard() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="text-blue-600" 
+                          className="text-[#006d9a]" 
                           data-testid={`button-appeal-${claim.id}`}
                           onClick={() => handleAppealClaim(claim)}
                         >
@@ -379,7 +379,7 @@ export function TimelyFilingDashboard() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="text-orange-600" 
+                          className="text-[#f8961d]" 
                           data-testid={`button-expedite-${claim.id}`}
                           onClick={() => handleExpediteClaim(claim)}
                         >

@@ -143,18 +143,18 @@ export function SummaryDashboard() {
 
   const getTrendIcon = (change: number) => {
     if (change > 0) return <TrendingUp className="h-4 w-4 text-green-500" />;
-    if (change < 0) return <TrendingDown className="h-4 w-4 text-red-500" />;
+    if (change < 0) return <TrendingDown className="h-4 w-4 text-[#f13c45]/80" />;
     return <Activity className="h-4 w-4 text-gray-500" />;
   };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "denial":
-        return <Shield className="h-4 w-4 text-red-500" />;
+        return <Shield className="h-4 w-4 text-[#f13c45]/80" />;
       case "appeal":
-        return <HeartHandshake className="h-4 w-4 text-blue-500" />;
+        return <HeartHandshake className="h-4 w-4 text-[#006d9a]/80" />;
       case "filing":
-        return <Calendar className="h-4 w-4 text-orange-500" />;
+        return <Calendar className="h-4 w-4 text-[#f8961d]/80" />;
       case "collection":
         return <DollarSign className="h-4 w-4 text-green-500" />;
       default:
@@ -349,7 +349,7 @@ export function SummaryDashboard() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Critical Claims</span>
-              <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100">
+              <Badge className="bg-[#f8961d]/20 text-[#f8961d] dark:bg-[#f8961d]/20 dark:text-[#f8961d]">
                 {mockQuickStats.criticalClaims}
               </Badge>
             </div>

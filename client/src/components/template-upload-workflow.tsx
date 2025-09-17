@@ -202,7 +202,7 @@ export function TemplateUploadWorkflow() {
       case "mapping_required":
         return <Badge className="bg-yellow-100 text-yellow-800"><AlertTriangle className="h-3 w-3 mr-1" />Mapping Required</Badge>;
       case "error":
-        return <Badge className="bg-red-100 text-red-800">Error</Badge>;
+        return <Badge className="bg-[#f13c45]/20 text-[#f13c45]/95">Error</Badge>;
       default:
         return <Badge>Unknown</Badge>;
     }
@@ -212,7 +212,7 @@ export function TemplateUploadWorkflow() {
     if (progress >= 90) return "bg-green-500";
     if (progress >= 70) return "bg-[#006d9a]/80";
     if (progress >= 50) return "bg-yellow-500";
-    return "bg-red-500";
+    return "bg-[#f13c45]/80";
   };
 
   return (
@@ -323,7 +323,7 @@ export function TemplateUploadWorkflow() {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <FileText className="h-5 w-5 text-blue-600" />
+                    <FileText className="h-5 w-5 text-[#006d9a]" />
                     <div>
                       <h4 className="font-semibold text-gray-900">{template.name}</h4>
                       <p className="text-sm text-gray-600">{template.payerName} • {template.formType}</p>
@@ -392,7 +392,7 @@ export function TemplateUploadWorkflow() {
                                     <span className="font-medium">{field.label}</span>
                                     <div className="flex items-center space-x-1">
                                       <Badge variant="outline" className="text-xs">{field.type}</Badge>
-                                      {field.required && <Badge className="bg-red-100 text-red-800 text-xs">Required</Badge>}
+                                      {field.required && <Badge className="bg-[#f13c45]/20 text-[#f13c45]/95 text-xs">Required</Badge>}
                                     </div>
                                   </div>
                                   {field.mappingRules && field.mappingRules.length > 0 && (
@@ -466,7 +466,7 @@ export function TemplateUploadWorkflow() {
                                   <div className="flex items-center space-x-2 mb-2">
                                     <Label className="font-medium">{field.label}</Label>
                                     <Badge variant="outline" className="text-xs">{field.type}</Badge>
-                                    {field.required && <Badge className="bg-red-100 text-red-800 text-xs">Required</Badge>}
+                                    {field.required && <Badge className="bg-[#f13c45]/20 text-[#f13c45]/95 text-xs">Required</Badge>}
                                   </div>
                                   
                                   <div className="grid grid-cols-2 gap-4">
@@ -530,7 +530,7 @@ export function TemplateUploadWorkflow() {
                     Test Fill
                   </Button>
 
-                  <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
+                  <Button size="sm" variant="outline" className="text-[#f13c45] hover:text-[#f13c45]/90">
                     <Trash2 className="h-4 w-4 mr-1" />
                     Delete
                   </Button>

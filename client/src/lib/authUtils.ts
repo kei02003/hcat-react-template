@@ -41,7 +41,7 @@ export const HEALTHCARE_ROLES = {
     name: 'system_administrator',
     displayName: 'System Administrator',
     level: 1,
-    color: 'bg-red-100 text-red-800'
+    color: 'bg-[#f13c45]/20 text-[#f13c45]/95'
   },
   CLINICAL_DIRECTOR: {
     name: 'clinical_director',
@@ -71,7 +71,7 @@ export const HEALTHCARE_ROLES = {
     name: 'denial_specialist',
     displayName: 'Denial Specialist',
     level: 5,
-    color: 'bg-orange-100 text-orange-800'
+    color: 'bg-[#f8961d]/20 text-[#f8961d]/95'
   },
   AR_SPECIALIST: {
     name: 'ar_specialist',
@@ -139,8 +139,8 @@ export function getPermissionLevelColor(level: string): string {
   switch (level) {
     case 'view': return 'bg-green-100 text-green-800';
     case 'edit': return 'bg-yellow-100 text-yellow-800';
-    case 'manage': return 'bg-orange-100 text-orange-800';
-    case 'admin': return 'bg-red-100 text-red-800';
+    case 'manage': return 'bg-[#f8961d]/20 text-[#f8961d]/95';
+    case 'admin': return 'bg-[#f13c45]/20 text-[#f13c45]/95';
     default: return 'bg-gray-100 text-gray-800';
   }
 }

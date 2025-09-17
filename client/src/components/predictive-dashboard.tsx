@@ -74,8 +74,8 @@ const riskFactors = [
 
 function getRiskBadgeColor(level: string) {
   switch (level) {
-    case "critical": return "bg-red-100 text-red-800 border-red-200";
-    case "high": return "bg-orange-100 text-orange-800 border-orange-200";
+    case "critical": return "bg-[#f13c45]/20 text-[#f13c45]/95 border-[#f13c45]/30";
+    case "high": return "bg-[#f8961d]/20 text-[#f8961d]/95 border-[#f8961d]/30";
     case "medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
     case "low": return "bg-green-100 text-green-800 border-green-200";
     default: return "bg-gray-100 text-gray-800 border-gray-200";
@@ -84,8 +84,8 @@ function getRiskBadgeColor(level: string) {
 
 function getImpactColor(impact: string) {
   switch (impact) {
-    case "Critical": return "text-red-600";
-    case "High": return "text-orange-600";
+    case "Critical": return "text-[#f13c45]";
+    case "High": return "text-[#f8961d]";
     case "Medium": return "text-yellow-600";
     default: return "text-gray-600";
   }
@@ -118,7 +118,7 @@ export function PredictiveDashboard() {
             <CardContent className="p-4">
               <div>
                 <p className="text-sm text-gray-600">Predicted Denials</p>
-                <p className="text-2xl font-bold text-red-600">23</p>
+                <p className="text-2xl font-bold text-[#f13c45]">23</p>
                 <p className="text-xs text-gray-500">Next 7 days</p>
               </div>
             </CardContent>
@@ -128,7 +128,7 @@ export function PredictiveDashboard() {
             <CardContent className="p-4">
               <div>
                 <p className="text-sm text-gray-600">At-Risk Amount</p>
-                <p className="text-2xl font-bold text-orange-600">$145.6K</p>
+                <p className="text-2xl font-bold text-[#f8961d]">$145.6K</p>
                 <p className="text-xs text-gray-500">82.3% confidence</p>
               </div>
             </CardContent>
@@ -148,7 +148,7 @@ export function PredictiveDashboard() {
             <CardContent className="p-4">
               <div>
                 <p className="text-sm text-gray-600">Model Accuracy</p>
-                <p className="text-2xl font-bold text-blue-600">89.2%</p>
+                <p className="text-2xl font-bold text-[#006d9a]">89.2%</p>
                 <p className="text-xs text-gray-500">Last 30 days</p>
               </div>
             </CardContent>
@@ -214,7 +214,7 @@ export function PredictiveDashboard() {
                         <p className="text-xs font-medium text-gray-700 mb-1">Predicted Denial Reasons:</p>
                         <div className="flex flex-wrap gap-1">
                           {claim.reasons.map((reason, idx) => (
-                            <span key={idx} className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                            <span key={idx} className="text-xs bg-[#f13c45]/20 text-[#f13c45]/90 px-2 py-1 rounded">
                               {reason}
                             </span>
                           ))}
@@ -279,8 +279,8 @@ export function PredictiveDashboard() {
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${
-                            factor.weight >= 80 ? 'bg-red-500' : 
-                            factor.weight >= 60 ? 'bg-orange-500' : 'bg-yellow-500'
+                            factor.weight >= 80 ? 'bg-[#f13c45]/80' : 
+                            factor.weight >= 60 ? 'bg-[#f8961d]/80' : 'bg-yellow-500'
                           }`}
                           style={{ width: `${factor.weight}%` }}
                         />
