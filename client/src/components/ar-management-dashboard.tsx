@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +16,6 @@ import {
   Clock,
   AlertTriangle,
   BarChart3,
-  Network,
 } from "lucide-react";
 import { ArTrendsChart } from "./charts/ar-trends-chart";
 import { PayerMixChart } from "./charts/payer-mix-chart";
@@ -178,17 +176,6 @@ export function ArManagementDashboard() {
             <h1 className="text-3xl font-bold tracking-tight">AR Management</h1>
           </div>
           <div className="flex items-center space-x-4">
-            {/* Epic Integration button temporarily hidden */}
-            {/* <Link href="/epic-architecture">
-              <Button
-                variant="outline"
-                className="flex items-center space-x-2 text-sm"
-                data-testid="button-epic-architecture"
-              >
-                <Network className="h-4 w-4" />
-                <span>Epic Integration Architecture</span>
-              </Button>
-            </Link> */}
             <Button variant="outline" data-testid="button-export-ar">
               Export Report
             </Button>
