@@ -316,25 +316,25 @@ function WriteOffDashboardContent() {
 
   return (
     <div className="flex flex-col space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Write-Off Analytics
-            </h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4" />
-              <span className="text-sm text-gray-600">
-                Last Updated: Just now
-              </span>
-            </div>
-            <Button className="text-white" style={{backgroundColor: "#006d9a"}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#006d9a/90"} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#006d9a"} data-testid="button-export-report">
-              Export Report
-            </Button>
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Write-Off Analytics</h2>
+          <p className="text-muted-foreground">
+            Monitor and analyze write-off patterns, bad debt trends, and collection performance
+          </p>
         </div>
+        <div className="flex items-center space-x-3">
+          <Button variant="outline" size="sm" data-testid="button-refresh">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button variant="outline" size="sm" data-testid="button-export">
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        </div>
+      </div>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -353,11 +353,7 @@ function WriteOffDashboardContent() {
                   </div>
                   <p className="text-xs text-gray-500 mt-1">Target: {metric.target}</p>
                 </div>
-                <div className="ml-3">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <DollarSign className="h-4 w-4 text-gray-600" />
-                  </div>
-                </div>
+                
               </div>
             </CardContent>
           </Card>
