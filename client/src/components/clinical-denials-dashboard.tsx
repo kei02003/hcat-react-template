@@ -1782,42 +1782,6 @@ function DenialsDashboardContent() {
                 </CardContent>
               </Card>
 
-              <Card className="healthcare-card">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Success Stories
-                    </h3>
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="bg-green-50 p-3 rounded">
-                      <p className="text-sm font-medium text-green-800">
-                        42% reduction in M80 denials
-                      </p>
-                      <p className="text-xs text-green-600">
-                        Enhanced documentation training
-                      </p>
-                    </div>
-                    <div className="bg-blue-50 p-3 rounded">
-                      <p className="text-sm font-medium text-blue-800">
-                        35% improvement in appeal success
-                      </p>
-                      <p className="text-xs text-blue-600">
-                        Clinical decision support adoption
-                      </p>
-                    </div>
-                    <div className="bg-purple-50 p-3 rounded">
-                      <p className="text-sm font-medium text-purple-800">
-                        28% faster resolution time
-                      </p>
-                      <p className="text-xs text-purple-600">
-                        Streamlined reviewer assignment
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
               <Card className="healthcare-card">
                 <CardContent className="p-6">
