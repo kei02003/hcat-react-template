@@ -6,6 +6,7 @@ import { PredictiveDashboard } from "@/components/predictive-dashboard";
 import { ArManagementDashboard } from "@/components/ar-management-dashboard";
 import { TimelyFilingDashboard } from "@/components/timely-filing-dashboard";
 import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboard";
+import { WriteOffAnalyticsDashboard } from "@/components/writeoff-analytics-dashboard";
 import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
@@ -57,6 +58,7 @@ export default function Dashboard() {
     { name: "Documentation Requests", warning: false },
     { name: "Appeals Management", warning: false },
     { name: "Predictive Analytics", warning: true },
+    { name: "Write-Off Analytics", warning: false },
   ];
 
   return (
@@ -236,6 +238,9 @@ export default function Dashboard() {
         ) : activeMainTab === "Denials" &&
           activeSubTab === "Appeals Management" ? (
           <AppealGenerationDashboard />
+        ) : activeMainTab === "Denials" &&
+          activeSubTab === "Write-Off Analytics" ? (
+          <WriteOffAnalyticsDashboard />
         ) : activeMainTab === "AR" ? (
           <ArManagementDashboard />
         ) : activeMainTab === "Opportunities" ? (
