@@ -367,53 +367,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Pre-Authorization Management routes
-  app.get("/api/pre-auth-requests", async (req, res) => {
-    try {
-      const requests = await storage.getPreAuthRequests();
-      res.json(requests);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch pre-auth requests" });
-    }
-  });
-
-  app.get("/api/insurer-criteria", async (req, res) => {
-    try {
-      const criteria = await storage.getInsurerCriteria();
-      res.json(criteria);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch insurer criteria" });
-    }
-  });
-
-  app.get("/api/procedure-auth-requirements", async (req, res) => {
-    try {
-      const requirements = await storage.getProcedureAuthRequirements();
-      res.json(requirements);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch procedure auth requirements" });
-    }
-  });
-
-  // Update pre-auth request status
-  app.patch("/api/pre-auth-requests/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { status, flaggedAt, reviewerNotes } = req.body;
-      
-      const updatedRequest = await storage.updatePreAuthRequest(id, {
-        status,
-        // flaggedAt,
-        reviewerNotes,
-        updatedAt: new Date()
-      });
-      
-      res.json(updatedRequest);
-    } catch (error) {
-      console.error("Failed to update pre-auth request:", error);
-      res.status(500).json({ message: "Failed to update pre-auth request" });
-    }
-  });
 
   // Clinical Decision Support routes
   app.get("/api/patient-status-monitoring", async (req, res) => {
