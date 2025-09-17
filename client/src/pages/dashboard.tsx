@@ -4,15 +4,13 @@ import { MetricsPanel } from "@/components/metrics-panel";
 import { DocumentationDashboard } from "@/components/documentation-dashboard";
 import { PredictiveDashboard } from "@/components/predictive-dashboard";
 import { ArManagementDashboard } from "@/components/ar-management-dashboard";
-import { CollectionsDashboard } from "@/components/collections-dashboard";
 import { TimelyFilingDashboard } from "@/components/timely-filing-dashboard";
 import { ClinicalDenialsDashboard } from "@/components/clinical-denials-dashboard";
-import { PreAuthorizationDashboard } from "@/components/pre-authorization-dashboard";
 import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
 import { PersonaSwitcher } from "@/components/persona-switcher";
-import { ChartLine, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 // Using TriFlame SVG from Health Catalyst
 const triFlameLogoUrl =
   "https://cashmere.healthcatalyst.net/assets/TriFlame.svg";
@@ -51,10 +49,7 @@ export default function Dashboard() {
   const mainTabs = [
     "Summary",
     "AR",
-    "Pre-Auth",
     "Denials",
-    "Collections",
-    "Opportunities",
   ];
   const subTabs = [
     { name: "Clinical Denials", warning: false },
@@ -243,12 +238,8 @@ export default function Dashboard() {
           <AppealGenerationDashboard />
         ) : activeMainTab === "AR" ? (
           <ArManagementDashboard />
-        ) : activeMainTab === "Collections" ? (
-          <CollectionsDashboard />
         ) : activeMainTab === "Opportunities" ? (
           <FeasibilityDashboard />
-        ) : activeMainTab === "Pre-Auth" ? (
-          <PreAuthorizationDashboard />
         ) : (
           <main className="flex-1 p-6 overflow-y-auto bg-white">
             <div className="flex items-center justify-center h-full">
@@ -259,8 +250,7 @@ export default function Dashboard() {
                 <p className="text-gray-600">
                   This section is under development. Available dashboards
                   include all major revenue cycle modules plus new features:
-                  Pre-Authorization Management, Clinical Decision Support, and
-                  Appeal Generation.
+                  Clinical Decision Support and Appeal Generation.
                 </p>
               </div>
             </div>
