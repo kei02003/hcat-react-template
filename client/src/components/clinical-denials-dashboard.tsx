@@ -51,7 +51,6 @@ import {
 } from "./charts/denial-reason-analysis";
 import { PatientAppealModal } from "./patient-appeal-modal";
 import { ClinicalDecisionDashboard } from "./clinical-decision-dashboard";
-import { PreAuthorizationDashboard } from "./pre-authorization-dashboard";
 
 const clinicalMetrics = [
   {
@@ -2318,7 +2317,9 @@ export function ClinicalDenialsDashboard() {
                       </div>
                     </div>
                   </div>
-                  <PreAuthorizationDashboard />
+                  <div className="text-center p-8">
+                    <p className="text-gray-600">Pre-authorization workflow integration has been removed.</p>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>

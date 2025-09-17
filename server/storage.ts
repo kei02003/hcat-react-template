@@ -1,16 +1,36 @@
-import { type Metric, type InsertMetric, type DocumentationRequest, type InsertDocumentationRequest, type PayerBehavior, type InsertPayerBehavior, type RedundancyMatrix, type InsertRedundancyMatrix, type PredictiveAnalytics, type InsertPredictiveAnalytics, type DenialPredictions, type InsertDenialPredictions, type RiskFactors, type InsertRiskFactors, type PreAuthTemplate, type InsertPreAuthTemplate, type TemplateField, type InsertTemplateField, type TemplateMappingConfig, type InsertTemplateMappingConfig } from "@shared/schema";
-import { type DepartmentPerformance } from "@shared/timely-filing-schema";
-import { users, type User, type UpsertUser } from "../shared/auth-schema";
+import { 
+  type Metric, 
+  type InsertMetric, 
+  type DocumentationRequest, 
+  type InsertDocumentationRequest, 
+  type PayerBehavior, 
+  type InsertPayerBehavior, 
+  type RedundancyMatrix, 
+  type InsertRedundancyMatrix, 
+  type PredictiveAnalytics, 
+  type InsertPredictiveAnalytics, 
+  type DenialPredictions, 
+  type InsertDenialPredictions, 
+  type RiskFactors, 
+  type InsertRiskFactors, 
+  type PreAuthTemplate, 
+  type InsertPreAuthTemplate, 
+  type TemplateField, 
+  type InsertTemplateField, 
+  type TemplateMappingConfig, 
+  type InsertTemplateMappingConfig 
+} from "@shared/schema";
 
-// Import new module types
-import {
-  type PreAuthRequest,
-  type InsertPreAuthRequest,
-  type InsurerCriteria,
-  type InsertInsurerCriteria,
-  type ProcedureAuthRequirement,
-  type InsertProcedureAuthRequirement,
-} from "@shared/pre-authorization-schema";
+import { 
+  type DepartmentPerformance, 
+  type InsertDepartmentPerformance 
+} from "@shared/timely-filing-schema";
+
+import { 
+  users, 
+  type User, 
+  type UpsertUser 
+} from "../shared/auth-schema";
 
 import {
   type PatientStatusMonitoring,
@@ -33,6 +53,7 @@ import {
   type DenialPattern,
   type InsertDenialPattern,
 } from "@shared/appeal-generation-schema";
+
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -119,13 +140,7 @@ export interface IStorage {
   
   // Department Performance
   getDepartmentPerformance(): Promise<DepartmentPerformance[]>;
-  
-  // Pre-Authorization Management
-  getPreAuthRequests(): Promise<PreAuthRequest[]>;
-  createPreAuthRequest(request: InsertPreAuthRequest): Promise<PreAuthRequest>;
-  updatePreAuthRequest(id: string, updates: Partial<PreAuthRequest>): Promise<PreAuthRequest | undefined>;
-  getInsurerCriteria(): Promise<InsurerCriteria[]>;
-  getProcedureAuthRequirements(): Promise<ProcedureAuthRequirement[]>;
+  createDepartmentPerformance(performance: InsertDepartmentPerformance): Promise<DepartmentPerformance>;
   
   // Clinical Decision Support
   getPatientStatusMonitoring(): Promise<PatientStatusMonitoring[]>;
@@ -166,9 +181,7 @@ export class MemStorage implements IStorage {
   private predictiveAnalytics: Map<string, PredictiveAnalytics>;
   private denialPredictions: Map<string, DenialPredictions>;
   private riskFactors: Map<string, RiskFactors>;
-  private preAuthRequests: Map<string, PreAuthRequest>;
-  private insurerCriteria: Map<string, InsurerCriteria>;
-  private procedureAuthRequirements: Map<string, ProcedureAuthRequirement>;
+  private departmentPerformance: Map<string, DepartmentPerformance>;
   private patientStatusMonitoring: Map<string, PatientStatusMonitoring>;
   private clinicalIndicators: Map<string, ClinicalIndicator>;
   private medicalRecordAnalysis: Map<string, MedicalRecordAnalysis>;
@@ -190,9 +203,7 @@ export class MemStorage implements IStorage {
     this.predictiveAnalytics = new Map();
     this.denialPredictions = new Map();
     this.riskFactors = new Map();
-    this.preAuthRequests = new Map();
-    this.insurerCriteria = new Map();
-    this.procedureAuthRequirements = new Map();
+    this.departmentPerformance = new Map();
     this.patientStatusMonitoring = new Map();
     this.clinicalIndicators = new Map();
     this.medicalRecordAnalysis = new Map();
@@ -217,10 +228,11 @@ export class MemStorage implements IStorage {
     this.initializePredictiveAnalytics();
     this.initializeDenialPredictions();
     this.initializeRiskFactors();
-    this.initializePreAuthRequests();
+    this.initializeDepartmentPerformance();
     this.initializePatientStatusMonitoring();
     this.initializeClinicalDecisions();
     this.initializeAppealRequests();
+    this.initializeTemplates();
   }
 
   private initializeMetrics() {
@@ -583,320 +595,173 @@ export class MemStorage implements IStorage {
     });
   }
 
-  async getMetrics(): Promise<Metric[]> {
-    return Array.from(this.metrics.values());
-  }
-
-  async createMetric(insertMetric: InsertMetric): Promise<Metric> {
-    const id = randomUUID();
-    const metric: Metric = { 
-      ...insertMetric, 
-      id, 
-      updatedAt: new Date(),
-      previousValue: insertMetric.previousValue ?? null,
-      changePercentage: insertMetric.changePercentage ?? null,
-      status: (insertMetric.status as "positive" | "negative" | "neutral" | null) ?? null
-    };
-    this.metrics.set(id, metric);
-    return metric;
-  }
-
-  async updateMetric(id: string, updateData: Partial<InsertMetric>): Promise<Metric | undefined> {
-    const existing = this.metrics.get(id);
-    if (!existing) return undefined;
-    
-    const updated: Metric = { 
-      ...existing, 
-      ...updateData, 
-      updatedAt: new Date(),
-      previousValue: updateData.previousValue ?? existing.previousValue,
-      changePercentage: updateData.changePercentage ?? existing.changePercentage,
-      status: (updateData.status as "positive" | "negative" | "neutral" | null) ?? existing.status
-    };
-    this.metrics.set(id, updated);
-    return updated;
-  }
-
-  async getDocumentationRequests(): Promise<DocumentationRequest[]> {
-    return Array.from(this.documentationRequests.values());
-  }
-
-  async createDocumentationRequest(insertRequest: InsertDocumentationRequest): Promise<DocumentationRequest> {
-    const id = randomUUID();
-    const request: DocumentationRequest = { 
-      ...insertRequest, 
-      id,
-      originalSubmissionDate: insertRequest.originalSubmissionDate ?? null,
-      isRedundant: insertRequest.isRedundant ?? null,
-      amount: insertRequest.amount ?? null
-    };
-    this.documentationRequests.set(id, request);
-    return request;
-  }
-
-  async updateDocumentationRequest(id: string, updateData: Partial<InsertDocumentationRequest>): Promise<DocumentationRequest | undefined> {
-    const existing = this.documentationRequests.get(id);
-    if (!existing) return undefined;
-    
-    const updated: DocumentationRequest = { 
-      ...existing, 
-      ...updateData,
-      originalSubmissionDate: updateData.originalSubmissionDate ?? existing.originalSubmissionDate,
-      isRedundant: updateData.isRedundant ?? existing.isRedundant,
-      amount: updateData.amount ?? existing.amount
-    };
-    this.documentationRequests.set(id, updated);
-    return updated;
-  }
-
-  async getPayerBehavior(): Promise<PayerBehavior[]> {
-    return Array.from(this.payerBehavior.values());
-  }
-
-  async createPayerBehavior(insertBehavior: InsertPayerBehavior): Promise<PayerBehavior> {
-    const id = randomUUID();
-    const behavior: PayerBehavior = { 
-      ...insertBehavior, 
-      id,
-      redundantRequestRate: insertBehavior.redundantRequestRate ?? null,
-      topRequestType: insertBehavior.topRequestType ?? null,
-      avgResponseTime: insertBehavior.avgResponseTime ?? null,
-      successRate: insertBehavior.successRate ?? null,
-      revenueImpact: insertBehavior.revenueImpact ?? null
-    };
-    this.payerBehavior.set(id, behavior);
-    return behavior;
-  }
-
-  async getRedundancyMatrix(): Promise<RedundancyMatrix[]> {
-    return Array.from(this.redundancyMatrix.values());
-  }
-
-  async createRedundancyMatrix(insertMatrix: InsertRedundancyMatrix): Promise<RedundancyMatrix> {
-    const id = randomUUID();
-    const matrix: RedundancyMatrix = { 
-      ...insertMatrix, 
-      id,
-      redundancyRate: insertMatrix.redundancyRate ?? null
-    };
-    this.redundancyMatrix.set(id, matrix);
-    return matrix;
-  }
-
-  async getPredictiveAnalytics(): Promise<PredictiveAnalytics[]> {
-    return Array.from(this.predictiveAnalytics.values());
-  }
-
-  async createPredictiveAnalytics(insertAnalytics: InsertPredictiveAnalytics): Promise<PredictiveAnalytics> {
-    const id = randomUUID();
-    const analytics: PredictiveAnalytics = { 
-      ...insertAnalytics, 
-      id, 
-      createdAt: new Date(),
-      amount: insertAnalytics.amount ?? null,
-      denialRiskScore: insertAnalytics.denialRiskScore ?? null,
-      documentationRiskScore: insertAnalytics.documentationRiskScore ?? null,
-      timelyFilingRiskScore: insertAnalytics.timelyFilingRiskScore ?? null,
-      overallRiskScore: insertAnalytics.overallRiskScore ?? null,
-      recommendedActions: insertAnalytics.recommendedActions ?? null,
-      predictedDenialReasons: insertAnalytics.predictedDenialReasons ?? null,
-      confidence: insertAnalytics.confidence ?? null,
-      riskLevel: insertAnalytics.riskLevel as "low" | "medium" | "high" | "critical"
-    };
-    this.predictiveAnalytics.set(id, analytics);
-    return analytics;
-  }
-
-  async getDenialPredictions(): Promise<DenialPredictions[]> {
-    return Array.from(this.denialPredictions.values());
-  }
-
-  async createDenialPredictions(insertPredictions: InsertDenialPredictions): Promise<DenialPredictions> {
-    const id = randomUUID();
-    const predictions: DenialPredictions = { 
-      ...insertPredictions, 
-      id,
-      confidence: insertPredictions.confidence ?? null,
-      predictedAmount: insertPredictions.predictedAmount ?? null,
-      actualDenials: insertPredictions.actualDenials ?? null,
-      actualAmount: insertPredictions.actualAmount ?? null,
-      accuracy: insertPredictions.accuracy ?? null
-    };
-    this.denialPredictions.set(id, predictions);
-    return predictions;
-  }
-
-  async getRiskFactors(): Promise<RiskFactors[]> {
-    return Array.from(this.riskFactors.values());
-  }
-
-  async createRiskFactors(insertFactors: InsertRiskFactors): Promise<RiskFactors> {
-    const id = randomUUID();
-    const factors: RiskFactors = { 
-      ...insertFactors, 
-      id,
-      isActive: insertFactors.isActive ?? null,
-      weightScore: insertFactors.weightScore ?? null
-    };
-    this.riskFactors.set(id, factors);
-    return factors;
-  }
-
-  async getDepartmentPerformance(): Promise<DepartmentPerformance[]> {
-    return [
+  private initializeDepartmentPerformance() {
+    const performanceData = [
       {
-        id: "dp-001",
-        department: "Emergency Department",
-        totalClaims: 3420,
-        filedOnTime: 3180,
-        expiredClaims: 45,
-        avgDaysToFile: "12.3",
-        successRate: "93.0",
-        valueAtRisk: "890000.00",
-        monthYear: "2024-12"
-      },
-      {
-        id: "dp-002", 
         department: "Cardiology",
-        totalClaims: 2890,
-        filedOnTime: 2765,
-        expiredClaims: 28,
-        avgDaysToFile: "8.7",
-        successRate: "95.7",
-        valueAtRisk: "420000.00",
+        totalClaims: 245,
+        filedOnTime: 198,
+        expiredClaims: 12,
+        avgDaysToFile: "14.2",
+        successRate: "80.8",
+        valueAtRisk: "125300.00",
         monthYear: "2024-12"
       },
       {
-        id: "dp-003",
         department: "Orthopedics", 
-        totalClaims: 2156,
-        filedOnTime: 2087,
-        expiredClaims: 19,
-        avgDaysToFile: "9.2",
-        successRate: "96.8",
-        valueAtRisk: "315000.00",
-        monthYear: "2024-12"
-      },
-      {
-        id: "dp-004",
-        department: "General Surgery",
-        totalClaims: 1876,
-        filedOnTime: 1743,
-        expiredClaims: 52,
-        avgDaysToFile: "15.1",
-        successRate: "92.9", 
-        valueAtRisk: "1240000.00",
-        monthYear: "2024-12"
-      },
-      {
-        id: "dp-005",
-        department: "Oncology",
-        totalClaims: 1654,
-        filedOnTime: 1587,
-        expiredClaims: 23,
-        avgDaysToFile: "7.8",
-        successRate: "95.9",
-        valueAtRisk: "380000.00",
-        monthYear: "2024-12"
-      },
-      {
-        id: "dp-006",
-        department: "Radiology",
-        totalClaims: 1423,
-        filedOnTime: 1356,
-        expiredClaims: 31,
-        avgDaysToFile: "11.4",
-        successRate: "95.3",
-        valueAtRisk: "490000.00",
-        monthYear: "2024-12"
-      },
-      {
-        id: "dp-007", 
-        department: "Laboratory",
-        totalClaims: 1298,
-        filedOnTime: 1189,
-        expiredClaims: 67,
-        avgDaysToFile: "18.6",
-        successRate: "91.6",
-        valueAtRisk: "1580000.00",
-        monthYear: "2024-12"
-      },
-      {
-        id: "dp-008",
-        department: "Physical Therapy",
-        totalClaims: 987,
-        filedOnTime: 934,
+        totalClaims: 189,
+        filedOnTime: 145,
         expiredClaims: 18,
-        avgDaysToFile: "10.2",
-        successRate: "94.6",
-        valueAtRisk: "280000.00",
+        avgDaysToFile: "18.7",
+        successRate: "76.7",
+        valueAtRisk: "234500.00",
+        monthYear: "2024-12"
+      },
+      {
+        department: "Emergency",
+        totalClaims: 456,
+        filedOnTime: 398,
+        expiredClaims: 8,
+        avgDaysToFile: "11.3",
+        successRate: "87.3",
+        valueAtRisk: "89200.00",
         monthYear: "2024-12"
       }
     ];
+
+    performanceData.forEach(perf => {
+      const id = randomUUID();
+      this.departmentPerformance.set(id, {
+        id,
+        department: perf.department,
+        totalClaims: perf.totalClaims,
+        filedOnTime: perf.filedOnTime,
+        expiredClaims: perf.expiredClaims,
+        avgDaysToFile: perf.avgDaysToFile,
+        successRate: perf.successRate,
+        valueAtRisk: perf.valueAtRisk,
+        monthYear: perf.monthYear
+      });
+    });
   }
 
-  // Initialize new module data
+  private initializePatientStatusMonitoring() {
+    const monitoringData = [
+      {
+        patientId: "P-12345",
+        patientName: "Johnson, Michael",
+        admissionId: "ADM-2024-001",
+        currentStatus: "inpatient" as const,
+        recommendedStatus: "inpatient" as const,
+        admissionDate: new Date("2024-12-20"),
+        dischargeDate: null,
+        length_of_stay: 72,
+        primaryDiagnosis: "Acute Myocardial Infarction",
+        secondaryDiagnoses: ["Hypertension", "Diabetes Type 2"],
+        drg: "247",
+        payer: "Medicare",
+        payerId: "MED-001",
+        department: "Cardiology",
+        attendingPhysician: "Dr. Smith",
+        clinicalIndicators: {
+          vitalSigns: { systolicBP: 145, diastolicBP: 88, heartRate: 92, oxygenSaturation: 94 },
+          labResults: { troponin: 2.4, bnp: 850 }
+        },
+        lastAssessment: new Date(),
+        statusChangeRecommendations: ["Continue inpatient monitoring", "Cardiac enzymes trending down"],
+        alertsTriggered: ["High troponin levels"],
+        complianceScore: 0.95
+      }
+    ];
+
+    monitoringData.forEach(monitoring => {
+      const id = randomUUID();
+      this.patientStatusMonitoring.set(id, {
+        id,
+        patientId: monitoring.patientId,
+        patientName: monitoring.patientName,
+        admissionId: monitoring.admissionId,
+        currentStatus: monitoring.currentStatus,
+        recommendedStatus: monitoring.recommendedStatus,
+        admissionDate: monitoring.admissionDate,
+        dischargeDate: monitoring.dischargeDate,
+        length_of_stay: monitoring.length_of_stay,
+        primaryDiagnosis: monitoring.primaryDiagnosis,
+        secondaryDiagnoses: monitoring.secondaryDiagnoses,
+        drg: monitoring.drg,
+        payer: monitoring.payer,
+        payerId: monitoring.payerId,
+        department: monitoring.department,
+        attendingPhysician: monitoring.attendingPhysician,
+        clinicalIndicators: monitoring.clinicalIndicators,
+        lastAssessment: monitoring.lastAssessment,
+        statusChangeRecommendations: monitoring.statusChangeRecommendations,
+        alertsTriggered: monitoring.alertsTriggered,
+        complianceScore: monitoring.complianceScore,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    });
+  }
+
   private initializeClinicalDecisions() {
-    // Sample clinical decision cases for denied claim screening
-    const clinicalDecisions = [
+    const clinicalDecisions: ClinicalDecision[] = [
       {
         id: "cd-001",
-        patientName: "Martinez, Elena R.",
-        patientId: "PAT-78901",
-        admissionId: "ADM-2025-001",
-        currentStatus: "observation",
-        denialReason: "Inappropriate inpatient status - heart failure admission",
-        payer: "Medicare Advantage",
-        payerId: "MA-001",
+        patientName: "Johnson, Michael",
+        patientId: "P-12345",
+        admissionId: "ADM-2024-001",
+        currentStatus: "inpatient",
+        denialReason: "Status level not supported by clinical documentation",
+        payer: "Medicare",
+        payerId: "MED-001",
         department: "Cardiology",
         clinicalIndicators: {
           vitalSigns: {
-            systolicBP: 165,
-            diastolicBP: 95,
-            heartRate: 110,
-            respiratoryRate: 24,
+            systolicBP: 145,
+            diastolicBP: 88,
+            heartRate: 92,
+            respiratoryRate: 18,
             oxygenSaturation: 88,
-            temperature: 99.2
+            temperature: 98.6
           },
           labResults: {
-            troponinI: 0.8,
+            troponinI: 2.45,
             bnp: 1250,
             creatinine: 1.8,
-            sodium: 128,
-            hemoglobin: 9.2
+            sodium: 142,
+            hemoglobin: 11.2
           },
           physicianNotes: [
-            "Patient presents with acute decompensated heart failure with pulmonary edema",
-            "Requires IV diuretics and close hemodynamic monitoring",
-            "Patient has history of HFrEF with EF 25%, multiple hospitalizations",
-            "Current episode triggered by medication non-adherence and dietary indiscretion"
+            "Patient admitted with acute chest pain and elevated cardiac enzymes",
+            "EKG shows ST elevation in leads II, III, aVF",
+            "Echocardiogram reveals reduced ejection fraction at 35%",
+            "Requiring continuous cardiac monitoring and IV medications"
           ],
           symptoms: [
-            "Dyspnea at rest",
-            "Orthopnea (3-pillow)",
-            "Bilateral lower extremity edema",
-            "Chest discomfort",
+            "Chest pain 8/10",
+            "Shortness of breath at rest",
+            "Lower extremity edema",
             "Fatigue"
           ],
           medications: [
-            "Furosemide 40mg IV BID",
-            "Lisinopril 10mg daily",
             "Metoprolol 25mg BID",
-            "Spironolactone 25mg daily"
+            "Lisinopril 10mg daily",
+            "Furosemide 40mg BID",
+            "Aspirin 81mg daily"
           ]
         },
         insurerCriteria: {
           inpatientRequirements: [
-            "Requires IV medications that cannot be given in observation",
-            "Patient requires intensive cardiac monitoring",
-            "Hemodynamically unstable requiring frequent assessment",
-            "Expected length of stay >24 hours with active treatment"
+            "Hemodynamically unstable requiring intensive monitoring",
+            "IV cardiac medications requiring >24 hours",
+            "Ejection fraction <40% with acute decompensation",
+            "Troponin levels >1.0 with ongoing ischemic changes"
           ],
           observationCriteria: [
-            "Stable vital signs with mild exacerbation",
-            "Responds well to oral medications",
-            "No acute complications expected",
-            "Can be managed with <24 hour stay"
+            "Chest pain rule-out protocol <24 hours",
+            "Stable vital signs with minimal intervention",
+            "Single episode troponin elevation without complications"
           ],
           exclusionFactors: [
             "Chronic stable heart failure without acute changes",
@@ -920,1062 +785,300 @@ export class MemStorage implements IStorage {
     ];
 
     clinicalDecisions.forEach(decision => {
-      this.clinicalDecisions.set(decision.id, decision as any);
+      this.clinicalDecisions.set(decision.id, decision);
     });
-  }
-
-  // Initialize new module data
-  private initializePreAuthRequests() {
-    // Sample insurer criteria (BCBS medical necessity guidelines)
-    const bcbsCriteria: InsurerCriteria = {
-      id: "ins-001",
-      payerId: "BCBS",
-      payerName: "Blue Cross Blue Shield",
-      procedureCode: "CPT-29881",
-      procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
-      criteriaType: "medical_necessity",
-      criteria: {
-        requiresAuth: true,
-        medicalNecessityCriteria: [
-          "Mechanical symptoms (locking, catching, giving way)",
-          "Failed conservative treatment for 6+ weeks",
-          "MRI confirmation of meniscal tear",
-          "Functional limitation documented"
-        ],
-        timeFrameRequired: 72,
-        authValidityDays: 30,
-        denialReasons: [
-          "Insufficient conservative treatment",
-          "Lack of MRI documentation",
-          "Procedure not medically necessary"
-        ]
-      },
-      effectiveDate: new Date("2024-01-01"),
-      expirationDate: null,
-      isActive: true,
-      updatedAt: new Date()
-    };
-    
-    const aetnaCriteria: InsurerCriteria = {
-      id: "ins-002",
-      payerId: "AETNA",
-      payerName: "Aetna",
-      procedureCode: "CPT-64483",
-      procedureName: "Injection, anesthetic agent; transforaminal epidural",
-      criteriaType: "medical_necessity",
-      criteria: {
-        requiresAuth: true,
-        medicalNecessityCriteria: [
-          "Radicular pain correlating with imaging findings",
-          "Failed oral medications and physical therapy",
-          "No more than 3 injections per 6-month period",
-          "Documented functional impairment"
-        ],
-        timeFrameRequired: 48,
-        authValidityDays: 90,
-        denialReasons: [
-          "Exceeded injection frequency limits",
-          "Insufficient prior treatment documentation",
-          "Imaging does not correlate with symptoms"
-        ]
-      },
-      effectiveDate: new Date("2024-01-01"),
-      expirationDate: null,
-      isActive: true,
-      updatedAt: new Date()
-    };
-
-    // Additional BCBS criteria for more procedures
-    const bcbsKneeCriteria: InsurerCriteria = {
-      id: "ins-003",
-      payerId: "BCBS",
-      payerName: "Blue Cross Blue Shield",
-      procedureCode: "CPT-27447",
-      procedureName: "Arthroplasty, knee, condyle and plateau; medial compartment",
-      criteriaType: "medical_necessity",
-      criteria: {
-        requiresAuth: true,
-        medicalNecessityCriteria: [
-          "Documented bone-on-bone osteoarthritis on imaging",
-          "Failed conservative treatment for minimum 12 months",
-          "Significant functional limitation affecting activities of daily living",
-          "BMI under 40 or documented medical clearance",
-          "Patient age appropriate for procedure longevity"
-        ],
-        timeFrameRequired: 72,
-        authValidityDays: 30,
-        denialReasons: [
-          "Conservative treatment period insufficient",
-          "BMI above acceptable limits without clearance",
-          "Functional limitation not adequately documented"
-        ]
-      },
-      effectiveDate: new Date("2024-01-01"),
-      expirationDate: null,
-      isActive: true,
-      updatedAt: new Date()
-    };
-
-    const bcbsGeneralCriteria: InsurerCriteria = {
-      id: "ins-004",
-      payerId: "BCBS",
-      payerName: "Blue Cross Blue Shield",
-      procedureCode: "CPT-43280",
-      procedureName: "Laparoscopy, surgical, esophagogastroduodenoscopy",
-      criteriaType: "medical_necessity",
-      criteria: {
-        requiresAuth: true,
-        medicalNecessityCriteria: [
-          "BMI ≥35 with documented comorbidities or BMI ≥40",
-          "Documented 6-month physician-supervised weight loss attempt",
-          "Psychological evaluation completed",
-          "No contraindications to surgery documented"
-        ],
-        timeFrameRequired: 168, // 7 days
-        authValidityDays: 60,
-        denialReasons: [
-          "BMI criteria not met",
-          "Insufficient weight loss documentation",
-          "Missing psychological evaluation"
-        ]
-      },
-      effectiveDate: new Date("2024-01-01"),
-      expirationDate: null,
-      isActive: true,
-      updatedAt: new Date()
-    };
-
-    // Additional insurer criteria for more diverse scenarios
-    const medicareCriteria: InsurerCriteria = {
-      id: "ins-005",
-      payerId: "MEDICARE",
-      payerName: "Medicare",
-      procedureCode: "CPT-93458",
-      procedureName: "Catheter placement in coronary artery for coronary angiography",
-      criteriaType: "medical_necessity",
-      criteria: {
-        requiresAuth: false,
-        medicalNecessityCriteria: [
-          "Documented chest pain with positive stress test",
-          "Previous MI or known CAD with worsening symptoms",
-          "High-risk features on non-invasive testing"
-        ],
-        timeFrameRequired: 24,
-        authValidityDays: 365,
-        denialReasons: [
-          "Routine screening without symptoms",
-          "Recent normal stress test <6 months"
-        ]
-      },
-      effectiveDate: new Date("2024-01-01"),
-      expirationDate: null,
-      isActive: true,
-      updatedAt: new Date()
-    };
-
-    const medicaidCriteria: InsurerCriteria = {
-      id: "ins-006",
-      payerId: "MEDICAID",
-      payerName: "Medicaid",
-      procedureCode: "CPT-70553",
-      procedureName: "MRI brain without and with contrast",
-      criteriaType: "medical_necessity",
-      criteria: {
-        requiresAuth: true,
-        medicalNecessityCriteria: [
-          "Neurological symptoms warranting investigation",
-          "Failed initial diagnostic workup",
-          "Clinical indication documented by neurologist"
-        ],
-        timeFrameRequired: 72,
-        authValidityDays: 30,
-        denialReasons: [
-          "Insufficient clinical documentation",
-          "Alternative imaging not attempted first",
-          "Non-urgent indication"
-        ]
-      },
-      effectiveDate: new Date("2024-01-01"),
-      expirationDate: null,
-      isActive: true,
-      updatedAt: new Date()
-    };
-
-    const uhcCriteria: InsurerCriteria = {
-      id: "ins-007",
-      payerId: "UHC",
-      payerName: "UnitedHealthcare",
-      procedureCode: "CPT-19307",
-      procedureName: "Mastectomy, modified radical",
-      criteriaType: "medical_necessity",
-      criteria: {
-        requiresAuth: true,
-        medicalNecessityCriteria: [
-          "Confirmed malignancy with pathology report",
-          "Multidisciplinary team recommendation",
-          "Staging studies completed"
-        ],
-        timeFrameRequired: 48,
-        authValidityDays: 60,
-        denialReasons: [
-          "Incomplete staging workup",
-          "Missing oncology consultation"
-        ]
-      },
-      effectiveDate: new Date("2024-01-01"),
-      expirationDate: null,
-      isActive: true,
-      updatedAt: new Date()
-    };
-
-    const cignaCriteria: InsurerCriteria = {
-      id: "ins-008",
-      payerId: "CIGNA",
-      payerName: "Cigna",
-      procedureCode: "CPT-47562",
-      procedureName: "Laparoscopy, surgical; cholecystectomy",
-      criteriaType: "medical_necessity",
-      criteria: {
-        requiresAuth: false,
-        medicalNecessityCriteria: [
-          "Symptomatic cholelithiasis",
-          "Conservative management failed",
-          "No contraindications to surgery"
-        ],
-        timeFrameRequired: 0,
-        authValidityDays: 90,
-        denialReasons: [
-          "Asymptomatic gallstones",
-          "High surgical risk without benefit"
-        ]
-      },
-      effectiveDate: new Date("2024-01-01"),
-      expirationDate: null,
-      isActive: true,
-      updatedAt: new Date()
-    };
-
-    this.insurerCriteria.set(bcbsCriteria.id, bcbsCriteria);
-    this.insurerCriteria.set(aetnaCriteria.id, aetnaCriteria);
-    this.insurerCriteria.set(bcbsKneeCriteria.id, bcbsKneeCriteria);
-    this.insurerCriteria.set(bcbsGeneralCriteria.id, bcbsGeneralCriteria);
-    this.insurerCriteria.set(medicareCriteria.id, medicareCriteria);
-    this.insurerCriteria.set(medicaidCriteria.id, medicaidCriteria);
-    this.insurerCriteria.set(uhcCriteria.id, uhcCriteria);
-    this.insurerCriteria.set(cignaCriteria.id, cignaCriteria);
-
-    // Sample procedure authorization requirements
-    const procedures: ProcedureAuthRequirement[] = [
-      {
-        id: "proc-001",
-        procedureCode: "CPT-29881", 
-        procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
-        category: "Orthopedic Surgery",
-        requiresAuth: true,
-
-        averageProcessingDays: 3,
-        approvalRate: 85.2,
-        commonDenialReasons: [
-          "Insufficient conservative treatment documentation",
-          "Missing MRI results",
-          "Procedure not meeting medical necessity criteria"
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "proc-002",
-        procedureCode: "CPT-64483",
-        procedureName: "Injection, anesthetic agent; transforaminal epidural", 
-        category: "Pain Management",
-        requiresAuth: true,
-
-        averageProcessingDays: 2,
-        approvalRate: 92.1,
-        commonDenialReasons: [
-          "Frequency limits exceeded",
-          "Inadequate prior treatment documentation"
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "proc-003",
-        procedureCode: "CPT-27447",
-        procedureName: "Arthroplasty, knee, condyle and plateau; medial OR lateral compartment",
-        category: "Orthopedic Surgery",
-        requiresAuth: true,
- 
-        averageProcessingDays: 5,
-        approvalRate: 78.9,
-        commonDenialReasons: [
-          "Alternative treatments not exhausted",
-          "Insufficient severity documentation",
-          "Patient not meeting age/activity criteria"
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "proc-004",
-        procedureCode: "CPT-43280", 
-        procedureName: "Laparoscopy, surgical, esophagogastroduodenoscopy",
-        category: "Bariatric Surgery",
-        requiresAuth: true,
-
-        averageProcessingDays: 7,
-        approvalRate: 82.4,
-        commonDenialReasons: [
-          "BMI criteria not met",
-          "Insufficient supervised weight loss documentation",
-          "Missing psychological evaluation"
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "proc-005",
-        procedureCode: "CPT-93458",
-        procedureName: "Catheter placement in coronary artery for coronary angiography",
-        category: "Cardiology",
-        requiresAuth: false,
-
-        averageProcessingDays: 1,
-        approvalRate: 96.8,
-        commonDenialReasons: [
-          "Routine screening without symptoms",
-          "Recent normal stress test"
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "proc-006",
-        procedureCode: "CPT-70553",
-        procedureName: "MRI brain without and with contrast",
-        category: "Radiology",
-        requiresAuth: true,
-
-        averageProcessingDays: 3,
-        approvalRate: 89.2,
-        commonDenialReasons: [
-          "Insufficient clinical documentation",
-          "Alternative imaging not attempted first"
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "proc-007",
-        procedureCode: "CPT-19307",
-        procedureName: "Mastectomy, modified radical",
-        category: "Oncology",
-        requiresAuth: true,
-
-        averageProcessingDays: 2,
-        approvalRate: 94.7,
-        commonDenialReasons: [
-          "Incomplete staging workup",
-          "Missing oncology consultation"
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "proc-008",
-        procedureCode: "CPT-47562",
-        procedureName: "Laparoscopy, surgical; cholecystectomy",
-        category: "General Surgery",
-        requiresAuth: false,
-
-        averageProcessingDays: 0,
-        approvalRate: 98.1,
-        commonDenialReasons: [
-          "Asymptomatic gallstones",
-          "High surgical risk without benefit"
-        ],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
-
-    procedures.forEach(proc => {
-      this.procedureAuthRequirements.set(proc.id, proc);
-    });
-
-    // Sample pre-authorization requests - diverse scenarios for demo
-    const preAuthRequests: PreAuthRequest[] = [
-      {
-        id: "pre-001",
-        patientId: "PAT-12345",
-        patientName: "Johnson, Robert M.",
-        procedureCode: "CPT-29881",
-        procedureName: "Arthroscopy, knee, surgical; with meniscectomy",
-        scheduledDate: new Date("2025-08-15"),
-        payer: "Blue Cross Blue Shield",
-        payerId: "BCBS",
-        status: "pending",
-        submissionDate: new Date("2025-01-10"),
-        responseDate: null,
-        daysToComplete: 5,
-        authorizationNumber: null,
-        estimatedCost: "12500.00",
-        medicalNecessity: "Patient presents with mechanical symptoms of right knee locking and catching. Conservative treatment with PT for 8 weeks has failed. MRI shows complex medial meniscal tear with functional limitation.",
-        clinicalIndicators: { diagnosis: "M23.201 - Derangement of medial meniscus due to old tear, right knee" },
-        insurerCriteria: null,
-        physicianNotes: "Conservative treatment attempted for 8 weeks with no improvement",
-        department: "Orthopedics",
-        providerId: "DR-001",
-        providerName: "Dr. Sarah Mitchell",
-        priority: "routine",
-        requiresReview: false,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-002", 
-        patientId: "PAT-67890",
-        patientName: "Williams, Maria C.",
-        procedureCode: "CPT-64483", 
-        procedureName: "Injection, anesthetic agent; transforaminal epidural",
-        scheduledDate: new Date("2025-08-22"),
-        payer: "Aetna",
-        payerId: "AETNA",
-        status: "approved",
-        submissionDate: new Date("2025-01-09"),
-        responseDate: new Date("2025-01-10"),
-        daysToComplete: 1,
-        authorizationNumber: "AETNA-PA-2025-001234",
-        estimatedCost: "2800.00",
-        medicalNecessity: "Patient has L4-L5 radiculopathy with correlating MRI findings. Failed 6 weeks of oral medications and physical therapy. Documented functional impairment affecting daily activities.",
-        clinicalIndicators: { diagnosis: "M54.16 - Radiculopathy, lumbar region" },
-        insurerCriteria: null,
-        physicianNotes: "Failed conservative treatment for 6 weeks",
-        department: "Pain Management",
-        providerId: "DR-002",
-        providerName: "Dr. James Park",
-        priority: "routine",
-        requiresReview: false,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-003",
-        patientId: "PAT-11111",
-        patientName: "Davis, Thomas E.",
-        procedureCode: "CPT-27447",
-        procedureName: "Arthroplasty, knee, condyle and plateau; medial compartment",
-        scheduledDate: new Date("2025-08-28"),
-        payer: "Blue Cross Blue Shield",
-        payerId: "BCBS",
-        status: "requires_review",
-        submissionDate: new Date("2025-01-08"),
-        responseDate: null,
-        daysToComplete: null,
-        authorizationNumber: null,
-        estimatedCost: "45000.00",
-        medicalNecessity: "Severe osteoarthritis with bone-on-bone contact. Failed conservative treatment including injections, PT, and medications over 12 months. Significant functional limitation and pain affecting quality of life.",
-        clinicalIndicators: { diagnosis: "M17.11 - Unilateral primary osteoarthritis, right knee" },
-        insurerCriteria: null,
-        physicianNotes: "Failed 12 months of conservative treatment",
-        department: "Orthopedics",
-        providerId: "DR-001", 
-        providerName: "Dr. Sarah Mitchell",
-        priority: "urgent",
-        requiresReview: true,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-004",
-        patientId: "PAT-22333",
-        patientName: "Anderson, Jennifer L.",
-        procedureCode: "CPT-93458",
-        procedureName: "Catheter placement in coronary artery for coronary angiography",
-        scheduledDate: new Date("2025-09-05"),
-        payer: "Medicare",
-        payerId: "MEDICARE",
-        status: "approved",
-        submissionDate: new Date("2025-01-09"),
-        responseDate: new Date("2025-01-10"),
-        daysToComplete: 1,
-        authorizationNumber: "MEDICARE-2025-789456",
-        estimatedCost: "8900.00",
-        medicalNecessity: "Patient presents with unstable angina and positive stress test. High-risk features on EKG and elevated troponins. Urgent cardiac catheterization indicated for diagnosis and potential intervention.",
-        clinicalIndicators: { diagnosis: "I25.10 - Atherosclerotic heart disease of native coronary artery" },
-        insurerCriteria: null,
-        physicianNotes: "Unstable angina with positive stress test",
-        department: "Cardiology",
-        providerId: "DR-003",
-        providerName: "Dr. Michael Chen",
-        priority: "urgent",
-        requiresReview: false,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-005",
-        patientId: "PAT-33444",
-        patientName: "Rodriguez, Carmen S.",
-        procedureCode: "CPT-70553",
-        procedureName: "MRI brain without and with contrast",
-        scheduledDate: new Date("2025-09-12"),
-        payer: "Medicaid",
-        payerId: "MEDICAID",
-        status: "pending",
-        submissionDate: new Date("2025-01-08"),
-        responseDate: null,
-        daysToComplete: null,
-        authorizationNumber: null,
-        estimatedCost: "3200.00",
-        medicalNecessity: "Patient with recent stroke presenting with new neurological deficits. CT scan inconclusive. MRI needed to evaluate extent of brain injury and guide treatment planning.",
-        clinicalIndicators: { diagnosis: "G93.1 - Anoxic brain damage, not elsewhere classified" },
-        insurerCriteria: null,
-        physicianNotes: "Recent stroke with neurological deficits, CT inconclusive",
-        department: "Neurology",
-        providerId: "DR-004",
-        providerName: "Dr. Lisa Thompson",
-        priority: "routine",
-        requiresReview: true,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-006",
-        patientId: "PAT-44555",
-        patientName: "Thompson, Michael R.",
-        procedureCode: "CPT-19307",
-        procedureName: "Mastectomy, modified radical",
-        scheduledDate: new Date("2025-09-20"),
-        payer: "UnitedHealthcare",
-        payerId: "UHC",
-        status: "pending",
-        submissionDate: new Date("2025-01-08"),
-        responseDate: null,
-        daysToComplete: null,
-        authorizationNumber: null,
-        estimatedCost: "32000.00",
-        medicalNecessity: "Newly diagnosed invasive ductal carcinoma, grade 2. Multidisciplinary team recommends modified radical mastectomy. Patient completed staging studies and oncology consultation.",
-        clinicalIndicators: { diagnosis: "C50.911 - Malignant neoplasm of unspecified site of right female breast" },
-        insurerCriteria: null,
-        physicianNotes: "Invasive ductal carcinoma, multidisciplinary team recommendation",
-        department: "Oncology",
-        providerId: "DR-005",
-        providerName: "Dr. Patricia Williams",
-        priority: "urgent",
-        requiresReview: true,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-007",
-        patientId: "PAT-55666",
-        patientName: "Garcia, Pablo J.",
-        procedureCode: "CPT-47562",
-        procedureName: "Laparoscopy, surgical; cholecystectomy",
-        scheduledDate: new Date("2025-09-28"),
-        payer: "Cigna",
-        payerId: "CIGNA",
-        status: "approved",
-        submissionDate: new Date("2025-01-09"),
-        responseDate: new Date("2025-01-11"),
-        daysToComplete: 2,
-        authorizationNumber: "CIGNA-PA-20250109",
-        estimatedCost: "15600.00",
-        medicalNecessity: "Symptomatic cholelithiasis with recurrent biliary colic. Conservative management with diet modification failed. Patient experiences frequent pain episodes affecting daily activities.",
-        clinicalIndicators: { diagnosis: "K80.20 - Calculus of gallbladder without obstruction" },
-        insurerCriteria: null,
-        physicianNotes: "Recurrent biliary colic, conservative management failed",
-        department: "General Surgery",
-        providerId: "DR-006",
-        providerName: "Dr. Robert Kumar",
-        priority: "routine",
-        requiresReview: false,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-008",
-        patientId: "PAT-66777",
-        patientName: "Brown, Elizabeth M.",
-        procedureCode: "CPT-43280",
-        procedureName: "Laparoscopy, surgical, esophagogastroduodenoscopy",
-        scheduledDate: new Date("2025-10-05"),
-        payer: "Blue Cross Blue Shield",
-        payerId: "BCBS",
-        status: "denied",
-        submissionDate: new Date("2025-01-07"),
-        responseDate: new Date("2025-02-08"),
-        daysToComplete: 32,
-        authorizationNumber: null,
-        estimatedCost: "28500.00",
-        medicalNecessity: "Patient with BMI 42, hypertension, and diabetes. Documented 4-month physician-supervised weight loss program. Psychology evaluation pending.",
-        clinicalIndicators: { diagnosis: "E66.01 - Morbid obesity due to excess calories" },
-        insurerCriteria: null,
-        physicianNotes: "BMI 42, 4-month weight loss program completed",
-        department: "Bariatric Surgery",
-        providerId: "DR-007",
-        providerName: "Dr. Amanda Davis",
-        priority: "routine",
-        requiresReview: false,
-        reviewerId: null,
-        reviewerNotes: "Denied due to incomplete psychology evaluation",
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-009",
-        patientId: "PAT-77888",
-        patientName: "Lee, Christopher H.",
-        procedureCode: "CPT-64483",
-        procedureName: "Injection, anesthetic agent; transforaminal epidural",
-        scheduledDate: new Date("2025-10-15"),
-        payer: "Aetna",
-        payerId: "AETNA",
-        status: "pending",
-        submissionDate: new Date("2025-01-10"),
-        responseDate: null,
-        daysToComplete: null,
-        authorizationNumber: null,
-        estimatedCost: "2950.00",
-        medicalNecessity: "C6-C7 radiculopathy with arm pain and weakness. Failed conservative treatment with medications and PT for 8 weeks. MRI shows disc herniation with nerve root compression.",
-        clinicalIndicators: { diagnosis: "M54.12 - Radiculopathy, cervical region" },
-        insurerCriteria: null,
-        physicianNotes: "Failed 8 weeks of conservative treatment",
-        department: "Pain Management",
-        providerId: "DR-002",
-        providerName: "Dr. James Park",
-        priority: "routine",
-        requiresReview: false,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-010",
-        patientId: "PAT-88999",
-        patientName: "Wilson, Margaret A.",
-        procedureCode: "CPT-93458",
-        procedureName: "Catheter placement in coronary artery for coronary angiography",
-        scheduledDate: new Date("2025-10-25"),
-        payer: "Medicare",
-        payerId: "MEDICARE",
-        status: "approved",
-        submissionDate: new Date("2025-01-09"),
-        responseDate: new Date("2025-01-29"),
-        daysToComplete: 20,
-        authorizationNumber: "MEDICARE-2025-654321",
-        estimatedCost: "7800.00",
-        medicalNecessity: "Pre-operative cardiac clearance for patient scheduled for major oncologic surgery. Baseline cardiac function assessment needed due to history of hypertension and planned chemotherapy.",
-        clinicalIndicators: { diagnosis: "Z51.11 - Encounter for antineoplastic chemotherapy" },
-        insurerCriteria: null,
-        physicianNotes: "Pre-operative cardiac clearance for oncologic surgery",
-        department: "Cardiology",
-        providerId: "DR-003",
-        providerName: "Dr. Michael Chen",
-        priority: "routine",
-        requiresReview: false,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-011",
-        patientId: "PAT-99000",
-        patientName: "Martinez, Diego F.",
-        procedureCode: "CPT-19307",
-        procedureName: "Mastectomy, modified radical",
-        scheduledDate: new Date("2025-11-02"),
-        payer: "UnitedHealthcare",
-        payerId: "UHC",
-        status: "pending",
-        submissionDate: new Date("2025-01-09"),
-        responseDate: null,
-        daysToComplete: null,
-        authorizationNumber: null,
-        estimatedCost: "29800.00",
-        medicalNecessity: "Aggressive triple-negative breast cancer with rapid progression. Multidisciplinary team recommends urgent surgical intervention before neoadjuvant chemotherapy.",
-        clinicalIndicators: { diagnosis: "C50.912 - Malignant neoplasm of unspecified site of left female breast" },
-        insurerCriteria: null,
-        physicianNotes: "Aggressive triple-negative breast cancer, urgent intervention needed",
-        department: "Oncology",
-        providerId: "DR-005",
-        providerName: "Dr. Patricia Williams",
-        priority: "urgent",
-        requiresReview: true,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "pre-012",
-        patientId: "PAT-00111",
-        patientName: "Taylor, Susan R.",
-        procedureCode: "CPT-70553",
-        procedureName: "MRI brain without and with contrast",
-        scheduledDate: new Date("2025-11-06"),
-        payer: "Medicaid",
-        payerId: "MEDICAID",
-        status: "pending",
-        submissionDate: new Date("2025-01-08"),
-        responseDate: null,
-        daysToComplete: null,
-        authorizationNumber: null,
-        estimatedCost: "3100.00",
-        medicalNecessity: "Patient with refractory cluster headaches not responding to standard therapy. Neurologist requests MRI to rule out secondary causes and evaluate for potential surgical interventions.",
-        clinicalIndicators: { diagnosis: "G44.009 - Cluster headache syndrome, unspecified, not intractable" },
-        insurerCriteria: null,
-        physicianNotes: "Refractory cluster headaches, unresponsive to standard therapy",
-        department: "Neurology",
-        providerId: "DR-004",
-        providerName: "Dr. Lisa Thompson",
-        priority: "routine",
-        requiresReview: false,
-        reviewerId: null,
-        reviewerNotes: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
-
-    preAuthRequests.forEach(req => {
-      this.preAuthRequests.set(req.id, req);
-    });
-
-    // Initialize template management data
-    this.initializeTemplates();
-  }
-
-  private initializePatientStatusMonitoring() {
-    // Sample patient monitoring data will be added here
   }
 
   private initializeAppealRequests() {
-    // Sample appeal requests will be added here
+    const appealData = [
+      {
+        claimId: "CLM-45825",
+        denialId: "DEN-2024-001",
+        patientId: "P-12345",
+        patientName: "Brown, Michael",
+        payer: "BCBS",
+        payerId: "BCBS-001",
+        denialReason: "Medical necessity not established",
+        denialCode: "CO-50",
+        denialDate: new Date("2024-12-15"),
+        claimAmount: "18500.00",
+        appealType: "written_appeal" as const,
+        appealLevel: "first_level" as const,
+        successProbability: 0.75,
+        priorityScore: 85,
+        status: "pending_generation" as const,
+        appealDeadline: new Date("2025-01-14"),
+        daysUntilDeadline: 15,
+        assignedTo: "Appeals Team"
+      }
+    ];
+
+    appealData.forEach(appeal => {
+      const id = randomUUID();
+      this.appealRequests.set(id, {
+        id,
+        claimId: appeal.claimId,
+        denialId: appeal.denialId,
+        patientId: appeal.patientId,
+        patientName: appeal.patientName,
+        payer: appeal.payer,
+        payerId: appeal.payerId,
+        denialReason: appeal.denialReason,
+        denialCode: appeal.denialCode,
+        denialDate: appeal.denialDate,
+        claimAmount: appeal.claimAmount,
+        appealType: appeal.appealType,
+        appealLevel: appeal.appealLevel,
+        successProbability: appeal.successProbability,
+        priorityScore: appeal.priorityScore,
+        status: appeal.status,
+        generatedAt: null,
+        submittedAt: null,
+        responseDate: null,
+        appealDeadline: appeal.appealDeadline,
+        daysUntilDeadline: appeal.daysUntilDeadline,
+        assignedTo: appeal.assignedTo,
+        reviewedBy: null,
+        approvedBy: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    });
   }
 
   private initializeTemplates() {
-    // Nevada Medicaid Pre-Authorization Template (based on attached PDF)
-    const nevadaMedicaidTemplate: PreAuthTemplate = {
-      id: "tmpl-001",
-      name: "Nevada Medicaid Prior Auth FA-8",
-      payerName: "Nevada Medicaid",
-      formType: "Inpatient Medical and Surgical",
-      originalFileName: "NV_MCAID_PriorAuth_FA-8.pdf",
-      uploadDate: new Date("2024-12-07"),
-      status: "ready",
-      extractedText: "Prior Authorization Request Nevada Medicaid and Nevada Check Up Inpatient Medical and Surgical...",
-      processingNotes: [
-        "Successfully extracted 25 form fields",
-        "Identified required fields: 18",
-        "Auto-mapped 23 fields to patient data",
-        "Requires manual mapping for 2 specialty fields"
-      ],
-      mappingProgress: 95,
-      createdBy: "demo_admin_001",
+    const templateData = [
+      {
+        name: "Standard Prior Authorization",
+        type: "prior_auth" as const,
+        category: "general",
+        description: "Standard prior authorization template for most procedures",
+        isActive: true,
+        createdBy: "System",
+        version: "1.0"
+      }
+    ];
+
+    templateData.forEach(template => {
+      const id = randomUUID();
+      this.preAuthTemplates.set(id, {
+        id,
+        name: template.name,
+        type: template.type,
+        category: template.category,
+        description: template.description,
+        isActive: template.isActive,
+        createdBy: template.createdBy,
+        approvedBy: null,
+        approvedAt: null,
+        version: template.version,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    });
+  }
+
+  // User operations (required for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    // This would typically query the database
+    // For now, return undefined as we're using in-memory storage
+    return undefined;
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    // This would typically upsert to the database
+    // For now, create a basic user object
+    const newUser: User = {
+      id: randomUUID(),
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      profileImageUrl: user.profileImageUrl,
+      employeeId: null,
+      department: null,
+      jobTitle: null,
+      phoneNumber: null,
+      isActive: true,
+      lastLoginAt: new Date(),
+      createdAt: new Date(),
       updatedAt: new Date()
     };
-
-    this.preAuthTemplates.set(nevadaMedicaidTemplate.id, nevadaMedicaidTemplate);
-
-    // Template fields for Nevada Medicaid form
-    const templateFields: TemplateField[] = [
-      {
-        id: "field-001",
-        templateId: "tmpl-001",
-        label: "Recipient Name (Last, First, MI)",
-        fieldType: "text",
-        required: true,
-        position: { x: 100, y: 200, page: 1 },
-        mappingRules: ["patient.lastName + ', ' + patient.firstName + ' ' + patient.middleInitial"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-002",
-        templateId: "tmpl-001",
-        label: "Recipient ID",
-        fieldType: "text",
-        required: true,
-        position: { x: 100, y: 220, page: 1 },
-        mappingRules: ["patient.medicaidId", "patient.memberID"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-003",
-        templateId: "tmpl-001",
-        label: "DOB",
-        fieldType: "date",
-        required: true,
-        position: { x: 400, y: 220, page: 1 },
-        mappingRules: ["patient.dateOfBirth"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-004",
-        templateId: "tmpl-001",
-        label: "Address",
-        fieldType: "text",
-        required: false,
-        position: { x: 100, y: 240, page: 1 },
-        mappingRules: ["patient.address.street"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-005",
-        templateId: "tmpl-001",
-        label: "Phone",
-        fieldType: "text",
-        required: false,
-        position: { x: 400, y: 240, page: 1 },
-        mappingRules: ["patient.phoneNumber"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-006",
-        templateId: "tmpl-001",
-        label: "City",
-        fieldType: "text",
-        required: false,
-        position: { x: 100, y: 260, page: 1 },
-        mappingRules: ["patient.address.city"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-007",
-        templateId: "tmpl-001",
-        label: "State",
-        fieldType: "text",
-        required: false,
-        position: { x: 250, y: 260, page: 1 },
-        mappingRules: ["patient.address.state"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-008",
-        templateId: "tmpl-001",
-        label: "Zip Code",
-        fieldType: "text",
-        required: false,
-        position: { x: 350, y: 260, page: 1 },
-        mappingRules: ["patient.address.zipCode"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-009",
-        templateId: "tmpl-001",
-        label: "Ordering Provider Name",
-        fieldType: "text",
-        required: true,
-        position: { x: 100, y: 320, page: 1 },
-        mappingRules: ["provider.ordering.name"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-010",
-        templateId: "tmpl-001",
-        label: "NPI",
-        fieldType: "text",
-        required: true,
-        position: { x: 400, y: 320, page: 1 },
-        mappingRules: ["provider.ordering.npi"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-011",
-        templateId: "tmpl-001",
-        label: "Facility Name",
-        fieldType: "text",
-        required: true,
-        position: { x: 100, y: 380, page: 1 },
-        mappingRules: ["provider.facility.name"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-012",
-        templateId: "tmpl-001",
-        label: "Service Type",
-        fieldType: "select",
-        required: true,
-        position: { x: 100, y: 450, page: 1 },
-        options: ["Medical", "Surgical", "Maternity", "Pediatric", "Observation"],
-        mappingRules: ["service.type"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-013",
-        templateId: "tmpl-001",
-        label: "Estimated Admission Date",
-        fieldType: "date",
-        required: true,
-        position: { x: 100, y: 480, page: 1 },
-        mappingRules: ["procedure.scheduledDate", "admission.estimatedDate"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-014",
-        templateId: "tmpl-001",
-        label: "Admission Diagnosis 1",
-        fieldType: "text",
-        required: true,
-        position: { x: 100, y: 520, page: 1 },
-        mappingRules: ["diagnosis.primary.code"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-015",
-        templateId: "tmpl-001",
-        label: "Severity of Illness",
-        fieldType: "textarea",
-        required: true,
-        position: { x: 100, y: 200, page: 2 },
-        mappingRules: ["clinical.symptoms", "clinical.labFindings"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-016",
-        templateId: "tmpl-001",
-        label: "Intensity of Service",
-        fieldType: "textarea",
-        required: true,
-        position: { x: 100, y: 300, page: 2 },
-        mappingRules: ["treatment.plan", "clinical.services"],
-        createdAt: new Date()
-      },
-      {
-        id: "field-017",
-        templateId: "tmpl-001",
-        label: "Discharge Plan",
-        fieldType: "textarea",
-        required: false,
-        position: { x: 100, y: 400, page: 2 },
-        mappingRules: ["service.dischargeplan"],
-        createdAt: new Date()
-      }
-    ];
-
-    templateFields.forEach(field => {
-      this.templateFields.set(field.id, field);
-    });
-
-    // Template mapping configurations
-    const mappingConfigs: TemplateMappingConfig[] = [
-      {
-        id: "mapping-001",
-        templateId: "tmpl-001",
-        fieldId: "field-001",
-        patientDataPath: "patient.fullName",
-        confidence: 100.0,
-        isManualMapping: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "mapping-002",
-        templateId: "tmpl-001",
-        fieldId: "field-002",
-        patientDataPath: "insurance.memberId",
-        confidence: 95.0,
-        isManualMapping: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "mapping-003",
-        templateId: "tmpl-001",
-        fieldId: "field-003",
-        patientDataPath: "patient.dateOfBirth",
-        confidence: 100.0,
-        isManualMapping: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: "mapping-004",
-        templateId: "tmpl-001",
-        fieldId: "field-009",
-        patientDataPath: "provider.ordering.name",
-        confidence: 90.0,
-        isManualMapping: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
-
-    mappingConfigs.forEach(config => {
-      this.templateMappingConfigs.set(config.id, config);
-    });
+    return newUser;
   }
 
-  // Pre-Authorization Management methods
-  async getPreAuthRequests(): Promise<PreAuthRequest[]> {
-    return Array.from(this.preAuthRequests.values());
+  // Metrics operations
+  async getMetrics(): Promise<Metric[]> {
+    return Array.from(this.metrics.values());
   }
 
-  async createPreAuthRequest(request: InsertPreAuthRequest): Promise<PreAuthRequest> {
+  async createMetric(insertMetric: InsertMetric): Promise<Metric> {
     const id = randomUUID();
-    const preAuthRequest: PreAuthRequest = { 
+    const metric: Metric = { 
+      ...insertMetric, 
       id, 
-      ...request, 
-      createdAt: new Date(), 
+      updatedAt: new Date(),
+      previousValue: insertMetric.previousValue ?? null,
+      changePercentage: insertMetric.changePercentage ?? null,
+      status: (insertMetric.status as "positive" | "negative" | "neutral" | null) ?? null
+    };
+    this.metrics.set(id, metric);
+    return metric;
+  }
+
+  async updateMetric(id: string, updateMetric: Partial<InsertMetric>): Promise<Metric | undefined> {
+    const existing = this.metrics.get(id);
+    if (!existing) return undefined;
+    
+    const updated: Metric = { 
+      ...existing, 
+      ...updateMetric, 
       updatedAt: new Date() 
     };
-    this.preAuthRequests.set(id, preAuthRequest);
-    return preAuthRequest;
-  }
-
-  async updatePreAuthRequest(id: string, updates: Partial<PreAuthRequest>): Promise<PreAuthRequest | undefined> {
-    const existing = this.preAuthRequests.get(id);
-    if (!existing) return undefined;
-    const updated: PreAuthRequest = { ...existing, ...updates, id, updatedAt: new Date() };
-    this.preAuthRequests.set(id, updated);
+    this.metrics.set(id, updated);
     return updated;
   }
 
-  async getInsurerCriteria(): Promise<InsurerCriteria[]> {
-    return Array.from(this.insurerCriteria.values());
+  // Documentation Requests operations
+  async getDocumentationRequests(): Promise<DocumentationRequest[]> {
+    return Array.from(this.documentationRequests.values());
   }
 
-  async getProcedureAuthRequirements(): Promise<ProcedureAuthRequirement[]> {
-    return Array.from(this.procedureAuthRequirements.values());
+  async createDocumentationRequest(insertRequest: InsertDocumentationRequest): Promise<DocumentationRequest> {
+    const id = randomUUID();
+    const request: DocumentationRequest = { 
+      ...insertRequest, 
+      id 
+    };
+    this.documentationRequests.set(id, request);
+    return request;
   }
 
-  // Clinical Decision Support methods
+  async updateDocumentationRequest(id: string, updateRequest: Partial<InsertDocumentationRequest>): Promise<DocumentationRequest | undefined> {
+    const existing = this.documentationRequests.get(id);
+    if (!existing) return undefined;
+    
+    const updated: DocumentationRequest = { 
+      ...existing, 
+      ...updateRequest 
+    };
+    this.documentationRequests.set(id, updated);
+    return updated;
+  }
+
+  // Payer Behavior operations
+  async getPayerBehavior(): Promise<PayerBehavior[]> {
+    return Array.from(this.payerBehavior.values());
+  }
+
+  async createPayerBehavior(insertBehavior: InsertPayerBehavior): Promise<PayerBehavior> {
+    const id = randomUUID();
+    const behavior: PayerBehavior = { 
+      ...insertBehavior, 
+      id 
+    };
+    this.payerBehavior.set(id, behavior);
+    return behavior;
+  }
+
+  // Redundancy Matrix operations
+  async getRedundancyMatrix(): Promise<RedundancyMatrix[]> {
+    return Array.from(this.redundancyMatrix.values());
+  }
+
+  async createRedundancyMatrix(insertMatrix: InsertRedundancyMatrix): Promise<RedundancyMatrix> {
+    const id = randomUUID();
+    const matrix: RedundancyMatrix = { 
+      ...insertMatrix, 
+      id 
+    };
+    this.redundancyMatrix.set(id, matrix);
+    return matrix;
+  }
+
+  // Predictive Analytics operations
+  async getPredictiveAnalytics(): Promise<PredictiveAnalytics[]> {
+    return Array.from(this.predictiveAnalytics.values());
+  }
+
+  async createPredictiveAnalytics(insertAnalytics: InsertPredictiveAnalytics): Promise<PredictiveAnalytics> {
+    const id = randomUUID();
+    const analytics: PredictiveAnalytics = { 
+      ...insertAnalytics, 
+      id,
+      createdAt: new Date()
+    };
+    this.predictiveAnalytics.set(id, analytics);
+    return analytics;
+  }
+
+  // Denial Predictions operations
+  async getDenialPredictions(): Promise<DenialPredictions[]> {
+    return Array.from(this.denialPredictions.values());
+  }
+
+  async createDenialPredictions(insertPredictions: InsertDenialPredictions): Promise<DenialPredictions> {
+    const id = randomUUID();
+    const predictions: DenialPredictions = { 
+      ...insertPredictions, 
+      id 
+    };
+    this.denialPredictions.set(id, predictions);
+    return predictions;
+  }
+
+  // Risk Factors operations
+  async getRiskFactors(): Promise<RiskFactors[]> {
+    return Array.from(this.riskFactors.values());
+  }
+
+  async createRiskFactors(insertFactors: InsertRiskFactors): Promise<RiskFactors> {
+    const id = randomUUID();
+    const factors: RiskFactors = { 
+      ...insertFactors, 
+      id 
+    };
+    this.riskFactors.set(id, factors);
+    return factors;
+  }
+
+  // Department Performance operations
+  async getDepartmentPerformance(): Promise<DepartmentPerformance[]> {
+    return Array.from(this.departmentPerformance.values());
+  }
+
+  async createDepartmentPerformance(insertPerformance: InsertDepartmentPerformance): Promise<DepartmentPerformance> {
+    const id = randomUUID();
+    const performance: DepartmentPerformance = { 
+      ...insertPerformance, 
+      id 
+    };
+    this.departmentPerformance.set(id, performance);
+    return performance;
+  }
+
+  // Clinical Decision Support operations
   async getPatientStatusMonitoring(): Promise<PatientStatusMonitoring[]> {
     return Array.from(this.patientStatusMonitoring.values());
   }
 
-  async createPatientStatusMonitoring(monitoring: InsertPatientStatusMonitoring): Promise<PatientStatusMonitoring> {
+  async createPatientStatusMonitoring(insertMonitoring: InsertPatientStatusMonitoring): Promise<PatientStatusMonitoring> {
     const id = randomUUID();
-    const statusMonitoring: PatientStatusMonitoring = { 
-      id, 
-      ...monitoring, 
-      createdAt: new Date(), 
-      updatedAt: new Date() 
+    const monitoring: PatientStatusMonitoring = { 
+      ...insertMonitoring, 
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
-    this.patientStatusMonitoring.set(id, statusMonitoring);
-    return statusMonitoring;
+    this.patientStatusMonitoring.set(id, monitoring);
+    return monitoring;
   }
 
   async getClinicalIndicators(patientId?: string): Promise<ClinicalIndicator[]> {
     const indicators = Array.from(this.clinicalIndicators.values());
-    return patientId ? indicators.filter(i => i.patientId === patientId) : indicators;
+    if (patientId) {
+      return indicators.filter(indicator => indicator.patientId === patientId);
+    }
+    return indicators;
   }
 
   async getMedicalRecordAnalysis(): Promise<MedicalRecordAnalysis[]> {
@@ -1986,37 +1089,46 @@ export class MemStorage implements IStorage {
     return Array.from(this.clinicalAlerts.values());
   }
 
-  // Appeal Generation methods
+  async getClinicalDecisions(): Promise<ClinicalDecision[]> {
+    return Array.from(this.clinicalDecisions.values());
+  }
+
+  // Appeal Generation operations
   async getAppealRequests(): Promise<AppealRequest[]> {
     return Array.from(this.appealRequests.values());
   }
 
-  async createAppealRequest(request: InsertAppealRequest): Promise<AppealRequest> {
+  async createAppealRequest(insertRequest: InsertAppealRequest): Promise<AppealRequest> {
     const id = randomUUID();
-    const appealRequest: AppealRequest = { 
-      id, 
-      ...request, 
-      createdAt: new Date(), 
-      updatedAt: new Date() 
+    const request: AppealRequest = { 
+      ...insertRequest, 
+      id,
+      generatedAt: null,
+      submittedAt: null,
+      responseDate: null,
+      reviewedBy: null,
+      approvedBy: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
-    this.appealRequests.set(id, appealRequest);
-    return appealRequest;
+    this.appealRequests.set(id, request);
+    return request;
   }
 
   async getAppealLetters(): Promise<AppealLetter[]> {
     return Array.from(this.appealLetters.values());
   }
 
-  async createAppealLetter(letter: InsertAppealLetter): Promise<AppealLetter> {
+  async createAppealLetter(insertLetter: InsertAppealLetter): Promise<AppealLetter> {
     const id = randomUUID();
-    const appealLetter: AppealLetter = { 
-      id, 
-      ...letter, 
-      createdAt: new Date(), 
-      updatedAt: new Date() 
+    const letter: AppealLetter = { 
+      ...insertLetter, 
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
-    this.appealLetters.set(id, appealLetter);
-    return appealLetter;
+    this.appealLetters.set(id, letter);
+    return letter;
   }
 
   async getAppealOutcomes(): Promise<AppealOutcome[]> {
@@ -2027,313 +1139,106 @@ export class MemStorage implements IStorage {
     return Array.from(this.denialPatterns.values());
   }
 
-  async getClinicalDecisions(): Promise<ClinicalDecision[]> {
-    return Array.from(this.clinicalDecisions.values());
-  }
-
-  // Template Management methods
+  // Template Management operations
   async getPreAuthTemplates(): Promise<PreAuthTemplate[]> {
     return Array.from(this.preAuthTemplates.values());
   }
 
-  async createPreAuthTemplate(template: InsertPreAuthTemplate): Promise<PreAuthTemplate> {
+  async createPreAuthTemplate(insertTemplate: InsertPreAuthTemplate): Promise<PreAuthTemplate> {
     const id = randomUUID();
-    const preAuthTemplate: PreAuthTemplate = { 
-      id, 
-      ...template, 
-      uploadDate: new Date(), 
-      updatedAt: new Date() 
+    const template: PreAuthTemplate = { 
+      ...insertTemplate, 
+      id,
+      approvedBy: null,
+      approvedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
-    this.preAuthTemplates.set(id, preAuthTemplate);
-    return preAuthTemplate;
+    this.preAuthTemplates.set(id, template);
+    return template;
   }
 
-  async updatePreAuthTemplate(id: string, template: Partial<InsertPreAuthTemplate>): Promise<PreAuthTemplate | undefined> {
+  async updatePreAuthTemplate(id: string, updateTemplate: Partial<InsertPreAuthTemplate>): Promise<PreAuthTemplate | undefined> {
     const existing = this.preAuthTemplates.get(id);
     if (!existing) return undefined;
-    const updated: PreAuthTemplate = { ...existing, ...template, updatedAt: new Date() };
+    
+    const updated: PreAuthTemplate = { 
+      ...existing, 
+      ...updateTemplate,
+      updatedAt: new Date()
+    };
     this.preAuthTemplates.set(id, updated);
     return updated;
   }
 
   async deletePreAuthTemplate(id: string): Promise<void> {
     this.preAuthTemplates.delete(id);
-    // Also delete associated template fields and mapping configs
-    const fieldsToDelete = Array.from(this.templateFields.values()).filter(f => f.templateId === id);
-    fieldsToDelete.forEach(field => {
-      this.templateFields.delete(field.id);
-      // Delete mapping configs for this field
-      const configsToDelete = Array.from(this.templateMappingConfigs.values()).filter(c => c.fieldId === field.id);
-      configsToDelete.forEach(config => this.templateMappingConfigs.delete(config.id));
-    });
   }
 
   async getTemplateFields(templateId: string): Promise<TemplateField[]> {
-    return Array.from(this.templateFields.values()).filter(f => f.templateId === templateId);
+    return Array.from(this.templateFields.values()).filter(field => field.templateId === templateId);
   }
 
-  async createTemplateField(field: InsertTemplateField): Promise<TemplateField> {
+  async createTemplateField(insertField: InsertTemplateField): Promise<TemplateField> {
     const id = randomUUID();
-    const templateField: TemplateField = { 
-      id, 
-      ...field, 
-      createdAt: new Date() 
+    const field: TemplateField = { 
+      ...insertField, 
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
-    this.templateFields.set(id, templateField);
-    return templateField;
+    this.templateFields.set(id, field);
+    return field;
   }
 
-  async updateTemplateField(id: string, field: Partial<InsertTemplateField>): Promise<TemplateField | undefined> {
+  async updateTemplateField(id: string, updateField: Partial<InsertTemplateField>): Promise<TemplateField | undefined> {
     const existing = this.templateFields.get(id);
     if (!existing) return undefined;
-    const updated: TemplateField = { ...existing, ...field };
+    
+    const updated: TemplateField = { 
+      ...existing, 
+      ...updateField,
+      updatedAt: new Date()
+    };
     this.templateFields.set(id, updated);
     return updated;
   }
 
   async getTemplateMappingConfigs(templateId: string): Promise<TemplateMappingConfig[]> {
-    const templateFields = Array.from(this.templateFields.values()).filter(f => f.templateId === templateId);
-    const fieldIds = templateFields.map(f => f.id);
-    return Array.from(this.templateMappingConfigs.values()).filter(c => fieldIds.includes(c.fieldId));
+    return Array.from(this.templateMappingConfigs.values()).filter(config => config.templateId === templateId);
   }
 
-  async createTemplateMappingConfig(config: InsertTemplateMappingConfig): Promise<TemplateMappingConfig> {
+  async createTemplateMappingConfig(insertConfig: InsertTemplateMappingConfig): Promise<TemplateMappingConfig> {
     const id = randomUUID();
-    const mappingConfig: TemplateMappingConfig = { 
-      id, 
-      ...config, 
-      createdAt: new Date(), 
-      updatedAt: new Date() 
+    const config: TemplateMappingConfig = { 
+      ...insertConfig, 
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
-    this.templateMappingConfigs.set(id, mappingConfig);
-    return mappingConfig;
+    this.templateMappingConfigs.set(id, config);
+    return config;
   }
 
-  async updateTemplateMappingConfig(id: string, config: Partial<InsertTemplateMappingConfig>): Promise<TemplateMappingConfig | undefined> {
+  async updateTemplateMappingConfig(id: string, updateConfig: Partial<InsertTemplateMappingConfig>): Promise<TemplateMappingConfig | undefined> {
     const existing = this.templateMappingConfigs.get(id);
     if (!existing) return undefined;
-    const updated: TemplateMappingConfig = { ...existing, ...config, updatedAt: new Date() };
+    
+    const updated: TemplateMappingConfig = { 
+      ...existing, 
+      ...updateConfig,
+      updatedAt: new Date()
+    };
     this.templateMappingConfigs.set(id, updated);
     return updated;
   }
-
-  // User operations (required for Replit Auth)
-  async getUser(id: string): Promise<User | undefined> {
-    // In memory storage doesn't support user operations - redirect to database
-    return undefined;
-  }
-
-  async upsertUser(user: UpsertUser): Promise<User> {
-    // In memory storage doesn't support user operations - redirect to database
-    throw new Error("User operations require database storage");
-  }
 }
 
-// Database storage implementation for production use
-export class DatabaseStorage implements IStorage {
-  // User operations (required for Replit Auth)
-  async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
-  }
-
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
-  }
-
-  // Other operations would delegate to MemStorage for now
-  private memStorage = new MemStorage();
-
-  async getMetrics(): Promise<Metric[]> {
-    return this.memStorage.getMetrics();
-  }
-
-  async createMetric(metric: InsertMetric): Promise<Metric> {
-    return this.memStorage.createMetric(metric);
-  }
-
-  async updateMetric(id: string, metric: Partial<InsertMetric>): Promise<Metric | undefined> {
-    return this.memStorage.updateMetric(id, metric);
-  }
-
-  async getDocumentationRequests(): Promise<DocumentationRequest[]> {
-    return this.memStorage.getDocumentationRequests();
-  }
-
-  async createDocumentationRequest(request: InsertDocumentationRequest): Promise<DocumentationRequest> {
-    return this.memStorage.createDocumentationRequest(request);
-  }
-
-  async updateDocumentationRequest(id: string, request: Partial<InsertDocumentationRequest>): Promise<DocumentationRequest | undefined> {
-    return this.memStorage.updateDocumentationRequest(id, request);
-  }
-
-  async getPayerBehavior(): Promise<PayerBehavior[]> {
-    return this.memStorage.getPayerBehavior();
-  }
-
-  async createPayerBehavior(behavior: InsertPayerBehavior): Promise<PayerBehavior> {
-    return this.memStorage.createPayerBehavior(behavior);
-  }
-
-  async getRedundancyMatrix(): Promise<RedundancyMatrix[]> {
-    return this.memStorage.getRedundancyMatrix();
-  }
-
-  async createRedundancyMatrix(matrix: InsertRedundancyMatrix): Promise<RedundancyMatrix> {
-    return this.memStorage.createRedundancyMatrix(matrix);
-  }
-
-  async getPredictiveAnalytics(): Promise<PredictiveAnalytics[]> {
-    return this.memStorage.getPredictiveAnalytics();
-  }
-
-  async createPredictiveAnalytics(analytics: InsertPredictiveAnalytics): Promise<PredictiveAnalytics> {
-    return this.memStorage.createPredictiveAnalytics(analytics);
-  }
-
-  async getDenialPredictions(): Promise<DenialPredictions[]> {
-    return this.memStorage.getDenialPredictions();
-  }
-
-  async createDenialPredictions(predictions: InsertDenialPredictions): Promise<DenialPredictions> {
-    return this.memStorage.createDenialPredictions(predictions);
-  }
-
-  async getRiskFactors(): Promise<RiskFactors[]> {
-    return this.memStorage.getRiskFactors();
-  }
-
-  async createRiskFactors(factors: InsertRiskFactors): Promise<RiskFactors> {
-    return this.memStorage.createRiskFactors(factors);
-  }
-
-  async getDepartmentPerformance(): Promise<DepartmentPerformance[]> {
-    return this.memStorage.getDepartmentPerformance();
-  }
-
-  // Pre-Authorization Management methods
-  async getPreAuthRequests(): Promise<PreAuthRequest[]> {
-    return this.memStorage.getPreAuthRequests();
-  }
-
-  async createPreAuthRequest(request: InsertPreAuthRequest): Promise<PreAuthRequest> {
-    return this.memStorage.createPreAuthRequest(request);
-  }
-
-  async updatePreAuthRequest(id: string, updates: Partial<PreAuthRequest>): Promise<PreAuthRequest | undefined> {
-    return this.memStorage.updatePreAuthRequest(id, updates);
-  }
-
-  async getInsurerCriteria(): Promise<InsurerCriteria[]> {
-    return this.memStorage.getInsurerCriteria();
-  }
-
-  async getProcedureAuthRequirements(): Promise<ProcedureAuthRequirement[]> {
-    return this.memStorage.getProcedureAuthRequirements();
-  }
-
-  // Clinical Decision Support methods
-  async getPatientStatusMonitoring(): Promise<PatientStatusMonitoring[]> {
-    return this.memStorage.getPatientStatusMonitoring();
-  }
-
-  async createPatientStatusMonitoring(monitoring: InsertPatientStatusMonitoring): Promise<PatientStatusMonitoring> {
-    return this.memStorage.createPatientStatusMonitoring(monitoring);
-  }
-
-  async getClinicalIndicators(patientId?: string): Promise<ClinicalIndicator[]> {
-    return this.memStorage.getClinicalIndicators(patientId);
-  }
-
-  async getMedicalRecordAnalysis(): Promise<MedicalRecordAnalysis[]> {
-    return this.memStorage.getMedicalRecordAnalysis();
-  }
-
-  async getClinicalAlerts(): Promise<ClinicalAlert[]> {
-    return this.memStorage.getClinicalAlerts();
-  }
-
-  async getClinicalDecisions(): Promise<ClinicalDecision[]> {
-    return this.memStorage.getClinicalDecisions();
-  }
-
-  // Appeal Generation methods
-  async getAppealRequests(): Promise<AppealRequest[]> {
-    return this.memStorage.getAppealRequests();
-  }
-
-  async createAppealRequest(request: InsertAppealRequest): Promise<AppealRequest> {
-    return this.memStorage.createAppealRequest(request);
-  }
-
-  async getAppealLetters(): Promise<AppealLetter[]> {
-    return this.memStorage.getAppealLetters();
-  }
-
-  async createAppealLetter(letter: InsertAppealLetter): Promise<AppealLetter> {
-    return this.memStorage.createAppealLetter(letter);
-  }
-
-  async getAppealOutcomes(): Promise<AppealOutcome[]> {
-    return this.memStorage.getAppealOutcomes();
-  }
-
-  async getDenialPatterns(): Promise<DenialPattern[]> {
-    return this.memStorage.getDenialPatterns();
-  }
-
-  // Template Management methods
-  async getPreAuthTemplates(): Promise<PreAuthTemplate[]> {
-    return this.memStorage.getPreAuthTemplates();
-  }
-
-  async createPreAuthTemplate(template: InsertPreAuthTemplate): Promise<PreAuthTemplate> {
-    return this.memStorage.createPreAuthTemplate(template);
-  }
-
-  async updatePreAuthTemplate(id: string, template: Partial<InsertPreAuthTemplate>): Promise<PreAuthTemplate | undefined> {
-    return this.memStorage.updatePreAuthTemplate(id, template);
-  }
-
-  async deletePreAuthTemplate(id: string): Promise<void> {
-    return this.memStorage.deletePreAuthTemplate(id);
-  }
-
-  async getTemplateFields(templateId: string): Promise<TemplateField[]> {
-    return this.memStorage.getTemplateFields(templateId);
-  }
-
-  async createTemplateField(field: InsertTemplateField): Promise<TemplateField> {
-    return this.memStorage.createTemplateField(field);
-  }
-
-  async updateTemplateField(id: string, field: Partial<InsertTemplateField>): Promise<TemplateField | undefined> {
-    return this.memStorage.updateTemplateField(id, field);
-  }
-
-  async getTemplateMappingConfigs(templateId: string): Promise<TemplateMappingConfig[]> {
-    return this.memStorage.getTemplateMappingConfigs(templateId);
-  }
-
-  async createTemplateMappingConfig(config: InsertTemplateMappingConfig): Promise<TemplateMappingConfig> {
-    return this.memStorage.createTemplateMappingConfig(config);
-  }
-
-  async updateTemplateMappingConfig(id: string, config: Partial<InsertTemplateMappingConfig>): Promise<TemplateMappingConfig | undefined> {
-    return this.memStorage.updateTemplateMappingConfig(id, config);
-  }
+// Database storage implementation (currently uses MemStorage for fallback)
+export class DatabaseStorage extends MemStorage {
+  // Database-specific implementations would go here
+  // For now, inherit from MemStorage as fallback
 }
 
-export const storage = new DatabaseStorage();
+// Export singleton instance
+export const storage = new MemStorage();
