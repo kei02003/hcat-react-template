@@ -319,8 +319,10 @@ function WriteOffDashboardContent() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Write-Off Analytics</h2>
-          <p className="text-gray-600">Monitor and analyze write-off patterns, bad debt trends, and collection performance</p>
+          <h2 className="text-3xl font-bold tracking-tight">Write-Off Analytics</h2>
+          <p className="text-muted-foreground">
+            Monitor and analyze write-off patterns, bad debt trends, and collection performance
+          </p>
         </div>
         <div className="flex items-center space-x-3">
           <Button variant="outline" size="sm" data-testid="button-refresh">
