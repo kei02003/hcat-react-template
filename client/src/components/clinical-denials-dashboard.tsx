@@ -449,7 +449,7 @@ function DenialsDashboardContent() {
         type: "appeal",
         label: "Generate Appeal",
         icon: Gavel,
-        color: "bg-purple-600 hover:bg-purple-700",
+        color: "bg-[#6e53a3] hover:bg-[#6e53a3]/90",
         description: "AI-powered appeal letter generation",
       });
     }
