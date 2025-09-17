@@ -18,7 +18,9 @@ import {
   type TemplateField, 
   type InsertTemplateField, 
   type TemplateMappingConfig, 
-  type InsertTemplateMappingConfig 
+  type InsertTemplateMappingConfig,
+  type WriteOff,
+  type InsertWriteOff 
 } from "@shared/schema";
 
 import { 
@@ -171,6 +173,17 @@ export interface IStorage {
   getTemplateMappingConfigs(templateId: string): Promise<TemplateMappingConfig[]>;
   createTemplateMappingConfig(config: InsertTemplateMappingConfig): Promise<TemplateMappingConfig>;
   updateTemplateMappingConfig(id: string, config: Partial<InsertTemplateMappingConfig>): Promise<TemplateMappingConfig | undefined>;
+  
+  // Write-Off Analytics
+  getWriteOffs(): Promise<WriteOff[]>;
+  getWriteOffAnalytics(): Promise<{
+    totals: { count: number; amount: number; recoveryAmount: number };
+    byReason: Array<{ reason: string; count: number; amount: number }>;
+    byPayer: Array<{ payer: string; count: number; amount: number }>;
+    byDepartment: Array<{ department: string; count: number; amount: number }>;
+    trends: Array<{ date: string; writeOffAmount: number; badDebtAmount: number; recoveryAmount: number }>;
+    aging: Array<{ bucket: string; amount: number }>;
+  }>;
 }
 
 export class MemStorage implements IStorage {
@@ -194,6 +207,7 @@ export class MemStorage implements IStorage {
   private preAuthTemplates: Map<string, PreAuthTemplate>;
   private templateFields: Map<string, TemplateField>;
   private templateMappingConfigs: Map<string, TemplateMappingConfig>;
+  private writeOffs: Map<string, WriteOff>;
 
   constructor() {
     this.metrics = new Map();
@@ -216,6 +230,7 @@ export class MemStorage implements IStorage {
     this.preAuthTemplates = new Map();
     this.templateFields = new Map();
     this.templateMappingConfigs = new Map();
+    this.writeOffs = new Map();
     this.initializeData();
   }
 
@@ -233,6 +248,7 @@ export class MemStorage implements IStorage {
     this.initializeClinicalDecisions();
     this.initializeAppealRequests();
     this.initializeTemplates();
+    this.initializeWriteOffs();
   }
 
   private initializeMetrics() {
@@ -1231,6 +1247,213 @@ export class MemStorage implements IStorage {
     };
     this.templateMappingConfigs.set(id, updated);
     return updated;
+  }
+
+  private initializeWriteOffs() {
+    const writeOffData = [
+      {
+        claimId: "CLM-WO-001",
+        patientName: "Rodriguez, Maria",
+        patientId: "PT-5541",
+        payer: "Aetna",
+        department: "Emergency Medicine",
+        serviceDate: new Date("2024-10-15"),
+        writeOffDate: new Date("2024-12-20"),
+        amount: "2850.00",
+        reason: "contractual" as const,
+        subReason: "PPO network discount",
+        status: "posted" as const,
+        badDebtFlag: false,
+        agingDays: 66,
+        notes: ["Standard PPO contractual adjustment", "Auto-processed"]
+      },
+      {
+        claimId: "CLM-WO-002", 
+        patientName: "Thompson, David",
+        patientId: "PT-6612",
+        payer: "Medicare",
+        department: "Cardiology",
+        serviceDate: new Date("2024-09-28"),
+        writeOffDate: new Date("2024-12-18"),
+        amount: "5200.00",
+        reason: "bad_debt" as const,
+        subReason: "Patient unresponsive to collection",
+        status: "posted" as const,
+        badDebtFlag: true,
+        badDebtStage: "collection_agency" as const,
+        agencyName: "Healthcare Collections Inc",
+        agingDays: 81,
+        notes: ["Patient relocated, no forwarding address", "Referred to collection agency"]
+      },
+      {
+        claimId: "CLM-WO-003",
+        patientName: "Chen, Li",
+        patientId: "PT-7723",
+        payer: "Blue Cross Blue Shield", 
+        department: "Orthopedics",
+        serviceDate: new Date("2024-11-05"),
+        writeOffDate: new Date("2024-12-22"),
+        amount: "12450.00",
+        reason: "charity" as const,
+        subReason: "Financial hardship approval",
+        status: "posted" as const,
+        badDebtFlag: false,
+        agingDays: 47,
+        notes: ["Charity care application approved", "Patient income below 200% FPL"]
+      },
+      {
+        claimId: "CLM-WO-004",
+        patientName: "Wilson, Sarah",
+        patientId: "PT-8834",
+        payer: "UnitedHealth",
+        department: "Surgery",
+        serviceDate: new Date("2024-08-12"),
+        writeOffDate: new Date("2024-11-15"),
+        amount: "850.00",
+        reason: "small_balance" as const,
+        subReason: "Cost to collect exceeds balance",
+        status: "posted" as const,
+        badDebtFlag: false,
+        agingDays: 95,
+        notes: ["Small balance write-off policy", "Collection cost analysis"]
+      },
+      {
+        claimId: "CLM-WO-005",
+        patientName: "Johnson, Michael",
+        patientId: "PT-9945",
+        payer: "Medicaid",
+        department: "Internal Medicine",
+        serviceDate: new Date("2024-07-20"),
+        writeOffDate: new Date("2024-10-30"),
+        amount: "3200.00",
+        reason: "bad_debt" as const,
+        subReason: "Patient deceased", 
+        status: "posted" as const,
+        badDebtFlag: true,
+        badDebtStage: "deceased" as const,
+        recoveryAmount: "450.00",
+        recoveryDate: new Date("2024-11-15"),
+        agingDays: 102,
+        notes: ["Estate settlement received", "Partial recovery from estate"]
+      },
+      {
+        claimId: "CLM-WO-006",
+        patientName: "Davis, Jennifer",
+        patientId: "PT-1056",
+        payer: "Cigna",
+        department: "Pulmonology",
+        serviceDate: new Date("2024-12-01"),
+        writeOffDate: new Date("2024-12-22"),
+        amount: "1800.00",
+        reason: "prompt_pay" as const,
+        subReason: "Early payment discount",
+        status: "posted" as const,
+        badDebtFlag: false,
+        agingDays: 21,
+        notes: ["10% prompt pay discount applied", "Payment received within 30 days"]
+      }
+    ];
+
+    writeOffData.forEach(writeOff => {
+      const id = randomUUID();
+      this.writeOffs.set(id, {
+        id,
+        claimId: writeOff.claimId,
+        patientName: writeOff.patientName,
+        patientId: writeOff.patientId,
+        payer: writeOff.payer,
+        department: writeOff.department,
+        serviceDate: writeOff.serviceDate,
+        writeOffDate: writeOff.writeOffDate,
+        amount: writeOff.amount,
+        reason: writeOff.reason,
+        subReason: writeOff.subReason,
+        status: writeOff.status,
+        badDebtFlag: writeOff.badDebtFlag,
+        badDebtStage: writeOff.badDebtStage || null,
+        agencyName: writeOff.agencyName || null,
+        recoveryAmount: writeOff.recoveryAmount || null,
+        recoveryDate: writeOff.recoveryDate || null,
+        agingDays: writeOff.agingDays,
+        notes: writeOff.notes,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+    });
+  }
+
+  // Write-Off Analytics operations
+  async getWriteOffs(): Promise<WriteOff[]> {
+    return Array.from(this.writeOffs.values());
+  }
+
+  async getWriteOffAnalytics(): Promise<{
+    totals: { count: number; amount: number; recoveryAmount: number };
+    byReason: Array<{ reason: string; count: number; amount: number }>;
+    byPayer: Array<{ payer: string; count: number; amount: number }>;
+    byDepartment: Array<{ department: string; count: number; amount: number }>;
+    trends: Array<{ date: string; writeOffAmount: number; badDebtAmount: number; recoveryAmount: number }>;
+    aging: Array<{ bucket: string; amount: number }>;
+  }> {
+    const writeOffs = Array.from(this.writeOffs.values());
+    
+    // Calculate totals
+    const totals = {
+      count: writeOffs.length,
+      amount: writeOffs.reduce((sum, wo) => sum + parseFloat(wo.amount), 0),
+      recoveryAmount: writeOffs.reduce((sum, wo) => sum + (wo.recoveryAmount ? parseFloat(wo.recoveryAmount) : 0), 0)
+    };
+
+    // Group by reason
+    const reasonGroups = writeOffs.reduce((acc, wo) => {
+      const key = wo.reason;
+      if (!acc[key]) acc[key] = { reason: key, count: 0, amount: 0 };
+      acc[key].count++;
+      acc[key].amount += parseFloat(wo.amount);
+      return acc;
+    }, {} as Record<string, { reason: string; count: number; amount: number }>);
+
+    // Group by payer
+    const payerGroups = writeOffs.reduce((acc, wo) => {
+      const key = wo.payer;
+      if (!acc[key]) acc[key] = { payer: key, count: 0, amount: 0 };
+      acc[key].count++;
+      acc[key].amount += parseFloat(wo.amount);
+      return acc;
+    }, {} as Record<string, { payer: string; count: number; amount: number }>);
+
+    // Group by department
+    const departmentGroups = writeOffs.reduce((acc, wo) => {
+      const key = wo.department;
+      if (!acc[key]) acc[key] = { department: key, count: 0, amount: 0 };
+      acc[key].count++;
+      acc[key].amount += parseFloat(wo.amount);
+      return acc;
+    }, {} as Record<string, { department: string; count: number; amount: number }>);
+
+    // Generate trends (sample monthly data)
+    const trends = [
+      { date: "2024-10", writeOffAmount: 45000, badDebtAmount: 12000, recoveryAmount: 2500 },
+      { date: "2024-11", writeOffAmount: 52000, badDebtAmount: 15000, recoveryAmount: 3200 },
+      { date: "2024-12", writeOffAmount: 48000, badDebtAmount: 13500, recoveryAmount: 2800 }
+    ];
+
+    // Generate aging analysis
+    const aging = [
+      { bucket: "0-30 days", amount: 8650 },
+      { bucket: "31-60 days", amount: 15200 },
+      { bucket: "61-90 days", amount: 12800 },
+      { bucket: "91+ days", amount: 8750 }
+    ];
+
+    return {
+      totals,
+      byReason: Object.values(reasonGroups),
+      byPayer: Object.values(payerGroups),
+      byDepartment: Object.values(departmentGroups),
+      trends,
+      aging
+    };
   }
 }
 
