@@ -197,7 +197,7 @@ export function TimelyFilingDashboard() {
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{metrics.averageDaysToDeadline}</div>
+              <div className="text-2xl font-bold" style={{ color: '#6e53a3' }}>{metrics.averageDaysToDeadline}</div>
               <p className="text-xs text-muted-foreground">Days remaining across all claims</p>
             </CardContent>
           </Card>

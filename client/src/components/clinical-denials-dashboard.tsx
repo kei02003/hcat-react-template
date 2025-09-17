@@ -827,23 +827,14 @@ function DenialsDashboardContent() {
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger
-              value="overview"
-              className="flex items-center space-x-2"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span>Overview</span>
+            <TabsTrigger value="overview">
+              Overview
             </TabsTrigger>
-            <TabsTrigger value="active" className="flex items-center space-x-2">
-              <FileText className="h-4 w-4" />
-              <span>Active Denials</span>
+            <TabsTrigger value="active">
+              Active Denials
             </TabsTrigger>
-            <TabsTrigger
-              value="analytics"
-              className="flex items-center space-x-2"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span>Analytics</span>
+            <TabsTrigger value="analytics">
+              Analytics
             </TabsTrigger>
           </TabsList>
 
