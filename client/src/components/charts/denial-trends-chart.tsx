@@ -13,6 +13,7 @@ import {
   Cell,
 } from "recharts";
 import { format, subDays } from "date-fns";
+import { useDenialFilters } from '../denial-filter-context';
 
 const denialTrendsData = [
   {
@@ -303,6 +304,17 @@ export function DenialTrendsChart() {
 }
 
 export function DenialCategoryChart() {
+  const { filters, setFilter } = useDenialFilters();
+  
+  const handleBarClick = (data: any) => {
+    // Toggle the filter - if clicking the same category, clear it
+    if (filters.category === data.category) {
+      setFilter('category', undefined);
+    } else {
+      setFilter('category', data.category);
+    }
+  };
+
   const categoryData = [
     {
       category: "Medical Necessity",
@@ -366,10 +378,23 @@ export function DenialCategoryChart() {
               formatter={(value: any, name: string) => [value, "Count"]}
               labelStyle={{ color: "#374151" }}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-              {categoryData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
+            <Bar 
+              dataKey="count" 
+              radius={[4, 4, 0, 0]}
+              onClick={handleBarClick}
+              style={{ cursor: 'pointer' }}
+            >
+              {categoryData.map((entry, index) => {
+                const isSelected = filters.category === entry.category;
+                return (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={isSelected ? "#1D4ED8" : entry.color}
+                    stroke={isSelected ? "#1D4ED8" : "none"}
+                    strokeWidth={isSelected ? 2 : 0}
+                  />
+                );
+              })}
             </Bar>
           </BarChart>
         </ResponsiveContainer>

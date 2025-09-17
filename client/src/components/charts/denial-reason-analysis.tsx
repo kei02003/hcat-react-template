@@ -1,4 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useDenialFilters } from '../denial-filter-context';
 
 const topDenialReasons = [
   {
@@ -105,6 +106,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             <p className="text-xs text-blue-700">{data.preventionTips}</p>
           </div>
         )}
+        <div className="mt-2 p-2 bg-gray-50 rounded">
+          <p className="text-xs text-gray-600">💡 Click bar to filter patient list</p>
+        </div>
       </div>
     );
   }
@@ -112,6 +116,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function DenialReasonAnalysis() {
+  const { filters, setFilter } = useDenialFilters();
+
+  const handleBarClick = (data: any) => {
+    // Toggle the filter - if clicking the same reason code, clear it
+    if (filters.reasonCode === data.reasonCode) {
+      setFilter('reasonCode', undefined);
+    } else {
+      setFilter('reasonCode', data.reasonCode);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="h-80">
@@ -143,18 +158,25 @@ export function DenialReasonAnalysis() {
             <Bar 
               dataKey="frequency" 
               radius={[0, 4, 4, 0]}
+              onClick={handleBarClick}
+              style={{ cursor: 'pointer' }}
             >
-              {topDenialReasons.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
-                  fill={
-                    entry.category === "Medical Necessity" ? "#DC2626" :
-                    entry.category === "Authorization" ? "#EA580C" :
-                    entry.category === "Coverage" ? "#2563EB" :
-                    entry.category === "Coding" ? "#D97706" : "#059669"
-                  } 
-                />
-              ))}
+              {topDenialReasons.map((entry, index) => {
+                const isSelected = filters.reasonCode === entry.reasonCode;
+                const baseColor = entry.category === "Medical Necessity" ? "#DC2626" :
+                                  entry.category === "Authorization" ? "#EA580C" :
+                                  entry.category === "Coverage" ? "#2563EB" :
+                                  entry.category === "Coding" ? "#D97706" : "#059669";
+                
+                return (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={isSelected ? "#1D4ED8" : baseColor}
+                    stroke={isSelected ? "#1D4ED8" : "none"}
+                    strokeWidth={isSelected ? 2 : 0}
+                  />
+                );
+              })}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -196,6 +218,17 @@ export function DenialReasonAnalysis() {
 }
 
 export function PayerDenialPatterns() {
+  const { filters, setFilter } = useDenialFilters();
+
+  const handleBarClick = (data: any) => {
+    // Toggle the filter - if clicking the same payer, clear it
+    if (filters.payer === data.payer) {
+      setFilter('payer', undefined);
+    } else {
+      setFilter('payer', data.payer);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Bar Chart */}
@@ -233,10 +266,20 @@ export function PayerDenialPatterns() {
             <Bar 
               dataKey="denials" 
               radius={[4, 4, 0, 0]}
+              onClick={handleBarClick}
+              style={{ cursor: 'pointer' }}
             >
-              {payerDenialPatterns.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
+              {payerDenialPatterns.map((entry, index) => {
+                const isSelected = filters.payer === entry.payer;
+                return (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={isSelected ? "#1D4ED8" : entry.color}
+                    stroke={isSelected ? "#1D4ED8" : "none"}
+                    strokeWidth={isSelected ? 2 : 0}
+                  />
+                );
+              })}
             </Bar>
           </BarChart>
         </ResponsiveContainer>

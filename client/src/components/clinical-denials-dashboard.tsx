@@ -51,6 +51,7 @@ import {
 } from "./charts/denial-reason-analysis";
 import { PatientAppealModal } from "./patient-appeal-modal";
 import { ClinicalDecisionDashboard } from "./clinical-decision-dashboard";
+import { DenialFilterProvider, useDenialFilters } from "./denial-filter-context";
 
 const clinicalMetrics = [
   {
@@ -356,7 +357,9 @@ function getDaysToAppealColor(days: number) {
   return "text-green-600";
 }
 
-export function ClinicalDenialsDashboard() {
+// Internal dashboard component that uses the filters
+function DenialsDashboardContent() {
+  const { filters, clearFilters, hasActiveFilters } = useDenialFilters();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDepartment, setSelectedDepartment] =
     useState("All Departments");
@@ -408,7 +411,27 @@ export function ClinicalDenialsDashboard() {
     const matchesPayer =
       selectedPayer === "All Payers" || denial.payerName === selectedPayer;
 
-    return matchesSearch && matchesDepartment && matchesPayer;
+    // Chart-based filters from context
+    const matchesCategory =
+      !filters.category || denial.category === filters.category;
+
+    const matchesReasonCode =
+      !filters.reasonCode || 
+      denial.denialReason.includes(filters.reasonCode);
+
+    const matchesChartPayer =
+      !filters.payer || denial.payerName === filters.payer;
+
+    const matchesChartDepartment =
+      !filters.department || denial.department === filters.department;
+
+    return matchesSearch && 
+           matchesDepartment && 
+           matchesPayer && 
+           matchesCategory && 
+           matchesReasonCode && 
+           matchesChartPayer && 
+           matchesChartDepartment;
   });
 
   // Helper functions for contextual RFP module integration
@@ -926,6 +949,53 @@ export function ClinicalDenialsDashboard() {
             {/* Active Denials List */}
             <Card className="healthcare-card">
               <CardContent className="p-6">
+                {/* Active Filters Display */}
+                {hasActiveFilters && (
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Filter className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-900">Active Filters:</span>
+                        <div className="flex flex-wrap gap-2">
+                          {filters.category && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                              Category: {filters.category}
+                            </Badge>
+                          )}
+                          {filters.reasonCode && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                              Reason: {filters.reasonCode}
+                            </Badge>
+                          )}
+                          {filters.payer && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                              Payer: {filters.payer}
+                            </Badge>
+                          )}
+                          {filters.department && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                              Department: {filters.department}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={clearFilters}
+                        className="text-blue-600 border-blue-300 hover:bg-blue-100"
+                        data-testid="button-clear-filters"
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Clear All
+                      </Button>
+                    </div>
+                    <div className="mt-2 text-xs text-blue-700">
+                      Showing {filteredDenials.length} of {activeDenials.length} denials
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-4">
                   {filteredDenials.map((denial, index) => (
                     <div
@@ -2336,5 +2406,14 @@ export function ClinicalDenialsDashboard() {
         )}
       </div>
     </main>
+  );
+}
+
+// Main export component that provides the filter context
+export function ClinicalDenialsDashboard() {
+  return (
+    <DenialFilterProvider>
+      <DenialsDashboardContent />
+    </DenialFilterProvider>
   );
 }
