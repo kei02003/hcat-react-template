@@ -1554,10 +1554,197 @@ function DenialsDashboardContent() {
             </Card>
           </TabsContent>
 
-          {/* Analytics Tab - Lessons Learned */}
+          {/* Analytics Tab - Interactive Charts with Filtered Results */}
           <TabsContent value="analytics" className="space-y-6">
+            {/* Interactive Charts Section */}
+            <div className={`grid gap-6 ${hasActiveFilters ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
+              {/* Left Column: Charts */}
+              <div className="space-y-6">
+                <Card className="healthcare-card">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Denial Reason Analysis
+                      <span className="text-sm font-normal text-gray-600 ml-2">
+                        (Click bars to filter)
+                      </span>
+                    </h3>
+                    <DenialReasonAnalysis />
+                  </CardContent>
+                </Card>
+
+                <Card className="healthcare-card">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Denial Categories
+                      <span className="text-sm font-normal text-gray-600 ml-2">
+                        (Click bars to filter)
+                      </span>
+                    </h3>
+                    <DenialCategoryChart />
+                  </CardContent>
+                </Card>
+
+                <Card className="healthcare-card">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                      Payer Denial Patterns
+                      <span className="text-sm font-normal text-gray-600 ml-2">
+                        (Click bars to filter)
+                      </span>
+                    </h3>
+                    <PayerDenialPatterns />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right Column: Filtered Patient List (only when filters are active) */}
+              {hasActiveFilters && (
+                <div className="space-y-6">
+                  <Card className="healthcare-card">
+                    <CardContent className="p-6">
+                      {/* Active Filters Display */}
+                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Filter className="h-4 w-4 text-blue-600" />
+                            <span className="text-sm font-medium text-blue-900">Active Filters:</span>
+                            <div className="flex flex-wrap gap-2">
+                              {filters.category && (
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                  Category: {filters.category}
+                                </Badge>
+                              )}
+                              {filters.reasonCode && (
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                  Reason: {filters.reasonCode}
+                                </Badge>
+                              )}
+                              {filters.payer && (
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                  Payer: {filters.payer}
+                                </Badge>
+                              )}
+                              {filters.department && (
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                  Department: {filters.department}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={clearFilters}
+                            className="text-blue-600 border-blue-300 hover:bg-blue-100"
+                            data-testid="button-clear-filters-analytics"
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Clear
+                          </Button>
+                        </div>
+                        <div className="mt-2 text-xs text-blue-700">
+                          Showing {filteredDenials.length} of {activeDenials.length} denials
+                        </div>
+                      </div>
+
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Filtered Patient Denials
+                      </h3>
+                      
+                      <div className="space-y-4 max-h-96 overflow-y-auto">
+                        {filteredDenials.length > 0 ? (
+                          filteredDenials.slice(0, 20).map((denial, index) => (
+                            <div
+                              key={index}
+                              className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow"
+                              data-testid={`filtered-denial-${denial.denialId}`}
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex items-start space-x-3">
+                                  <div
+                                    className={`w-2 h-2 rounded-full mt-2 ${
+                                      denial.daysToAppeal <= 14
+                                        ? "bg-red-500 animate-pulse"
+                                        : denial.daysToAppeal <= 30
+                                          ? "bg-orange-500"
+                                          : "bg-green-500"
+                                    }`}
+                                  />
+                                  <div>
+                                    <div className="flex items-center space-x-2 mb-1">
+                                      <span className="font-semibold text-sm text-gray-900">
+                                        {denial.denialId}
+                                      </span>
+                                      {getStatusBadge(denial.status)}
+                                      <Badge
+                                        className={`text-xs ${getCategoryColor(denial.category)}`}
+                                      >
+                                        {denial.category}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-sm text-gray-700 font-medium">
+                                      {denial.patientName}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {denial.department} • {denial.payerName}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      ${denial.deniedAmount.toLocaleString()} • {denial.daysToAppeal} days to appeal
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm font-medium text-gray-900">
+                                    ${denial.deniedAmount.toLocaleString()}
+                                  </p>
+                                  <p className={`text-xs font-medium ${getDaysToAppealColor(denial.daysToAppeal)}`}>
+                                    {denial.daysToAppeal} days left
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-xs text-gray-600 bg-gray-50 rounded p-2">
+                                <strong>Reason:</strong> {denial.denialReason}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8 text-gray-500">
+                            <Filter className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p>No denials match the selected filters</p>
+                          </div>
+                        )}
+                        {filteredDenials.length > 20 && (
+                          <div className="text-center py-2 text-sm text-gray-500">
+                            Showing first 20 of {filteredDenials.length} results
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
+
+            {/* Instructions when no filters are active */}
+            {!hasActiveFilters && (
+              <Card className="healthcare-card border-dashed border-2 border-gray-300">
+                <CardContent className="p-8 text-center">
+                  <Filter className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                    Interactive Analytics
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Click on any bar in the charts above to filter and view specific patient denials.
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    The filtered patient list will appear here side-by-side with the charts.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Key Insights Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t">
               <Card className="healthcare-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
