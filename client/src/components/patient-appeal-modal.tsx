@@ -165,9 +165,9 @@ export function PatientAppealModal({
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-purple-600" />
+            <FileText className="h-5 w-5 text-[#6e53a3]" />
             <span>Appeal Generation - {denial.denialId}</span>
-            <Badge className="ml-2 bg-purple-100 text-purple-800">
+            <Badge className="ml-2 bg-[#6e53a3]/10 text-[#6e53a3]">
               {denial.patientName}
             </Badge>
           </DialogTitle>
@@ -321,7 +321,7 @@ export function PatientAppealModal({
                     <Button
                       onClick={handleGenerateAppeal}
                       disabled={isGenerating || generateAppeal.isPending}
-                      className={`${isGenerating || generateAppeal.isPending ? 'bg-purple-500' : 'bg-purple-600 hover:bg-purple-700'} text-white transition-all duration-200`}
+                      className={`${isGenerating || generateAppeal.isPending ? 'bg-[#6e53a3]/80' : 'bg-[#6e53a3] hover:bg-[#6e53a3]/90'} text-white transition-all duration-200`}
                       size="lg"
                     >
                       {isGenerating || generateAppeal.isPending ? (
