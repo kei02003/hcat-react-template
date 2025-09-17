@@ -898,6 +898,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Write-Off Analytics routes
+  app.get("/api/write-offs", async (req, res) => {
+    try {
+      const writeOffs = await storage.getWriteOffs();
+      res.json(writeOffs);
+    } catch (error) {
+      console.error("Error fetching write-offs:", error);
+      res.status(500).json({ message: "Failed to fetch write-offs" });
+    }
+  });
+
+  app.get("/api/write-offs/analytics", async (req, res) => {
+    try {
+      const analytics = await storage.getWriteOffAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching write-off analytics:", error);
+      res.status(500).json({ message: "Failed to fetch write-off analytics" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
