@@ -1,5 +1,4 @@
 import {
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -12,7 +11,7 @@ import {
   ComposedChart,
   Cell,
 } from "recharts";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import { useWriteOffFilters } from '../writeoff-filter-context';
 
 const writeOffTrendsData = [
@@ -132,15 +131,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function WriteOffTrendsChart() {
   const { filters, setFilter } = useWriteOffFilters();
 
-  const handleDataPointClick = (data: any) => {
+  const handleDataPointClick = (data: any, index: number) => {
     // Set date filter when clicking on a data point
-    const clickedDate = format(new Date(data.date), "yyyy-MM-dd");
-    if (filters.dateFrom === clickedDate) {
-      setFilter('dateFrom', undefined);
-      setFilter('dateTo', undefined);
-    } else {
-      setFilter('dateFrom', clickedDate);
-      setFilter('dateTo', clickedDate);
+    if (data && data.date) {
+      const clickedDate = format(new Date(data.date), "yyyy-MM-dd");
+      if (filters.dateFrom === clickedDate) {
+        setFilter('dateFrom', undefined);
+        setFilter('dateTo', undefined);
+      } else {
+        setFilter('dateFrom', clickedDate);
+        setFilter('dateTo', clickedDate);
+      }
     }
   };
 
@@ -156,7 +157,6 @@ export function WriteOffTrendsChart() {
               left: 20,
               bottom: 5,
             }}
-            onClick={handleDataPointClick}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
             <XAxis
@@ -187,6 +187,8 @@ export function WriteOffTrendsChart() {
               fill="#DC2626"
               name="Total Write-Offs"
               radius={[2, 2, 0, 0]}
+              onClick={handleDataPointClick}
+              style={{ cursor: 'pointer' }}
             />
             <Bar
               yAxisId="amount"
@@ -194,6 +196,8 @@ export function WriteOffTrendsChart() {
               fill="#EA580C"
               name="Bad Debt"
               radius={[2, 2, 0, 0]}
+              onClick={handleDataPointClick}
+              style={{ cursor: 'pointer' }}
             />
             <Line
               yAxisId="rate"
