@@ -40,6 +40,7 @@ import {
   Stethoscope,
   Shield,
   ExternalLink,
+  X,
 } from "lucide-react";
 import {
   DenialTrendsChart,
