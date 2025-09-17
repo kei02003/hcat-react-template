@@ -197,3 +197,37 @@ export type TemplateField = typeof templateFields.$inferSelect;
 export type InsertTemplateField = z.infer<typeof insertTemplateFieldsSchema>;
 export type TemplateMappingConfig = typeof templateMappingConfigs.$inferSelect;
 export type InsertTemplateMappingConfig = z.infer<typeof insertTemplateMappingConfigsSchema>;
+
+// Write-Off Analytics Schema
+export const writeOffs = pgTable("write_offs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  claimId: text("claim_id").notNull(),
+  patientName: text("patient_name").notNull(),
+  patientId: text("patient_id").notNull(),
+  payer: text("payer").notNull(),
+  department: text("department").notNull(),
+  serviceDate: timestamp("service_date").notNull(),
+  writeOffDate: timestamp("write_off_date").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  reason: text("reason").$type<"contractual" | "bad_debt" | "charity" | "admin" | "small_balance" | "prompt_pay" | "other">().notNull(),
+  subReason: text("sub_reason"),
+  status: text("status").$type<"pending" | "approved" | "posted" | "reversed">().default("pending"),
+  badDebtFlag: boolean("bad_debt_flag").default(false),
+  badDebtStage: text("bad_debt_stage").$type<"pre_collection" | "collection_agency" | "bankruptcy" | "deceased" | "other">(),
+  agencyName: text("agency_name"),
+  recoveryAmount: decimal("recovery_amount", { precision: 10, scale: 2 }),
+  recoveryDate: timestamp("recovery_date"),
+  agingDays: integer("aging_days"), // Days from service to write-off
+  notes: text("notes").array().default(sql`ARRAY[]::text[]`),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertWriteOffsSchema = createInsertSchema(writeOffs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type WriteOff = typeof writeOffs.$inferSelect;
+export type InsertWriteOff = z.infer<typeof insertWriteOffsSchema>;
