@@ -99,7 +99,7 @@ export function AppealGenerationDashboard() {
 
   if (isLoadingCases) {
     return <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6e53a3]"></div>
     </div>;
   }
 
@@ -156,12 +156,12 @@ export function AppealGenerationDashboard() {
             <CardTitle className="text-sm font-medium">High-Probability Appeals</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-2xl font-bold text-[#6e53a3]">
               {filteredCases.filter((c: AppealCase) => c.appealProbability > 70).length}
             </div>
             <p className="text-xs text-muted-foreground">Cases &gt;70% success rate</p>
             <div className="flex items-center mt-2">
-              <div className="text-xs text-purple-600 font-medium">
+              <div className="text-xs text-[#6e53a3] font-medium">
                 Avg: {Math.round(filteredCases.reduce((sum: number, c: AppealCase) => sum + c.appealProbability, 0) / filteredCases.length || 0)}%
               </div>
             </div>

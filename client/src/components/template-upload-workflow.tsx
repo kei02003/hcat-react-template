@@ -224,7 +224,7 @@ export function TemplateUploadWorkflow() {
         </div>
         <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
           <DialogTrigger asChild>
-            <Button className="bg-purple-600 hover:bg-purple-700">
+            <Button className="bg-[#6e53a3] hover:bg-[#6e53a3]/90">
               <Plus className="h-4 w-4 mr-2" />
               Upload Template
             </Button>
@@ -256,7 +256,7 @@ export function TemplateUploadWorkflow() {
                     <label htmlFor="template-upload" className="cursor-pointer">
                       {isProcessing ? (
                         <div className="flex items-center justify-center space-x-2">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6e53a3]"></div>
                           <span>Processing template...</span>
                         </div>
                       ) : (
@@ -525,7 +525,7 @@ export function TemplateUploadWorkflow() {
                     </DialogContent>
                   </Dialog>
 
-                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                  <Button size="sm" className="bg-[#6e53a3] hover:bg-[#6e53a3]/90 text-white">
                     <Wand2 className="h-4 w-4 mr-1" />
                     Test Fill
                   </Button>
@@ -547,7 +547,7 @@ export function TemplateUploadWorkflow() {
             <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Templates Uploaded</h3>
             <p className="text-gray-600 mb-4">Upload your first payer form template to get started with intelligent form prepopulation.</p>
-            <Button onClick={() => setShowUploadDialog(true)} className="bg-purple-600 hover:bg-purple-700">
+            <Button onClick={() => setShowUploadDialog(true)} className="bg-[#6e53a3] hover:bg-[#6e53a3]/90">
               <Plus className="h-4 w-4 mr-2" />
               Upload Your First Template
             </Button>

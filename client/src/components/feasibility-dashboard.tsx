@@ -213,7 +213,7 @@ export function FeasibilityDashboard() {
               <CardTitle className="text-sm font-medium">Overall ROI</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold text-[#6e53a3]">
                 {feasibilityMetrics.financialImpact.overallROI.toLocaleString()}
                 %
               </div>
@@ -325,7 +325,7 @@ export function FeasibilityDashboard() {
                     </div>
                     <div className="text-center">
                       <div className="flex items-center justify-center gap-1">
-                        <Clock className="h-4 w-4 text-purple-500" />
+                        <Clock className="h-4 w-4 text-[#6e53a3]/80" />
                         <span className="text-sm font-medium">Resolution</span>
                       </div>
                       <div className="text-xs text-muted-foreground">
@@ -547,7 +547,7 @@ export function FeasibilityDashboard() {
                                 .automationPotential.estimatedSavings,
                             )}
                           </TableCell>
-                          <TableCell className="text-purple-600 font-medium">
+                          <TableCell className="text-[#6e53a3] font-medium">
                             {
                               payer.redundantRequestOpportunities
                                 .automationPotential.paybackPeriod

@@ -1753,7 +1753,7 @@ function DenialsDashboardContent() {
               <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="flex items-center space-x-2">
-                    <Gavel className="h-5 w-5 text-purple-600" />
+                    <Gavel className="h-5 w-5 text-[#6e53a3]" />
                     <span>
                       Appeal Generation - {selectedDenialForRFP.denialId}
                     </span>
@@ -2144,7 +2144,7 @@ function DenialsDashboardContent() {
                         Generate Clinical Summary
                       </Button>
                       <Button 
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                        className="bg-[#6e53a3] hover:bg-[#6e53a3]/90 text-white"
                         onClick={handleGenerateAppealLetter}
                         data-testid="button-generate-appeal-letter"
                       >

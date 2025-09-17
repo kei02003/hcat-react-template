@@ -165,7 +165,7 @@ export default function Landing() {
           <Card className="healthcare-card hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center mb-4">
-                <BarChart3 className="h-8 w-8 text-purple-600" />
+                <BarChart3 className="h-8 w-8 text-[#6e53a3]" />
                 <h3 className="ml-3 text-xl font-semibold text-gray-900">
                   AI Predictions
                 </h3>

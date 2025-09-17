@@ -214,7 +214,7 @@ export function TemplateFieldMapper({ templateFields, onMappingChange, onSave, t
           <Button 
             onClick={handleAutoMapping}
             disabled={autoMappingInProgress}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-[#6e53a3] hover:bg-[#6e53a3]/90"
           >
             {autoMappingInProgress ? (
               <>
