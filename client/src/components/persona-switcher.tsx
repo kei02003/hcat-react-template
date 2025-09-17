@@ -68,7 +68,7 @@ export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwit
     return (
       <div className="flex items-center space-x-3 px-3 py-2">
         <Avatar className="h-8 w-8">
-          <AvatarFallback className="bg-blue-600 text-white text-sm">
+          <AvatarFallback className="bg-[#006d9a] text-white text-sm">
             U
           </AvatarFallback>
         </Avatar>
@@ -77,7 +77,7 @@ export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwit
             Healthcare User
           </span>
           <Badge 
-            className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 border-0"
+            className="text-xs px-2 py-0.5 bg-[#006d9a]/20 text-[#006d9a] border-0"
           >
             Staff
           </Badge>
@@ -110,7 +110,7 @@ export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwit
         >
           <Avatar className="h-8 w-8">
             <AvatarImage src={currentUser.profileImageUrl} alt={`${currentUser.firstName} ${currentUser.lastName}`} />
-            <AvatarFallback className="bg-blue-600 text-white text-sm">
+            <AvatarFallback className="bg-[#006d9a] text-white text-sm">
               {getPersonaInitials(currentUser.firstName, currentUser.lastName)}
             </AvatarFallback>
           </Avatar>
@@ -146,7 +146,7 @@ export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwit
                 key={user.id}
                 onClick={() => handlePersonaSwitch(user)}
                 className={`flex items-center space-x-3 p-3 cursor-pointer hover:bg-gray-50 rounded-md ${
-                  isSelected ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                  isSelected ? 'bg-[#006d9a]/10 border-l-4 border-[#006d9a]/80' : ''
                 }`}
                 data-testid={`persona-option-${user.employeeId}`}
               >
@@ -163,7 +163,7 @@ export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwit
                       {user.firstName} {user.lastName}
                     </p>
                     {isSelected && (
-                      <Badge className="bg-blue-100 text-blue-800 text-xs">Current</Badge>
+                      <Badge className="bg-[#006d9a]/20 text-[#006d9a] text-xs">Current</Badge>
                     )}
                   </div>
                   <p className="text-xs text-gray-500 truncate">{user.jobTitle}</p>

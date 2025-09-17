@@ -198,7 +198,7 @@ export function DemoUserSelector() {
                     <div 
                       className={`p-4 cursor-pointer transition-colors ${
                         selectedUser?.id === user.id 
-                          ? 'bg-blue-50 border-r-4 border-blue-600' 
+                          ? 'bg-[#006d9a]/10 border-r-4 border-[#006d9a]' 
                           : 'hover:bg-gray-50'
                       }`}
                       onClick={() => setSelectedUser(user)}
@@ -207,7 +207,7 @@ export function DemoUserSelector() {
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
-                          <AvatarFallback className="bg-blue-100 text-blue-800">
+                          <AvatarFallback className="bg-[#006d9a]/20 text-[#006d9a]">
                             {user.firstName[0]}{user.lastName[0]}
                           </AvatarFallback>
                         </Avatar>
@@ -260,7 +260,7 @@ export function DemoUserSelector() {
                   <div className="flex items-center space-x-4">
                     <Avatar className="h-16 w-16">
                       <AvatarImage src={selectedUser.profileImageUrl} alt={`${selectedUser.firstName} ${selectedUser.lastName}`} />
-                      <AvatarFallback className="text-lg bg-blue-100 text-blue-800">
+                      <AvatarFallback className="text-lg bg-[#006d9a]/20 text-[#006d9a]">
                         {selectedUser.firstName[0]}{selectedUser.lastName[0]}
                       </AvatarFallback>
                     </Avatar>
@@ -325,7 +325,7 @@ export function DemoUserSelector() {
                   <Separator />
 
                   {/* Login Instructions */}
-                  <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="bg-[#006d9a]/10 p-4 rounded-lg">
                     <h4 className="font-semibold text-blue-900 mb-2">Testing Instructions</h4>
                     <div className="text-sm text-blue-800 space-y-1">
                       <p>• Use <strong>{selectedUser.email}</strong> to test this role</p>

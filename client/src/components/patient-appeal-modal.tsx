@@ -149,7 +149,7 @@ export function PatientAppealModal({
 
   const getProbabilityColor = (probability: number) => {
     if (probability >= 90) return "text-green-600 bg-green-100";
-    if (probability >= 80) return "text-blue-600 bg-blue-100";
+    if (probability >= 80) return "text-[#006d9a] bg-[#006d9a]/20";
     if (probability >= 70) return "text-yellow-600 bg-yellow-100";
     return "text-red-600 bg-red-100";
   };

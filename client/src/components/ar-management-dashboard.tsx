@@ -355,25 +355,25 @@ export function ArManagementDashboard() {
                       </ul>
                     </div>
 
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="bg-[#006d9a]/10 border border-[#006d9a]/30 rounded-lg p-4">
                       <div className="flex items-center space-x-2 mb-2">
-                        <BarChart3 className="h-5 w-5 text-blue-600" />
-                        <span className="font-semibold text-blue-800">
+                        <BarChart3 className="h-5 w-5 text-[#006d9a]" />
+                        <span className="font-semibold text-[#006d9a]">
                           Performance Metrics
                         </span>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-blue-600 font-medium">
+                          <p className="text-[#006d9a] font-medium">
                             Average Age
                           </p>
-                          <p className="text-blue-900 font-bold">52.4 days</p>
+                          <p className="text-[#006d9a] font-bold">52.4 days</p>
                         </div>
                         <div>
-                          <p className="text-blue-600 font-medium">
+                          <p className="text-[#006d9a] font-medium">
                             Collection Priority
                           </p>
-                          <p className="text-blue-900 font-bold">
+                          <p className="text-[#006d9a] font-bold">
                             2,500 accounts
                           </p>
                         </div>
@@ -456,10 +456,10 @@ export function ArManagementDashboard() {
                         <span className="text-sm text-gray-600">
                           Gross Collection Rate
                         </span>
-                        <span className="font-bold text-blue-600">94.2%</span>
+                        <span className="font-bold text-[#006d9a]">94.2%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="w-[94%] bg-blue-500 h-2 rounded-full" />
+                        <div className="w-[94%] bg-[#006d9a]/80 h-2 rounded-full" />
                       </div>
                     </div>
 

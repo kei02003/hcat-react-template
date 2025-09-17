@@ -28,7 +28,7 @@ export function UserProfile() {
         <div className="text-center">
           <p className="text-gray-600">Please log in to view your profile.</p>
           <Button 
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+            className="mt-4 bg-[#006d9a] hover:bg-[#006d9a]/90 text-white"
             onClick={() => window.location.href = "/api/login"}
           >
             Log In
@@ -59,7 +59,7 @@ export function UserProfile() {
           <div className="flex items-center space-x-6">
             <Avatar className="h-20 w-20">
               <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
-              <AvatarFallback className="text-lg font-semibold bg-blue-100 text-blue-800">
+              <AvatarFallback className="text-lg font-semibold bg-[#006d9a]/20 text-[#006d9a]">
                 {user.firstName?.[0]}{user.lastName?.[0]}
               </AvatarFallback>
             </Avatar>
@@ -323,7 +323,7 @@ export function UserProfile() {
                   </div>
                 </div>
                 
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <div className="mt-6 p-4 bg-[#006d9a]/10 rounded-lg">
                   <h4 className="font-semibold text-blue-900 mb-2">Security Notice</h4>
                   <p className="text-sm text-blue-800">
                     Your account activity is monitored for security purposes. All actions are logged

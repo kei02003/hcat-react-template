@@ -111,7 +111,7 @@ export function TimelyFilingDashboard() {
       case "approved":
         return <Badge className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
       case "pending":
-        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge className="bg-[#006d9a]/20 text-[#006d9a] dark:bg-[#006d9a]/95 dark:text-white"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case "at_risk":
         return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100"><AlertTriangle className="w-3 h-3 mr-1" />At Risk</Badge>;
       default:

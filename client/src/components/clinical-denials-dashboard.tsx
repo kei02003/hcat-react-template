@@ -294,7 +294,7 @@ function getStatusBadge(status: string) {
   switch (status) {
     case "Under Review":
       return (
-        <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+        <Badge className="bg-[#006d9a]/20 text-[#006d9a] border-[#006d9a]/30">
           Under Review
         </Badge>
       );
@@ -342,7 +342,7 @@ function getCategoryColor(category: string) {
     case "Authorization":
       return "bg-orange-100 text-orange-800 border-orange-200";
     case "Coverage":
-      return "bg-blue-100 text-blue-800 border-blue-200";
+      return "bg-[#006d9a]/20 text-[#006d9a] border-[#006d9a]/30";
     case "Coding":
       return "bg-yellow-100 text-yellow-800 border-yellow-200";
     case "Documentation":
@@ -755,7 +755,7 @@ function DenialsDashboardContent() {
       case "Highly Recommended":
         return "bg-green-100 text-green-800";
       case "Good Match":
-        return "bg-blue-100 text-blue-800";
+        return "bg-[#006d9a]/20 text-[#006d9a]";
       case "Fair Match":
         return "bg-yellow-100 text-yellow-800";
       default:
@@ -943,29 +943,29 @@ function DenialsDashboardContent() {
               <CardContent className="p-6">
                 {/* Active Filters Display */}
                 {hasActiveFilters && (
-                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mb-4 p-3 bg-[#006d9a]/10 border border-[#006d9a]/30 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <Filter className="h-4 w-4 text-blue-600" />
+                        <Filter className="h-4 w-4 text-[#006d9a]" />
                         <span className="text-sm font-medium text-blue-900">Active Filters:</span>
                         <div className="flex flex-wrap gap-2">
                           {filters.category && (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                            <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
                               Category: {filters.category}
                             </Badge>
                           )}
                           {filters.reasonCode && (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                            <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
                               Reason: {filters.reasonCode}
                             </Badge>
                           )}
                           {filters.payer && (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                            <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
                               Payer: {filters.payer}
                             </Badge>
                           )}
                           {filters.department && (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                            <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
                               Department: {filters.department}
                             </Badge>
                           )}
@@ -975,7 +975,7 @@ function DenialsDashboardContent() {
                         variant="outline"
                         size="sm"
                         onClick={clearFilters}
-                        className="text-blue-600 border-blue-300 hover:bg-blue-100"
+                        className="text-[#006d9a] border-[#006d9a]/40 hover:bg-blue-100"
                         data-testid="button-clear-filters"
                       >
                         <X className="h-4 w-4 mr-1" />
@@ -1158,9 +1158,9 @@ function DenialsDashboardContent() {
                                 </div>
 
                                 {smartFilterEnabled && (
-                                  <div className="bg-blue-50 p-3 rounded-lg border border-orange-200">
+                                  <div className="bg-[#006d9a]/10 p-3 rounded-lg border border-orange-200">
                                     <div className="flex items-center space-x-2 mb-2">
-                                      <Shield className="h-4 w-4 text-blue-600" />
+                                      <Shield className="h-4 w-4 text-[#006d9a]" />
                                       <span className="text-sm font-medium text-blue-900">
                                         AI-Powered Matching Enabled
                                       </span>
@@ -1190,7 +1190,7 @@ function DenialsDashboardContent() {
                                           index === 0 && smartFilterEnabled
                                             ? "border-green-200 bg-green-50"
                                             : index === 1 && smartFilterEnabled
-                                              ? "border-blue-200 bg-blue-50"
+                                              ? "border-[#006d9a]/30 bg-[#006d9a]/10"
                                               : "border-gray-200 hover:bg-gray-50"
                                         }`}
                                       >
@@ -1214,7 +1214,7 @@ function DenialsDashboardContent() {
                                                     ? "text-green-600"
                                                     : index === 1 &&
                                                         smartFilterEnabled
-                                                      ? "text-blue-600"
+                                                      ? "text-[#006d9a]"
                                                       : "text-gray-600"
                                                 }`}
                                               />
@@ -1232,7 +1232,7 @@ function DenialsDashboardContent() {
                                                   )}
                                                 {index === 1 &&
                                                   smartFilterEnabled && (
-                                                    <Badge className="bg-blue-100 text-blue-800 text-xs">
+                                                    <Badge className="bg-[#006d9a]/20 text-[#006d9a] text-xs">
                                                       #2 Match
                                                     </Badge>
                                                   )}
@@ -1305,7 +1305,7 @@ function DenialsDashboardContent() {
                                                         ? "bg-green-500"
                                                         : reviewer.matchScore >=
                                                             60
-                                                          ? "bg-blue-500"
+                                                          ? "bg-[#006d9a]/100"
                                                           : reviewer.matchScore >=
                                                               45
                                                             ? "bg-yellow-500"
@@ -1409,7 +1409,7 @@ function DenialsDashboardContent() {
                                               ? "bg-green-600 hover:bg-green-700"
                                               : index === 1 &&
                                                   smartFilterEnabled
-                                                ? "bg-blue-600 hover:bg-blue-700"
+                                                ? "bg-[#006d9a] hover:bg-[#006d9a]/90"
                                                 : "bg-gray-600 hover:bg-gray-700"
                                           }`}
                                           data-testid={`button-assign-to-${reviewer.id}`}
@@ -1438,7 +1438,7 @@ function DenialsDashboardContent() {
                               </div>
 
                               {/* Performance Overview */}
-                              <div className="bg-blue-50 p-4 rounded">
+                              <div className="bg-[#006d9a]/10 p-4 rounded">
                                 <h4 className="font-medium text-blue-900 mb-2">
                                   Team Performance Summary
                                 </h4>
@@ -1447,7 +1447,7 @@ function DenialsDashboardContent() {
                                     <p className="font-semibold text-blue-900">
                                       41
                                     </p>
-                                    <p className="text-blue-600">
+                                    <p className="text-[#006d9a]">
                                       Total Active Cases
                                     </p>
                                   </div>
@@ -1455,7 +1455,7 @@ function DenialsDashboardContent() {
                                     <p className="font-semibold text-blue-900">
                                       3.1
                                     </p>
-                                    <p className="text-blue-600">
+                                    <p className="text-[#006d9a]">
                                       Avg Review Days
                                     </p>
                                   </div>
@@ -1463,7 +1463,7 @@ function DenialsDashboardContent() {
                                     <p className="font-semibold text-blue-900">
                                       90%
                                     </p>
-                                    <p className="text-blue-600">
+                                    <p className="text-[#006d9a]">
                                       Success Rate
                                     </p>
                                   </div>
@@ -1471,7 +1471,7 @@ function DenialsDashboardContent() {
                                     <p className="font-semibold text-blue-900">
                                       $12.4M
                                     </p>
-                                    <p className="text-blue-600">
+                                    <p className="text-[#006d9a]">
                                       Recovered YTD
                                     </p>
                                   </div>
@@ -1517,7 +1517,7 @@ function DenialsDashboardContent() {
                           <div className="flex gap-2">
                             <Button
                               size="sm"
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              className="bg-[#006d9a] hover:bg-[#006d9a]/90 text-white"
                               data-testid={`button-review-${denial.denialId}`}
                             >
                               <Eye className="h-4 w-4 mr-2" />
@@ -1594,29 +1594,29 @@ function DenialsDashboardContent() {
                   <Card className="healthcare-card">
                     <CardContent className="p-6">
                       {/* Active Filters Display */}
-                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="mb-4 p-3 bg-[#006d9a]/10 border border-[#006d9a]/30 rounded-lg">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <Filter className="h-4 w-4 text-blue-600" />
+                            <Filter className="h-4 w-4 text-[#006d9a]" />
                             <span className="text-sm font-medium text-blue-900">Active Filters:</span>
                             <div className="flex flex-wrap gap-2">
                               {filters.category && (
-                                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
                                   Category: {filters.category}
                                 </Badge>
                               )}
                               {filters.reasonCode && (
-                                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
                                   Reason: {filters.reasonCode}
                                 </Badge>
                               )}
                               {filters.payer && (
-                                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
                                   Payer: {filters.payer}
                                 </Badge>
                               )}
                               {filters.department && (
-                                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                                <Badge variant="secondary" className="bg-[#006d9a]/20 text-[#006d9a]">
                                   Department: {filters.department}
                                 </Badge>
                               )}
@@ -1626,7 +1626,7 @@ function DenialsDashboardContent() {
                             variant="outline"
                             size="sm"
                             onClick={clearFilters}
-                            className="text-blue-600 border-blue-300 hover:bg-blue-100"
+                            className="text-[#006d9a] border-[#006d9a]/40 hover:bg-blue-100"
                             data-testid="button-clear-filters-analytics"
                           >
                             <X className="h-4 w-4 mr-1" />
@@ -1817,12 +1817,12 @@ function DenialsDashboardContent() {
               <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="flex items-center space-x-2">
-                    <Stethoscope className="h-5 w-5 text-blue-600" />
+                    <Stethoscope className="h-5 w-5 text-[#006d9a]" />
                     <span>
                       Clinical Decision Support -{" "}
                       {selectedDenialForRFP.denialId}
                     </span>
-                    <Badge className="ml-2 bg-blue-100 text-blue-800">
+                    <Badge className="ml-2 bg-[#006d9a]/20 text-[#006d9a]">
                       {selectedDenialForRFP.patientName}
                     </Badge>
                   </DialogTitle>
@@ -2071,9 +2071,9 @@ function DenialsDashboardContent() {
                           AI Clinical Recommendations
                         </h4>
                         <div className="space-y-4">
-                          <div className="bg-blue-50 p-4 rounded-lg">
+                          <div className="bg-[#006d9a]/10 p-4 rounded-lg">
                             <div className="flex items-start space-x-3">
-                              <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                              <CheckCircle className="h-5 w-5 text-[#006d9a] mt-0.5" />
                               <div>
                                 <h5 className="font-medium text-blue-900">
                                   Appeal Probability: High (85%)
@@ -2136,7 +2136,7 @@ function DenialsDashboardContent() {
                     {/* Action Buttons */}
                     <div className="flex gap-3">
                       <Button 
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-[#006d9a] hover:bg-[#006d9a]/90 text-white"
                         onClick={handleGenerateClinicalSummary}
                         data-testid="button-generate-clinical-summary"
                       >

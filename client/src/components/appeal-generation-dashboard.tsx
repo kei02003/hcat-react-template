@@ -51,7 +51,7 @@ export function AppealGenerationDashboard() {
     if (probability >= 90) {
       return <Badge className="bg-green-100 text-green-800">Excellent ({probability}%)</Badge>;
     } else if (probability >= 80) {
-      return <Badge className="bg-blue-100 text-blue-800">Very Good ({probability}%)</Badge>;
+      return <Badge className="bg-[#006d9a]/20 text-[#006d9a]">Very Good ({probability}%)</Badge>;
     } else if (probability >= 70) {
       return <Badge className="bg-yellow-100 text-yellow-800">Good ({probability}%)</Badge>;
     }
@@ -63,7 +63,7 @@ export function AppealGenerationDashboard() {
       case 'pending_generation':
         return <Badge className="bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Pending Generation</Badge>;
       case 'generated':
-        return <Badge className="bg-blue-100 text-blue-800"><FileText className="w-3 h-3 mr-1" />Generated</Badge>;
+        return <Badge className="bg-[#006d9a]/20 text-[#006d9a]"><FileText className="w-3 h-3 mr-1" />Generated</Badge>;
       case 'not_recommended':
         return <Badge className="bg-gray-100 text-gray-800">Not Recommended</Badge>;
       default:
@@ -214,7 +214,7 @@ export function AppealGenerationDashboard() {
             </p>
             <div className="flex items-center mt-2">
               <div className="text-xs text-blue-600 font-medium">Target: 20%</div>
-              <Badge className="ml-2 bg-blue-100 text-blue-800 text-xs">Exceeded</Badge>
+              <Badge className="ml-2 bg-[#006d9a]/20 text-[#006d9a] text-xs">Exceeded</Badge>
             </div>
           </CardContent>
         </Card>

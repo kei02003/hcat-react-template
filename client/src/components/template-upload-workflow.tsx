@@ -198,7 +198,7 @@ export function TemplateUploadWorkflow() {
       case "ready":
         return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Ready</Badge>;
       case "processing":
-        return <Badge className="bg-blue-100 text-blue-800">Processing...</Badge>;
+        return <Badge className="bg-[#006d9a]/20 text-[#006d9a]">Processing...</Badge>;
       case "mapping_required":
         return <Badge className="bg-yellow-100 text-yellow-800"><AlertTriangle className="h-3 w-3 mr-1" />Mapping Required</Badge>;
       case "error":
@@ -210,7 +210,7 @@ export function TemplateUploadWorkflow() {
 
   const getMappingProgressColor = (progress: number) => {
     if (progress >= 90) return "bg-green-500";
-    if (progress >= 70) return "bg-blue-500";
+    if (progress >= 70) return "bg-[#006d9a]/80";
     if (progress >= 50) return "bg-yellow-500";
     return "bg-red-500";
   };
@@ -448,7 +448,7 @@ export function TemplateUploadWorkflow() {
 
                   <Dialog open={showMappingDialog} onOpenChange={setShowMappingDialog}>
                     <DialogTrigger asChild>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Button size="sm" className="bg-[#006d9a] hover:bg-[#006d9a]/90 text-white">
                         <Settings className="h-4 w-4 mr-1" />
                         Configure
                       </Button>

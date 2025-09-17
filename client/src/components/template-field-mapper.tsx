@@ -319,7 +319,7 @@ export function TemplateFieldMapper({ templateFields, onMappingChange, onSave, t
             {filteredPatientFields.map((patientField) => (
               <div
                 key={patientField.path}
-                className="border rounded p-3 hover:bg-blue-50 transition-colors cursor-pointer"
+                className="border rounded p-3 hover:bg-[#006d9a]/10 transition-colors cursor-pointer"
                 onClick={() => {
                   // Find the first unmapped required field or any unmapped field
                   const unmappedField = templateFields.find(tf => 

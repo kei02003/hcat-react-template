@@ -236,13 +236,13 @@ export function DenialTrendsChart() {
           </div>
         </div>
 
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+        <div className="bg-[#006d9a]/10 border-l-4 border-[#006d9a] p-3 rounded">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-blue-800">
+              <h4 className="text-sm font-semibold text-[#006d9a]">
                 Appeal Rate
               </h4>
-              <p className="text-xl font-bold text-blue-900">
+              <p className="text-xl font-bold text-[#006d9a]">
                 {(
                   (denialTrendsData.reduce(
                     (sum, day) => sum + day.appealedDenials,

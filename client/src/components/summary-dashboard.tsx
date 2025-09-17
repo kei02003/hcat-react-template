@@ -179,7 +179,7 @@ export function SummaryDashboard() {
         );
       case "pending":
         return (
-          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+          <Badge className="bg-[#006d9a]/20 text-[#006d9a] dark:bg-[#006d9a]/95 dark:text-white">
             <Clock className="w-3 h-3 mr-1" />
             Pending
           </Badge>
@@ -343,7 +343,7 @@ export function SummaryDashboard() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Pending Appeals</span>
-              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
+              <Badge className="bg-[#006d9a]/20 text-[#006d9a] dark:bg-[#006d9a]/95 dark:text-white">
                 {mockQuickStats.pendingAppeals}
               </Badge>
             </div>

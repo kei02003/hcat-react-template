@@ -125,7 +125,7 @@ export function AIRecommendations() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">AI-Powered Recommendations</h3>
             </div>
-            <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+            <Badge className="bg-[#006d9a]/20 text-[#006d9a] border-[#006d9a]/30">
               4 New Insights
             </Badge>
           </div>
@@ -165,7 +165,7 @@ export function AIRecommendations() {
                     <ul className="text-sm text-gray-600 space-y-1">
                       {recommendation.actions.map((action, idx) => (
                         <li key={idx} className="flex items-start">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-2 flex-shrink-0" />
+                          <span className="w-2 h-2 bg-[#006d9a]/80 rounded-full mt-2 mr-2 flex-shrink-0" />
                           {action}
                         </li>
                       ))}
@@ -180,7 +180,7 @@ export function AIRecommendations() {
                       <Button size="sm" variant="outline" data-testid={`button-dismiss-${recommendation.id}`}>
                         Dismiss
                       </Button>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" data-testid={`button-implement-${recommendation.id}`}>
+                      <Button size="sm" className="bg-[#006d9a] hover:bg-[#006d9a]/90 text-white" data-testid={`button-implement-${recommendation.id}`}>
                         Implement
                       </Button>
                     </div>

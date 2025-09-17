@@ -28,7 +28,7 @@ export default function Landing() {
             </div>
             <Button 
               onClick={() => window.location.href = "/api/login"}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-[#006d9a] hover:bg-[#006d9a]/90 text-white"
               data-testid="button-login"
             >
               <Shield className="h-4 w-4 mr-2" />
@@ -53,7 +53,7 @@ export default function Landing() {
             <Button 
               onClick={() => window.location.href = "/api/login"}
               size="lg"
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full sm:w-auto bg-[#006d9a] hover:bg-[#006d9a]/90 text-white"
             >
               Access Dashboard
             </Button>
@@ -223,7 +223,7 @@ export default function Landing() {
             {[
               { role: "System Admin", color: "bg-red-100 text-red-800", level: "Full Access" },
               { role: "Clinical Director", color: "bg-purple-100 text-purple-800", level: "Clinical Oversight" },
-              { role: "Revenue Manager", color: "bg-blue-100 text-blue-800", level: "Complete RCM" },
+              { role: "Revenue Manager", color: "bg-[#006d9a]/20 text-[#006d9a]", level: "Complete RCM" },
               { role: "Billing Manager", color: "bg-green-100 text-green-800", level: "Billing & AR" },
               { role: "Clinical Reviewer", color: "bg-indigo-100 text-indigo-800", level: "Clinical Review" },
               { role: "Denial Specialist", color: "bg-orange-100 text-orange-800", level: "Denial Focus" },
@@ -244,7 +244,7 @@ export default function Landing() {
       </div>
 
       {/* Call to Action */}
-      <div className="bg-blue-600">
+      <div className="bg-[#006d9a]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white">

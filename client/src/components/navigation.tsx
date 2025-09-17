@@ -81,7 +81,7 @@ export function Navigation() {
                       variant={isActive ? "default" : "ghost"}
                       className={`flex items-center space-x-2 ${
                         isActive 
-                          ? "bg-blue-600 text-white" 
+                          ? "bg-[#006d9a] text-white" 
                           : "text-gray-600 hover:text-gray-900"
                       }`}
                       data-testid={`nav-link-${item.path.replace('/', '') || 'home'}`}
@@ -113,7 +113,7 @@ export function Navigation() {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
-                    <AvatarFallback className="bg-blue-100 text-blue-800">
+                    <AvatarFallback className="bg-[#006d9a]/20 text-[#006d9a]">
                       {user.firstName?.[0]}{user.lastName?.[0]}
                     </AvatarFallback>
                   </Avatar>

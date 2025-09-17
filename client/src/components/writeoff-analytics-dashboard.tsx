@@ -192,7 +192,7 @@ function getReasonBadge(reason: string) {
   switch (reason) {
     case "contractual":
       return (
-        <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+        <Badge className="bg-[#006d9a]/20 text-[#006d9a] border-[#006d9a]/30">
           Contractual
         </Badge>
       );
@@ -245,7 +245,7 @@ function getStatusBadge(status: string) {
       );
     case "under_review":
       return (
-        <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+        <Badge className="bg-[#006d9a]/20 text-[#006d9a] border-[#006d9a]/30">
           Under Review
         </Badge>
       );
@@ -455,7 +455,7 @@ function WriteOffDashboardContent() {
             <Card className="healthcare-card">
               <CardContent className="p-6">
                 {/* Active Filters Display */}
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mb-4 p-3 bg-[#006d9a]/10 border border-[#006d9a]/30 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Filter className="h-4 w-4 text-blue-600" />

@@ -47,13 +47,13 @@ export const HEALTHCARE_ROLES = {
     name: 'clinical_director',
     displayName: 'Clinical Director', 
     level: 2,
-    color: 'bg-purple-100 text-purple-800'
+    color: 'bg-[#6e53a3]/20 text-[#6e53a3]'
   },
   REVENUE_CYCLE_MANAGER: {
     name: 'revenue_cycle_manager',
     displayName: 'Revenue Cycle Manager',
     level: 3,
-    color: 'bg-blue-100 text-blue-800'
+    color: 'bg-[#006d9a]/20 text-[#006d9a]'
   },
   BILLING_MANAGER: {
     name: 'billing_manager',
