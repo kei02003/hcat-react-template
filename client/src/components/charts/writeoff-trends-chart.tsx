@@ -258,13 +258,13 @@ export function WriteOffTrendsChart() {
           </div>
         </div>
 
-        <div className="bg-purple-50 border-l-4 border-purple-400 p-3 rounded">
+        <div className="bg-[#6e53a3]/10 border-l-4 border-[#6e53a3] p-3 rounded">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-semibold text-purple-800">
+              <h4 className="text-sm font-semibold text-[#6e53a3]">
                 Recovery Rate
               </h4>
-              <p className="text-xl font-bold text-purple-900">
+              <p className="text-xl font-bold text-[#6e53a3]">
                 {(
                   writeOffTrendsData.reduce(
                     (sum, period) => sum + period.recoveryRate,
@@ -350,7 +350,7 @@ export function WriteOffReasonChart() {
       displayName: "Prompt Pay",
       amount: writeOffTrendsData.reduce((sum, period) => sum + period.promptPayAmount, 0),
       percentage: 7.2,
-      color: "#8B5CF6",
+      color: "#6e53a3",
     },
   ];
 

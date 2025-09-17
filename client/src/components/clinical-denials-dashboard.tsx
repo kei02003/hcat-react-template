@@ -463,7 +463,7 @@ function DenialsDashboardContent() {
         type: "clinical",
         label: "Clinical Review",
         icon: Stethoscope,
-        color: "bg-blue-600 hover:bg-blue-700",
+        color: "bg-[#00a859] hover:bg-[#00a859]/90",
         description: "Medical record analysis and recommendations",
       });
     }
