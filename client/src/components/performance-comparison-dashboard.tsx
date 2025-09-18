@@ -463,7 +463,7 @@ export function PerformanceComparisonDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Performance Comparison</h2>
-          <p className="text-gray-600">Compare denial management metrics across time periods or departments</p>
+          <p className="text-gray-600">Compare denial management metrics across time periods, departments, or sites</p>
         </div>
         <Badge variant="outline" className="text-[#6e53a3] border-[#6e53a3]">
           Analytics Tool
@@ -622,8 +622,8 @@ export function PerformanceComparisonDashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Medical Center Health System">Medical Center Health System</SelectItem>
-                    <SelectItem value="Hendrick Health">Hendrick Health</SelectItem>
+                    <SelectItem value="Medical Center Health System" disabled={site2 === "Medical Center Health System"}>Medical Center Health System</SelectItem>
+                    <SelectItem value="Hendrick Health" disabled={site2 === "Hendrick Health"}>Hendrick Health</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -634,8 +634,8 @@ export function PerformanceComparisonDashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Medical Center Health System">Medical Center Health System</SelectItem>
-                    <SelectItem value="Hendrick Health">Hendrick Health</SelectItem>
+                    <SelectItem value="Medical Center Health System" disabled={site1 === "Medical Center Health System"}>Medical Center Health System</SelectItem>
+                    <SelectItem value="Hendrick Health" disabled={site1 === "Hendrick Health"}>Hendrick Health</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
