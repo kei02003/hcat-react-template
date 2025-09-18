@@ -40,6 +40,19 @@ import {
   type InsertDenialRemark
 } from "@shared/canonical-billing-schema";
 
+import {
+  type Metric as CanonicalMetric,
+  type InsertMetric as InsertCanonicalMetric,
+  type MetricVersion,
+  type InsertMetricVersion,
+  type Result,
+  type InsertResult,
+  type StagingResult,
+  type InsertStagingResult,
+  type MetricLineage,
+  type InsertMetricLineage
+} from "@shared/canonical-metric-schema";
+
 import { 
   type DepartmentPerformance, 
   type InsertDepartmentPerformance 
@@ -76,6 +89,11 @@ import {
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { 
+  CANONICAL_METRICS, 
+  CANONICAL_METRIC_VERSIONS, 
+  generateSampleCanonicalResults 
+} from "./canonical-metric-definitions";
 
 // Define ClinicalDecision type for the demo
 interface ClinicalDecision {
@@ -235,6 +253,35 @@ export interface IStorage {
   getDenialRemarks(orgId?: string, entityId?: string): Promise<DenialRemark[]>;
   createDenialRemark(remark: InsertDenialRemark): Promise<DenialRemark>;
   updateDenialRemark(id: string, remark: Partial<InsertDenialRemark>): Promise<DenialRemark | undefined>;
+  
+  // Canonical Metric System Operations
+  // Base Metrics
+  getCanonicalMetrics(): Promise<CanonicalMetric[]>;
+  createCanonicalMetric(metric: InsertCanonicalMetric): Promise<CanonicalMetric>;
+  updateCanonicalMetric(key: string, metric: Partial<InsertCanonicalMetric>): Promise<CanonicalMetric | undefined>;
+  
+  // Metric Versions
+  getMetricVersions(metricKey?: string): Promise<MetricVersion[]>;
+  createMetricVersion(version: InsertMetricVersion): Promise<MetricVersion>;
+  updateMetricVersion(key: string, version: Partial<InsertMetricVersion>): Promise<MetricVersion | undefined>;
+  getActiveMetricVersions(): Promise<MetricVersion[]>;
+  
+  // Results
+  getResults(orgId?: string, entityId?: string, metricVersionKey?: string): Promise<Result[]>;
+  createResult(result: InsertResult): Promise<Result>;
+  getResultsByGrain(grainKeys: Record<string, string>): Promise<Result[]>;
+  getLatestResults(metricVersionKey: string, orgId?: string, entityId?: string): Promise<Result[]>;
+  
+  // Staging Results
+  getStagingResults(metricVersionKey?: string): Promise<StagingResult[]>;
+  createStagingResult(result: InsertStagingResult): Promise<StagingResult>;
+  promoteStagingResults(metricVersionKey: string): Promise<number>; // Returns count of promoted results
+  clearStagingResults(metricVersionKey?: string): Promise<number>; // Returns count of cleared results
+  
+  // Metric Lineage
+  getMetricLineage(parentResultKey?: string, childResultKey?: string): Promise<MetricLineage[]>;
+  createMetricLineage(lineage: InsertMetricLineage): Promise<MetricLineage>;
+  getMetricHierarchy(metricVersionKey: string): Promise<Result[]>; // Get all related metrics in hierarchy
 }
 
 export class MemStorage implements IStorage {
@@ -268,6 +315,13 @@ export class MemStorage implements IStorage {
   private procedures: Map<string, Procedure>;
   private diagnoses: Map<string, Diagnosis>;
   private denialRemarks: Map<string, DenialRemark>;
+  
+  // Canonical metric system storage
+  private canonicalMetrics: Map<string, CanonicalMetric>;
+  private metricVersions: Map<string, MetricVersion>;
+  private results: Map<string, Result>;
+  private stagingResults: Map<string, StagingResult>;
+  private metricLineage: Map<string, MetricLineage>;
 
   constructor() {
     this.metrics = new Map();
@@ -301,7 +355,15 @@ export class MemStorage implements IStorage {
     this.diagnoses = new Map();
     this.denialRemarks = new Map();
     
+    // Initialize canonical metric system storage
+    this.canonicalMetrics = new Map();
+    this.metricVersions = new Map();
+    this.results = new Map();
+    this.stagingResults = new Map();
+    this.metricLineage = new Map();
+    
     this.initializeData();
+    this.initializeCanonicalMetrics();
   }
 
   private initializeData() {
@@ -961,6 +1023,28 @@ export class MemStorage implements IStorage {
         createdAt: new Date(),
         updatedAt: new Date()
       });
+    });
+  }
+
+  private initializeCanonicalMetrics() {
+    // Initialize canonical metrics definitions
+    CANONICAL_METRICS.forEach(metric => {
+      this.canonicalMetrics.set(metric.metric_key, metric);
+    });
+
+    // Initialize metric versions
+    CANONICAL_METRIC_VERSIONS.forEach(version => {
+      this.metricVersions.set(version.metric_version_key, {
+        ...version,
+        created_datetime: new Date(),
+        updated_datetime: new Date()
+      });
+    });
+
+    // Initialize sample canonical results
+    const sampleResults = generateSampleCanonicalResults();
+    sampleResults.forEach(result => {
+      this.results.set(result.result_key, result);
     });
   }
 
@@ -1671,6 +1755,274 @@ export class MemStorage implements IStorage {
     };
     this.denialRemarks.set(denial_remark_key, updated);
     return updated;
+  }
+
+  // Canonical Metric System Implementation
+
+  // Base Metrics
+  async getCanonicalMetrics(): Promise<CanonicalMetric[]> {
+    return Array.from(this.canonicalMetrics.values());
+  }
+
+  async createCanonicalMetric(metric: InsertCanonicalMetric): Promise<CanonicalMetric> {
+    // Validate metric_key is unique
+    if (this.canonicalMetrics.has(metric.metric_key)) {
+      throw new Error(`Metric with key '${metric.metric_key}' already exists`);
+    }
+    
+    const canonicalMetric: CanonicalMetric = { ...metric };
+    this.canonicalMetrics.set(metric.metric_key, canonicalMetric);
+    return canonicalMetric;
+  }
+
+  async updateCanonicalMetric(key: string, metric: Partial<InsertCanonicalMetric>): Promise<CanonicalMetric | undefined> {
+    const existing = this.canonicalMetrics.get(key);
+    if (!existing) return undefined;
+    
+    const updated: CanonicalMetric = { ...existing, ...metric };
+    this.canonicalMetrics.set(key, updated);
+    return updated;
+  }
+
+  // Metric Versions
+  async getMetricVersions(metricKey?: string): Promise<MetricVersion[]> {
+    const versions = Array.from(this.metricVersions.values());
+    return metricKey ? versions.filter(v => v.metric_key === metricKey) : versions;
+  }
+
+  async createMetricVersion(version: InsertMetricVersion): Promise<MetricVersion> {
+    // Validate metric_version_key is unique
+    if (this.metricVersions.has(version.metric_version_key)) {
+      throw new Error(`Metric version with key '${version.metric_version_key}' already exists`);
+    }
+    
+    // Validate referenced metric exists
+    if (!this.canonicalMetrics.has(version.metric_key)) {
+      throw new Error(`Referenced metric '${version.metric_key}' does not exist`);
+    }
+    
+    const metricVersion: MetricVersion = { 
+      ...version,
+      created_datetime: new Date(),
+      updated_datetime: new Date()
+    };
+    this.metricVersions.set(version.metric_version_key, metricVersion);
+    return metricVersion;
+  }
+
+  async updateMetricVersion(key: string, version: Partial<InsertMetricVersion>): Promise<MetricVersion | undefined> {
+    const existing = this.metricVersions.get(key);
+    if (!existing) return undefined;
+    
+    const updated: MetricVersion = { 
+      ...existing, 
+      ...version,
+      updated_datetime: new Date()
+    };
+    this.metricVersions.set(key, updated);
+    return updated;
+  }
+
+  async getActiveMetricVersions(): Promise<MetricVersion[]> {
+    const now = new Date();
+    return Array.from(this.metricVersions.values()).filter(v => {
+      // Must be explicitly active
+      if (v.is_active !== true) return false;
+      
+      // Must be within valid date window
+      const validFrom = v.valid_from_datetime ? new Date(v.valid_from_datetime) : null;
+      const validTo = v.valid_to_datetime ? new Date(v.valid_to_datetime) : null;
+      
+      if (validFrom && now < validFrom) return false;
+      if (validTo && now >= validTo) return false;
+      
+      return true;
+    });
+  }
+
+  // Results
+  async getResults(orgId?: string, entityId?: string, metricVersionKey?: string): Promise<Result[]> {
+    let results = Array.from(this.results.values());
+    
+    if (orgId) {
+      results = results.filter(r => r.grain_keys?.org_id === orgId);
+    }
+    if (entityId) {
+      results = results.filter(r => r.grain_keys?.entity_id === entityId);
+    }
+    if (metricVersionKey) {
+      results = results.filter(r => r.metric_version_key === metricVersionKey);
+    }
+    
+    return results;
+  }
+
+  async createResult(result: InsertResult): Promise<Result> {
+    // Validate result_key is unique
+    if (this.results.has(result.result_key)) {
+      throw new Error(`Result with key '${result.result_key}' already exists`);
+    }
+    
+    // Validate referenced metric version exists
+    if (!this.metricVersions.has(result.metric_version_key)) {
+      throw new Error(`Referenced metric version '${result.metric_version_key}' does not exist`);
+    }
+    
+    // Validate org_id is present in grain_keys for multi-tenant support
+    if (!result.grain_keys?.org_id) {
+      throw new Error("grain_keys must include org_id for multi-tenant support");
+    }
+    
+    const newResult: Result = { ...result };
+    this.results.set(result.result_key, newResult);
+    return newResult;
+  }
+
+  async getResultsByGrain(grainKeys: Record<string, string>): Promise<Result[]> {
+    return Array.from(this.results.values()).filter(result => {
+      if (!result.grain_keys) return false;
+      return Object.entries(grainKeys).every(([key, value]) => 
+        result.grain_keys?.[key] === value
+      );
+    });
+  }
+
+  async getLatestResults(metricVersionKey: string, orgId?: string, entityId?: string): Promise<Result[]> {
+    let results = Array.from(this.results.values()).filter(r => r.metric_version_key === metricVersionKey);
+    
+    if (orgId) {
+      results = results.filter(r => r.grain_keys?.org_id === orgId);
+    }
+    if (entityId) {
+      results = results.filter(r => r.grain_keys?.entity_id === entityId);
+    }
+    
+    // Sort by as_of_datetime descending to get latest first
+    return results.sort((a, b) => {
+      const dateA = a.as_of_datetime ? new Date(a.as_of_datetime).getTime() : 0;
+      const dateB = b.as_of_datetime ? new Date(b.as_of_datetime).getTime() : 0;
+      return dateB - dateA;
+    });
+  }
+
+  // Staging Results
+  async getStagingResults(metricVersionKey?: string): Promise<StagingResult[]> {
+    const results = Array.from(this.stagingResults.values());
+    return metricVersionKey ? results.filter(r => r.metric_version_key === metricVersionKey) : results;
+  }
+
+  async createStagingResult(result: InsertStagingResult): Promise<StagingResult> {
+    // Validate referenced metric version exists
+    if (!this.metricVersions.has(result.metric_version_key)) {
+      throw new Error(`Referenced metric version '${result.metric_version_key}' does not exist`);
+    }
+    
+    // Validate org_id is present in grain_keys for multi-tenant support
+    if (!result.grain_keys?.org_id) {
+      throw new Error("grain_keys must include org_id for multi-tenant support");
+    }
+    
+    // Generate unique key if not provided (append-only behavior)
+    const key = result.result_key || `${result.metric_version_key}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    const stagingResult: StagingResult = { ...result, result_key: key };
+    this.stagingResults.set(key, stagingResult);
+    return stagingResult;
+  }
+
+  async promoteStagingResults(metricVersionKey: string): Promise<number> {
+    const stagingResults = Array.from(this.stagingResults.values())
+      .filter(r => r.metric_version_key === metricVersionKey);
+    
+    let promoted = 0;
+    const promotedKeys = new Set<string>();
+    
+    for (const stagingResult of stagingResults) {
+      // Convert staging result to final result (upsert behavior)
+      const result: Result = { ...stagingResult };
+      this.results.set(stagingResult.result_key, result);
+      promotedKeys.add(stagingResult.result_key);
+      promoted++;
+    }
+    
+    // Clear only the promoted staging results (idempotent)
+    for (const key of promotedKeys) {
+      this.stagingResults.delete(key);
+    }
+    
+    return promoted;
+  }
+
+  async clearStagingResults(metricVersionKey?: string): Promise<number> {
+    const stagingResults = Array.from(this.stagingResults.entries());
+    const toDelete = metricVersionKey 
+      ? stagingResults.filter(([_, r]) => r.metric_version_key === metricVersionKey)
+      : stagingResults;
+    
+    for (const [key, _] of toDelete) {
+      this.stagingResults.delete(key);
+    }
+    
+    return toDelete.length;
+  }
+
+  // Metric Lineage
+  async getMetricLineage(parentResultKey?: string, childResultKey?: string): Promise<MetricLineage[]> {
+    let lineage = Array.from(this.metricLineage.values());
+    
+    if (parentResultKey) {
+      lineage = lineage.filter(l => l.parent_result_key === parentResultKey);
+    }
+    if (childResultKey) {
+      lineage = lineage.filter(l => l.child_result_key === childResultKey);
+    }
+    
+    return lineage;
+  }
+
+  async createMetricLineage(lineage: InsertMetricLineage): Promise<MetricLineage> {
+    const key = `${lineage.parent_result_key}-${lineage.child_result_key}`;
+    
+    // Validate lineage doesn't already exist (composite uniqueness)
+    if (this.metricLineage.has(key)) {
+      throw new Error(`Metric lineage between '${lineage.parent_result_key}' and '${lineage.child_result_key}' already exists`);
+    }
+    
+    // Validate referenced results exist
+    if (!this.results.has(lineage.parent_result_key)) {
+      throw new Error(`Referenced parent result '${lineage.parent_result_key}' does not exist`);
+    }
+    if (!this.results.has(lineage.child_result_key)) {
+      throw new Error(`Referenced child result '${lineage.child_result_key}' does not exist`);
+    }
+    
+    const metricLineage: MetricLineage = { ...lineage };
+    this.metricLineage.set(key, metricLineage);
+    return metricLineage;
+  }
+
+  async getMetricHierarchy(metricVersionKey: string): Promise<Result[]> {
+    // Get all results for this metric version
+    const directResults = Array.from(this.results.values())
+      .filter(r => r.metric_version_key === metricVersionKey);
+    
+    // Get related results through lineage
+    const resultKeys = new Set(directResults.map(r => r.result_key));
+    const lineage = Array.from(this.metricLineage.values());
+    
+    // Add parent and child results
+    for (const line of lineage) {
+      if (resultKeys.has(line.parent_result_key)) {
+        const childResult = this.results.get(line.child_result_key);
+        if (childResult) resultKeys.add(childResult.result_key);
+      }
+      if (resultKeys.has(line.child_result_key)) {
+        const parentResult = this.results.get(line.parent_result_key);
+        if (parentResult) resultKeys.add(parentResult.result_key);
+      }
+    }
+    
+    return Array.from(resultKeys).map(key => this.results.get(key)!).filter(Boolean);
   }
 
   async getWriteOffAnalytics(): Promise<{
