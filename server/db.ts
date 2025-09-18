@@ -3,6 +3,9 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "../shared/schema";
 import * as authSchema from "../shared/auth-schema";
+import * as canonicalSchema from "../shared/canonical-billing-schema";
+import * as arSchema from "../shared/ar-schema";
+import * as clinicalDenialsSchema from "../shared/clinical-denials-schema";
 
 neonConfig.webSocketConstructor = ws;
 
@@ -17,6 +20,9 @@ export const db = drizzle({
   client: pool, 
   schema: { 
     ...schema, 
-    ...authSchema 
+    ...authSchema,
+    ...canonicalSchema,
+    ...arSchema,
+    ...clinicalDenialsSchema
   } 
 });

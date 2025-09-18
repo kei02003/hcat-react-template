@@ -5,6 +5,8 @@ import { z } from "zod";
 
 export const clinicalDenials = pgTable("clinical_denials", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   denialId: text("denial_id").notNull().unique(),
   claimId: text("claim_id").notNull(),
   patientName: text("patient_name").notNull(),
@@ -40,6 +42,7 @@ export const clinicalDenials = pgTable("clinical_denials", {
 
 export const denialReasons = pgTable("denial_reasons", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
   reasonCode: text("reason_code").notNull().unique(),
   reasonDescription: text("reason_description").notNull(),
   category: text("category").notNull(),
@@ -53,6 +56,8 @@ export const denialReasons = pgTable("denial_reasons", {
 
 export const clinicalReviewers = pgTable("clinical_reviewers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   reviewerId: text("reviewer_id").notNull().unique(),
   reviewerName: text("reviewer_name").notNull(),
   credentials: text("credentials"),
@@ -67,6 +72,8 @@ export const clinicalReviewers = pgTable("clinical_reviewers", {
 
 export const denialTrends = pgTable("denial_trends", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   trendDate: date("trend_date").notNull(),
   totalDenials: integer("total_denials").notNull(),
   deniedAmount: decimal("denied_amount", { precision: 12, scale: 2 }),
@@ -83,6 +90,8 @@ export const denialTrends = pgTable("denial_trends", {
 
 export const denialAppeal = pgTable("denial_appeal", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   appealId: text("appeal_id").notNull().unique(),
   denialId: text("denial_id").notNull(),
   appealLevel: text("appeal_level").$type<"First Level" | "Second Level" | "Third Level" | "External Review">().notNull(),

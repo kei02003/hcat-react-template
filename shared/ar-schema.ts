@@ -5,6 +5,8 @@ import { z } from "zod";
 
 export const arTrends = pgTable("ar_trends", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   date: timestamp("date").notNull(),
   actualAmount: decimal("actual_amount", { precision: 10, scale: 2 }),
   expectedAmount: decimal("expected_amount", { precision: 10, scale: 2 }),
@@ -17,6 +19,8 @@ export const arTrends = pgTable("ar_trends", {
 
 export const arAging = pgTable("ar_aging", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   ageCategory: text("age_category").notNull(), // 0-30, 31-60, 61-90, 90+
   amount: decimal("amount", { precision: 10, scale: 2 }),
   percentage: decimal("percentage", { precision: 5, scale: 2 }),
@@ -26,6 +30,8 @@ export const arAging = pgTable("ar_aging", {
 
 export const financialTrends = pgTable("financial_trends", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   date: timestamp("date").notNull(),
   netCollections: decimal("net_collections", { precision: 10, scale: 2 }),
   grossCharges: decimal("gross_charges", { precision: 10, scale: 2 }),
@@ -36,6 +42,8 @@ export const financialTrends = pgTable("financial_trends", {
 
 export const payerMix = pgTable("payer_mix", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   payerClass: text("payer_class").notNull(),
   percentage: decimal("percentage", { precision: 5, scale: 2 }),
   amount: decimal("amount", { precision: 10, scale: 2 }),
@@ -45,6 +53,8 @@ export const payerMix = pgTable("payer_mix", {
 
 export const arMetrics = pgTable("ar_metrics", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  org_id: varchar("org_id").notNull(),
+  entity_id: varchar("entity_id").notNull(),
   metricName: text("metric_name").notNull(),
   currentValue: decimal("current_value", { precision: 10, scale: 2 }),
   previousValue: decimal("previous_value", { precision: 10, scale: 2 }),

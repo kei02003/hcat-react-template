@@ -23,6 +23,23 @@ import {
   type InsertWriteOff 
 } from "@shared/schema";
 
+import {
+  type Transaction,
+  type InsertTransaction,
+  type Account,
+  type InsertAccount,
+  type Payer,
+  type InsertPayer,
+  type BenefitPlan,
+  type InsertBenefitPlan,
+  type Procedure,
+  type InsertProcedure,
+  type Diagnosis,
+  type InsertDiagnosis,
+  type DenialRemark,
+  type InsertDenialRemark
+} from "@shared/canonical-billing-schema";
+
 import { 
   type DepartmentPerformance, 
   type InsertDepartmentPerformance 
@@ -184,6 +201,40 @@ export interface IStorage {
     trends: Array<{ date: string; writeOffAmount: number; badDebtAmount: number; recoveryAmount: number }>;
     aging: Array<{ bucket: string; amount: number }>;
   }>;
+  
+  // Canonical Billing Model Operations
+  // Transactions
+  getTransactions(orgId?: string, entityId?: string): Promise<Transaction[]>;
+  createTransaction(transaction: InsertTransaction): Promise<Transaction>;
+  updateTransaction(id: string, transaction: Partial<InsertTransaction>): Promise<Transaction | undefined>;
+  
+  // Accounts
+  getAccounts(orgId?: string, entityId?: string): Promise<Account[]>;
+  createAccount(account: InsertAccount): Promise<Account>;
+  updateAccount(id: string, account: Partial<InsertAccount>): Promise<Account | undefined>;
+  
+  // Payers
+  getPayers(orgId?: string): Promise<Payer[]>;
+  createPayer(payer: InsertPayer): Promise<Payer>;
+  updatePayer(id: string, payer: Partial<InsertPayer>): Promise<Payer | undefined>;
+  
+  // Benefit Plans
+  getBenefitPlans(orgId?: string, payerId?: string): Promise<BenefitPlan[]>;
+  createBenefitPlan(plan: InsertBenefitPlan): Promise<BenefitPlan>;
+  updateBenefitPlan(id: string, plan: Partial<InsertBenefitPlan>): Promise<BenefitPlan | undefined>;
+  
+  // Procedures
+  getProcedures(orgId?: string, entityId?: string, accountId?: string): Promise<Procedure[]>;
+  createProcedure(procedure: InsertProcedure): Promise<Procedure>;
+  
+  // Diagnoses
+  getDiagnoses(orgId?: string, entityId?: string, accountId?: string): Promise<Diagnosis[]>;
+  createDiagnosis(diagnosis: InsertDiagnosis): Promise<Diagnosis>;
+  
+  // Denial Remarks
+  getDenialRemarks(orgId?: string, entityId?: string): Promise<DenialRemark[]>;
+  createDenialRemark(remark: InsertDenialRemark): Promise<DenialRemark>;
+  updateDenialRemark(id: string, remark: Partial<InsertDenialRemark>): Promise<DenialRemark | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -208,6 +259,15 @@ export class MemStorage implements IStorage {
   private templateFields: Map<string, TemplateField>;
   private templateMappingConfigs: Map<string, TemplateMappingConfig>;
   private writeOffs: Map<string, WriteOff>;
+  
+  // Canonical billing model storage
+  private transactions: Map<string, Transaction>;
+  private accounts: Map<string, Account>;
+  private payers: Map<string, Payer>;
+  private benefitPlans: Map<string, BenefitPlan>;
+  private procedures: Map<string, Procedure>;
+  private diagnoses: Map<string, Diagnosis>;
+  private denialRemarks: Map<string, DenialRemark>;
 
   constructor() {
     this.metrics = new Map();
@@ -231,6 +291,16 @@ export class MemStorage implements IStorage {
     this.templateFields = new Map();
     this.templateMappingConfigs = new Map();
     this.writeOffs = new Map();
+    
+    // Initialize canonical billing model storage
+    this.transactions = new Map();
+    this.accounts = new Map();
+    this.payers = new Map();
+    this.benefitPlans = new Map();
+    this.procedures = new Map();
+    this.diagnoses = new Map();
+    this.denialRemarks = new Map();
+    
     this.initializeData();
   }
 
@@ -1385,6 +1455,222 @@ export class MemStorage implements IStorage {
   // Write-Off Analytics operations
   async getWriteOffs(): Promise<WriteOff[]> {
     return Array.from(this.writeOffs.values());
+  }
+
+  // Canonical Billing Model Operations
+  async getTransactions(orgId?: string, entityId?: string): Promise<Transaction[]> {
+    const allTransactions = Array.from(this.transactions.values());
+    return allTransactions.filter(t => {
+      if (orgId && t.org_id !== orgId) return false;
+      if (entityId && t.entity_id !== entityId) return false;
+      return true;
+    });
+  }
+
+  async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
+    const transaction_key = randomUUID();
+    const newTransaction: Transaction = {
+      transaction_key,
+      ...transaction,
+      meta_created: new Date(),
+      meta_updated: new Date()
+    };
+    this.transactions.set(transaction_key, newTransaction);
+    return newTransaction;
+  }
+
+  async updateTransaction(transaction_key: string, transaction: Partial<InsertTransaction>): Promise<Transaction | undefined> {
+    const existing = this.transactions.get(transaction_key);
+    if (!existing) return undefined;
+    
+    const updated: Transaction = {
+      ...existing,
+      ...transaction,
+      meta_updated: new Date()
+    };
+    this.transactions.set(transaction_key, updated);
+    return updated;
+  }
+
+  async getAccounts(orgId?: string, entityId?: string): Promise<Account[]> {
+    const allAccounts = Array.from(this.accounts.values());
+    return allAccounts.filter(a => {
+      if (orgId && a.org_id !== orgId) return false;
+      if (entityId && a.entity_id !== entityId) return false;
+      return true;
+    });
+  }
+
+  async createAccount(account: InsertAccount): Promise<Account> {
+    const billing_account_key = randomUUID();
+    const newAccount: Account = {
+      billing_account_key,
+      ...account,
+      meta_created: new Date(),
+      meta_updated: new Date()
+    };
+    this.accounts.set(billing_account_key, newAccount);
+    return newAccount;
+  }
+
+  async updateAccount(billing_account_key: string, account: Partial<InsertAccount>): Promise<Account | undefined> {
+    const existing = this.accounts.get(billing_account_key);
+    if (!existing) return undefined;
+    
+    const updated: Account = {
+      ...existing,
+      ...account,
+      meta_updated: new Date()
+    };
+    this.accounts.set(billing_account_key, updated);
+    return updated;
+  }
+
+  async getPayers(orgId?: string): Promise<Payer[]> {
+    const allPayers = Array.from(this.payers.values());
+    return allPayers.filter(p => {
+      if (orgId && p.org_id !== orgId) return false;
+      return true;
+    });
+  }
+
+  async createPayer(payer: InsertPayer): Promise<Payer> {
+    const payer_key = randomUUID();
+    const newPayer: Payer = {
+      payer_key,
+      ...payer,
+      meta_created: new Date(),
+      meta_updated: new Date()
+    };
+    this.payers.set(payer_key, newPayer);
+    return newPayer;
+  }
+
+  async updatePayer(payer_key: string, payer: Partial<InsertPayer>): Promise<Payer | undefined> {
+    const existing = this.payers.get(payer_key);
+    if (!existing) return undefined;
+    
+    const updated: Payer = {
+      ...existing,
+      ...payer,
+      meta_updated: new Date()
+    };
+    this.payers.set(payer_key, updated);
+    return updated;
+  }
+
+  async getBenefitPlans(orgId?: string, payerId?: string): Promise<BenefitPlan[]> {
+    const allPlans = Array.from(this.benefitPlans.values());
+    return allPlans.filter(p => {
+      if (orgId && p.org_id !== orgId) return false;
+      if (payerId && p.payer_key !== payerId) return false;
+      return true;
+    });
+  }
+
+  async createBenefitPlan(plan: InsertBenefitPlan): Promise<BenefitPlan> {
+    const benefit_plan_key = randomUUID();
+    const newPlan: BenefitPlan = {
+      benefit_plan_key,
+      ...plan,
+      meta_created: new Date(),
+      meta_updated: new Date()
+    };
+    this.benefitPlans.set(benefit_plan_key, newPlan);
+    return newPlan;
+  }
+
+  async updateBenefitPlan(benefit_plan_key: string, plan: Partial<InsertBenefitPlan>): Promise<BenefitPlan | undefined> {
+    const existing = this.benefitPlans.get(benefit_plan_key);
+    if (!existing) return undefined;
+    
+    const updated: BenefitPlan = {
+      ...existing,
+      ...plan,
+      meta_updated: new Date()
+    };
+    this.benefitPlans.set(benefit_plan_key, updated);
+    return updated;
+  }
+
+  async getProcedures(orgId?: string, entityId?: string, accountId?: string): Promise<Procedure[]> {
+    const allProcedures = Array.from(this.procedures.values());
+    return allProcedures.filter(p => {
+      if (orgId && p.org_id !== orgId) return false;
+      if (entityId && p.entity_id !== entityId) return false;
+      if (accountId && p.billing_account_key !== accountId) return false;
+      return true;
+    });
+  }
+
+  async createProcedure(procedure: InsertProcedure): Promise<Procedure> {
+    const procedure_key = randomUUID();
+    const newProcedure: Procedure = {
+      procedure_key,
+      ...procedure,
+      recorded_datetime: new Date(),
+      meta_created: new Date(),
+      meta_updated: new Date()
+    };
+    this.procedures.set(procedure_key, newProcedure);
+    return newProcedure;
+  }
+
+  async getDiagnoses(orgId?: string, entityId?: string, accountId?: string): Promise<Diagnosis[]> {
+    const allDiagnoses = Array.from(this.diagnoses.values());
+    return allDiagnoses.filter(d => {
+      if (orgId && d.org_id !== orgId) return false;
+      if (entityId && d.entity_id !== entityId) return false;
+      if (accountId && d.billing_account_key !== accountId) return false;
+      return true;
+    });
+  }
+
+  async createDiagnosis(diagnosis: InsertDiagnosis): Promise<Diagnosis> {
+    const diagnosis_key = randomUUID();
+    const newDiagnosis: Diagnosis = {
+      diagnosis_key,
+      ...diagnosis,
+      recorded_datetime: new Date(),
+      meta_created: new Date(),
+      meta_updated: new Date()
+    };
+    this.diagnoses.set(diagnosis_key, newDiagnosis);
+    return newDiagnosis;
+  }
+
+  async getDenialRemarks(orgId?: string, entityId?: string): Promise<DenialRemark[]> {
+    const allRemarks = Array.from(this.denialRemarks.values());
+    return allRemarks.filter(r => {
+      if (orgId && r.org_id !== orgId) return false;
+      if (entityId && r.entity_id !== entityId) return false;
+      return true;
+    });
+  }
+
+  async createDenialRemark(remark: InsertDenialRemark): Promise<DenialRemark> {
+    const denial_remark_key = randomUUID();
+    const newRemark: DenialRemark = {
+      denial_remark_key,
+      ...remark,
+      meta_created: new Date(),
+      meta_updated: new Date()
+    };
+    this.denialRemarks.set(denial_remark_key, newRemark);
+    return newRemark;
+  }
+
+  async updateDenialRemark(denial_remark_key: string, remark: Partial<InsertDenialRemark>): Promise<DenialRemark | undefined> {
+    const existing = this.denialRemarks.get(denial_remark_key);
+    if (!existing) return undefined;
+    
+    const updated: DenialRemark = {
+      ...existing,
+      ...remark,
+      meta_updated: new Date()
+    };
+    this.denialRemarks.set(denial_remark_key, updated);
+    return updated;
   }
 
   async getWriteOffAnalytics(): Promise<{
