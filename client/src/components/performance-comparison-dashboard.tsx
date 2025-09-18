@@ -226,6 +226,12 @@ const filterByDepartment = (denials: typeof mockDenialData, department: string) 
   return denials.filter(denial => denial.department === department);
 };
 
+// Filter denials by site
+const filterBySite = (denials: typeof mockDenialData, site: string) => {
+  if (site === "All Sites") return denials;
+  return denials.filter(denial => denial.site === site);
+};
+
 const MetricComparisonCard = ({ title, metric1, metric2, label1, label2, format = "number", icon: Icon }: any) => {
   const value1 = metric1;
   const value2 = metric2;
@@ -290,7 +296,7 @@ const MetricComparisonCard = ({ title, metric1, metric2, label1, label2, format 
 };
 
 export function PerformanceComparisonDashboard() {
-  const [comparisonType, setComparisonType] = useState<"time" | "department">("time");
+  const [comparisonType, setComparisonType] = useState<"time" | "department" | "site">("time");
   
   // Time period comparison states
   const [timePeriod1, setTimePeriod1] = useState("current-month");
@@ -303,6 +309,10 @@ export function PerformanceComparisonDashboard() {
   // Department comparison states
   const [department1, setDepartment1] = useState("Cardiology");
   const [department2, setDepartment2] = useState("Orthopedics");
+
+  // Site comparison states
+  const [site1, setSite1] = useState("Medical Center Health System");
+  const [site2, setSite2] = useState("Hendrick Health");
 
   // Calculate date ranges for predefined periods
   const getDateRange = (period: string) => {
@@ -372,7 +382,7 @@ export function PerformanceComparisonDashboard() {
           `Custom (${range2.start} to ${range2.end})` : 
           periodLabels[timePeriod2 as keyof typeof periodLabels] || timePeriod2,
       };
-    } else {
+    } else if (comparisonType === "department") {
       const data1 = filterByDepartment(mockDenialData, department1);
       const data2 = filterByDepartment(mockDenialData, department2);
       
@@ -384,8 +394,21 @@ export function PerformanceComparisonDashboard() {
         label1: department1,
         label2: department2,
       };
+    } else {
+      // Site comparison
+      const data1 = filterBySite(mockDenialData, site1);
+      const data2 = filterBySite(mockDenialData, site2);
+      
+      return {
+        dataset1: data1,
+        dataset2: data2,
+        metrics1: calculateMetrics(data1),
+        metrics2: calculateMetrics(data2),
+        label1: site1,
+        label2: site2,
+      };
     }
-  }, [comparisonType, timePeriod1, timePeriod2, customStart1, customEnd1, customStart2, customEnd2, department1, department2]);
+  }, [comparisonType, timePeriod1, timePeriod2, customStart1, customEnd1, customStart2, customEnd2, department1, department2, site1, site2]);
 
   // Prepare chart data for side-by-side comparison
   const comparisonChartData = [
@@ -471,6 +494,15 @@ export function PerformanceComparisonDashboard() {
                 <Building2 className="h-4 w-4 mr-2" />
                 Departments
               </Button>
+              <Button
+                variant={comparisonType === "site" ? "default" : "outline"}
+                onClick={() => setComparisonType("site")}
+                className="data-[state=active]:bg-[#6e53a3] data-[state=active]:text-white"
+                data-testid="button-compare-site"
+              >
+                <Building2 className="h-4 w-4 mr-2" />
+                Sites
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -548,7 +580,7 @@ export function PerformanceComparisonDashboard() {
                 )}
               </div>
             </div>
-          ) : (
+          ) : comparisonType === "department" ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">First Department</label>
@@ -577,6 +609,33 @@ export function PerformanceComparisonDashboard() {
                     <SelectItem value="General Surgery">General Surgery</SelectItem>
                     <SelectItem value="Emergency Department">Emergency Department</SelectItem>
                     <SelectItem value="Radiology">Radiology</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">First Site</label>
+                <Select value={site1} onValueChange={setSite1}>
+                  <SelectTrigger data-testid="select-site-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Medical Center Health System">Medical Center Health System</SelectItem>
+                    <SelectItem value="Hendrick Health">Hendrick Health</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Second Site</label>
+                <Select value={site2} onValueChange={setSite2}>
+                  <SelectTrigger data-testid="select-site-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Medical Center Health System">Medical Center Health System</SelectItem>
+                    <SelectItem value="Hendrick Health">Hendrick Health</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
