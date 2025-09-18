@@ -274,6 +274,7 @@ function WriteOffDashboardContent() {
   const { filters, clearFilters, hasActiveFilters } = useWriteOffFilters();
   const [selectedDepartment, setSelectedDepartment] = useState("All Departments");
   const [selectedPayer, setSelectedPayer] = useState("All Payers");
+  const [selectedSite, setSelectedSite] = useState("All Sites");
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredWriteOffs = writeOffData.filter((writeOff) => {
@@ -286,6 +287,8 @@ function WriteOffDashboardContent() {
       writeOff.department === selectedDepartment;
     const matchesPayer =
       selectedPayer === "All Payers" || writeOff.payerName === selectedPayer;
+    const matchesSite =
+      selectedSite === "All Sites" || writeOff.site === selectedSite;
 
     // Chart-based filters from context
     const matchesReason =
@@ -311,6 +314,7 @@ function WriteOffDashboardContent() {
     return matchesSearch && 
            matchesDepartment && 
            matchesPayer && 
+           matchesSite &&
            matchesReason && 
            matchesChartPayer && 
            matchesChartDepartment &&
@@ -405,6 +409,16 @@ function WriteOffDashboardContent() {
                 <SelectItem value="Aetna">Aetna</SelectItem>
                 <SelectItem value="Self-Pay">Self-Pay</SelectItem>
                 <SelectItem value="Uninsured">Uninsured</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={selectedSite} onValueChange={setSelectedSite}>
+              <SelectTrigger className="w-48" data-testid="select-site">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All Sites">All Sites</SelectItem>
+                <SelectItem value="Medical Center Health System">Medical Center Health System</SelectItem>
+                <SelectItem value="Hendrick Health">Hendrick Health</SelectItem>
               </SelectContent>
             </Select>
             {hasActiveFilters && (

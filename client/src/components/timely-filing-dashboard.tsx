@@ -37,6 +37,7 @@ export function TimelyFilingDashboard() {
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [billerFilter, setBillerFilter] = useState("all");
   const [payerFilter, setPayerFilter] = useState("all");
+  const [siteFilter, setSiteFilter] = useState("all");
 
   // Handler functions for action buttons
   const handleViewClaim = (claim: TimelyFilingClaim) => {
@@ -82,9 +83,14 @@ export function TimelyFilingDashboard() {
       claim.payer.toLowerCase().includes(searchQuery.toLowerCase()) ||
       claim.procedureDescription.toLowerCase().includes(searchQuery.toLowerCase());
 
+    const matchesAging = agingFilter === "all" || claim.agingCategory === agingFilter;
+    const matchesDenial = denialFilter === "all" || claim.denialStatus === denialFilter;
+    const matchesDepartment = departmentFilter === "all" || claim.department === departmentFilter;
+    const matchesBiller = billerFilter === "all" || claim.assignedBiller === billerFilter;
     const matchesPayer = payerFilter === "all" || claim.payer === payerFilter;
+    const matchesSite = siteFilter === "all" || claim.site === siteFilter;
 
-    return matchesSearch && matchesPayer;
+    return matchesSearch && matchesAging && matchesDenial && matchesDepartment && matchesBiller && matchesPayer && matchesSite;
   });
 
   const getAgingBadge = (agingCategory: string, daysRemaining: number) => {
@@ -284,6 +290,17 @@ export function TimelyFilingDashboard() {
             <SelectItem value="Humana">Humana</SelectItem>
             <SelectItem value="Cigna">Cigna</SelectItem>
             <SelectItem value="Anthem">Anthem</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={siteFilter} onValueChange={setSiteFilter}>
+          <SelectTrigger className="w-48" data-testid="select-site-filter">
+            <SelectValue placeholder="Filter by Site" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Sites</SelectItem>
+            <SelectItem value="Medical Center Health System">Medical Center Health System</SelectItem>
+            <SelectItem value="Hendrick Health">Hendrick Health</SelectItem>
           </SelectContent>
         </Select>
 

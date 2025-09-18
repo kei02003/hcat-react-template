@@ -372,6 +372,7 @@ function DenialsDashboardContent() {
   const [selectedDepartment, setSelectedDepartment] =
     useState("All Departments");
   const [selectedPayer, setSelectedPayer] = useState("All Payers");
+  const [selectedSite, setSelectedSite] = useState("All Sites");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDenialForRFP, setSelectedDenialForRFP] = useState<any>(null);
   const [activeRFPModule, setActiveRFPModule] = useState<string | null>(null);
@@ -418,6 +419,8 @@ function DenialsDashboardContent() {
       denial.department === selectedDepartment;
     const matchesPayer =
       selectedPayer === "All Payers" || denial.payerName === selectedPayer;
+    const matchesSite =
+      selectedSite === "All Sites" || denial.site === selectedSite;
 
     // Chart-based filters from context
     const matchesCategory =
@@ -436,6 +439,7 @@ function DenialsDashboardContent() {
     return matchesSearch && 
            matchesDepartment && 
            matchesPayer && 
+           matchesSite &&
            matchesCategory && 
            matchesReasonCode && 
            matchesChartPayer && 
@@ -933,6 +937,21 @@ function DenialsDashboardContent() {
                         UnitedHealthcare
                       </SelectItem>
                       <SelectItem value="Humana">Humana</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={selectedSite}
+                    onValueChange={setSelectedSite}
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All Sites">All Sites</SelectItem>
+                      <SelectItem value="Medical Center Health System">
+                        Medical Center Health System
+                      </SelectItem>
+                      <SelectItem value="Hendrick Health">Hendrick Health</SelectItem>
                     </SelectContent>
                   </Select>
                   <div className="flex items-center space-x-2 text-sm text-gray-600">
