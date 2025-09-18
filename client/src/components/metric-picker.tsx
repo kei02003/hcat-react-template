@@ -324,9 +324,10 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                 </h4>
                 <div className="space-y-2">
                   {metrics.map((metric) => (
-                    <div
+                    <label
                       key={metric.metric_version_key}
-                      className={`border rounded-lg p-3 transition-all hover:shadow-sm ${
+                      htmlFor={`checkbox-${metric.metric_version_key}`}
+                      className={`block border rounded-lg p-3 transition-all hover:shadow-sm cursor-pointer ${
                         selectedMetrics.includes(metric.metric_version_key)
                           ? 'border-blue-300 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
@@ -335,6 +336,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                     >
                       <div className="flex items-start space-x-3">
                         <Checkbox
+                          id={`checkbox-${metric.metric_version_key}`}
                           checked={selectedMetrics.includes(metric.metric_version_key)}
                           onCheckedChange={() => handleMetricToggle(metric.metric_version_key)}
                           className="mt-1"
@@ -377,7 +379,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </label>
                   ))}
                 </div>
               </div>
