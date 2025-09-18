@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the strategic build path for evolving our healthcare revenue cycle management application to balance standardization with client-specific requirements. The goal is to create a configurable, multi-tenant platform rather than custom versions for each client.
+This document outlines the strategic build path for evolving our healthcare revenue cycle management application using a modern data lakehouse architecture with Databricks. Based on the Health Catalyst Claims EDC canonical model analysis, we are pivoting from a traditional REST API approach to a direct lakehouse integration that aligns with enterprise healthcare data standards.
 
 ## Client Requirements (RFP Context)
 
@@ -33,22 +33,52 @@ This document outlines the strategic build path for evolving our healthcare reve
 - 31 existing KPIs converted to standardized canonical metric definitions
 - Storage integration with canonical metrics (in-memory with sample data)
 - Multi-tenant enforcement via grain_keys with org_id validation
+- **Health Catalyst Claims EDC model analysis** - identified enterprise lakehouse architecture requirements
 
-### ❌ Critical Gaps
-- API routes for canonical metric operations (CRUD, querying, staging)
-- Frontend integration to consume canonical metrics instead of legacy KPIs
-- Database persistence for canonical metrics (currently in-memory)
-- Real transaction-level data model for billing/claims
-- No standardized data ingestion framework
+### 🔄 Architecture Pivot: Traditional API → Databricks Lakehouse
+**Analysis of Health Catalyst Claims EDC revealed:**
+- Complex data model with 10+ entities (contract, encounter, encounter_item, medical_claim, member, etc.)
+- Extensive use of `struct<>` data types optimized for analytical workloads
+- dbt-style configuration designed for modern data platforms
+- Multi-tenant isolation via organization_code in contract entity
+- Rich financial and clinical data perfect for canonical metric calculations
+
+### ❌ Updated Critical Gaps
+- Databricks workspace setup and Delta Lake table creation
+- Direct lakehouse integration for canonical metric calculations
+- Frontend integration with Databricks SQL Warehouse instead of REST APIs
+- Health Catalyst Claims EDC implementation in Delta Lake
+- Databricks job orchestration for canonical metric pipeline
 
 ## Strategic Build Path
 
-### Phase 1A: Foundation ✅ COMPLETED
+### Phase 1A: Foundation ✅ COMPLETED + Architecture Pivot
 
-#### 1. Canonical Data Model (CDM) ✅ COMPLETED
-Organizational and entity identifiers implemented via grain_keys structure in canonical metric system.
+#### 1. Canonical Metric System ✅ COMPLETED
+Implemented Health Catalyst EDC canonical metric model with multi-tenant grain_keys structure.
 
-#### 2. Health Catalyst Canonical Metric System ✅ COMPLETED
+#### 2. Claims EDC Analysis ✅ COMPLETED
+Analyzed Health Catalyst Claims EDC model revealing enterprise lakehouse architecture requirements:
+
+```yaml
+# Health Catalyst Claims EDC Models (10+ entities)
+contract:          # Multi-tenant isolation via organization_code
+encounter:         # Patient encounters with clinical coding
+encounter_item:    # Detailed line items with financial data
+medical_claim:     # Claims with comprehensive billing information
+member:            # Patient demographics and enrollment
+pharmacy_claim:    # Prescription drug claims
+# ... additional models
+```
+
+#### 3. Architecture Decision ✅ COMPLETED
+**Databricks Lakehouse Architecture Selected** based on:
+- Health Catalyst Claims EDC designed for analytical workloads
+- Complex `struct<>` data types requiring modern data platform
+- Enterprise-scale multi-tenant data model
+- Direct integration with canonical metric calculations
+
+#### 4. Health Catalyst Canonical Metric System ✅ COMPLETED
 Implemented the official Health Catalyst EDC metric model for standardized KPI management:
 
 ```typescript
@@ -131,13 +161,13 @@ metric_lineage = {
 }
 ```
 
-#### 3. Dashboard Template Engine (IN PROGRESS)
-Convert existing dashboards to configurable templates:
-- ✅ Canonical metric definitions with proper metadata schemas
-- ❌ Template-based rendering with canonical metric references
-- ❌ Enable/disable metrics per client via configuration
-- ❌ Dynamic widget rendering based on canonical metric results
-- ❌ Frontend integration to consume canonical metrics
+#### 5. Lakehouse Integration Architecture (NEW PRIORITY)
+Databricks-first approach replacing traditional API layer:
+- ✅ Canonical metric definitions compatible with Delta Lake
+- ❌ Databricks workspace setup and Delta Lake table creation
+- ❌ Health Catalyst Claims EDC implementation in Delta Lake
+- ❌ Frontend integration with Databricks SQL Warehouse
+- ❌ Canonical metric calculation jobs in Databricks
 
 ### Phase 1B: Core RFP Requirements (3-4 months)
 
@@ -273,12 +303,6 @@ ingestion_logs = {
 }
 ```
 
-#### 11. Peterson Health & Citizens Medical Center Integration
-- Source-specific adapters using standard framework
-- Data validation and reconciliation
-- Automated ingestion monitoring
-- Real-time data quality dashboards
-
 ## Key Standardization Strategies
 
 ### 1. Configuration Over Customization
@@ -332,73 +356,83 @@ standard_claim_format = {
    - ✅ Created canonical metric schema with proper Health Catalyst EDC standards
    - ✅ Built storage integration with multi-tenant enforcement via grain_keys
    - ✅ Converted 31 existing KPIs to canonical metric definitions (exceeded initial goal of 5)
-   - ✅ Implemented sample data generation and initialization
+   - ✅ Analyzed Health Catalyst Claims EDC model and identified lakehouse architecture requirements
 
-### Immediate (Next 2-4 weeks)
-1. **API Integration and Production Readiness**
-   - Implement canonical metric REST API endpoints (CRUD operations, results querying)
-   - Add database persistence for canonical metrics (replace in-memory storage)
-   - Create staging result management and promotion workflows
-   - Add comprehensive test coverage for metric validation and tenant isolation
+### Immediate (Next 2-4 weeks) - Databricks Lakehouse Setup
+1. **Databricks Infrastructure Setup**
+   - Configure Databricks workspace with appropriate access controls
+   - Set up Delta Lake storage for Health Catalyst Claims EDC models
+   - Implement Unity Catalog for data governance and lineage tracking
+   - Configure Databricks SQL Warehouse for frontend queries
 
-2. **Frontend Integration**
-   - Convert existing dashboards to consume canonical metric results
-   - Update React Query hooks to use new canonical metric endpoints
-   - Implement dynamic widget rendering based on canonical metric configuration
-   - Add metric enablement/configuration per client organization
+2. **Health Catalyst Claims EDC Implementation**
+   - Create Delta Lake tables for all 10+ Claims EDC models
+   - Implement multi-tenant row-level security via organization_code
+   - Set up data ingestion pipelines for claims transaction data
+   - Validate data model with sample healthcare transaction data
 
-3. **Transaction-Level Data Model**
-   - Add orgId/entityId to all existing schemas
-   - Implement core transaction tables (claims, payments, adjustments)
-   - Build data aggregation services to populate canonical metric results
+3. **Canonical Metric Calculation Pipeline**
+   - Build Databricks jobs for canonical metric calculations from Claims EDC data
+   - Implement staging → result promotion workflows in Delta Lake
+   - Create automated metric calculation schedules (daily/real-time)
+   - Set up metric lineage tracking and audit logging
 
-### Phase 1 Delivery (Month 1-4)
-1. **Complete Canonical Metric Integration**
-   - ✅ Foundation completed - proceed to API and frontend integration
-   - Build canonical metric REST endpoints with proper tenant isolation
-   - Convert all existing dashboard components to consume canonical results
-   - Implement metric lifecycle management (versioning, activation, retirement)
+### Phase 1 Delivery (Month 1-4) - Lakehouse Integration
+1. **Complete Databricks Integration**
+   - ✅ Canonical metric foundation completed
+   - Implement Databricks SQL Warehouse integration for frontend queries
+   - Build canonical metric calculation pipelines in Databricks
+   - Set up automated data quality monitoring and alerting
 
-2. **Transaction Model and Data Aggregation**
-   - Implement missing transaction-level tables (claims, payments, adjustments)
-   - Build canonical result calculation services from transaction data
-   - Create real-time and batch processing pipelines for metric computation
-   - Integrate with existing canonical metric infrastructure
+2. **Claims EDC Data Model Implementation**
+   - Deploy complete Health Catalyst Claims EDC model in Delta Lake
+   - Implement sophisticated multi-tenant data isolation and security
+   - Build real-time and batch data ingestion from healthcare systems
+   - Create comprehensive data validation and quality checks
 
-3. **Dashboard Templates Enhancement**
-   - Leverage existing 4 core dashboards and convert to canonical metric consumption
-   - Implement client-specific metric configuration via canonical metric versioning
-   - Create multi-entity comparison features using grain_keys structure
-   - Build template engine consuming canonical metric results
+3. **Frontend Lakehouse Integration**
+   - Replace REST API calls with direct Databricks SQL Warehouse queries
+   - Implement efficient caching layer for dashboard performance
+   - Build dynamic dashboards consuming canonical metric results from Delta Lake
+   - Create client-specific metric configuration via canonical metric versioning
 
-### Phase 2 Delivery (Month 5-8)
-1. **Advanced Analytics**
-   - Implement additional metrics using canonical metric system
-   - Build advanced analytics and forecasting on canonical result structure
-   - Create predictive modeling capabilities leveraging metric lineage relationships
-   - Implement automated metric quality monitoring via result metadata
+### Phase 2 Delivery (Month 5-8) - Advanced Analytics & ML
+1. **Advanced Lakehouse Analytics**
+   - Implement additional canonical metrics using Databricks ML capabilities
+   - Build predictive modeling and forecasting using MLflow
+   - Create real-time streaming analytics for claims processing
+   - Implement advanced data lineage tracking with Unity Catalog
 
-2. **Data Integration**
-   - Build standardized ingestion framework
-   - Implement Peterson Health adapter
-   - Implement Citizens Medical Center adapter
-   - Create data quality monitoring
+2. **Enterprise Data Integration**
+   - Build standardized Claims EDC ingestion framework using Databricks workflows
+   - Implement Peterson Health Claims EDC adapter with Delta Live Tables
+   - Implement Citizens Medical Center Claims EDC adapter
+   - Create comprehensive data quality monitoring and automated remediation
+
+3. **ML-Powered Healthcare Analytics**
+   - Develop denial prediction models using canonical claims data
+   - Build revenue optimization recommendations
+   - Implement automated anomaly detection for financial metrics
+   - Create patient risk stratification models integrated with canonical metrics
+
 
 ## Success Metrics
 
 ### Technical Metrics
-- **Standardization**: 90%+ of functionality shared across clients via canonical metric system
-- **Performance**: Sub-2-second load times for canonical metric dashboard templates
-- **Scalability**: Support 5+ health systems without custom code via canonical metric configuration
-- **Reliability**: 99.9% uptime for canonical metric calculation and result pipelines
-- **Health Catalyst Compliance**: 100% compliance with EDC canonical metric standards
+- **Lakehouse Performance**: Sub-second queries on petabyte-scale Claims EDC data
+- **Scalability**: Auto-scaling Databricks clusters supporting unlimited health systems
+- **Data Processing**: Real-time and batch canonical metric calculations
+- **Reliability**: 99.9% uptime for Databricks lakehouse infrastructure
+- **Health Catalyst Compliance**: 100% compliance with Claims EDC and canonical metric standards
+- **ML Integration**: Built-in MLflow for predictive healthcare analytics
 
 ### Business Metrics
-- **Flexibility**: ✅ New metrics addable via canonical metric versioning, not code changes (infrastructure complete)
-- **Time to Market**: New client onboarding in <30 days via canonical metric configuration
-- **Maintenance**: <10% of development time spent on client-specific customizations
-- **User Adoption**: >80% daily active usage of canonical metric dashboards
-- **Standardization**: ✅ 100% compliance with Health Catalyst EDC metric standards (implemented)
+- **Flexibility**: ✅ New metrics via Databricks jobs and canonical metric versioning (no code changes)
+- **Time to Market**: New client onboarding in <14 days via Claims EDC data ingestion
+- **Maintenance**: <5% of development time on customizations (lakehouse eliminates API maintenance)
+- **User Adoption**: >90% daily active usage with real-time lakehouse dashboards
+- **Standardization**: ✅ 100% Health Catalyst Claims EDC and canonical metric compliance
+- **Advanced Analytics**: Built-in ML capabilities for predictive healthcare insights
 
 ## Risk Mitigation
 
@@ -414,21 +448,33 @@ standard_claim_format = {
 - **Resource Constraints**: Prioritize high-impact features first
 - **Maintenance Burden**: Invest in automation and monitoring tools
 
-## Current Status and Next Steps
+## Current Status and Databricks Pivot
 
-### ✅ Major Milestone Achieved: Canonical Metric Foundation Complete
-We have successfully implemented the Health Catalyst EDC canonical metric system foundation, converting 31 existing KPIs to standardized canonical metric definitions. This establishes the core infrastructure for scalable, multi-tenant metric management that aligns with Health Catalyst standards.
+### ✅ Major Milestone: Canonical Metric Foundation + Lakehouse Architecture Decision
+We have successfully implemented the Health Catalyst EDC canonical metric system foundation, converting 31 existing KPIs to standardized canonical metric definitions. The analysis of the Health Catalyst Claims EDC model revealed that a **Databricks lakehouse architecture** is the optimal approach for enterprise healthcare data integration.
 
-### 🎯 Next Critical Phase: API Integration and Production Readiness
-The immediate focus shifts to completing the canonical metric system integration:
-1. **API Layer**: Implement REST endpoints for canonical metric operations
-2. **Frontend Integration**: Convert dashboards to consume canonical metric results
-3. **Database Persistence**: Replace in-memory storage with PostgreSQL persistence
-4. **Production Hardening**: Add comprehensive testing and operational controls
+### 🎯 Next Critical Phase: Databricks Lakehouse Implementation
+The immediate focus shifts to implementing the modern data lakehouse architecture:
+1. **Databricks Setup**: Configure workspace, Delta Lake, and SQL Warehouse
+2. **Claims EDC Implementation**: Deploy Health Catalyst Claims EDC model in Delta Lake
+3. **Metric Pipeline**: Build canonical metric calculation jobs in Databricks
+4. **Frontend Integration**: Connect dashboards directly to Databricks SQL Warehouse
 
-### 📈 Accelerated Timeline
-With the canonical metric foundation complete, we're ahead of the original schedule. The standardized metric system will significantly accelerate subsequent phases, as all future KPIs and dashboards will leverage the established canonical metric infrastructure rather than requiring custom implementations.
+### 🚀 Architecture Advantages
+The Databricks lakehouse approach provides significant advantages:
+- **Enterprise Scale**: Handle petabytes of healthcare claims data
+- **Real-time Analytics**: Streaming and batch processing capabilities
+- **ML Integration**: Built-in MLflow for predictive healthcare analytics
+- **Cost Efficiency**: Eliminate API infrastructure and database maintenance
+- **Health Catalyst Alignment**: Direct compatibility with Claims EDC standards
+
+### 📈 Accelerated Development Timeline
+The lakehouse architecture will dramatically accelerate development:
+- **No API Development**: Direct SQL queries eliminate REST endpoint complexity
+- **Auto-scaling**: Databricks handles infrastructure scaling automatically
+- **Built-in Analytics**: Advanced analytics and ML capabilities included
+- **Standardized Data**: Health Catalyst Claims EDC provides enterprise data standards
 
 ## Conclusion
 
-This implementation plan provides a clear path to evolve our healthcare revenue cycle management application into a scalable, standardized platform that meets specific client requirements while avoiding the trap of creating custom versions for each client. The successful completion of the Health Catalyst canonical metric foundation positions us for rapid progress in subsequent phases, with all future development building upon this standardized infrastructure.
+This updated implementation plan pivots to a modern Databricks lakehouse architecture that aligns perfectly with Health Catalyst's enterprise data standards. The combination of canonical metrics and Claims EDC in a lakehouse environment creates a powerful, scalable platform that can handle enterprise healthcare data volumes while providing advanced analytics capabilities. This approach eliminates traditional API complexity while providing superior performance and built-in ML capabilities for predictive healthcare insights.
