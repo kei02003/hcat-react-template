@@ -3,9 +3,14 @@ import {
   type CanonicalMetric,
   type CanonicalMetricVersion, 
   type CanonicalResult,
+  type CanonicalStagingResult,
+  type CanonicalMetricLineage,
+  type InsertCanonicalStagingResult,
+  type InsertCanonicalMetricLineage,
   canonicalMetric,
   canonicalMetricVersion,
-  canonicalResult
+  canonicalResult,
+  createGrainKey
 } from "@shared/schema";
 
 // Constants moved here to avoid duplication
@@ -400,6 +405,174 @@ function getMetricVersionKeyByName(metricName: string): string {
   };
   
   return nameMapping[metricName] || "unknown_metric_v1";
+}
+
+// Generate sample staging results (data in process of validation)
+export function generateSampleStagingResults(): InsertCanonicalStagingResult[] {
+  const now = new Date();
+  const oneHour = 60 * 60 * 1000;
+  const stagingResults: InsertCanonicalStagingResult[] = [];
+
+  // Create staging results representing data being processed for different orgs
+  const organizations = ["HC001", "HC002", "PMC001"];
+  const entities = ["entity_main", "entity_north", "entity_south"];
+
+  organizations.forEach((orgId, orgIndex) => {
+    entities.forEach((entityId, entityIndex) => {
+      // Generate staging results for key metrics
+      stagingResults.push({
+        result_key: `staging-total_ar_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 1000 + entityIndex}`,
+        grain_keys: createGrainKey(orgId, entityId),
+        metric_version_key: "total_ar_hc_v1",
+        result_value_numeric: "2847291.75", // Higher values for staging (not yet validated)
+        measurement_period_start_datetime: new Date(now.getTime() - 24 * oneHour),
+        measurement_period_end_datetime: new Date(now.getTime() - oneHour),
+        as_of_datetime: new Date(now.getTime() - oneHour),
+        calculated_at: new Date(now.getTime() - 30 * 60 * 1000), // 30 mins ago
+        calculation_version: "v1.1",
+        result_metadata: {
+          source: ["staging_etl_pipeline"],
+          validation_status: ["pending"],
+          data_quality_score: [0.92],
+          processing_stage: ["extraction_complete", "validation_pending"]
+        }
+      });
+
+      stagingResults.push({
+        result_key: `staging-denial_rate_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 2000 + entityIndex}`,
+        grain_keys: createGrainKey(orgId, entityId),
+        metric_version_key: "denial_rate_hc_v1",
+        result_value_numeric: "0.0847", // Slightly different from final results
+        measurement_period_start_datetime: new Date(now.getTime() - 7 * 24 * oneHour),
+        measurement_period_end_datetime: new Date(now.getTime() - oneHour),
+        as_of_datetime: new Date(now.getTime() - oneHour),
+        calculated_at: new Date(now.getTime() - 45 * 60 * 1000), // 45 mins ago
+        calculation_version: "v1.1",
+        result_metadata: {
+          source: ["payer_response_staging"],
+          validation_status: ["pending"],
+          outlier_detection: ["within_bounds"],
+          processing_stage: ["calculation_complete", "quality_check_pending"]
+        }
+      });
+
+      stagingResults.push({
+        result_key: `staging-clean_claim_rate_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 3000 + entityIndex}`,
+        grain_keys: createGrainKey(orgId, entityId),
+        metric_version_key: "clean_claim_rate_hc_v1",
+        result_value_numeric: "0.8934", // Raw calculation before adjustments
+        measurement_period_start_datetime: new Date(now.getTime() - 24 * oneHour),
+        measurement_period_end_datetime: new Date(now.getTime() - oneHour),
+        as_of_datetime: new Date(now.getTime() - oneHour),
+        calculated_at: new Date(now.getTime() - 20 * 60 * 1000), // 20 mins ago
+        calculation_version: "v1.1",
+        result_metadata: {
+          source: ["billing_system_staging"],
+          validation_status: ["in_progress"],
+          business_rules_applied: ["pending"],
+          processing_stage: ["raw_calculation", "business_rules_pending"]
+        }
+      });
+    });
+  });
+
+  return stagingResults;
+}
+
+// Generate sample metric lineage (relationships between metrics)
+export function generateSampleMetricLineage(existingResults: InsertCanonicalResult[]): InsertCanonicalMetricLineage[] {
+  const lineageData: InsertCanonicalMetricLineage[] = [];
+
+  // Find relevant result keys for building relationships
+  const totalArResults = existingResults.filter(r => r.metric_version_key === "total_ar_hc_v1");
+  const denialRateResults = existingResults.filter(r => r.metric_version_key === "denial_rate_hc_v1");
+  const cleanClaimResults = existingResults.filter(r => r.metric_version_key === "clean_claim_rate_hc_v1");
+  const appealSuccessResults = existingResults.filter(r => r.metric_version_key === "appeal_success_rate_hc_v1");
+  const collectionRateResults = existingResults.filter(r => r.metric_version_key === "collection_rate_hc_v1");
+  const daysOutstandingResults = existingResults.filter(r => r.metric_version_key === "ar_days_outstanding_hc_v1");
+
+  // Create lineage relationships showing metric dependencies
+  // Total AR contributes to AR Days Outstanding
+  totalArResults.forEach(totalAr => {
+    const matchingDaysOutstanding = daysOutstandingResults.find(days => 
+      days.grain_keys.org_id === totalAr.grain_keys.org_id && 
+      days.grain_keys.entity_id === totalAr.grain_keys.entity_id
+    );
+    
+    if (matchingDaysOutstanding) {
+      lineageData.push({
+        parent_result_key: totalAr.result_key,
+        child_result_key: matchingDaysOutstanding.result_key,
+        contribution_weight: "0.7500" // Major component
+      });
+    }
+  });
+
+  // Clean Claim Rate influences Denial Rate
+  cleanClaimResults.forEach(cleanClaim => {
+    const matchingDenialRate = denialRateResults.find(denial => 
+      denial.grain_keys.org_id === cleanClaim.grain_keys.org_id && 
+      denial.grain_keys.entity_id === cleanClaim.grain_keys.entity_id
+    );
+    
+    if (matchingDenialRate) {
+      lineageData.push({
+        parent_result_key: cleanClaim.result_key,
+        child_result_key: matchingDenialRate.result_key,
+        contribution_weight: "0.6200" // Strong negative correlation
+      });
+    }
+  });
+
+  // Denial Rate feeds into Appeal Success Rate
+  denialRateResults.forEach(denialRate => {
+    const matchingAppealSuccess = appealSuccessResults.find(appeal => 
+      appeal.grain_keys.org_id === denialRate.grain_keys.org_id && 
+      appeal.grain_keys.entity_id === denialRate.grain_keys.entity_id
+    );
+    
+    if (matchingAppealSuccess) {
+      lineageData.push({
+        parent_result_key: denialRate.result_key,
+        child_result_key: matchingAppealSuccess.result_key,
+        contribution_weight: "0.4300" // Moderate influence
+      });
+    }
+  });
+
+  // Appeal Success Rate contributes to Collection Rate
+  appealSuccessResults.forEach(appealSuccess => {
+    const matchingCollectionRate = collectionRateResults.find(collection => 
+      collection.grain_keys.org_id === appealSuccess.grain_keys.org_id && 
+      collection.grain_keys.entity_id === appealSuccess.grain_keys.entity_id
+    );
+    
+    if (matchingCollectionRate) {
+      lineageData.push({
+        parent_result_key: appealSuccess.result_key,
+        child_result_key: matchingCollectionRate.result_key,
+        contribution_weight: "0.3800" // Supporting factor
+      });
+    }
+  });
+
+  // AR Days Outstanding affects Collection Rate
+  daysOutstandingResults.forEach(daysOutstanding => {
+    const matchingCollectionRate = collectionRateResults.find(collection => 
+      collection.grain_keys.org_id === daysOutstanding.grain_keys.org_id && 
+      collection.grain_keys.entity_id === daysOutstanding.grain_keys.entity_id
+    );
+    
+    if (matchingCollectionRate) {
+      lineageData.push({
+        parent_result_key: daysOutstanding.result_key,
+        child_result_key: matchingCollectionRate.result_key,
+        contribution_weight: "0.5900" // Significant inverse relationship
+      });
+    }
+  });
+
+  return lineageData;
 }
 
 // Sample canonical results for demo purposes

@@ -516,6 +516,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Staging Results API Routes
+  app.get("/api/canonical-staging-results", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (req: AuthenticatedRequest, res) => {
+    try {
+      // Strictly require org from authenticated user - no fallback
+      const userOrg = req.user?.organization;
+      if (!userOrg) {
+        return res.status(403).json({ message: "Organization context required" });
+      }
+      
+      const metricVersionKey = req.query.metricVersionKey as string;
+      const stagingResults = await canonicalDb.getStagingResults(userOrg, metricVersionKey);
+      
+      // Audit staging data access
+      await auditAction(req as AuthenticatedRequest, "view_canonical_staging_results", "canonical_staging_result", {
+        organization: userOrg,
+        metric_version_key: metricVersionKey,
+        results_count: stagingResults.length
+      });
+      
+      res.json(stagingResults);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch staging results" });
+    }
+  });
+
+  // Metric Lineage API Routes
+  app.get("/api/canonical-metric-lineage", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (req: AuthenticatedRequest, res) => {
+    try {
+      const parentResultKey = req.query.parentResultKey as string;
+      const lineageData = await canonicalDb.getMetricLineage(parentResultKey);
+      
+      // Audit lineage data access
+      await auditAction(req as AuthenticatedRequest, "view_canonical_metric_lineage", "canonical_metric_lineage", {
+        parent_result_key: parentResultKey,
+        lineage_count: lineageData.length
+      });
+      
+      res.json(lineageData);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch metric lineage" });
+    }
+  });
+
   // Redundancy matrix routes
   app.get("/api/redundancy-matrix", async (req, res) => {
     try {

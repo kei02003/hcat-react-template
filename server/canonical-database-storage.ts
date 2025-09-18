@@ -166,6 +166,50 @@ export class CanonicalDatabaseStorage {
     return results;
   }
 
+  // Staging Results Methods
+  async createStagingResult(stagingResult: InsertCanonicalStagingResult): Promise<CanonicalStagingResult> {
+    const [result] = await db.insert(canonicalStagingResult).values(stagingResult).returning();
+    return result;
+  }
+
+  async getStagingResults(orgId?: string, metricVersionKey?: string): Promise<CanonicalStagingResult[]> {
+    let query = db
+      .select()
+      .from(canonicalStagingResult)
+      .orderBy(desc(canonicalStagingResult.calculated_at));
+
+    if (orgId && metricVersionKey) {
+      query = query.where(
+        and(
+          sql`${canonicalStagingResult.grain_keys}->>'org_id' = ${orgId}`,
+          eq(canonicalStagingResult.metric_version_key, metricVersionKey)
+        )
+      );
+    } else if (orgId) {
+      query = query.where(sql`${canonicalStagingResult.grain_keys}->>'org_id' = ${orgId}`);
+    } else if (metricVersionKey) {
+      query = query.where(eq(canonicalStagingResult.metric_version_key, metricVersionKey));
+    }
+
+    return await query;
+  }
+
+  // Metric Lineage Methods
+  async createMetricLineage(lineage: InsertCanonicalMetricLineage): Promise<CanonicalMetricLineage> {
+    const [result] = await db.insert(canonicalMetricLineage).values(lineage).returning();
+    return result;
+  }
+
+  async getMetricLineage(parentResultKey?: string): Promise<CanonicalMetricLineage[]> {
+    let query = db.select().from(canonicalMetricLineage);
+
+    if (parentResultKey) {
+      query = query.where(eq(canonicalMetricLineage.parent_result_key, parentResultKey));
+    }
+
+    return await query;
+  }
+
   async getLatestResults(metricVersionKey: string, orgId?: string, entityId?: string): Promise<CanonicalResult[]> {
     let whereConditions = [eq(canonicalResult.metric_version_key, metricVersionKey)];
     
@@ -351,9 +395,26 @@ export class CanonicalDatabaseStorage {
         await this.createResult(result);
       }
 
+      // Generate and insert staging results
+      const { generateSampleStagingResults, generateSampleMetricLineage } = 
+        await import("./canonical-metric-definitions");
+      
+      const stagingResults = generateSampleStagingResults();
+      for (const stagingResult of stagingResults) {
+        await this.createStagingResult(stagingResult);
+      }
+
+      // Generate and insert metric lineage data
+      const lineageData = generateSampleMetricLineage(sampleResults);
+      for (const lineage of lineageData) {
+        await this.createMetricLineage(lineage);
+      }
+
       console.log(`✓ Initialized ${CANONICAL_METRICS.length} canonical metrics`);
       console.log(`✓ Initialized ${CANONICAL_METRIC_VERSIONS.length} metric versions`);
       console.log(`✓ Initialized ${sampleResults.length} sample results`);
+      console.log(`✓ Initialized ${stagingResults.length} staging results`);
+      console.log(`✓ Initialized ${lineageData.length} metric lineage records`);
 
     } catch (error) {
       console.error("Failed to initialize canonical metrics:", error);
