@@ -48,24 +48,86 @@ orgId: text("org_id").notNull(), // Client organization
 entityId: text("entity_id").notNull(), // Hospital/facility
 ```
 
-#### 2. KPI Registry System
-Create a centralized KPI definition and management system:
+#### 2. Health Catalyst Canonical Metric System
+Implement the official Health Catalyst EDC metric model for standardized KPI management:
 
 ```typescript
-kpiRegistry = {
-  kpiId: text("kpi_id").primaryKey(),
-  name: text("name").notNull(),
-  category: text("category"), // "hospital" | "physician" | "operational"
-  formula: text("formula").notNull(), // SQL or expression
-  numerator: text("numerator"),
-  denominator: text("denominator"),
-  dimensions: text("dimensions").array(), // ["entity", "department", "payer"]
-  isStandard: boolean("is_standard").default(true),
-  dataRequirements: jsonb("data_requirements"), // Required tables/fields
-  calculationFrequency: text("calculation_frequency"), // "real-time" | "daily" | "monthly"
-  targets: jsonb("targets"), // Industry benchmarks/targets
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+// Base metric definitions (category and ownership)
+metric = {
+  metric_key: text("metric_key").primaryKey(), // "ar_days_outstanding_hc", "denial_rate_clinical_hc"
+  metric: text("metric").notNull(), // "AR Days Outstanding"
+  metric_description: text("metric_description").notNull(),
+  tags: jsonb("tags") // ["revenue_cycle", "hospital", "regulatory"]
+}
+
+// Version-specific metric definitions (supports evolution over time)
+metric_version = {
+  metric_version_key: text("metric_version_key").primaryKey(),
+  metric_key: text("metric_key").notNull(), // FK to metric
+  version_number: text("version_number").notNull(), // "v1.0", "v2.1"
+  valid_from_datetime: timestamp("valid_from_datetime"),
+  valid_to_datetime: timestamp("valid_to_datetime"),
+  metric_version_name: text("metric_version_name").notNull(),
+  metric_version_description: text("metric_version_description").notNull(),
+  grain: jsonb("grain"), // {"org_id": "string", "entity_id": "string", "payer": "string"}
+  grain_description: text("grain_description"),
+  domain: text("domain").notNull(), // "Clinical", "Financial", "Operational"
+  result_type: text("result_type"), // "numeric", "percentage", "currency"
+  result_unit: text("result_unit"), // "days", "percent", "dollars"
+  frequency: text("frequency"), // "daily", "monthly", "real-time"
+  source_category: text("source_category"), // "billing_transactions", "clinical_data"
+  is_regulatory: boolean("is_regulatory"),
+  regulatory_program: text("regulatory_program"), // "CMS", "HFMA", "HIMSS"
+  steward: text("steward").notNull(), // Business owner
+  developer: text("developer").notNull(), // Technical owner
+  is_active: boolean("is_active"),
+  metadata_schema: jsonb("metadata_schema"), // Required metadata structure
+  required_metadata_fields: jsonb("required_metadata_fields"),
+  created_datetime: timestamp("created_datetime").defaultNow(),
+  updated_datetime: timestamp("updated_datetime").defaultNow()
+}
+
+// Final metric results (post-processing)
+result = {
+  result_key: text("result_key").primaryKey(),
+  grain_keys: jsonb("grain_keys"), // {"org_id": "HC001", "entity_id": "HOSP1", "payer": "MEDICARE"}
+  metric_version_key: text("metric_version_key").notNull(),
+  result_value_numeric: decimal("result_value_numeric", { precision: 15, scale: 4 }),
+  result_value_datetime: timestamp("result_value_datetime"),
+  result_value_text: text("result_value_text"),
+  result_value_boolean: boolean("result_value_boolean"),
+  result_value_json: jsonb("result_value_json"),
+  measurement_period_start_datetime: timestamp("measurement_period_start_datetime"),
+  measurement_period_end_datetime: timestamp("measurement_period_end_datetime"),
+  as_of_datetime: timestamp("as_of_datetime"),
+  result_metadata: jsonb("result_metadata"),
+  calculated_at: timestamp("calculated_at"),
+  calculation_version: text("calculation_version")
+}
+
+// Staging area for metric calculations (append-only)
+staging_result = {
+  result_key: text("result_key").primaryKey(),
+  grain_keys: jsonb("grain_keys"),
+  metric_version_key: text("metric_version_key").notNull(),
+  result_value_numeric: decimal("result_value_numeric", { precision: 15, scale: 4 }),
+  result_value_datetime: timestamp("result_value_datetime"),
+  result_value_text: text("result_value_text"),
+  result_value_boolean: boolean("result_value_boolean"),
+  result_value_json: jsonb("result_value_json"),
+  measurement_period_start_datetime: timestamp("measurement_period_start_datetime"),
+  measurement_period_end_datetime: timestamp("measurement_period_end_datetime"),
+  as_of_datetime: timestamp("as_of_datetime"),
+  result_metadata: jsonb("result_metadata"),
+  calculated_at: timestamp("calculated_at"),
+  calculation_version: text("calculation_version")
+}
+
+// Metric relationships and hierarchies
+metric_lineage = {
+  parent_result_key: text("parent_result_key"),
+  child_result_key: text("child_result_key"),
+  contribution_weight: decimal("contribution_weight", { precision: 5, scale: 4 })
 }
 ```
 
@@ -216,11 +278,12 @@ provider_performance = {
 
 ### Phase 2: Scalability (6+ months)
 
-#### 9. Advanced KPI Engine
-- Support for computed/derived KPIs
-- Custom formulas per client (while maintaining standard base)
-- Automated KPI validation and testing
-- Machine learning-enhanced forecasting
+#### 9. Advanced Metric Engine
+- Support for derived metrics using metric_lineage relationships
+- Custom metric versions per client (while maintaining standard base metrics)
+- Automated metric validation and testing via metadata_schema
+- Machine learning-enhanced forecasting built on canonical result structure
+- Metric versioning and backward compatibility management
 
 #### 10. Data Ingestion Framework
 ```typescript
@@ -263,27 +326,28 @@ ingestion_logs = {
 client_config = {
   clientId: text("client_id").primaryKey(),
   orgName: text("org_name").notNull(),
-  enabledKpis: text("enabled_kpis").array(),
+  enabledMetricVersions: text("enabled_metric_versions").array(), // Canonical metric version keys
   dashboardLayouts: jsonb("dashboard_layouts"),
   brandingTheme: jsonb("branding_theme"),
-  targets: jsonb("targets"), // Client-specific KPI targets
-  alertThresholds: jsonb("alert_thresholds"),
+  metricTargets: jsonb("metric_targets"), // Client-specific targets by metric_version_key
+  alertThresholds: jsonb("alert_thresholds"), // Thresholds by metric_version_key
   reportingSchedule: jsonb("reporting_schedule"),
+  grainOverrides: jsonb("grain_overrides"), // Client-specific grain configurations
   isActive: boolean("is_active").default(true)
 }
 ```
 
 ### 2. Template-Based Dashboards
-- Standard dashboard templates with configurable widgets
-- KPI enablement per client without code changes
-- Shared component library for consistency
-- Layout customization through configuration
+- Standard dashboard templates consuming canonical metric results
+- Metric enablement per client via metric_version configuration
+- Shared component library rendering canonical result values
+- Layout customization through grain_keys and result filtering
 
 ### 3. Multi-Tenant Data Architecture
-- Strict tenant isolation with orgId/entityId
-- Shared KPI computation engine
-- Client-specific aggregations and caching
-- Row-level security enforcement
+- Strict tenant isolation via grain_keys (org_id/entity_id)
+- Shared canonical metric computation engine
+- Client-specific aggregations via result grain filtering
+- Row-level security enforcement on canonical billing transactions and metric results
 
 ### 4. Standardized Data Contracts
 ```typescript
@@ -308,10 +372,11 @@ standard_claim_format = {
    - Implement core transaction tables (claims, payments, adjustments)
    - Update storage interfaces for multi-tenant support
 
-2. **KPI Registry Foundation**
-   - Create KPI registry table and basic CRUD operations
-   - Implement KPI computation service framework
-   - Convert 5 existing KPIs to registry-driven approach
+2. **Health Catalyst Metric System Foundation**
+   - Implement canonical metric tables (metric, metric_version, result, staging_result, metric_lineage)
+   - Create metric version management and lifecycle services
+   - Build calculation pipeline framework (staging → result promotion)
+   - Convert 5 existing KPIs to canonical metric definitions
 
 ### Phase 1 Delivery (Month 3-6)
 1. **Complete Transaction Model**
@@ -324,16 +389,18 @@ standard_claim_format = {
    - Implement dynamic widget rendering
    - Create multi-entity comparison features
 
-3. **Physician KPIs**
-   - Add 50 physician-specific KPIs to registry
-   - Build provider performance data model
-   - Create physician dashboard templates
+3. **Physician Metrics**
+   - Add 50 physician-specific metrics to canonical metric system
+   - Create provider-specific metric versions with appropriate grain definitions
+   - Build provider performance data model integrated with canonical results
+   - Create physician dashboard templates consuming canonical metric results
 
 ### Phase 2 Delivery (Month 7-12)
 1. **Advanced Analytics**
-   - Implement 100 additional KPIs
-   - Build advanced analytics and forecasting
-   - Create predictive modeling capabilities
+   - Implement 100 additional metrics using canonical metric system
+   - Build advanced analytics and forecasting on canonical result structure
+   - Create predictive modeling capabilities leveraging metric lineage relationships
+   - Implement automated metric quality monitoring via result metadata
 
 2. **Data Integration**
    - Build standardized ingestion framework
@@ -350,10 +417,11 @@ standard_claim_format = {
 - **Reliability**: 99.9% uptime for data processing pipelines
 
 ### Business Metrics
-- **Flexibility**: New KPIs addable via configuration, not code changes
-- **Time to Market**: New client onboarding in <30 days
+- **Flexibility**: New metrics addable via canonical metric versioning, not code changes
+- **Time to Market**: New client onboarding in <30 days via metric configuration
 - **Maintenance**: <10% of development time spent on client-specific customizations
 - **User Adoption**: >80% daily active usage of core dashboards
+- **Standardization**: 100% compliance with Health Catalyst EDC metric standards
 
 ## Risk Mitigation
 

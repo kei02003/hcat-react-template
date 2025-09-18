@@ -8,6 +8,13 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Changes
 
+## Health Catalyst Canonical Metric Model Integration (January 18, 2025)
+- Updated implementation plan to use official Health Catalyst EDC metric model for standardized KPI management
+- Replaced custom KPI registry with canonical Health Catalyst structures (metric, metric_version, result, staging_result, metric_lineage)
+- Aligned platform architecture with Health Catalyst Enterprise Data Catalog standards
+- Established metric versioning and lifecycle management for evolving KPI definitions
+- Enabled proper multi-tenant metric isolation through grain_keys structure
+
 ## Strategic Implementation Plan (January 18, 2025)
 - Created comprehensive implementation plan document (IMPLEMENTATION_PLAN.md) for scaling platform
 - Defined strategic build path balancing standardization vs. client-specific requirements
