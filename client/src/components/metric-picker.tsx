@@ -102,16 +102,16 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
   const uniqueResultTypes = Array.from(new Set(metricVersions.map(m => m.result_type).filter(Boolean)));
   const uniqueTags: string[] = []; // Simplified for now - tags not included in current data model
 
-  const handleMetricToggle = (metricVersionKey: string) => {
-    const isSelected = selectedMetrics.includes(metricVersionKey);
-    
-    if (isSelected) {
-      // Remove metric
-      onMetricsChange(selectedMetrics.filter(key => key !== metricVersionKey));
-    } else {
-      // Add metric (check max limit)
-      if (selectedMetrics.length < maxSelections) {
+  const handleMetricToggle = (metricVersionKey: string, shouldSelect: boolean) => {
+    if (shouldSelect) {
+      // Add metric if not already selected and under limit
+      if (!selectedMetrics.includes(metricVersionKey) && selectedMetrics.length < maxSelections) {
         onMetricsChange([...selectedMetrics, metricVersionKey]);
+      }
+    } else {
+      // Remove metric if currently selected
+      if (selectedMetrics.includes(metricVersionKey)) {
+        onMetricsChange(selectedMetrics.filter(key => key !== metricVersionKey));
       }
     }
   };
@@ -338,7 +338,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                         <Checkbox
                           id={`checkbox-${metric.metric_version_key}`}
                           checked={selectedMetrics.includes(metric.metric_version_key)}
-                          onCheckedChange={() => handleMetricToggle(metric.metric_version_key)}
+                          onCheckedChange={(checked) => handleMetricToggle(metric.metric_version_key, !!checked)}
                           className="mt-1"
                           data-testid={`checkbox-${metric.metric_version_key}`}
                         />
