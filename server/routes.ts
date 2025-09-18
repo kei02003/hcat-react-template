@@ -711,12 +711,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const { metricVersionKey } = paramsValidation.data;
-      // Use default organization for demo
-      const userOrg = "peterson_health";
+      // Use default organization that matches demo data
+      const userOrg = "HC001";
       
       const { entityId } = queryValidation.data;
       
-      const results = await canonicalDb.getLatestResults(metricVersionKey, userOrg, entityId);
+      // Use default entityId that matches demo data if none provided
+      const finalEntityId = entityId || "HOSP1";
+      
+      const results = await canonicalDb.getLatestResults(metricVersionKey, userOrg, finalEntityId);
       
       // Audit disabled for demo
       
