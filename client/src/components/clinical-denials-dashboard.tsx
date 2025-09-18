@@ -52,6 +52,7 @@ import {
 } from "./charts/denial-reason-analysis";
 import { PatientAppealModal } from "./patient-appeal-modal";
 import { ClinicalDecisionDashboard } from "./clinical-decision-dashboard";
+import { PerformanceComparisonDashboard } from "./performance-comparison-dashboard";
 import { DenialFilterProvider, useDenialFilters } from "./denial-filter-context";
 
 const clinicalMetrics = [
@@ -837,7 +838,7 @@ function DenialsDashboardContent() {
 
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview">
               Overview
             </TabsTrigger>
@@ -846,6 +847,9 @@ function DenialsDashboardContent() {
             </TabsTrigger>
             <TabsTrigger value="analytics">
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="comparison">
+              Performance Comparison
             </TabsTrigger>
           </TabsList>
 
@@ -1765,6 +1769,11 @@ function DenialsDashboardContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             </div>
+          </TabsContent>
+
+          {/* Performance Comparison Tab */}
+          <TabsContent value="comparison" className="space-y-6">
+            <PerformanceComparisonDashboard />
           </TabsContent>
         </Tabs>
 
