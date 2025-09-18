@@ -100,7 +100,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
   const uniqueDomains = [...new Set(metricVersions.map(m => m.domain).filter(Boolean))];
   const uniqueFrequencies = [...new Set(metricVersions.map(m => m.frequency).filter(Boolean))];
   const uniqueResultTypes = [...new Set(metricVersions.map(m => m.result_type).filter(Boolean))];
-  const uniqueTags = [...new Set(metricVersions.flatMap(m => m.tags || []).filter(Boolean))];
+  const uniqueTags: string[] = []; // Simplified for now - tags not included in current data model
 
   const handleMetricToggle = (metricVersionKey: string) => {
     const isSelected = selectedMetrics.includes(metricVersionKey);

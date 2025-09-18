@@ -650,8 +650,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/canonical-metric-versions/active", 
-    isAuthenticated,
-    requirePermission("view_metrics"),
     async (_req, res) => {
     try {
       const activeVersions = await canonicalDb.getActiveMetricVersions();
