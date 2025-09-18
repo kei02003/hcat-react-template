@@ -326,23 +326,23 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                   {metrics.map((metric) => {
                     const isSelected = selectedMetrics.includes(metric.metric_version_key);
                     return (
-                    <div
-                      key={metric.metric_version_key}
-                      className={`border rounded-lg p-3 transition-all hover:shadow-sm ${
-                        isSelected
-                          ? 'border-blue-300 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      data-testid={`metric-item-${metric.metric_version_key}`}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => handleMetricToggle(metric.metric_version_key)}
-                          className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                          data-testid={`checkbox-${metric.metric_version_key}`}
-                        />
+                      <div
+                        key={metric.metric_version_key}
+                        className={`border rounded-lg p-3 transition-all hover:shadow-sm ${
+                          isSelected
+                            ? 'border-blue-300 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        data-testid={`metric-item-${metric.metric_version_key}`}
+                      >
+                        <div className="flex items-start space-x-3">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleMetricToggle(metric.metric_version_key)}
+                            className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            data-testid={`checkbox-${metric.metric_version_key}`}
+                          />
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
@@ -382,7 +382,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                       </div>
                     </div>
                     );
-                  ))}
+                  })}
                 </div>
               </div>
             ))}
