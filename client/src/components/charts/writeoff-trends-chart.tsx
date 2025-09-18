@@ -14,74 +14,66 @@ import {
 import { format } from "date-fns";
 import { useWriteOffFilters } from '../writeoff-filter-context';
 
-// Import writeoff data from the main dashboard
-const writeOffData = [
-  {
-    writeOffId: "WO-001",
-    patientName: "Rodriguez, Maria C.",
-    writeOffDate: "2024-12-15",
-    amount: 8450.00,
-    reason: "bad_debt",
-    status: "final",
-    department: "Cardiology",
-    payerName: "Self-Pay",
-    site: "Medical Center Health System",
-    badDebtFlag: true,
-  },
-  {
-    writeOffId: "WO-002", 
-    patientName: "Thompson, Robert K.",
-    writeOffDate: "2024-12-14",
-    amount: 3200.00,
-    reason: "contractual",
-    status: "final",
-    department: "Emergency Department", 
-    payerName: "Blue Cross Blue Shield",
-    site: "Hendrick Health",
-    badDebtFlag: false,
-  },
-  {
-    writeOffId: "WO-003",
-    patientName: "Davis, Amanda L.",
-    writeOffDate: "2024-12-13",
-    amount: 15670.00,
-    reason: "charity",
-    status: "final",
-    department: "Surgery",
-    payerName: "Uninsured",
-    site: "Medical Center Health System",
-    badDebtFlag: false,
-  },
-  {
-    writeOffId: "WO-004",
-    patientName: "Wilson, Sarah M.",
-    writeOffDate: "2024-12-12",
-    amount: 2150.00,
-    reason: "small_balance",
-    status: "final",
-    department: "Radiology",
-    payerName: "Medicare",
-    site: "Hendrick Health",
-    badDebtFlag: false,
-  },
-  {
-    writeOffId: "WO-005",
-    patientName: "Johnson, Michael R.",
-    writeOffDate: "2024-12-11",
-    amount: 6780.00,
-    reason: "bad_debt",
-    status: "final",
-    department: "Orthopedics",
-    payerName: "Self-Pay",
-    site: "Medical Center Health System",
-    badDebtFlag: true,
-  },
-];
 
 // Data aggregation functions
 const aggregateDataByGroup = (data: any[], groupBy: string) => {
   if (groupBy === "month") {
-    return writeOffTrendsData; // Use existing time-series data for month view
+    // Aggregate data by month from actual filtered data
+    const dateGroups = data.reduce((acc, item) => {
+      const date = item.writeOffDate || item.date || new Date().toISOString().split('T')[0];
+      const dateKey = date.split('T')[0].substring(0, 7); // Extract YYYY-MM for monthly grouping
+      const amount = item.writeOffAmount || item.amount || 0;
+      
+      if (!acc[dateKey]) {
+        acc[dateKey] = {
+          date: dateKey + '-01', // Use first day of month for chart compatibility
+          totalWriteOffs: 0,
+          badDebtAmount: 0,
+          contractualAmount: 0,
+          charityAmount: 0,
+          smallBalanceAmount: 0,
+          promptPayAmount: 0,
+          recoveryAmount: 0,
+          writeOffCount: 0,
+          badDebtCount: 0,
+        };
+      }
+      
+      acc[dateKey].totalWriteOffs += amount;
+      acc[dateKey].writeOffCount += 1;
+      acc[dateKey].recoveryAmount += item.recoveryAmount || 0;
+      
+      // Categorize by reason
+      switch (item.reason) {
+        case "bad_debt":
+          acc[dateKey].badDebtAmount += amount;
+          acc[dateKey].badDebtCount += 1;
+          break;
+        case "contractual":
+          acc[dateKey].contractualAmount += amount;
+          break;
+        case "charity":
+          acc[dateKey].charityAmount += amount;
+          break;
+        case "small_balance":
+          acc[dateKey].smallBalanceAmount += amount;
+          break;
+        case "prompt_pay":
+          acc[dateKey].promptPayAmount += amount;
+          break;
+      }
+      
+      return acc;
+    }, {});
+    
+    // Convert to array, sort by date, and add recovery rate
+    return Object.values(dateGroups)
+      .map((group: any) => ({
+        ...group,
+        recoveryRate: group.totalWriteOffs > 0 ? 
+          ((group.recoveryAmount / group.totalWriteOffs) * 100) : 0,
+      }))
+      .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }
 
   const grouped = data.reduce((acc, item) => {
@@ -152,94 +144,14 @@ const aggregateDataByGroup = (data: any[], groupBy: string) => {
   }));
 };
 
-const writeOffTrendsData = [
-  {
-    date: "2024-10-01",
-    totalWriteOffs: 45000,
-    badDebtAmount: 12000,
-    contractualAmount: 18000,
-    charityAmount: 8000,
-    smallBalanceAmount: 4000,
-    promptPayAmount: 3000,
-    recoveryAmount: 2500,
-    writeOffCount: 128,
-    badDebtCount: 32,
-    recoveryRate: 20.8,
-  },
-  {
-    date: "2024-10-15",
-    totalWriteOffs: 52000,
-    badDebtAmount: 15000,
-    contractualAmount: 20000,
-    charityAmount: 9500,
-    smallBalanceAmount: 4500,
-    promptPayAmount: 3000,
-    recoveryAmount: 3200,
-    writeOffCount: 142,
-    badDebtCount: 38,
-    recoveryRate: 21.3,
-  },
-  {
-    date: "2024-11-01",
-    totalWriteOffs: 48000,
-    badDebtAmount: 13500,
-    contractualAmount: 19000,
-    charityAmount: 8500,
-    smallBalanceAmount: 4000,
-    promptPayAmount: 3000,
-    recoveryAmount: 2800,
-    writeOffCount: 135,
-    badDebtCount: 35,
-    recoveryRate: 20.7,
-  },
-  {
-    date: "2024-11-15",
-    totalWriteOffs: 55000,
-    badDebtAmount: 16000,
-    contractualAmount: 22000,
-    charityAmount: 10000,
-    smallBalanceAmount: 4000,
-    promptPayAmount: 3000,
-    recoveryAmount: 3400,
-    writeOffCount: 156,
-    badDebtCount: 42,
-    recoveryRate: 21.3,
-  },
-  {
-    date: "2024-12-01",
-    totalWriteOffs: 51000,
-    badDebtAmount: 14500,
-    contractualAmount: 20500,
-    charityAmount: 9000,
-    smallBalanceAmount: 4000,
-    promptPayAmount: 3000,
-    recoveryAmount: 3100,
-    writeOffCount: 145,
-    badDebtCount: 38,
-    recoveryRate: 21.4,
-  },
-  {
-    date: "2024-12-15",
-    totalWriteOffs: 49000,
-    badDebtAmount: 13000,
-    contractualAmount: 19500,
-    charityAmount: 9500,
-    smallBalanceAmount: 4000,
-    promptPayAmount: 3000,
-    recoveryAmount: 2900,
-    writeOffCount: 138,
-    badDebtCount: 34,
-    recoveryRate: 22.3,
-  },
-];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, groupBy }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
       <div className="bg-white p-4 border rounded shadow-lg max-w-xs">
         <p className="font-semibold text-gray-900 mb-2">
-          {format(new Date(label), "MMM dd, yyyy")}
+          {groupBy === "month" ? format(new Date(label), "MMM yyyy") : label}
         </p>
         <div className="space-y-1 text-sm">
           <p>
@@ -268,24 +180,41 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 interface WriteOffTrendsChartProps {
   groupBy?: string;
+  data?: any[];
 }
 
-export function WriteOffTrendsChart({ groupBy = "month" }: WriteOffTrendsChartProps) {
+export function WriteOffTrendsChart({ groupBy = "month", data = [] }: WriteOffTrendsChartProps) {
   const { filters, setFilter } = useWriteOffFilters();
 
   // Get chart data based on groupBy option
-  const chartData = aggregateDataByGroup(writeOffData, groupBy);
+  const chartData = aggregateDataByGroup(data, groupBy);
 
   const handleDataPointClick = (data: any, index: number) => {
-    // Set date filter when clicking on a data point
-    if (data && data.date) {
-      const clickedDate = format(new Date(data.date), "yyyy-MM-dd");
-      if (filters.dateFrom === clickedDate) {
+    if (groupBy === "month" && data && data.date) {
+      // Set date filter for the entire month when clicking on a data point in month view
+      const clickedMonth = new Date(data.date);
+      const startOfMonthDate = format(new Date(clickedMonth.getFullYear(), clickedMonth.getMonth(), 1), "yyyy-MM-dd");
+      const endOfMonthDate = format(new Date(clickedMonth.getFullYear(), clickedMonth.getMonth() + 1, 0), "yyyy-MM-dd");
+      
+      if (filters.dateFrom === startOfMonthDate && filters.dateTo === endOfMonthDate) {
+        // Clear filters if clicking the same month
         setFilter('dateFrom', undefined);
         setFilter('dateTo', undefined);
       } else {
-        setFilter('dateFrom', clickedDate);
-        setFilter('dateTo', clickedDate);
+        // Set filters for the entire month
+        setFilter('dateFrom', startOfMonthDate);
+        setFilter('dateTo', endOfMonthDate);
+      }
+    } else if (data && data.name) {
+      // Set appropriate filter for category groupings (site filtering handled at dashboard level)
+      switch (groupBy) {
+        case "department":
+          setFilter('department', data.name === filters.department ? undefined : data.name);
+          break;
+        case "payer":
+          setFilter('payer', data.name === filters.payer ? undefined : data.name);
+          break;
+        // Note: site filtering is handled at dashboard level, not in chart context
       }
     }
   };
@@ -308,7 +237,7 @@ export function WriteOffTrendsChart({ groupBy = "month" }: WriteOffTrendsChartPr
               dataKey={groupBy === "month" ? "date" : "name"}
               tick={{ fontSize: 11 }}
               tickFormatter={groupBy === "month" ? 
-                (value) => format(new Date(value), "MM/dd") : 
+                (value) => format(new Date(value), "MMM yyyy") : 
                 undefined
               }
               angle={groupBy === "month" ? 0 : -45}
@@ -329,7 +258,7 @@ export function WriteOffTrendsChart({ groupBy = "month" }: WriteOffTrendsChartPr
               tickFormatter={(value) => `${value}%`}
               axisLine={{ stroke: "#E2E8F0" }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip groupBy={groupBy} />} />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
 
             <Bar
@@ -454,9 +383,10 @@ export function WriteOffTrendsChart({ groupBy = "month" }: WriteOffTrendsChartPr
 
 interface WriteOffReasonChartProps {
   groupBy?: string;
+  data?: any[];
 }
 
-export function WriteOffReasonChart({ groupBy = "month" }: WriteOffReasonChartProps) {
+export function WriteOffReasonChart({ groupBy = "month", data = [] }: WriteOffReasonChartProps) {
   const { filters, setFilter } = useWriteOffFilters();
   
   const handleBarClick = (data: any) => {
@@ -468,46 +398,63 @@ export function WriteOffReasonChart({ groupBy = "month" }: WriteOffReasonChartPr
     }
   };
 
+  // Aggregate data by reason from actual filtered data
+  const reasonAggregation = data.reduce((acc, item) => {
+    const reason = item.reason || 'unknown';
+    const amount = item.writeOffAmount || item.amount || 0;
+    
+    if (!acc[reason]) {
+      acc[reason] = {
+        totalAmount: 0,
+        count: 0
+      };
+    }
+    
+    acc[reason].totalAmount += amount;
+    acc[reason].count += 1;
+    
+    return acc;
+  }, {});
+
+  const totalAmount = Object.values(reasonAggregation).reduce((sum: number, group: any) => sum + group.totalAmount, 0);
+
   const reasonData = [
     {
       reason: "contractual",
       displayName: "Contractual",
-      amount: writeOffTrendsData.reduce(
-        (sum, period) => sum + period.contractualAmount,
-        0,
-      ),
-      percentage: 38.5,
+      amount: reasonAggregation.contractual?.totalAmount || 0,
+      percentage: totalAmount > 0 ? ((reasonAggregation.contractual?.totalAmount || 0) / totalAmount * 100) : 0,
       color: "#3B82F6",
     },
     {
       reason: "bad_debt",
       displayName: "Bad Debt",
-      amount: writeOffTrendsData.reduce((sum, period) => sum + period.badDebtAmount, 0),
-      percentage: 28.2,
+      amount: reasonAggregation.bad_debt?.totalAmount || 0,
+      percentage: totalAmount > 0 ? ((reasonAggregation.bad_debt?.totalAmount || 0) / totalAmount * 100) : 0,
       color: "#EF4444",
     },
     {
       reason: "charity",
       displayName: "Charity Care",
-      amount: writeOffTrendsData.reduce((sum, period) => sum + period.charityAmount, 0),
-      percentage: 18.1,
+      amount: reasonAggregation.charity?.totalAmount || 0,
+      percentage: totalAmount > 0 ? ((reasonAggregation.charity?.totalAmount || 0) / totalAmount * 100) : 0,
       color: "#10B981",
     },
     {
       reason: "small_balance",
       displayName: "Small Balance",
-      amount: writeOffTrendsData.reduce((sum, period) => sum + period.smallBalanceAmount, 0),
-      percentage: 8.0,
+      amount: reasonAggregation.small_balance?.totalAmount || 0,
+      percentage: totalAmount > 0 ? ((reasonAggregation.small_balance?.totalAmount || 0) / totalAmount * 100) : 0,
       color: "#F59E0B",
     },
     {
       reason: "prompt_pay",
       displayName: "Prompt Pay",
-      amount: writeOffTrendsData.reduce((sum, period) => sum + period.promptPayAmount, 0),
-      percentage: 7.2,
+      amount: reasonAggregation.prompt_pay?.totalAmount || 0,
+      percentage: totalAmount > 0 ? ((reasonAggregation.prompt_pay?.totalAmount || 0) / totalAmount * 100) : 0,
       color: "#6e53a3",
     },
-  ];
+  ].filter(item => item.amount > 0); // Only show categories with data
 
   return (
     <div className="space-y-4">

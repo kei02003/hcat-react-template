@@ -473,7 +473,7 @@ function WriteOffDashboardContent() {
                   (Click data points to filter by date)
                 </span>
               </h3>
-              <WriteOffTrendsChart groupBy={chartGroupBy} />
+              <WriteOffTrendsChart groupBy={chartGroupBy} data={filteredWriteOffs} />
             </CardContent>
           </Card>
 
@@ -485,7 +485,7 @@ function WriteOffDashboardContent() {
                   (Click bars to filter)
                 </span>
               </h3>
-              <WriteOffReasonChart groupBy={chartGroupBy} />
+              <WriteOffReasonChart groupBy={chartGroupBy} data={filteredWriteOffs} />
             </CardContent>
           </Card>
         </div>
