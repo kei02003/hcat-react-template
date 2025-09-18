@@ -326,25 +326,17 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                   {metrics.map((metric) => (
                     <div
                       key={metric.metric_version_key}
-                      className={`border rounded-lg p-3 transition-all hover:shadow-sm cursor-pointer ${
+                      className={`border rounded-lg p-3 transition-all hover:shadow-sm ${
                         selectedMetrics.includes(metric.metric_version_key)
                           ? 'border-blue-300 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
-                      onClick={() => handleMetricToggle(metric.metric_version_key)}
                       data-testid={`metric-item-${metric.metric_version_key}`}
                     >
                       <div className="flex items-start space-x-3">
                         <Checkbox
                           checked={selectedMetrics.includes(metric.metric_version_key)}
-                          onCheckedChange={(checked) => {
-                            // Use the checked parameter to determine state directly
-                            if (checked && !selectedMetrics.includes(metric.metric_version_key) && selectedMetrics.length < maxSelections) {
-                              onMetricsChange([...selectedMetrics, metric.metric_version_key]);
-                            } else if (!checked && selectedMetrics.includes(metric.metric_version_key)) {
-                              onMetricsChange(selectedMetrics.filter(key => key !== metric.metric_version_key));
-                            }
-                          }}
+                          onCheckedChange={() => handleMetricToggle(metric.metric_version_key)}
                           className="mt-1"
                           data-testid={`checkbox-${metric.metric_version_key}`}
                         />
