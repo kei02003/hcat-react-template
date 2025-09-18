@@ -14,6 +14,144 @@ import {
 import { format } from "date-fns";
 import { useWriteOffFilters } from '../writeoff-filter-context';
 
+// Import writeoff data from the main dashboard
+const writeOffData = [
+  {
+    writeOffId: "WO-001",
+    patientName: "Rodriguez, Maria C.",
+    writeOffDate: "2024-12-15",
+    amount: 8450.00,
+    reason: "bad_debt",
+    status: "final",
+    department: "Cardiology",
+    payerName: "Self-Pay",
+    site: "Medical Center Health System",
+    badDebtFlag: true,
+  },
+  {
+    writeOffId: "WO-002", 
+    patientName: "Thompson, Robert K.",
+    writeOffDate: "2024-12-14",
+    amount: 3200.00,
+    reason: "contractual",
+    status: "final",
+    department: "Emergency Department", 
+    payerName: "Blue Cross Blue Shield",
+    site: "Hendrick Health",
+    badDebtFlag: false,
+  },
+  {
+    writeOffId: "WO-003",
+    patientName: "Davis, Amanda L.",
+    writeOffDate: "2024-12-13",
+    amount: 15670.00,
+    reason: "charity",
+    status: "final",
+    department: "Surgery",
+    payerName: "Uninsured",
+    site: "Medical Center Health System",
+    badDebtFlag: false,
+  },
+  {
+    writeOffId: "WO-004",
+    patientName: "Wilson, Sarah M.",
+    writeOffDate: "2024-12-12",
+    amount: 2150.00,
+    reason: "small_balance",
+    status: "final",
+    department: "Radiology",
+    payerName: "Medicare",
+    site: "Hendrick Health",
+    badDebtFlag: false,
+  },
+  {
+    writeOffId: "WO-005",
+    patientName: "Johnson, Michael R.",
+    writeOffDate: "2024-12-11",
+    amount: 6780.00,
+    reason: "bad_debt",
+    status: "final",
+    department: "Orthopedics",
+    payerName: "Self-Pay",
+    site: "Medical Center Health System",
+    badDebtFlag: true,
+  },
+];
+
+// Data aggregation functions
+const aggregateDataByGroup = (data: any[], groupBy: string) => {
+  if (groupBy === "month") {
+    return writeOffTrendsData; // Use existing time-series data for month view
+  }
+
+  const grouped = data.reduce((acc, item) => {
+    let key = "";
+    switch (groupBy) {
+      case "site":
+        key = item.site || "Unknown Site";
+        break;
+      case "department":
+        key = item.department || "Unknown Department";
+        break;
+      case "payer":
+        key = item.payerName || "Unknown Payer";
+        break;
+      default:
+        key = "All";
+    }
+
+    if (!acc[key]) {
+      acc[key] = {
+        name: key,
+        totalWriteOffs: 0,
+        badDebtAmount: 0,
+        contractualAmount: 0,
+        charityAmount: 0,
+        smallBalanceAmount: 0,
+        promptPayAmount: 0,
+        recoveryAmount: 0,
+        writeOffCount: 0,
+        badDebtCount: 0,
+      };
+    }
+
+    acc[key].totalWriteOffs += item.amount || item.writeOffAmount || 0;
+    acc[key].writeOffCount += 1;
+    
+    // Categorize by reason
+    const amount = item.amount || item.writeOffAmount || 0;
+    switch (item.reason) {
+      case "bad_debt":
+        acc[key].badDebtAmount += amount;
+        acc[key].badDebtCount += 1;
+        break;
+      case "contractual":
+        acc[key].contractualAmount += amount;
+        break;
+      case "charity":
+        acc[key].charityAmount += amount;
+        break;
+      case "small_balance":
+        acc[key].smallBalanceAmount += amount;
+        break;
+      case "prompt_pay":
+        acc[key].promptPayAmount += amount;
+        break;
+    }
+
+    acc[key].recoveryAmount += item.recoveryAmount || 0;
+
+    return acc;
+  }, {});
+
+  // Convert to array and add recovery rate calculation
+  return Object.values(grouped).map((group: any) => ({
+    ...group,
+    recoveryRate: group.totalWriteOffs > 0 ? 
+      ((group.recoveryAmount / group.totalWriteOffs) * 100) : 0,
+  }));
+};
+
 const writeOffTrendsData = [
   {
     date: "2024-10-01",
@@ -128,8 +266,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function WriteOffTrendsChart() {
+interface WriteOffTrendsChartProps {
+  groupBy?: string;
+}
+
+export function WriteOffTrendsChart({ groupBy = "month" }: WriteOffTrendsChartProps) {
   const { filters, setFilter } = useWriteOffFilters();
+
+  // Get chart data based on groupBy option
+  const chartData = aggregateDataByGroup(writeOffData, groupBy);
 
   const handleDataPointClick = (data: any, index: number) => {
     // Set date filter when clicking on a data point
@@ -150,19 +295,25 @@ export function WriteOffTrendsChart() {
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
-            data={writeOffTrendsData}
+            data={chartData}
             margin={{
               top: 20,
               right: 30,
               left: 20,
-              bottom: 5,
+              bottom: groupBy === "month" ? 5 : 60,
             }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
             <XAxis
-              dataKey="date"
+              dataKey={groupBy === "month" ? "date" : "name"}
               tick={{ fontSize: 11 }}
-              tickFormatter={(value) => format(new Date(value), "MM/dd")}
+              tickFormatter={groupBy === "month" ? 
+                (value) => format(new Date(value), "MM/dd") : 
+                undefined
+              }
+              angle={groupBy === "month" ? 0 : -45}
+              textAnchor={groupBy === "month" ? "middle" : "end"}
+              height={groupBy === "month" ? 30 : 80}
               axisLine={{ stroke: "#E2E8F0" }}
             />
             <YAxis
@@ -223,8 +374,8 @@ export function WriteOffTrendsChart() {
               <p className="text-xl font-bold text-red-900">
                 $
                 {(
-                  writeOffTrendsData.reduce(
-                    (sum, period) => sum + period.totalWriteOffs,
+                  chartData.reduce(
+                    (sum, period) => sum + (period.totalWriteOffs || 0),
                     0,
                   ) / 1000
                 ).toFixed(0)}
@@ -242,12 +393,12 @@ export function WriteOffTrendsChart() {
               </h4>
               <p className="text-xl font-bold text-orange-900">
                 {(
-                  (writeOffTrendsData.reduce(
-                    (sum, period) => sum + period.badDebtAmount,
+                  (chartData.reduce(
+                    (sum, period) => sum + (period.badDebtAmount || 0),
                     0,
                   ) /
-                    writeOffTrendsData.reduce(
-                      (sum, period) => sum + period.totalWriteOffs,
+                    chartData.reduce(
+                      (sum, period) => sum + (period.totalWriteOffs || 0),
                       0,
                     )) *
                   100
@@ -266,10 +417,10 @@ export function WriteOffTrendsChart() {
               </h4>
               <p className="text-xl font-bold text-[#6e53a3]">
                 {(
-                  writeOffTrendsData.reduce(
-                    (sum, period) => sum + period.recoveryRate,
+                  chartData.reduce(
+                    (sum, period) => sum + (period.recoveryRate || 0),
                     0,
-                  ) / writeOffTrendsData.length
+                  ) / (chartData.length || 1)
                 ).toFixed(1)}
                 %
               </p>
@@ -286,8 +437,8 @@ export function WriteOffTrendsChart() {
               <p className="text-xl font-bold text-green-900">
                 $
                 {(
-                  writeOffTrendsData.reduce(
-                    (sum, period) => sum + period.recoveryAmount,
+                  chartData.reduce(
+                    (sum, period) => sum + (period.recoveryAmount || 0),
                     0,
                   ) / 1000
                 ).toFixed(0)}
@@ -301,7 +452,11 @@ export function WriteOffTrendsChart() {
   );
 }
 
-export function WriteOffReasonChart() {
+interface WriteOffReasonChartProps {
+  groupBy?: string;
+}
+
+export function WriteOffReasonChart({ groupBy = "month" }: WriteOffReasonChartProps) {
   const { filters, setFilter } = useWriteOffFilters();
   
   const handleBarClick = (data: any) => {

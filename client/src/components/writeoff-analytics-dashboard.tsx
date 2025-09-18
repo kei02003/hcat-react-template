@@ -276,6 +276,7 @@ function WriteOffDashboardContent() {
   const [selectedPayer, setSelectedPayer] = useState("All Payers");
   const [selectedSite, setSelectedSite] = useState("All Sites");
   const [searchTerm, setSearchTerm] = useState("");
+  const [chartGroupBy, setChartGroupBy] = useState("month");
 
   const filteredWriteOffs = writeOffData.filter((writeOff) => {
     const matchesSearch =
@@ -437,6 +438,29 @@ function WriteOffDashboardContent() {
         </CardContent>
       </Card>
 
+      {/* Chart Grouping Controls */}
+      <Card className="healthcare-card">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Chart View Options</h3>
+            <div className="flex items-center space-x-3">
+              <span className="text-sm text-gray-600">Group by:</span>
+              <Select value={chartGroupBy} onValueChange={setChartGroupBy}>
+                <SelectTrigger className="w-40" data-testid="select-chart-group">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="month">Month</SelectItem>
+                  <SelectItem value="site">Site</SelectItem>
+                  <SelectItem value="department">Department</SelectItem>
+                  <SelectItem value="payer">Payer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Analytics Charts */}
       <div className={`grid gap-6 ${hasActiveFilters ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
         {/* Left Column: Charts */}
@@ -449,7 +473,7 @@ function WriteOffDashboardContent() {
                   (Click data points to filter by date)
                 </span>
               </h3>
-              <WriteOffTrendsChart />
+              <WriteOffTrendsChart groupBy={chartGroupBy} />
             </CardContent>
           </Card>
 
@@ -461,7 +485,7 @@ function WriteOffDashboardContent() {
                   (Click bars to filter)
                 </span>
               </h3>
-              <WriteOffReasonChart />
+              <WriteOffReasonChart groupBy={chartGroupBy} />
             </CardContent>
           </Card>
         </div>

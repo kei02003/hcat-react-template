@@ -21,6 +21,7 @@ interface TimelyFilingClaim {
   agingCategory: string;
   claimAmount: string;
   department: string;
+  site: string;
   procedureDescription: string;
   denialStatus: string;
   denialReason?: string;
