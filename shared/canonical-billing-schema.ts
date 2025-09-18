@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, integer, timestamp, boolean, date } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, integer, timestamp, boolean, date, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -37,6 +37,19 @@ export const transactions = pgTable("transactions", {
   // Dates
   service_date: date("service_date").notNull(),
   post_date: date("post_date").notNull(),
+
+  // === EXTENSIONS: Operational Analytics Fields ===
+  // Advanced adjustment categorization with structured data
+  adjustment_type_code: json("adjustment_type_code").$type<{
+    value: string; // bad_debt, charity, contractual, timely_filing, admin
+    system: string; // coding system (e.g., 'internal', 'carc', 'rarc')
+    description: string; // human-readable description
+  }>(),
+  
+  // Point of service and cash flow tracking
+  is_point_of_service: boolean("is_point_of_service").default(false),
+  cash_posting_date: timestamp("cash_posting_date"),
+  expected_reimbursement: decimal("expected_reimbursement", { precision: 12, scale: 2 }),
   
   // Metadata
   meta_updated: timestamp("meta_updated").defaultNow(),
@@ -78,6 +91,15 @@ export const accounts = pgTable("accounts", {
   // Key dates
   admit_datetime: timestamp("admit_datetime"),
   discharge_datetime: timestamp("discharge_datetime"),
+
+  // === EXTENSIONS: Billing Timeline & Clean Claim Analytics ===
+  // Billing process timeline tracking
+  final_billed_date: timestamp("final_billed_date"),
+  claim_submission_date: timestamp("claim_submission_date"),
+  days_to_final_bill: integer("days_to_final_bill"),
+  
+  // Clean claim indicators for revenue cycle optimization
+  is_clean_claim: boolean("is_clean_claim").default(false),
   
   // Metadata
   meta_updated: timestamp("meta_updated").defaultNow(),
@@ -214,6 +236,18 @@ export const denial_remarks = pgTable("denial_remarks", {
   appeal_status: text("appeal_status"), // pending, submitted, approved, denied
   appeal_deadline: date("appeal_deadline"),
   appeal_submitted_date: date("appeal_submitted_date"),
+
+  // === EXTENSIONS: Enhanced Appeal Management Analytics ===
+  // Standardized appeal status tracking
+  enhanced_appeal_status: text("enhanced_appeal_status").default('not_appealed'), // not_appealed, pending, approved, denied
+  appeal_submission_date: timestamp("appeal_submission_date"),
+  appeal_resolution_date: timestamp("appeal_resolution_date"),
+  
+  // Financial recovery tracking
+  recovery_amount: decimal("recovery_amount", { precision: 12, scale: 2 }),
+  
+  // Denial prevention analytics
+  is_avoidable: boolean("is_avoidable").default(false),
   
   // Metadata
   meta_updated: timestamp("meta_updated").defaultNow(),

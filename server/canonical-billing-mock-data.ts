@@ -242,6 +242,16 @@ export function generateSampleAccounts(): InsertAccount[] {
           total_adjustments: adjustments.toFixed(2),
           admit_datetime: admitDate,
           discharge_datetime: dischargeDate,
+
+          // === EXTENSIONS: Billing Timeline & Clean Claim Analytics ===
+          // Billing process timeline tracking
+          final_billed_date: new Date(dischargeDate.getTime() + (2 + accountIndex % 5) * 24 * 60 * 60 * 1000), // 2-6 days after discharge
+          claim_submission_date: new Date(dischargeDate.getTime() + (3 + accountIndex % 7) * 24 * 60 * 60 * 1000), // 3-9 days after discharge
+          days_to_final_bill: 2 + (accountIndex % 5), // 2-6 days billing cycle
+          
+          // Clean claim indicators for revenue cycle optimization
+          is_clean_claim: accountIndex % 4 !== 0, // 75% clean claim rate (realistic for healthcare)
+
           meta_updated: now,
           meta_created: now,
           meta_source: "billing_system"
@@ -307,6 +317,13 @@ export function generateSampleTransactions(accounts: InsertAccount[]): InsertTra
         cpt_modifiers: i % 3 === 0 ? "25" : undefined, // Some modifiers for realism
         service_date: serviceDate,
         post_date: new Date(serviceDate.getTime() + 2 * 24 * 60 * 60 * 1000), // Posted 2 days later
+        
+        // === EXTENSIONS: Operational Analytics Fields ===
+        adjustment_type_code: undefined, // No adjustment for charge transactions
+        is_point_of_service: cptInfo.code === "36415" || cptInfo.code === "80053", // Lab draws and basic tests
+        cash_posting_date: undefined, // No cash posting for charges
+        expected_reimbursement: (chargeAmount * (0.75 + Math.random() * 0.2)).toFixed(2), // 75-95% expected reimbursement
+        
         meta_updated: now,
         meta_created: now,
         meta_source: "billing_system"
@@ -339,6 +356,13 @@ export function generateSampleTransactions(accounts: InsertAccount[]): InsertTra
         cpt_modifiers: undefined,
         service_date: account.admit_datetime || now,
         post_date: new Date(now.getTime() - (10 + accountIndex) * 24 * 60 * 60 * 1000), // Payment received 10+ days ago
+        
+        // === EXTENSIONS: Operational Analytics Fields ===
+        adjustment_type_code: undefined, // No adjustment code for payments
+        is_point_of_service: false, // Payments are not point of service
+        cash_posting_date: new Date(now.getTime() - (8 + accountIndex) * 24 * 60 * 60 * 1000), // Cash posted 8+ days ago
+        expected_reimbursement: paymentAmount.toFixed(2), // Payment amount matches expected
+        
         meta_updated: now,
         meta_created: now,
         meta_source: "era_processing"
@@ -371,6 +395,22 @@ export function generateSampleTransactions(accounts: InsertAccount[]): InsertTra
         cpt_modifiers: undefined,
         service_date: account.admit_datetime || now,
         post_date: new Date(now.getTime() - (5 + accountIndex) * 24 * 60 * 60 * 1000), // Adjustment processed 5+ days ago
+        
+        // === EXTENSIONS: Operational Analytics Fields ===
+        // Structured adjustment categorization for revenue cycle analytics
+        adjustment_type_code: {
+          value: accountIndex % 4 === 0 ? "contractual" : 
+                 accountIndex % 4 === 1 ? "bad_debt" :
+                 accountIndex % 4 === 2 ? "charity" : "timely_filing",
+          system: "internal",
+          description: accountIndex % 4 === 0 ? "Contractual payer adjustment" :
+                      accountIndex % 4 === 1 ? "Bad debt write-off" :
+                      accountIndex % 4 === 2 ? "Charity care adjustment" : "Timely filing denial adjustment"
+        },
+        is_point_of_service: false, // Adjustments are not point of service
+        cash_posting_date: undefined, // No cash posting for adjustments
+        expected_reimbursement: "0.00", // No reimbursement expected for adjustments
+        
         meta_updated: now,
         meta_created: now,
         meta_source: "era_processing"
@@ -516,6 +556,23 @@ export function generateSampleDenialRemarks(transactions: InsertTransaction[]): 
       appeal_status: index % 4 === 0 ? "submitted" : index % 4 === 1 ? "approved" : index % 4 === 2 ? "denied" : undefined,
       appeal_deadline: appealDeadline,
       appeal_submitted_date: index % 3 === 0 ? new Date(receivedDate.getTime() + 15 * 24 * 60 * 60 * 1000) : undefined,
+
+      // === EXTENSIONS: Enhanced Appeal Management Analytics ===
+      // Standardized appeal status tracking
+      enhanced_appeal_status: index % 5 === 0 ? "approved" : 
+                             index % 5 === 1 ? "denied" :
+                             index % 5 === 2 ? "pending" : "not_appealed",
+      appeal_submission_date: index % 3 === 0 ? new Date(receivedDate.getTime() + 15 * 24 * 60 * 60 * 1000) : undefined,
+      appeal_resolution_date: index % 4 === 0 ? new Date(receivedDate.getTime() + 45 * 24 * 60 * 60 * 1000) : undefined,
+      
+      // Financial recovery tracking
+      recovery_amount: index % 4 === 0 ? parseFloat(transaction.amount) * 0.8 : // 80% recovery for approved appeals
+                      index % 4 === 1 ? parseFloat(transaction.amount) * 0.5 : // 50% partial recovery
+                      undefined,
+      
+      // Denial prevention analytics
+      is_avoidable: template.preventable,
+
       meta_updated: now,
       meta_created: now,
       meta_source: "era_processing"
