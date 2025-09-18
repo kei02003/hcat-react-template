@@ -37,19 +37,21 @@ export function DynamicMetricCard({
 
   // Fetch latest result for this metric
   const { data: latestResults = [], isLoading: isLoadingLatest } = useQuery<CanonicalResult[]>({
-    queryKey: ["/api/canonical-results/latest", metricVersionKey, entityId],
+    queryKey: ["/api/canonical-results/latest", metricVersionKey, entityId || "default"],
     queryFn: async () => {
       const url = `/api/canonical-results/latest/${metricVersionKey}${entityId ? `?entityId=${entityId}` : ''}`;
       const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch latest results");
       return response.json();
     },
-    enabled: !!metricVersionKey
+    enabled: !!metricVersionKey,
+    staleTime: 30000, // Keep data fresh for 30 seconds
+    cacheTime: 300000 // Cache for 5 minutes
   });
 
   // Fetch trend data if requested
   const { data: trendResults = [] } = useQuery<CanonicalResult[]>({
-    queryKey: ["/api/canonical-results", metricVersionKey, entityId],
+    queryKey: ["/api/canonical-results", metricVersionKey, entityId || "default"],
     queryFn: async () => {
       const params = new URLSearchParams({ metricVersionKey });
       if (entityId) params.append("entityId", entityId);
@@ -58,7 +60,9 @@ export function DynamicMetricCard({
       if (!response.ok) throw new Error("Failed to fetch trend results");
       return response.json();
     },
-    enabled: showTrend && !!metricVersionKey
+    enabled: showTrend && !!metricVersionKey,
+    staleTime: 30000, // Keep data fresh for 30 seconds
+    cacheTime: 300000 // Cache for 5 minutes
   });
 
   const metricVersion = useMemo(() => 
