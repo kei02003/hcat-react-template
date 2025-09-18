@@ -205,6 +205,20 @@ export function generateSampleClaimHeaders(orgId: string, count: number = 20): I
       prior_auth_number: Math.random() > 0.7 ? `AUTH${String(Math.floor(Math.random() * 999999) + 100000)}` : null,
       eligibility_verified: Math.random() > 0.2, // 80% verified
       eligibility_verified_date: Math.random() > 0.2 ? new Date(submissionDate.getTime() - Math.random() * 7 * 24 * 60 * 60 * 1000) : null,
+
+      // === EXTENSIONS: Claims Submission & Timeline Analytics ===
+      // Enhanced submission tracking
+      claim_submission_date: submissionDate,
+      first_submission_date: submissionDate,
+      resubmission_count: Math.random() > 0.9 ? Math.floor(Math.random() * 3) + 1 : 0, // 10% have resubmissions (1-3)
+      
+      // Clean claim workflow analytics
+      clean_claim_status: status === 'denied' ? 'rejected' : 
+                         Math.random() > 0.85 ? 'resubmitted' : 'clean', // 15% require resubmission
+      
+      // Payment and deadline tracking
+      days_to_payment: status === 'paid' ? Math.floor(Math.random() * 45) + 15 : null, // 15-60 days for paid claims
+      filing_deadline_date: new Date(submissionDate.getTime() + (365 + Math.random() * 90) * 24 * 60 * 60 * 1000), // 365-455 days from submission
       
       // Audit fields
       created_at: submissionDate,

@@ -60,6 +60,19 @@ export const canonicalClaimHeaders = pgTable('canonical_claim_headers', {
   prior_auth_number: varchar('prior_auth_number'),
   eligibility_verified: boolean('eligibility_verified').default(false),
   eligibility_verified_date: timestamp('eligibility_verified_date'),
+
+  // === EXTENSIONS: Claims Submission & Timeline Analytics ===
+  // Enhanced submission tracking
+  claim_submission_date: timestamp('claim_submission_date'),
+  first_submission_date: timestamp('first_submission_date'),
+  resubmission_count: integer('resubmission_count').default(0),
+  
+  // Clean claim workflow analytics
+  clean_claim_status: varchar('clean_claim_status').default('clean'), // clean, rejected, resubmitted
+  
+  // Payment and deadline tracking
+  days_to_payment: integer('days_to_payment'),
+  filing_deadline_date: timestamp('filing_deadline_date'),
   
   // Audit fields
   created_at: timestamp('created_at').notNull().defaultNow(),
