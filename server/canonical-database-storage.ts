@@ -11,12 +11,33 @@ import {
   type InsertCanonicalStagingResult,
   type CanonicalMetricLineage,
   type InsertCanonicalMetricLineage,
+  type Transaction,
+  type InsertTransaction,
+  type Account,
+  type InsertAccount,
+  type Payer,
+  type InsertPayer,
+  type BenefitPlan,
+  type InsertBenefitPlan,
+  type Procedure,
+  type InsertProcedure,
+  type Diagnosis,
+  type InsertDiagnosis,
+  type DenialRemark,
+  type InsertDenialRemark,
   createGrainKey,
   canonicalMetric,
   canonicalMetricVersion,
   canonicalResult,
   canonicalStagingResult,
-  canonicalMetricLineage
+  canonicalMetricLineage,
+  transactions,
+  accounts,
+  payers,
+  benefit_plans,
+  procedures,
+  diagnoses,
+  denial_remarks
 } from "@shared/schema";
 
 export class CanonicalDatabaseStorage {
@@ -363,6 +384,135 @@ export class CanonicalDatabaseStorage {
     return allResults;
   }
 
+  // Billing Data Methods
+  async createPayer(payer: InsertPayer): Promise<Payer> {
+    const [result] = await db.insert(payers).values(payer).returning();
+    return result;
+  }
+
+  async getPayers(orgId?: string): Promise<Payer[]> {
+    let query = db.select().from(payers).orderBy(payers.payer_name);
+    if (orgId) {
+      query = query.where(eq(payers.org_id, orgId));
+    }
+    return await query;
+  }
+
+  async createBenefitPlan(plan: InsertBenefitPlan): Promise<BenefitPlan> {
+    const [result] = await db.insert(benefit_plans).values(plan).returning();
+    return result;
+  }
+
+  async getBenefitPlans(orgId?: string): Promise<BenefitPlan[]> {
+    let query = db.select().from(benefit_plans).orderBy(benefit_plans.plan_name);
+    if (orgId) {
+      query = query.where(eq(benefit_plans.org_id, orgId));
+    }
+    return await query;
+  }
+
+  async createAccount(account: InsertAccount): Promise<Account> {
+    const [result] = await db.insert(accounts).values(account).returning();
+    return result;
+  }
+
+  async getAccounts(orgId?: string, entityId?: string): Promise<Account[]> {
+    let query = db.select().from(accounts).orderBy(desc(accounts.meta_created));
+    
+    if (orgId && entityId) {
+      query = query.where(and(
+        eq(accounts.org_id, orgId),
+        eq(accounts.entity_id, entityId)
+      ));
+    } else if (orgId) {
+      query = query.where(eq(accounts.org_id, orgId));
+    }
+    
+    return await query;
+  }
+
+  async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
+    const [result] = await db.insert(transactions).values(transaction).returning();
+    return result;
+  }
+
+  async getTransactions(orgId?: string, accountKey?: string): Promise<Transaction[]> {
+    let query = db.select().from(transactions).orderBy(desc(transactions.service_date));
+    
+    if (orgId && accountKey) {
+      query = query.where(and(
+        eq(transactions.org_id, orgId),
+        eq(transactions.billing_account_key, accountKey)
+      ));
+    } else if (orgId) {
+      query = query.where(eq(transactions.org_id, orgId));
+    }
+    
+    return await query;
+  }
+
+  async createProcedure(procedure: InsertProcedure): Promise<Procedure> {
+    const [result] = await db.insert(procedures).values(procedure).returning();
+    return result;
+  }
+
+  async getProcedures(orgId?: string, accountKey?: string): Promise<Procedure[]> {
+    let query = db.select().from(procedures).orderBy(desc(procedures.performed_datetime));
+    
+    if (orgId && accountKey) {
+      query = query.where(and(
+        eq(procedures.org_id, orgId),
+        eq(procedures.billing_account_key, accountKey)
+      ));
+    } else if (orgId) {
+      query = query.where(eq(procedures.org_id, orgId));
+    }
+    
+    return await query;
+  }
+
+  async createDiagnosis(diagnosis: InsertDiagnosis): Promise<Diagnosis> {
+    const [result] = await db.insert(diagnoses).values(diagnosis).returning();
+    return result;
+  }
+
+  async getDiagnoses(orgId?: string, accountKey?: string): Promise<Diagnosis[]> {
+    let query = db.select().from(diagnoses).orderBy(desc(diagnoses.diagnosis_datetime));
+    
+    if (orgId && accountKey) {
+      query = query.where(and(
+        eq(diagnoses.org_id, orgId),
+        eq(diagnoses.billing_account_key, accountKey)
+      ));
+    } else if (orgId) {
+      query = query.where(eq(diagnoses.org_id, orgId));
+    }
+    
+    return await query;
+  }
+
+  async createDenialRemark(denialRemark: InsertDenialRemark): Promise<DenialRemark> {
+    const [result] = await db.insert(denial_remarks).values(denialRemark).returning();
+    return result;
+  }
+
+  async getDenialRemarks(orgId?: string, active?: boolean): Promise<DenialRemark[]> {
+    let query = db.select().from(denial_remarks).orderBy(desc(denial_remarks.received_datetime));
+    
+    if (orgId && active !== undefined) {
+      query = query.where(and(
+        eq(denial_remarks.org_id, orgId),
+        eq(denial_remarks.active, active)
+      ));
+    } else if (orgId) {
+      query = query.where(eq(denial_remarks.org_id, orgId));
+    } else if (active !== undefined) {
+      query = query.where(eq(denial_remarks.active, active));
+    }
+    
+    return await query;
+  }
+
   // Initialize canonical metrics and sample data
   async initializeCanonicalMetrics(): Promise<void> {
     try {
@@ -370,6 +520,8 @@ export class CanonicalDatabaseStorage {
       const existingMetrics = await this.getCanonicalMetrics();
       if (existingMetrics.length > 0) {
         console.log("✓ Canonical metrics already initialized");
+        // Still check and initialize billing data if needed
+        await this.initializeBillingData();
         return;
       }
 
@@ -416,8 +568,77 @@ export class CanonicalDatabaseStorage {
       console.log(`✓ Initialized ${stagingResults.length} staging results`);
       console.log(`✓ Initialized ${lineageData.length} metric lineage records`);
 
+      // Initialize billing data
+      await this.initializeBillingData();
+
     } catch (error) {
       console.error("Failed to initialize canonical metrics:", error);
+      throw error;
+    }
+  }
+
+  // Initialize canonical billing data
+  async initializeBillingData(): Promise<void> {
+    try {
+      // Check if we already have billing data initialized
+      const existingPayers = await this.getPayers();
+      if (existingPayers.length > 0) {
+        console.log("✓ Canonical billing data already initialized");
+        return;
+      }
+
+      console.log("Initializing canonical billing data...");
+
+      // Generate comprehensive billing mock data
+      const { generateAllBillingMockData } = await import("./canonical-billing-mock-data");
+      const billingData = generateAllBillingMockData();
+
+      // Insert payers
+      for (const payer of billingData.payers) {
+        await this.createPayer(payer);
+      }
+
+      // Insert benefit plans
+      for (const plan of billingData.benefitPlans) {
+        await this.createBenefitPlan(plan);
+      }
+
+      // Insert accounts
+      for (const account of billingData.accounts) {
+        await this.createAccount(account);
+      }
+
+      // Insert transactions
+      for (const transaction of billingData.transactions) {
+        await this.createTransaction(transaction);
+      }
+
+      // Insert procedures
+      for (const procedure of billingData.procedures) {
+        await this.createProcedure(procedure);
+      }
+
+      // Insert diagnoses
+      for (const diagnosis of billingData.diagnoses) {
+        await this.createDiagnosis(diagnosis);
+      }
+
+      // Insert denial remarks
+      for (const denialRemark of billingData.denialRemarks) {
+        await this.createDenialRemark(denialRemark);
+      }
+
+      console.log(`✓ Initialized ${billingData.summary.payers} payers`);
+      console.log(`✓ Initialized ${billingData.summary.benefitPlans} benefit plans`);
+      console.log(`✓ Initialized ${billingData.summary.accounts} patient accounts`);
+      console.log(`✓ Initialized ${billingData.summary.transactions} billing transactions`);
+      console.log(`✓ Initialized ${billingData.summary.procedures} procedures`);
+      console.log(`✓ Initialized ${billingData.summary.diagnoses} diagnoses`);
+      console.log(`✓ Initialized ${billingData.summary.denialRemarks} denial remarks`);
+      console.log("✓ Canonical billing data initialization complete");
+
+    } catch (error) {
+      console.error("Failed to initialize canonical billing data:", error);
       throw error;
     }
   }

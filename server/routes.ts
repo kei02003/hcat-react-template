@@ -156,6 +156,167 @@ function generateDynamicAppealCase(denialId: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Development-only public canonical billing endpoints (mounted before auth)
+  if (process.env.NODE_ENV === 'development') {
+    console.log("⚠️  Mounting public billing endpoints for development");
+    
+    // Public Billing API Routes (Development Only - No Auth Required)
+    app.get("/api/billing/payers", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const payers = await canonicalDb.getPayers(orgId);
+        res.json(payers);
+      } catch (error) {
+        console.error("Error fetching payers:", error);
+        res.status(500).json({ message: "Failed to fetch payers" });
+      }
+    });
+
+    app.get("/api/billing/accounts", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const entityId = req.query.entityId as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const accounts = await canonicalDb.getAccounts(orgId, entityId);
+        res.json(accounts);
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+        res.status(500).json({ message: "Failed to fetch accounts" });
+      }
+    });
+
+    app.get("/api/billing/transactions", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const accountKey = req.query.accountKey as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const transactions = await canonicalDb.getTransactions(orgId, accountKey);
+        res.json(transactions);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        res.status(500).json({ message: "Failed to fetch transactions" });
+      }
+    });
+
+    app.get("/api/billing/procedures", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const accountKey = req.query.accountKey as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const procedures = await canonicalDb.getProcedures(orgId, accountKey);
+        res.json(procedures);
+      } catch (error) {
+        console.error("Error fetching procedures:", error);
+        res.status(500).json({ message: "Failed to fetch procedures" });
+      }
+    });
+
+    app.get("/api/billing/diagnoses", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const accountKey = req.query.accountKey as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const diagnoses = await canonicalDb.getDiagnoses(orgId, accountKey);
+        res.json(diagnoses);
+      } catch (error) {
+        console.error("Error fetching diagnoses:", error);
+        res.status(500).json({ message: "Failed to fetch diagnoses" });
+      }
+    });
+
+    app.get("/api/billing/benefit-plans", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const plans = await canonicalDb.getBenefitPlans(orgId);
+        res.json(plans);
+      } catch (error) {
+        console.error("Error fetching benefit plans:", error);
+        res.status(500).json({ message: "Failed to fetch benefit plans" });
+      }
+    });
+
+    app.get("/api/billing/denial-remarks", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const active = req.query.active === 'true' ? true : req.query.active === 'false' ? false : undefined;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const denialRemarks = await canonicalDb.getDenialRemarks(orgId, active);
+        res.json(denialRemarks);
+      } catch (error) {
+        console.error("Error fetching denial remarks:", error);
+        res.status(500).json({ message: "Failed to fetch denial remarks" });
+      }
+    });
+
+    app.get("/api/billing/summary", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        
+        const [payers, accounts, transactions, denialRemarks] = await Promise.all([
+          canonicalDb.getPayers(orgId),
+          canonicalDb.getAccounts(orgId),
+          canonicalDb.getTransactions(orgId),
+          canonicalDb.getDenialRemarks(orgId, true)
+        ]);
+        
+        const totalCharges = transactions
+          .filter(t => t.type_code === 'charge')
+          .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        
+        const totalPayments = transactions
+          .filter(t => t.type_code === 'payment')
+          .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        
+        const totalAdjustments = transactions
+          .filter(t => t.type_code === 'adjustment')
+          .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+        
+        const totalAR = totalCharges - totalPayments - totalAdjustments;
+        
+        const summary = {
+          organization: orgId,
+          counts: {
+            payers: payers.length,
+            accounts: accounts.length,
+            transactions: transactions.length,
+            active_denials: denialRemarks.length
+          },
+          financial: {
+            total_charges: totalCharges.toFixed(2),
+            total_payments: totalPayments.toFixed(2),
+            total_adjustments: totalAdjustments.toFixed(2),
+            total_ar: totalAR.toFixed(2)
+          }
+        };
+        
+        res.json(summary);
+      } catch (error) {
+        console.error("Error fetching billing summary:", error);
+        res.status(500).json({ message: "Failed to fetch billing summary" });
+      }
+    });
+  }
+
   // Setup authentication
   await setupAuth(app);
   
@@ -562,6 +723,187 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(lineageData);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch metric lineage" });
+    }
+  });
+
+  // Canonical Billing API Routes (Protected)
+  
+  // Payers
+  app.get("/api/billing/payers", async (req, res) => {
+    try {
+      const orgId = req.query.orgId as string;
+      
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      const payers = await canonicalDb.getPayers(orgId);
+      res.json(payers);
+    } catch (error) {
+      console.error("Error fetching payers:", error);
+      res.status(500).json({ message: "Failed to fetch payers" });
+    }
+  });
+
+  // Patient Accounts
+  app.get("/api/billing/accounts", async (req, res) => {
+    try {
+      const orgId = req.query.orgId as string;
+      const entityId = req.query.entityId as string;
+      
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      const accounts = await canonicalDb.getAccounts(orgId, entityId);
+      res.json(accounts);
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+      res.status(500).json({ message: "Failed to fetch accounts" });
+    }
+  });
+
+  // Billing Transactions
+  app.get("/api/billing/transactions", async (req, res) => {
+    try {
+      const orgId = req.query.orgId as string;
+      const accountKey = req.query.accountKey as string;
+      
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      const transactions = await canonicalDb.getTransactions(orgId, accountKey);
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  // Procedures  
+  app.get("/api/billing/procedures", async (req, res) => {
+    try {
+      const orgId = req.query.orgId as string;
+      const accountKey = req.query.accountKey as string;
+      
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      const procedures = await canonicalDb.getProcedures(orgId, accountKey);
+      res.json(procedures);
+    } catch (error) {
+      console.error("Error fetching procedures:", error);
+      res.status(500).json({ message: "Failed to fetch procedures" });
+    }
+  });
+
+  // Diagnoses
+  app.get("/api/billing/diagnoses", async (req, res) => {
+    try {
+      const orgId = req.query.orgId as string;
+      const accountKey = req.query.accountKey as string;
+      
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      const diagnoses = await canonicalDb.getDiagnoses(orgId, accountKey);
+      res.json(diagnoses);
+    } catch (error) {
+      console.error("Error fetching diagnoses:", error);
+      res.status(500).json({ message: "Failed to fetch diagnoses" });
+    }
+  });
+
+  // Benefit Plans
+  app.get("/api/billing/benefit-plans", async (req, res) => {
+    try {
+      const orgId = req.query.orgId as string;
+      
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      const plans = await canonicalDb.getBenefitPlans(orgId);
+      res.json(plans);
+    } catch (error) {
+      console.error("Error fetching benefit plans:", error);
+      res.status(500).json({ message: "Failed to fetch benefit plans" });
+    }
+  });
+
+  // Denial Remarks
+  app.get("/api/billing/denial-remarks", async (req, res) => {
+    try {
+      const orgId = req.query.orgId as string;
+      const active = req.query.active === 'true' ? true : req.query.active === 'false' ? false : undefined;
+      
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      const denialRemarks = await canonicalDb.getDenialRemarks(orgId, active);
+      res.json(denialRemarks);
+    } catch (error) {
+      console.error("Error fetching denial remarks:", error);
+      res.status(500).json({ message: "Failed to fetch denial remarks" });
+    }
+  });
+
+  // Billing Summary Dashboard Endpoint
+  app.get("/api/billing/summary", async (req, res) => {
+    try {
+      const orgId = req.query.orgId as string;
+      
+      if (!orgId) {
+        return res.status(400).json({ message: "Organization ID is required" });
+      }
+      
+      // Get counts for organization
+      const [payers, accounts, transactions, denialRemarks] = await Promise.all([
+        canonicalDb.getPayers(orgId),
+        canonicalDb.getAccounts(orgId),
+        canonicalDb.getTransactions(orgId),
+        canonicalDb.getDenialRemarks(orgId, true) // Active denials only
+      ]);
+      
+      // Calculate summary statistics
+      const totalCharges = transactions
+        .filter(t => t.type_code === 'charge')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      
+      const totalPayments = transactions
+        .filter(t => t.type_code === 'payment')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      
+      const totalAdjustments = transactions
+        .filter(t => t.type_code === 'adjustment')
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      
+      const totalAR = totalCharges - totalPayments - totalAdjustments;
+      
+      const summary = {
+        organization: orgId,
+        counts: {
+          payers: payers.length,
+          accounts: accounts.length,
+          transactions: transactions.length,
+          active_denials: denialRemarks.length
+        },
+        financial: {
+          total_charges: totalCharges.toFixed(2),
+          total_payments: totalPayments.toFixed(2),
+          total_adjustments: totalAdjustments.toFixed(2),
+          total_ar: totalAR.toFixed(2)
+        }
+      };
+      
+      res.json(summary);
+    } catch (error) {
+      console.error("Error fetching billing summary:", error);
+      res.status(500).json({ message: "Failed to fetch billing summary" });
     }
   });
 

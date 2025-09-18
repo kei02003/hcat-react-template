@@ -403,3 +403,28 @@ export const getCanonicalResultValue = (result: CanonicalResult) => {
   if (result.result_value_json !== null) return result.result_value_json;
   return null;
 };
+
+// Re-export canonical billing tables for database creation
+export { 
+  transactions, 
+  accounts, 
+  payers, 
+  benefit_plans, 
+  procedures, 
+  diagnoses, 
+  denial_remarks,
+  type Transaction,
+  type Account,
+  type Payer,
+  type BenefitPlan,
+  type Procedure,
+  type Diagnosis,
+  type DenialRemark,
+  type InsertTransaction,
+  type InsertAccount,
+  type InsertPayer,
+  type InsertBenefitPlan,
+  type InsertProcedure,
+  type InsertDiagnosis,
+  type InsertDenialRemark
+} from "./canonical-billing-schema";
