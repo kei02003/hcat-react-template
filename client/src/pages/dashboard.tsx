@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { MetricsPanel } from "@/components/metrics-panel";
 import { DocumentationDashboard } from "@/components/documentation-dashboard";
 import { PredictiveDashboard } from "@/components/predictive-dashboard";
 import { ArManagementDashboard } from "@/components/ar-management-dashboard";
@@ -187,9 +186,6 @@ export default function Dashboard() {
       </header>
 
       <div className="flex h-screen">
-        {/* Left Sidebar with Metrics */}
-        <MetricsPanel />
-
         {/* Main Content Area */}
         {activeMainTab === "Summary" ? (
           <SummaryDashboard />
