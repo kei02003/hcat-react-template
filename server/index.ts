@@ -47,6 +47,15 @@ app.use((req, res, next) => {
     console.error("Failed to initialize canonical metrics:", error);
   }
 
+  // Initialize canonical claims data
+  console.log("Initializing canonical claims database...");
+  try {
+    await canonicalDb.initializeClaimsData();
+    console.log("✓ Canonical claims database initialized successfully");
+  } catch (error) {
+    console.error("Failed to initialize canonical claims data:", error);
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

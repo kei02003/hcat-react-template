@@ -37,7 +37,25 @@ import {
   benefit_plans,
   procedures,
   diagnoses,
-  denial_remarks
+  denial_remarks,
+  canonicalClaimHeaders,
+  canonicalClaimLines,
+  canonicalClaimStatus,
+  canonicalRemittance,
+  canonicalPriorAuth,
+  canonicalEligibility,
+  type SelectClaimHeader,
+  type SelectClaimLine,
+  type SelectClaimStatus,
+  type SelectRemittance,
+  type SelectPriorAuth,
+  type SelectEligibility,
+  type InsertClaimHeader,
+  type InsertClaimLine,
+  type InsertClaimStatus,
+  type InsertRemittance,
+  type InsertPriorAuth,
+  type InsertEligibility
 } from "@shared/schema";
 
 export class CanonicalDatabaseStorage {
@@ -639,6 +657,307 @@ export class CanonicalDatabaseStorage {
 
     } catch (error) {
       console.error("Failed to initialize canonical billing data:", error);
+      throw error;
+    }
+  }
+
+  // =====================================================
+  // CANONICAL CLAIMS STORAGE METHODS
+  // =====================================================
+
+  // Claim Headers
+  async createClaimHeader(claimHeader: InsertClaimHeader): Promise<SelectClaimHeader> {
+    const [result] = await db.insert(canonicalClaimHeaders).values(claimHeader).returning();
+    return result;
+  }
+
+  async getClaimHeaders(orgId: string, entityId?: string): Promise<SelectClaimHeader[]> {
+    const conditions = [eq(canonicalClaimHeaders.org_id, orgId)];
+    if (entityId) {
+      conditions.push(eq(canonicalClaimHeaders.entity_id, entityId));
+    }
+    
+    return await db
+      .select()
+      .from(canonicalClaimHeaders)
+      .where(and(...conditions))
+      .orderBy(desc(canonicalClaimHeaders.original_submission_date));
+  }
+
+  async getClaimHeadersByStatus(orgId: string, status: string): Promise<SelectClaimHeader[]> {
+    return await db
+      .select()
+      .from(canonicalClaimHeaders)
+      .where(and(
+        eq(canonicalClaimHeaders.org_id, orgId),
+        eq(canonicalClaimHeaders.current_status, status)
+      ))
+      .orderBy(desc(canonicalClaimHeaders.status_date));
+  }
+
+  async getClaimHeadersByPayer(orgId: string, payerKey: string): Promise<SelectClaimHeader[]> {
+    return await db
+      .select()
+      .from(canonicalClaimHeaders)
+      .where(and(
+        eq(canonicalClaimHeaders.org_id, orgId),
+        eq(canonicalClaimHeaders.payer_key, payerKey)
+      ))
+      .orderBy(desc(canonicalClaimHeaders.original_submission_date));
+  }
+
+  // Claim Lines
+  async createClaimLine(claimLine: InsertClaimLine): Promise<SelectClaimLine> {
+    const [result] = await db.insert(canonicalClaimLines).values(claimLine).returning();
+    return result;
+  }
+
+  async getClaimLines(orgId: string, claimKey?: string): Promise<SelectClaimLine[]> {
+    const conditions = [eq(canonicalClaimLines.org_id, orgId)];
+    if (claimKey) {
+      conditions.push(eq(canonicalClaimLines.claim_key, claimKey));
+    }
+    
+    return await db
+      .select()
+      .from(canonicalClaimLines)
+      .where(and(...conditions))
+      .orderBy(canonicalClaimLines.claim_key, canonicalClaimLines.line_number);
+  }
+
+  async getClaimLinesByStatus(orgId: string, status: string): Promise<SelectClaimLine[]> {
+    return await db
+      .select()
+      .from(canonicalClaimLines)
+      .where(and(
+        eq(canonicalClaimLines.org_id, orgId),
+        eq(canonicalClaimLines.line_status, status)
+      ))
+      .orderBy(canonicalClaimLines.claim_key, canonicalClaimLines.line_number);
+  }
+
+  // Claim Status
+  async createClaimStatus(claimStatus: InsertClaimStatus): Promise<SelectClaimStatus> {
+    const [result] = await db.insert(canonicalClaimStatus).values(claimStatus).returning();
+    return result;
+  }
+
+  async getClaimStatus(orgId: string, claimKey?: string): Promise<SelectClaimStatus[]> {
+    const conditions = [eq(canonicalClaimStatus.org_id, orgId)];
+    if (claimKey) {
+      conditions.push(eq(canonicalClaimStatus.claim_key, claimKey));
+    }
+    
+    return await db
+      .select()
+      .from(canonicalClaimStatus)
+      .where(and(...conditions))
+      .orderBy(desc(canonicalClaimStatus.status_date));
+  }
+
+  async getClaimStatusByStatus(orgId: string, statusCode: string): Promise<SelectClaimStatus[]> {
+    return await db
+      .select()
+      .from(canonicalClaimStatus)
+      .where(and(
+        eq(canonicalClaimStatus.org_id, orgId),
+        eq(canonicalClaimStatus.status_code, statusCode)
+      ))
+      .orderBy(desc(canonicalClaimStatus.status_date));
+  }
+
+  // Remittance
+  async createRemittance(remittance: InsertRemittance): Promise<SelectRemittance> {
+    const [result] = await db.insert(canonicalRemittance).values(remittance).returning();
+    return result;
+  }
+
+  async getRemittance(orgId: string, claimKey?: string): Promise<SelectRemittance[]> {
+    const conditions = [eq(canonicalRemittance.org_id, orgId)];
+    if (claimKey) {
+      conditions.push(eq(canonicalRemittance.claim_key, claimKey));
+    }
+    
+    return await db
+      .select()
+      .from(canonicalRemittance)
+      .where(and(...conditions))
+      .orderBy(desc(canonicalRemittance.payment_date));
+  }
+
+  async getRemittanceByPaymentMethod(orgId: string, paymentMethod: string): Promise<SelectRemittance[]> {
+    return await db
+      .select()
+      .from(canonicalRemittance)
+      .where(and(
+        eq(canonicalRemittance.org_id, orgId),
+        eq(canonicalRemittance.payment_method, paymentMethod)
+      ))
+      .orderBy(desc(canonicalRemittance.payment_date));
+  }
+
+  // Prior Authorization
+  async createPriorAuth(priorAuth: InsertPriorAuth): Promise<SelectPriorAuth> {
+    const [result] = await db.insert(canonicalPriorAuth).values(priorAuth).returning();
+    return result;
+  }
+
+  async getPriorAuth(orgId: string, entityId?: string): Promise<SelectPriorAuth[]> {
+    const conditions = [eq(canonicalPriorAuth.org_id, orgId)];
+    if (entityId) {
+      conditions.push(eq(canonicalPriorAuth.entity_id, entityId));
+    }
+    
+    return await db
+      .select()
+      .from(canonicalPriorAuth)
+      .where(and(...conditions))
+      .orderBy(desc(canonicalPriorAuth.request_date));
+  }
+
+  async getPriorAuthByStatus(orgId: string, authStatus: string): Promise<SelectPriorAuth[]> {
+    return await db
+      .select()
+      .from(canonicalPriorAuth)
+      .where(and(
+        eq(canonicalPriorAuth.org_id, orgId),
+        eq(canonicalPriorAuth.auth_status, authStatus)
+      ))
+      .orderBy(desc(canonicalPriorAuth.request_date));
+  }
+
+  async getPriorAuthByPayer(orgId: string, payerKey: string): Promise<SelectPriorAuth[]> {
+    return await db
+      .select()
+      .from(canonicalPriorAuth)
+      .where(and(
+        eq(canonicalPriorAuth.org_id, orgId),
+        eq(canonicalPriorAuth.payer_key, payerKey)
+      ))
+      .orderBy(desc(canonicalPriorAuth.request_date));
+  }
+
+  // Eligibility
+  async createEligibility(eligibility: InsertEligibility): Promise<SelectEligibility> {
+    const [result] = await db.insert(canonicalEligibility).values(eligibility).returning();
+    return result;
+  }
+
+  async getEligibility(orgId: string, active?: boolean): Promise<SelectEligibility[]> {
+    const conditions = [eq(canonicalEligibility.org_id, orgId)];
+    if (active !== undefined) {
+      if (active) {
+        conditions.push(eq(canonicalEligibility.verification_status, 'active'));
+      } else {
+        conditions.push(sql`${canonicalEligibility.verification_status} != 'active'`);
+      }
+    }
+    
+    return await db
+      .select()
+      .from(canonicalEligibility)
+      .where(and(...conditions))
+      .orderBy(desc(canonicalEligibility.verification_date));
+  }
+
+  async getEligibilityByPayer(orgId: string, payerKey: string): Promise<SelectEligibility[]> {
+    return await db
+      .select()
+      .from(canonicalEligibility)
+      .where(and(
+        eq(canonicalEligibility.org_id, orgId),
+        eq(canonicalEligibility.payer_key, payerKey)
+      ))
+      .orderBy(desc(canonicalEligibility.verification_date));
+  }
+
+  async getEligibilityByPatient(orgId: string, patientId: string): Promise<SelectEligibility[]> {
+    return await db
+      .select()
+      .from(canonicalEligibility)
+      .where(and(
+        eq(canonicalEligibility.org_id, orgId),
+        eq(canonicalEligibility.patient_id, patientId)
+      ))
+      .orderBy(desc(canonicalEligibility.verification_date));
+  }
+
+  // Initialize canonical claims data
+  async initializeClaimsData(): Promise<void> {
+    try {
+      // Check if we already have claims data initialized
+      const existingHeaders = await this.getClaimHeaders('HC001');
+      if (existingHeaders.length > 0) {
+        console.log("✓ Canonical claims data already initialized");
+        return;
+      }
+
+      console.log("Initializing canonical claims data...");
+
+      // Generate comprehensive claims mock data for all organizations
+      const { generateCompleteClaimsDataset } = await import("./canonical-claims-mock-data");
+      
+      const organizations = ['HC001', 'HC002', 'PMC001'];
+      let totalCounts = {
+        headers: 0,
+        lines: 0,
+        status: 0,
+        remittance: 0,
+        priorAuth: 0,
+        eligibility: 0
+      };
+
+      for (const orgId of organizations) {
+        const claimsData = generateCompleteClaimsDataset(orgId);
+
+        // Insert claim headers
+        for (const header of claimsData.claimHeaders) {
+          await this.createClaimHeader(header);
+        }
+
+        // Insert claim lines
+        for (const line of claimsData.claimLines) {
+          await this.createClaimLine(line);
+        }
+
+        // Insert claim status records
+        for (const status of claimsData.claimStatus) {
+          await this.createClaimStatus(status);
+        }
+
+        // Insert remittance records
+        for (const remittance of claimsData.remittance) {
+          await this.createRemittance(remittance);
+        }
+
+        // Insert prior auth records
+        for (const auth of claimsData.priorAuth) {
+          await this.createPriorAuth(auth);
+        }
+
+        // Insert eligibility records
+        for (const eligibility of claimsData.eligibility) {
+          await this.createEligibility(eligibility);
+        }
+
+        totalCounts.headers += claimsData.claimHeaders.length;
+        totalCounts.lines += claimsData.claimLines.length;
+        totalCounts.status += claimsData.claimStatus.length;
+        totalCounts.remittance += claimsData.remittance.length;
+        totalCounts.priorAuth += claimsData.priorAuth.length;
+        totalCounts.eligibility += claimsData.eligibility.length;
+      }
+
+      console.log(`✓ Initialized ${totalCounts.headers} claim headers`);
+      console.log(`✓ Initialized ${totalCounts.lines} claim lines`);
+      console.log(`✓ Initialized ${totalCounts.status} status records`);
+      console.log(`✓ Initialized ${totalCounts.remittance} remittance records`);
+      console.log(`✓ Initialized ${totalCounts.priorAuth} prior authorizations`);
+      console.log(`✓ Initialized ${totalCounts.eligibility} eligibility verifications`);
+      console.log("✓ Canonical claims data initialization complete");
+
+    } catch (error) {
+      console.error("Failed to initialize canonical claims data:", error);
       throw error;
     }
   }

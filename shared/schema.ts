@@ -428,3 +428,25 @@ export {
   type InsertDiagnosis,
   type InsertDenialRemark
 } from "./canonical-billing-schema";
+
+// Re-export canonical claims tables for database creation
+export { 
+  canonicalClaimHeaders,
+  canonicalClaimLines,
+  canonicalClaimStatus,
+  canonicalRemittance,
+  canonicalPriorAuth,
+  canonicalEligibility,
+  type SelectClaimHeader,
+  type SelectClaimLine,
+  type SelectClaimStatus,
+  type SelectRemittance,
+  type SelectPriorAuth,
+  type SelectEligibility,
+  type InsertClaimHeader,
+  type InsertClaimLine,
+  type InsertClaimStatus,
+  type InsertRemittance,
+  type InsertPriorAuth,
+  type InsertEligibility
+} from "./canonical-claims-schema";

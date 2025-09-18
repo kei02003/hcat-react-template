@@ -315,6 +315,162 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(500).json({ message: "Failed to fetch billing summary" });
       }
     });
+
+    // Public Claims API Routes (Development Only - No Auth Required)
+    app.get("/api/claims/headers", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const entityId = req.query.entityId as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const headers = await canonicalDb.getClaimHeaders(orgId, entityId);
+        res.json(headers);
+      } catch (error) {
+        console.error("Error fetching claim headers:", error);
+        res.status(500).json({ message: "Failed to fetch claim headers" });
+      }
+    });
+
+    app.get("/api/claims/lines", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const claimKey = req.query.claimKey as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const lines = await canonicalDb.getClaimLines(orgId, claimKey);
+        res.json(lines);
+      } catch (error) {
+        console.error("Error fetching claim lines:", error);
+        res.status(500).json({ message: "Failed to fetch claim lines" });
+      }
+    });
+
+    app.get("/api/claims/status", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const claimKey = req.query.claimKey as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const status = await canonicalDb.getClaimStatus(orgId, claimKey);
+        res.json(status);
+      } catch (error) {
+        console.error("Error fetching claim status:", error);
+        res.status(500).json({ message: "Failed to fetch claim status" });
+      }
+    });
+
+    app.get("/api/claims/remittance", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const claimKey = req.query.claimKey as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const remittance = await canonicalDb.getRemittance(orgId, claimKey);
+        res.json(remittance);
+      } catch (error) {
+        console.error("Error fetching remittance:", error);
+        res.status(500).json({ message: "Failed to fetch remittance" });
+      }
+    });
+
+    app.get("/api/claims/prior-auth", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const entityId = req.query.entityId as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const priorAuth = await canonicalDb.getPriorAuth(orgId, entityId);
+        res.json(priorAuth);
+      } catch (error) {
+        console.error("Error fetching prior auth:", error);
+        res.status(500).json({ message: "Failed to fetch prior auth" });
+      }
+    });
+
+    app.get("/api/claims/eligibility", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        const active = req.query.active === 'true' ? true : req.query.active === 'false' ? false : undefined;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        const eligibility = await canonicalDb.getEligibility(orgId, active);
+        res.json(eligibility);
+      } catch (error) {
+        console.error("Error fetching eligibility:", error);
+        res.status(500).json({ message: "Failed to fetch eligibility" });
+      }
+    });
+
+    app.get("/api/claims/summary", async (req, res) => {
+      try {
+        const orgId = req.query.orgId as string;
+        if (!orgId) {
+          return res.status(400).json({ message: "Organization ID is required" });
+        }
+        
+        const [headers, lines, statusRecords, remittance, priorAuth, eligibility] = await Promise.all([
+          canonicalDb.getClaimHeaders(orgId),
+          canonicalDb.getClaimLines(orgId),
+          canonicalDb.getClaimStatus(orgId),
+          canonicalDb.getRemittance(orgId),
+          canonicalDb.getPriorAuth(orgId),
+          canonicalDb.getEligibility(orgId)
+        ]);
+        
+        // Calculate financial totals
+        const totalClaimCharges = headers
+          .reduce((sum, h) => sum + parseFloat(h.total_charge_amount), 0);
+        
+        const totalClaimPayments = headers
+          .reduce((sum, h) => sum + parseFloat(h.total_paid_amount), 0);
+        
+        const totalRemittancePayments = remittance
+          .reduce((sum, r) => sum + parseFloat(r.payment_amount), 0);
+        
+        // Status breakdown
+        const statusBreakdown = headers.reduce((acc, h) => {
+          acc[h.current_status] = (acc[h.current_status] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        // Prior auth breakdown
+        const authBreakdown = priorAuth.reduce((acc, a) => {
+          acc[a.auth_status] = (acc[a.auth_status] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        const summary = {
+          organization: orgId,
+          counts: {
+            claim_headers: headers.length,
+            claim_lines: lines.length,
+            status_records: statusRecords.length,
+            remittance_records: remittance.length,
+            prior_authorizations: priorAuth.length,
+            eligibility_verifications: eligibility.length
+          },
+          financial: {
+            total_claim_charges: totalClaimCharges.toFixed(2),
+            total_claim_payments: totalClaimPayments.toFixed(2),
+            total_remittance_payments: totalRemittancePayments.toFixed(2),
+            outstanding_ar: (totalClaimCharges - totalClaimPayments).toFixed(2)
+          },
+          status_breakdown: statusBreakdown,
+          auth_breakdown: authBreakdown
+        };
+        
+        res.json(summary);
+      } catch (error) {
+        console.error("Error fetching claims summary:", error);
+        res.status(500).json({ message: "Failed to fetch claims summary" });
+      }
+    });
   }
 
   // Setup authentication
