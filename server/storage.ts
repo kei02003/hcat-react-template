@@ -20,7 +20,23 @@ import {
   type TemplateMappingConfig, 
   type InsertTemplateMappingConfig,
   type WriteOff,
-  type InsertWriteOff 
+  type InsertWriteOff,
+  type CanonicalMetric,
+  type InsertCanonicalMetric,
+  type CanonicalMetricVersion,
+  type InsertCanonicalMetricVersion,
+  type CanonicalResult,
+  type InsertCanonicalResult,
+  type CanonicalStagingResult,
+  type InsertCanonicalStagingResult,
+  type CanonicalMetricLineage,
+  type InsertCanonicalMetricLineage,
+  createGrainKey,
+  canonicalMetric,
+  canonicalMetricVersion,
+  canonicalResult,
+  canonicalStagingResult,
+  canonicalMetricLineage
 } from "@shared/schema";
 
 import {
@@ -40,18 +56,7 @@ import {
   type InsertDenialRemark
 } from "@shared/canonical-billing-schema";
 
-import {
-  type Metric as CanonicalMetric,
-  type InsertMetric as InsertCanonicalMetric,
-  type MetricVersion,
-  type InsertMetricVersion,
-  type Result,
-  type InsertResult,
-  type StagingResult,
-  type InsertStagingResult,
-  type MetricLineage,
-  type InsertMetricLineage
-} from "@shared/canonical-metric-schema";
+// Canonical metric types now imported from shared/schema.ts
 
 import { 
   type DepartmentPerformance, 
@@ -261,27 +266,27 @@ export interface IStorage {
   updateCanonicalMetric(key: string, metric: Partial<InsertCanonicalMetric>): Promise<CanonicalMetric | undefined>;
   
   // Metric Versions
-  getMetricVersions(metricKey?: string): Promise<MetricVersion[]>;
-  createMetricVersion(version: InsertMetricVersion): Promise<MetricVersion>;
-  updateMetricVersion(key: string, version: Partial<InsertMetricVersion>): Promise<MetricVersion | undefined>;
-  getActiveMetricVersions(): Promise<MetricVersion[]>;
+  getMetricVersions(metricKey?: string): Promise<CanonicalMetricVersion[]>;
+  createMetricVersion(version: InsertCanonicalMetricVersion): Promise<CanonicalMetricVersion>;
+  updateMetricVersion(key: string, version: Partial<InsertCanonicalMetricVersion>): Promise<CanonicalMetricVersion | undefined>;
+  getActiveMetricVersions(): Promise<CanonicalMetricVersion[]>;
   
   // Results
-  getResults(orgId?: string, entityId?: string, metricVersionKey?: string): Promise<Result[]>;
-  createResult(result: InsertResult): Promise<Result>;
-  getResultsByGrain(grainKeys: Record<string, string>): Promise<Result[]>;
-  getLatestResults(metricVersionKey: string, orgId?: string, entityId?: string): Promise<Result[]>;
+  getResults(orgId?: string, entityId?: string, metricVersionKey?: string): Promise<CanonicalResult[]>;
+  createResult(result: InsertCanonicalResult): Promise<CanonicalResult>;
+  getResultsByGrain(grainKeys: Record<string, string>): Promise<CanonicalResult[]>;
+  getLatestResults(metricVersionKey: string, orgId?: string, entityId?: string): Promise<CanonicalResult[]>;
   
   // Staging Results
-  getStagingResults(metricVersionKey?: string): Promise<StagingResult[]>;
-  createStagingResult(result: InsertStagingResult): Promise<StagingResult>;
+  getStagingResults(metricVersionKey?: string): Promise<CanonicalStagingResult[]>;
+  createStagingResult(result: InsertCanonicalStagingResult): Promise<CanonicalStagingResult>;
   promoteStagingResults(metricVersionKey: string): Promise<number>; // Returns count of promoted results
   clearStagingResults(metricVersionKey?: string): Promise<number>; // Returns count of cleared results
   
   // Metric Lineage
-  getMetricLineage(parentResultKey?: string, childResultKey?: string): Promise<MetricLineage[]>;
-  createMetricLineage(lineage: InsertMetricLineage): Promise<MetricLineage>;
-  getMetricHierarchy(metricVersionKey: string): Promise<Result[]>; // Get all related metrics in hierarchy
+  getMetricLineage(parentResultKey?: string, childResultKey?: string): Promise<CanonicalMetricLineage[]>;
+  createMetricLineage(lineage: InsertCanonicalMetricLineage): Promise<CanonicalMetricLineage>;
+  getMetricHierarchy(metricVersionKey: string): Promise<CanonicalResult[]>; // Get all related metrics in hierarchy
 }
 
 export class MemStorage implements IStorage {

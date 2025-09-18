@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import { canonicalDb } from "./canonical-database-storage";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
@@ -37,6 +38,15 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize canonical metrics in database
+  console.log("Initializing canonical metrics database...");
+  try {
+    await canonicalDb.initializeCanonicalMetrics();
+    console.log("✓ Canonical metrics database initialized successfully");
+  } catch (error) {
+    console.error("Failed to initialize canonical metrics:", error);
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

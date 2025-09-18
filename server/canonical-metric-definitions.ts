@@ -1,12 +1,53 @@
+// Import from consolidated schema instead of old canonical-metric-schema
 import { 
-  type InsertMetric, 
-  type InsertMetricVersion, 
-  type InsertResult,
-  METRIC_DOMAINS,
-  RESULT_TYPES,
-  FREQUENCIES,
-  createGrainKey
-} from "@shared/canonical-metric-schema";
+  type CanonicalMetric,
+  type CanonicalMetricVersion, 
+  type CanonicalResult,
+  canonicalMetric,
+  canonicalMetricVersion,
+  canonicalResult
+} from "@shared/schema";
+
+// Constants moved here to avoid duplication
+export const METRIC_DOMAINS = {
+  REVENUE_CYCLE: "revenue_cycle",
+  CLINICAL: "clinical", 
+  OPERATIONAL: "operational",
+  FINANCIAL: "financial",
+  COMPLIANCE: "compliance",
+  QUALITY: "quality",
+  REGULATORY: "regulatory"
+} as const;
+
+export const RESULT_TYPES = {
+  NUMERIC: "numeric",
+  TEXT: "text", 
+  BOOLEAN: "boolean",
+  DATETIME: "datetime",
+  JSON: "json",
+  CURRENCY: "currency",
+  PERCENTAGE: "percentage"
+} as const;
+
+export const FREQUENCIES = {
+  DAILY: "daily",
+  WEEKLY: "weekly",
+  MONTHLY: "monthly", 
+  QUARTERLY: "quarterly",
+  ANNUAL: "annual"
+} as const;
+
+export function createGrainKey(parts: Record<string, string>): string {
+  return Object.entries(parts)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}:${value}`)
+    .join('|');
+}
+
+// Use new schema types
+type InsertMetric = typeof canonicalMetric.$inferInsert;
+type InsertMetricVersion = typeof canonicalMetricVersion.$inferInsert; 
+type InsertResult = typeof canonicalResult.$inferInsert;
 
 // Core Revenue Cycle Metrics based on Health Catalyst standards
 export const CANONICAL_METRICS: InsertMetric[] = [
@@ -300,7 +341,11 @@ export function convertMetricToCanonicalResult(
   const metricVersionKey = getMetricVersionKeyByName(metricName);
   const resultKey = `${metricVersionKey}-${orgId}-${entityId || 'all'}-${Date.now()}`;
   
-  const grainKeys = createGrainKey(orgId, entityId, additionalGrainKeys);
+  const grainKeys = {
+    org_id: orgId,
+    entity_id: entityId || 'all',
+    ...additionalGrainKeys
+  };
   
   // Determine the appropriate result value field based on the metric type
   const numericValue = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.-]/g, '')) : value;

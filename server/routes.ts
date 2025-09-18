@@ -1,11 +1,38 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { canonicalDb } from "./canonical-database-storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { requirePermission, requireAnyPermission, requireRoleLevel, auditAction, type AuthenticatedRequest } from "./auth/middleware";
 import { rbacService } from "./auth/rbac";
 import { demoUserService } from "./demo-users";
 import { insertMetricsSchema, insertDocumentationRequestSchema, insertPayerBehaviorSchema, insertRedundancyMatrixSchema, insertPredictiveAnalyticsSchema, insertDenialPredictionsSchema, insertRiskFactorsSchema } from "@shared/schema";
+import { z } from "zod";
+
+// Zod schemas for canonical metrics validation
+const canonicalResultsQuerySchema = z.object({
+  entityId: z.string().optional(),
+  metricVersionKey: z.string().optional()
+});
+
+const canonicalLatestResultsParamsSchema = z.object({
+  metricVersionKey: z.string().min(1, "Metric version key is required")
+});
+
+const canonicalLatestResultsQuerySchema = z.object({
+  entityId: z.string().optional()
+});
+
+const canonicalResultsByGrainBodySchema = z.object({
+  grainKeys: z.record(z.string(), z.string()).refine(
+    (grainKeys) => Object.keys(grainKeys).length > 0,
+    "grainKeys must contain at least one key-value pair"
+  )
+});
+
+const canonicalMetricsSummaryQuerySchema = z.object({
+  orgId: z.string().optional() // Will be ignored and overridden by user's org
+});
 import { predictDenialRisk, generateSmartRecommendations, analyzeDenialPatterns } from "./openai";
 
 // Function to generate dynamic appeal cases for missing denial IDs
@@ -274,6 +301,218 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(behavior);
     } catch (error) {
       res.status(400).json({ message: "Invalid payer behavior data" });
+    }
+  });
+
+  // Canonical Metrics API Routes (Protected)
+  // Base Metrics
+  app.get("/api/canonical-metrics", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (_req, res) => {
+    try {
+      const metrics = await canonicalDb.getCanonicalMetrics();
+      res.json(metrics);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch canonical metrics" });
+    }
+  });
+
+  // Metric Versions
+  app.get("/api/canonical-metric-versions", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (req, res) => {
+    try {
+      const metricKey = req.query.metricKey as string;
+      const versions = await canonicalDb.getMetricVersions(metricKey);
+      res.json(versions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch metric versions" });
+    }
+  });
+
+  app.get("/api/canonical-metric-versions/active", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (_req, res) => {
+    try {
+      const activeVersions = await canonicalDb.getActiveMetricVersions();
+      res.json(activeVersions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch active metric versions" });
+    }
+  });
+
+  // Results
+  app.get("/api/canonical-results", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (req: AuthenticatedRequest, res) => {
+    try {
+      // Validate query parameters
+      const queryValidation = canonicalResultsQuerySchema.safeParse(req.query);
+      if (!queryValidation.success) {
+        return res.status(400).json({ message: "Invalid query parameters", errors: queryValidation.error.errors });
+      }
+      
+      // Strictly require org from authenticated user - no fallback
+      const userOrg = req.user?.organization;
+      if (!userOrg) {
+        return res.status(403).json({ message: "Organization context required" });
+      }
+      
+      const { entityId, metricVersionKey } = queryValidation.data;
+      
+      const results = await canonicalDb.getResults(userOrg, entityId, metricVersionKey);
+      
+      // Audit canonical data access
+      await auditAction(req as AuthenticatedRequest, "view_canonical_results", "canonical_result", {
+        organization: userOrg,
+        entity_id: entityId,
+        metric_version_key: metricVersionKey,
+        results_count: results.length
+      });
+      
+      res.json(results);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch canonical results" });
+    }
+  });
+
+  app.get("/api/canonical-results/latest/:metricVersionKey", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (req: AuthenticatedRequest, res) => {
+    try {
+      // Validate parameters
+      const paramsValidation = canonicalLatestResultsParamsSchema.safeParse(req.params);
+      if (!paramsValidation.success) {
+        return res.status(400).json({ message: "Invalid parameters", errors: paramsValidation.error.errors });
+      }
+      
+      // Validate query parameters
+      const queryValidation = canonicalLatestResultsQuerySchema.safeParse(req.query);
+      if (!queryValidation.success) {
+        return res.status(400).json({ message: "Invalid query parameters", errors: queryValidation.error.errors });
+      }
+      
+      const { metricVersionKey } = paramsValidation.data;
+      // Strictly require org from authenticated user - no fallback
+      const userOrg = req.user?.organization;
+      if (!userOrg) {
+        return res.status(403).json({ message: "Organization context required" });
+      }
+      
+      const { entityId } = queryValidation.data;
+      
+      const results = await canonicalDb.getLatestResults(metricVersionKey, userOrg, entityId);
+      
+      // Audit canonical data access
+      await auditAction(req as AuthenticatedRequest, "view_latest_canonical_results", "canonical_result", {
+        organization: userOrg,
+        entity_id: entityId,
+        metric_version_key: metricVersionKey,
+        results_count: results.length
+      });
+      
+      res.json(results);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch latest results" });
+    }
+  });
+
+  app.post("/api/canonical-results/by-grain", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (req: AuthenticatedRequest, res) => {
+    try {
+      // Validate request body
+      const bodyValidation = canonicalResultsByGrainBodySchema.safeParse(req.body);
+      if (!bodyValidation.success) {
+        return res.status(400).json({ message: "Invalid request body", errors: bodyValidation.error.errors });
+      }
+      
+      const { grainKeys } = bodyValidation.data;
+      
+      // Strictly require org from authenticated user - no fallback
+      const userOrg = req.user?.organization;
+      if (!userOrg) {
+        return res.status(403).json({ message: "Organization context required" });
+      }
+      
+      // Validate user can only access their organization's data
+      if (grainKeys.org_id && grainKeys.org_id !== userOrg) {
+        return res.status(403).json({ message: "Access denied to organization data" });
+      }
+      
+      // Ensure org_id in grain_keys matches user's org
+      const secureGrainKeys = { ...grainKeys, org_id: userOrg };
+      const results = await canonicalDb.getResultsByGrain(secureGrainKeys);
+      
+      // Audit canonical data access
+      await auditAction(req as AuthenticatedRequest, "view_canonical_results_by_grain", "canonical_result", {
+        organization: userOrg,
+        grain_keys: secureGrainKeys,
+        results_count: results.length
+      });
+      
+      res.json(results);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch results by grain" });
+    }
+  });
+
+  // Dashboard-friendly endpoint for canonical metrics summary
+  app.get("/api/canonical-metrics-summary", 
+    isAuthenticated,
+    requirePermission("view_metrics"),
+    async (req: AuthenticatedRequest, res) => {
+    try {
+      // Strictly require org from authenticated user - no fallback
+      const userOrg = req.user?.organization;
+      if (!userOrg) {
+        return res.status(403).json({ message: "Organization context required" });
+      }
+      
+      // Get active metric versions
+      const activeVersions = await canonicalDb.getActiveMetricVersions();
+      
+      // Get latest results for each metric version for the user's organization
+      const summaryData = await Promise.all(
+        activeVersions.map(async (version) => {
+          const results = await canonicalDb.getLatestResults(version.metric_version_key, userOrg);
+          const latestResult = results[0]; // Most recent result
+          
+          return {
+            metric_version_key: version.metric_version_key,
+            metric_version_name: version.metric_version_name,
+            domain: version.domain,
+            result_type: version.result_type,
+            result_unit: version.result_unit,
+            latest_value: latestResult ? {
+              numeric: latestResult.result_value_numeric,
+              text: latestResult.result_value_text,
+              boolean: latestResult.result_value_boolean,
+              datetime: latestResult.result_value_datetime,
+              json: latestResult.result_value_json
+            } : null,
+            calculated_at: latestResult?.calculated_at,
+            grain_keys: latestResult?.grain_keys
+          };
+        })
+      );
+      
+      // Audit canonical metrics summary access
+      await auditAction(req as AuthenticatedRequest, "view_canonical_metrics_summary", "canonical_metric", {
+        organization: userOrg,
+        metrics_count: summaryData.length
+      });
+      
+      res.json(summaryData);
+    } catch (error) {
+      console.error("Error fetching canonical metrics summary:", error);
+      res.status(500).json({ message: "Failed to fetch canonical metrics summary" });
     }
   });
 
