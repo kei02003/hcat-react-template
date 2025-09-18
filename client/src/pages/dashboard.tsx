@@ -9,6 +9,7 @@ import { WriteOffAnalyticsDashboard } from "@/components/writeoff-analytics-dash
 import { AppealGenerationDashboard } from "@/components/appeal-generation-dashboard";
 import { FeasibilityDashboard } from "@/components/feasibility-dashboard";
 import { SummaryDashboard } from "@/components/summary-dashboard";
+import { CustomMetricsDashboard } from "@/components/custom-metrics-dashboard";
 import { PersonaSwitcher } from "@/components/persona-switcher";
 import { HelpCircle } from "lucide-react";
 // Using TriFlame SVG from Health Catalyst
@@ -50,6 +51,7 @@ export default function Dashboard() {
     "Summary",
     "AR",
     "Denials",
+    "Metrics",
   ];
   const subTabs = [
     { name: "Clinical Denials", warning: false },
@@ -199,6 +201,8 @@ export default function Dashboard() {
           <WriteOffAnalyticsDashboard />
         ) : activeMainTab === "AR" ? (
           <ArManagementDashboard />
+        ) : activeMainTab === "Metrics" ? (
+          <CustomMetricsDashboard />
         ) : activeMainTab === "Opportunities" ? (
           <FeasibilityDashboard />
         ) : (
