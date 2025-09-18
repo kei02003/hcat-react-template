@@ -23,6 +23,7 @@ interface MetricFilters {
   resultType: string;
   search: string;
   isRegulatory: boolean | null;
+  tags: string[];
 }
 
 export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections = 20 }: MetricPickerProps) {
@@ -31,7 +32,8 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
     frequency: "all", 
     resultType: "all",
     search: "",
-    isRegulatory: null
+    isRegulatory: null,
+    tags: []
   });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -71,6 +73,13 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
       // Regulatory filter
       if (filters.isRegulatory !== null && metric.is_regulatory !== filters.isRegulatory) return false;
 
+      // Tags filter
+      if (filters.tags.length > 0) {
+        const metricTags = metric.tags || [];
+        const hasMatchingTag = filters.tags.some(tag => metricTags.includes(tag));
+        if (!hasMatchingTag) return false;
+      }
+
       return true;
     });
   }, [metricVersions, filters]);
@@ -86,6 +95,12 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
     });
     return groups;
   }, [filteredMetrics]);
+
+  // Get unique values for filters
+  const uniqueDomains = [...new Set(metricVersions.map(m => m.domain).filter(Boolean))];
+  const uniqueFrequencies = [...new Set(metricVersions.map(m => m.frequency).filter(Boolean))];
+  const uniqueResultTypes = [...new Set(metricVersions.map(m => m.result_type).filter(Boolean))];
+  const uniqueTags = [...new Set(metricVersions.flatMap(m => m.tags || []).filter(Boolean))];
 
   const handleMetricToggle = (metricVersionKey: string) => {
     const isSelected = selectedMetrics.includes(metricVersionKey);
@@ -111,7 +126,8 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
       frequency: "all",
       resultType: "all", 
       search: "",
-      isRegulatory: null
+      isRegulatory: null,
+      tags: []
     });
   };
 
@@ -246,6 +262,40 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                       <SelectItem value="boolean">Boolean</SelectItem>
                     </SelectContent>
                   </Select>
+
+                  {/* Tags Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Tags</label>
+                    <div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-1">
+                      {uniqueTags.length > 0 ? (
+                        uniqueTags.map(tag => (
+                          <div key={tag} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={`tag-${tag}`}
+                              checked={filters.tags.includes(tag)}
+                              onChange={(e) => {
+                                const isChecked = e.target.checked;
+                                setFilters(prev => ({
+                                  ...prev,
+                                  tags: isChecked 
+                                    ? [...prev.tags, tag]
+                                    : prev.tags.filter(t => t !== tag)
+                                }));
+                              }}
+                              className="rounded"
+                              data-testid={`checkbox-tag-${tag}`}
+                            />
+                            <label htmlFor={`tag-${tag}`} className="text-sm cursor-pointer">
+                              {tag}
+                            </label>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">No tags available</p>
+                      )}
+                    </div>
+                  </div>
 
                   <div className="flex items-center space-x-2">
                     <Button

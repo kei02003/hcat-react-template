@@ -366,7 +366,7 @@ export const insertCanonicalMetricLineageSchema = createInsertSchema(canonicalMe
 
 // Canonical metric types
 export type CanonicalMetric = typeof canonicalMetric.$inferSelect;
-export type CanonicalMetricVersion = typeof canonicalMetricVersion.$inferSelect;
+export type CanonicalMetricVersion = typeof canonicalMetricVersion.$inferSelect & { tags?: string[] };
 export type CanonicalResult = typeof canonicalResult.$inferSelect;
 export type CanonicalStagingResult = typeof canonicalStagingResult.$inferSelect;
 export type CanonicalMetricLineage = typeof canonicalMetricLineage.$inferSelect;

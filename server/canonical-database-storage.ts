@@ -149,11 +149,37 @@ export class CanonicalDatabaseStorage {
 
   async getActiveMetricVersions(): Promise<CanonicalMetricVersion[]> {
     const results = await db
-      .select()
+      .select({
+        metric_version_key: canonicalMetricVersion.metric_version_key,
+        metric_key: canonicalMetricVersion.metric_key,
+        version_number: canonicalMetricVersion.version_number,
+        valid_from_datetime: canonicalMetricVersion.valid_from_datetime,
+        valid_to_datetime: canonicalMetricVersion.valid_to_datetime,
+        metric_version_name: canonicalMetricVersion.metric_version_name,
+        metric_version_description: canonicalMetricVersion.metric_version_description,
+        grain: canonicalMetricVersion.grain,
+        grain_description: canonicalMetricVersion.grain_description,
+        domain: canonicalMetricVersion.domain,
+        result_type: canonicalMetricVersion.result_type,
+        result_unit: canonicalMetricVersion.result_unit,
+        frequency: canonicalMetricVersion.frequency,
+        source_category: canonicalMetricVersion.source_category,
+        is_regulatory: canonicalMetricVersion.is_regulatory,
+        regulatory_program: canonicalMetricVersion.regulatory_program,
+        steward: canonicalMetricVersion.steward,
+        developer: canonicalMetricVersion.developer,
+        is_active: canonicalMetricVersion.is_active,
+        metadata_schema: canonicalMetricVersion.metadata_schema,
+        required_metadata_fields: canonicalMetricVersion.required_metadata_fields,
+        created_datetime: canonicalMetricVersion.created_datetime,
+        updated_datetime: canonicalMetricVersion.updated_datetime,
+        tags: canonicalMetric.tags
+      })
       .from(canonicalMetricVersion)
+      .innerJoin(canonicalMetric, eq(canonicalMetricVersion.metric_key, canonicalMetric.metric_key))
       .where(eq(canonicalMetricVersion.is_active, true))
       .orderBy(desc(canonicalMetricVersion.created_datetime));
-    return results;
+    return results as CanonicalMetricVersion[];
   }
 
   // Results
