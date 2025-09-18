@@ -102,15 +102,18 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
   const uniqueResultTypes = Array.from(new Set(metricVersions.map(m => m.result_type).filter(Boolean)));
   const uniqueTags: string[] = []; // Simplified for now - tags not included in current data model
 
-  const handleMetricToggle = (metricVersionKey: string, shouldSelect: boolean) => {
-    if (shouldSelect) {
+  const handleMetricToggle = (metricVersionKey: string, shouldSelect?: boolean) => {
+    const isCurrentlySelected = selectedMetrics.includes(metricVersionKey);
+    const nextShouldSelect = shouldSelect ?? !isCurrentlySelected;
+    
+    if (nextShouldSelect) {
       // Add metric if not already selected and under limit
-      if (!selectedMetrics.includes(metricVersionKey) && selectedMetrics.length < maxSelections) {
+      if (!isCurrentlySelected && selectedMetrics.length < maxSelections) {
         onMetricsChange([...selectedMetrics, metricVersionKey]);
       }
     } else {
       // Remove metric if currently selected
-      if (selectedMetrics.includes(metricVersionKey)) {
+      if (isCurrentlySelected) {
         onMetricsChange(selectedMetrics.filter(key => key !== metricVersionKey));
       }
     }
@@ -324,22 +327,30 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                 </h4>
                 <div className="space-y-2">
                   {metrics.map((metric) => (
-                    <label
+                    <div
                       key={metric.metric_version_key}
-                      htmlFor={`checkbox-${metric.metric_version_key}`}
-                      className={`block border rounded-lg p-3 transition-all hover:shadow-sm cursor-pointer ${
+                      role="checkbox"
+                      aria-checked={selectedMetrics.includes(metric.metric_version_key)}
+                      tabIndex={0}
+                      className={`border rounded-lg p-3 transition-all hover:shadow-sm cursor-pointer ${
                         selectedMetrics.includes(metric.metric_version_key)
                           ? 'border-blue-300 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
+                      onClick={() => handleMetricToggle(metric.metric_version_key)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleMetricToggle(metric.metric_version_key);
+                        }
+                      }}
                       data-testid={`metric-item-${metric.metric_version_key}`}
                     >
                       <div className="flex items-start space-x-3">
                         <Checkbox
-                          id={`checkbox-${metric.metric_version_key}`}
                           checked={selectedMetrics.includes(metric.metric_version_key)}
-                          onCheckedChange={(checked) => handleMetricToggle(metric.metric_version_key, !!checked)}
-                          className="mt-1"
+                          disabled={true}
+                          className="mt-1 pointer-events-none"
                           data-testid={`checkbox-${metric.metric_version_key}`}
                         />
                         
@@ -379,7 +390,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                           </div>
                         </div>
                       </div>
-                    </label>
+                    </div>
                   ))}
                 </div>
               </div>
