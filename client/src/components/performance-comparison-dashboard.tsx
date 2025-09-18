@@ -80,7 +80,7 @@ const mockDenialData = [
     category: "Medical Necessity",
     department: "Cardiology",
     provider: "Dr. Sarah Johnson",
-    site: "Hendrick Health",
+    site: "Hendrick Health System",
     denialDate: "2025-01-05",
     appealDeadline: "2025-02-05",
     daysToAppeal: 30,
@@ -126,7 +126,7 @@ const mockDenialData = [
     category: "Coding",
     department: "Emergency Department",
     provider: "Dr. Kevin Rodriguez",
-    site: "Hendrick Health",
+    site: "Hendrick Health System",
     denialDate: "2024-11-08",
     appealDeadline: "2024-12-08",
     daysToAppeal: -10,
@@ -172,7 +172,7 @@ const mockDenialData = [
     category: "Documentation",
     department: "Radiology",
     provider: "Dr. Emily Taylor",
-    site: "Hendrick Health",
+    site: "Hendrick Health System",
     denialDate: "2024-09-18",
     appealDeadline: "2024-10-18",
     daysToAppeal: -62,
@@ -183,6 +183,144 @@ const mockDenialData = [
     appealed: true,
     appealOutcome: "Overturned",
     recoveredAmount: 22800,
+  },
+  {
+    denialId: "DEN-2024-701",
+    claimId: "CLM-2024-701",
+    patientName: "Garcia, Carlos M.",
+    serviceDate: "2024-11-20",
+    payerName: "Medicare",
+    deniedAmount: 34500,
+    denialReason: "Medical necessity not established",
+    category: "Medical Necessity",
+    department: "Cardiology",
+    provider: "Dr. James Rodriguez",
+    site: "United Regional Health Care System",
+    denialDate: "2024-11-25",
+    appealDeadline: "2024-12-25",
+    daysToAppeal: 8,
+    status: "Under Review" as const,
+    assignedReviewer: "Dr. Lisa Wilson",
+    appealLevel: "First Level" as const,
+    lastAction: "2024-12-01",
+    appealed: true,
+    appealOutcome: "Pending",
+    recoveredAmount: 0,
+  },
+  {
+    denialId: "DEN-2024-708",
+    claimId: "CLM-2024-708",
+    patientName: "Anderson, Mary J.",
+    serviceDate: "2024-10-12",
+    payerName: "Blue Cross Blue Shield",
+    deniedAmount: 18900,
+    denialReason: "Prior authorization required",
+    category: "Authorization",
+    department: "Orthopedics",
+    provider: "Dr. Michael Thompson",
+    site: "Shannon Medical Center",
+    denialDate: "2024-10-15",
+    appealDeadline: "2024-11-15",
+    daysToAppeal: -32,
+    status: "Appeal Deadline Passed" as const,
+    assignedReviewer: "Dr. Amanda Davis",
+    appealLevel: "None" as const,
+    lastAction: "2024-10-22",
+    appealed: false,
+    appealOutcome: null,
+    recoveredAmount: 0,
+  },
+  {
+    denialId: "DEN-2024-715",
+    claimId: "CLM-2024-715",
+    patientName: "Wilson, Robert H.",
+    serviceDate: "2024-12-01",
+    payerName: "UnitedHealthcare",
+    deniedAmount: 41200,
+    denialReason: "Duplicate service billing",
+    category: "Coding",
+    department: "Emergency Department",
+    provider: "Dr. Sarah Martinez",
+    site: "Midland Memorial Hospital",
+    denialDate: "2024-12-05",
+    appealDeadline: "2025-01-05",
+    daysToAppeal: 18,
+    status: "Pending Appeal" as const,
+    assignedReviewer: "Dr. Kevin Johnson",
+    appealLevel: "First Level" as const,
+    lastAction: "2024-12-10",
+    appealed: true,
+    appealOutcome: "Pending",
+    recoveredAmount: 0,
+  },
+  {
+    denialId: "DEN-2024-722",
+    claimId: "CLM-2024-722",
+    patientName: "Taylor, Jennifer L.",
+    serviceDate: "2024-09-28",
+    payerName: "Aetna",
+    deniedAmount: 27600,
+    denialReason: "Experimental procedure",
+    category: "Coverage",
+    department: "General Surgery",
+    provider: "Dr. David White",
+    site: "Baxter Regional Medical Center",
+    denialDate: "2024-10-02",
+    appealDeadline: "2024-11-02",
+    daysToAppeal: -45,
+    status: "Appeal Deadline Passed" as const,
+    assignedReviewer: "Dr. Maria Garcia",
+    appealLevel: "None" as const,
+    lastAction: "2024-10-08",
+    appealed: true,
+    appealOutcome: "Upheld",
+    recoveredAmount: 0,
+  },
+  {
+    denialId: "DEN-2024-729",
+    claimId: "CLM-2024-729",
+    patientName: "Johnson, Lisa K.",
+    serviceDate: "2024-11-10",
+    payerName: "Humana",
+    deniedAmount: 16800,
+    denialReason: "Lack of medical necessity documentation",
+    category: "Documentation",
+    department: "Radiology",
+    provider: "Dr. Christopher Brown",
+    site: "Citizens Medical Center",
+    denialDate: "2024-11-12",
+    appealDeadline: "2024-12-12",
+    daysToAppeal: -5,
+    status: "Appeal Deadline Passed" as const,
+    assignedReviewer: "Dr. Rachel White",
+    appealLevel: "None" as const,
+    lastAction: "2024-11-18",
+    appealed: true,
+    appealOutcome: "Overturned",
+    recoveredAmount: 16800,
+  },
+  {
+    denialId: "DEN-2024-736",
+    claimId: "CLM-2024-736",
+    patientName: "Davis, Mark A.",
+    serviceDate: "2024-12-08",
+    payerName: "Medicare Advantage",
+    deniedAmount: 52100,
+    denialReason: "Inappropriate level of care",
+    category: "Medical Necessity",
+    department: "Cardiology",
+    provider: "Dr. Amanda Lopez",
+    site: "Peterson Health",
+    denialDate: "2024-12-10",
+    appealDeadline: "2025-01-10",
+    daysToAppeal: 23,
+    status: "Under Review" as const,
+    assignedReviewer: "Dr. James Brown",
+    appealLevel: "First Level" as const,
+    lastAction: "2024-12-15",
+    appealed: true,
+    appealOutcome: "Pending",
+    recoveredAmount: 0,
   },
 ];
 
@@ -312,7 +450,19 @@ export function PerformanceComparisonDashboard() {
 
   // Site comparison states
   const [site1, setSite1] = useState("Medical Center Health System");
-  const [site2, setSite2] = useState("Hendrick Health");
+  const [site2, setSite2] = useState("Hendrick Health System");
+
+  // Available sites
+  const availableSites = [
+    "Hendrick Health System",
+    "United Regional Health Care System",
+    "Shannon Medical Center", 
+    "Midland Memorial Hospital",
+    "Medical Center Health System",
+    "Baxter Regional Medical Center",
+    "Citizens Medical Center",
+    "Peterson Health"
+  ];
 
   // Calculate date ranges for predefined periods
   const getDateRange = (period: string) => {
@@ -622,8 +772,15 @@ export function PerformanceComparisonDashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Medical Center Health System" disabled={site2 === "Medical Center Health System"}>Medical Center Health System</SelectItem>
-                    <SelectItem value="Hendrick Health" disabled={site2 === "Hendrick Health"}>Hendrick Health</SelectItem>
+                    {availableSites.map(site => (
+                      <SelectItem 
+                        key={site} 
+                        value={site} 
+                        disabled={site2 === site}
+                      >
+                        {site}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -634,8 +791,15 @@ export function PerformanceComparisonDashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Medical Center Health System" disabled={site1 === "Medical Center Health System"}>Medical Center Health System</SelectItem>
-                    <SelectItem value="Hendrick Health" disabled={site1 === "Hendrick Health"}>Hendrick Health</SelectItem>
+                    {availableSites.map(site => (
+                      <SelectItem 
+                        key={site} 
+                        value={site} 
+                        disabled={site1 === site}
+                      >
+                        {site}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
