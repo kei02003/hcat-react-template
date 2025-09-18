@@ -46,7 +46,7 @@ export function DynamicMetricCard({
     },
     enabled: !!metricVersionKey,
     staleTime: 30000, // Keep data fresh for 30 seconds
-    cacheTime: 300000 // Cache for 5 minutes
+    gcTime: 300000 // Cache for 5 minutes
   });
 
   // Fetch trend data if requested
@@ -62,7 +62,7 @@ export function DynamicMetricCard({
     },
     enabled: showTrend && !!metricVersionKey,
     staleTime: 30000, // Keep data fresh for 30 seconds
-    cacheTime: 300000 // Cache for 5 minutes
+    gcTime: 300000 // Cache for 5 minutes
   });
 
   const metricVersion = useMemo(() => 

@@ -73,12 +73,12 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
       // Regulatory filter
       if (filters.isRegulatory !== null && metric.is_regulatory !== filters.isRegulatory) return false;
 
-      // Tags filter
-      if (filters.tags.length > 0) {
-        const metricTags = metric.tags || [];
-        const hasMatchingTag = filters.tags.some(tag => metricTags.includes(tag));
-        if (!hasMatchingTag) return false;
-      }
+      // Tags filter - disabled for now since tags field doesn't exist in schema
+      // if (filters.tags.length > 0) {
+      //   const metricTags = metric.tags || [];
+      //   const hasMatchingTag = filters.tags.some(tag => metricTags.includes(tag));
+      //   if (!hasMatchingTag) return false;
+      // }
 
       return true;
     });
@@ -97,12 +97,17 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
   }, [filteredMetrics]);
 
   // Get unique values for filters
-  const uniqueDomains = [...new Set(metricVersions.map(m => m.domain).filter(Boolean))];
-  const uniqueFrequencies = [...new Set(metricVersions.map(m => m.frequency).filter(Boolean))];
-  const uniqueResultTypes = [...new Set(metricVersions.map(m => m.result_type).filter(Boolean))];
+  const uniqueDomains = Array.from(new Set(metricVersions.map(m => m.domain).filter(Boolean)));
+  const uniqueFrequencies = Array.from(new Set(metricVersions.map(m => m.frequency).filter(Boolean)));
+  const uniqueResultTypes = Array.from(new Set(metricVersions.map(m => m.result_type).filter(Boolean)));
   const uniqueTags: string[] = []; // Simplified for now - tags not included in current data model
 
-  const handleMetricToggle = (metricVersionKey: string) => {
+  const handleMetricToggle = (metricVersionKey: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     const isSelected = selectedMetrics.includes(metricVersionKey);
     
     if (isSelected) {
@@ -331,15 +336,16 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                           ? 'border-blue-300 bg-blue-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
-                      onClick={() => handleMetricToggle(metric.metric_version_key)}
+                      onClick={(e) => handleMetricToggle(metric.metric_version_key, e)}
                       data-testid={`metric-item-${metric.metric_version_key}`}
                     >
                       <div className="flex items-start space-x-3">
                         <Checkbox
                           checked={selectedMetrics.includes(metric.metric_version_key)}
-                          onChange={() => {}} // Handled by parent click
+                          onCheckedChange={() => handleMetricToggle(metric.metric_version_key)}
                           className="mt-1"
                           data-testid={`checkbox-${metric.metric_version_key}`}
+                          onClick={(e) => e.stopPropagation()}
                         />
                         
                         <div className="flex-1 min-w-0">
