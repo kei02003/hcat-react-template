@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import {
   TrendingUp,
@@ -395,62 +394,6 @@ export function SummaryDashboard() {
         </Card>
       </div>
 
-      {/* Module Performance */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Module Performance</CardTitle>
-          <CardDescription>
-            Performance indicators for each system module
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Clinical Denials</span>
-                <span className="font-medium">87%</span>
-              </div>
-              <Progress value={87} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                Review completion rate
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Appeal Generation</span>
-                <span className="font-medium">91%</span>
-              </div>
-              <Progress value={91} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                Success rate for appeals &gt;70% probability
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Timely Filing</span>
-                <span className="font-medium">95%</span>
-              </div>
-              <Progress value={95} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                Claims filed within deadline
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Pre-Authorization</span>
-                <span className="font-medium">92%</span>
-              </div>
-              <Progress value={92} className="h-2" />
-              <p className="text-xs text-muted-foreground">
-                Completion 3+ days before procedure
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
