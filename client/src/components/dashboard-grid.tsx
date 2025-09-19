@@ -41,34 +41,32 @@ export function DashboardGrid({
   showGlobalFilters = true,
   className = ""
 }: DashboardGridProps) {
-  const [config, setConfig] = useState<DashboardConfig>({
-    selectedMetrics: defaultMetrics,
-    globalFilters: {
-      entityId: "all",
-      dateRange: "30d",
-      showTrends: false
-    },
-    gridLayout: "comfortable"
+  const [config, setConfig] = useState<DashboardConfig>(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return {
+          selectedMetrics: parsed.selectedMetrics ?? defaultMetrics,
+          globalFilters: {
+            entityId: parsed.globalFilters?.entityId ?? 'all',
+            dateRange: parsed.globalFilters?.dateRange ?? '30d',
+            showTrends: Boolean(parsed.globalFilters?.showTrends),
+          },
+          gridLayout: parsed.gridLayout ?? 'comfortable',
+        } as DashboardConfig;
+      }
+    } catch (error) {
+      console.warn("Failed to parse saved dashboard config:", error);
+    }
+    return {
+      selectedMetrics: defaultMetrics,
+      globalFilters: { entityId: 'all', dateRange: '30d', showTrends: false },
+      gridLayout: 'comfortable',
+    } as DashboardConfig;
   });
   const [showMetricPicker, setShowMetricPicker] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-
-  // Load configuration from localStorage on mount
-  useEffect(() => {
-    const savedConfig = localStorage.getItem(STORAGE_KEY);
-    if (savedConfig) {
-      try {
-        const parsed = JSON.parse(savedConfig);
-        setConfig(prev => ({
-          ...prev,
-          ...parsed,
-          selectedMetrics: parsed.selectedMetrics || defaultMetrics
-        }));
-      } catch (error) {
-        console.warn("Failed to parse saved dashboard config:", error);
-      }
-    }
-  }, [defaultMetrics]);
 
   // Save configuration to localStorage whenever it changes
   useEffect(() => {
@@ -105,7 +103,7 @@ export function DashboardGrid({
         showTrends: false
       },
       gridLayout: "comfortable"
-    });
+    } as DashboardConfig);
   };
 
   const exportConfiguration = () => {
@@ -275,11 +273,11 @@ export function DashboardGrid({
               <div>
                 <label className="text-sm font-medium mb-1 block">Show Trends</label>
                 <Select 
-                  value={config.globalFilters.showTrends.toString()} 
-                  onValueChange={(value) => handleGlobalFilterChange("showTrends", value === "true")}
+                  value={config.globalFilters.showTrends ? "true" : "false"} 
+                  onValueChange={(value: "true" | "false") => handleGlobalFilterChange("showTrends", value === "true")}
                 >
                   <SelectTrigger data-testid="select-trends-toggle">
-                    <SelectValue />
+                    <SelectValue placeholder="Values Only" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="false">Values Only</SelectItem>
