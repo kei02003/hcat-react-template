@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip as RechartsTooltip } from "recharts";
 import type { CanonicalResult, CanonicalMetricVersion } from "@shared/schema";
 
 interface MetricCardProps {
@@ -129,7 +130,47 @@ export function DynamicMetricCard({
     return "text-gray-900";
   };
 
+  // Build calculation definition content for tooltip
+  const getCalculationDefinition = () => {
+    if (!metricVersion) return "";
+    
+    const parts = [];
+    
+    // Main description
+    if (metricVersion.metric_version_description) {
+      parts.push(metricVersion.metric_version_description);
+    }
+    
+    // Result type and unit
+    if (metricVersion.result_type) {
+      let resultInfo = `Result Type: ${metricVersion.result_type}`;
+      if (metricVersion.result_unit) {
+        resultInfo += ` (${metricVersion.result_unit})`;
+      }
+      parts.push(resultInfo);
+    }
+    
+    // Grain description (calculation granularity)
+    if (metricVersion.grain_description) {
+      parts.push(`Calculation Grain: ${metricVersion.grain_description}`);
+    }
+    
+    // Frequency
+    if (metricVersion.frequency) {
+      parts.push(`Update Frequency: ${metricVersion.frequency}`);
+    }
+    
+    // Regulatory information
+    if (metricVersion.is_regulatory && metricVersion.regulatory_program) {
+      parts.push(`Regulatory Program: ${metricVersion.regulatory_program}`);
+    }
+    
+    return parts.join("\n\n");
+  };
+
   const getStatusIcon = (resultType?: string, value?: any) => {
+    const calculationDefinition = getCalculationDefinition();
+    
     switch (resultType) {
       case "boolean":
         return value ? (
@@ -138,7 +179,29 @@ export function DynamicMetricCard({
           <XCircle className="h-4 w-4 text-red-600" />
         );
       default:
-        return <Info className="h-4 w-4 text-blue-600" />;
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info 
+                  className="h-4 w-4 text-blue-600 cursor-help" 
+                  data-testid={`info-icon-${metricVersionKey}`}
+                />
+              </TooltipTrigger>
+              <TooltipContent 
+                className="max-w-sm p-3 text-sm"
+                data-testid={`calculation-tooltip-${metricVersionKey}`}
+              >
+                <div className="space-y-2">
+                  <div className="font-semibold text-blue-900">Calculation Definition</div>
+                  <div className="whitespace-pre-line text-gray-700">
+                    {calculationDefinition || "No calculation definition available"}
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
     }
   };
 
@@ -301,7 +364,7 @@ export function DynamicMetricCard({
                   strokeWidth={2}
                   dot={false}
                 />
-                <Tooltip 
+                <RechartsTooltip 
                   content={({ active, payload, label }) => {
                     if (active && payload && payload.length) {
                       return (
