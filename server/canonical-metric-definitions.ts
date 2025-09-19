@@ -147,6 +147,62 @@ export const CANONICAL_METRICS: InsertMetric[] = [
     metric: "Electronic Filing Adoption Rate",
     metric_description: "Percentage of claims filed electronically versus paper/fax",
     tags: ["operational", "efficiency", "automation", "edi"]
+  },
+  // AR Aging & Cash Flow Metrics
+  {
+    metric_key: "aged_ar_30_days_hc",
+    metric: "Aged A/R > 30 days",
+    metric_description: "Total accounts receivable outstanding for more than 30 days",
+    tags: ["financial", "ar_aging", "cash_flow", "collections"]
+  },
+  {
+    metric_key: "aged_ar_120_days_hc", 
+    metric: "Aged A/R > 120 days",
+    metric_description: "Total accounts receivable outstanding for more than 120 days",
+    tags: ["financial", "ar_aging", "cash_flow", "collections", "high_risk"]
+  },
+  {
+    metric_key: "days_in_ar_dollars_hc",
+    metric: "Days in Account Dollars in AR",
+    metric_description: "Average number of days accounts receivable dollars have been outstanding",
+    tags: ["financial", "ar_aging", "cycle_time", "performance"]
+  },
+  {
+    metric_key: "days_cash_drgs_hc",
+    metric: "Days Cash Dollars DRGs", 
+    metric_description: "Days from discharge to cash collection for DRG-based payments",
+    tags: ["financial", "cash_flow", "cycle_time", "drg", "inpatient"]
+  },
+  {
+    metric_key: "gross_cash_collection_hc",
+    metric: "Gross Cash Collection",
+    metric_description: "Total gross cash collected across all payment sources",
+    tags: ["financial", "cash_flow", "collections", "gross_revenue"]
+  },
+  {
+    metric_key: "net_cash_collection_hc",
+    metric: "Net Cash Collection", 
+    metric_description: "Net cash collected after contractual adjustments and write-offs",
+    tags: ["financial", "cash_flow", "collections", "net_revenue"]
+  },
+  // DNFB Management Metrics
+  {
+    metric_key: "discharged_not_final_billed_hc",
+    metric: "Discharged Not Final Billed (DNFB)",
+    metric_description: "Total value of discharged accounts not yet final billed",
+    tags: ["operational", "billing", "dnfb", "cycle_time", "revenue_cycle"]
+  },
+  {
+    metric_key: "days_discharged_dnfb_hc",
+    metric: "Days Discharged DNFB", 
+    metric_description: "Average days from discharge to final bill for DNFB accounts",
+    tags: ["operational", "billing", "dnfb", "cycle_time", "turnaround"]
+  },
+  {
+    metric_key: "gross_dnfb_dollars_hc",
+    metric: "Gross DNFB Dollars",
+    metric_description: "Total gross dollar value of accounts in DNFB status",
+    tags: ["financial", "billing", "dnfb", "gross_revenue", "working_capital"]
   }
 ];
 
@@ -516,6 +572,286 @@ export const CANONICAL_METRIC_VERSIONS: InsertMetricVersion[] = [
       manual_methods: ["paper", "fax", "manual_entry"]
     },
     required_metadata_fields: ["org_id", "entity_id", "measurement_period"]
+  },
+  // AR Aging & Cash Flow Metric Versions
+  {
+    metric_version_key: "aged_ar_30_days_hc_v1",
+    metric_key: "aged_ar_30_days_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Aged A/R > 30 days - Standard",
+    metric_version_description: "Total accounts receivable outstanding for more than 30 days from service date",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "aging_bucket": "string"
+    },
+    grain_description: "Organization, facility, payer, and aging bucket level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "accounts_receivable",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      aging_categories: ["31-60", "61-90", "91-120", "120+"],
+      exclude_zero_balances: [true]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
+  },
+  {
+    metric_version_key: "aged_ar_120_days_hc_v1",
+    metric_key: "aged_ar_120_days_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Aged A/R > 120 days - High Risk",
+    metric_version_description: "Total accounts receivable outstanding for more than 120 days, considered high collection risk",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "financial_class": "string"
+    },
+    grain_description: "Organization, facility, payer, and financial class level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.WEEKLY,
+    source_category: "accounts_receivable",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Collections Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      risk_level: ["high", "critical"],
+      collection_actions: ["letters", "calls", "agency"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
+  },
+  {
+    metric_version_key: "days_in_ar_dollars_hc_v1",
+    metric_key: "days_in_ar_dollars_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Days in Account Dollars in AR - Weighted",
+    metric_version_description: "Weighted average days accounts receivable dollars have been outstanding",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "department": "string"
+    },
+    grain_description: "Organization, facility, and department level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "accounts_receivable",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      calculation_method: ["dollar_weighted_average"],
+      exclude_adjustments: [true]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
+  },
+  {
+    metric_version_key: "days_cash_drgs_hc_v1",
+    metric_key: "days_cash_drgs_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Days Cash Dollars DRGs - Inpatient Cycle",
+    metric_version_description: "Average days from discharge to cash collection for DRG-based inpatient payments",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "drg_code": "string",
+      "payer": "string"
+    },
+    grain_description: "Organization, facility, DRG, and payer level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.WEEKLY,
+    source_category: "cash_collections",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Inpatient Revenue Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      encounter_types: ["inpatient", "observation"],
+      payment_types: ["primary", "secondary"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "measurement_period"]
+  },
+  {
+    metric_version_key: "gross_cash_collection_hc_v1",
+    metric_key: "gross_cash_collection_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Gross Cash Collection - Total",
+    metric_version_description: "Total gross cash collected across all payment sources and types",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "payment_type": "string"
+    },
+    grain_description: "Organization, facility, payer, and payment type level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "cash_collections",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Cash Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      payment_methods: ["check", "eft", "card", "cash"],
+      include_patient_payments: [true]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "collection_date"]
+  },
+  {
+    metric_version_key: "net_cash_collection_hc_v1",
+    metric_key: "net_cash_collection_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Net Cash Collection - Adjusted",
+    metric_version_description: "Net cash collected after contractual adjustments, write-offs, and refunds",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "financial_class": "string"
+    },
+    grain_description: "Organization, facility, payer, and financial class level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "cash_collections",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      adjustment_types: ["contractual", "write_off", "refund"],
+      net_calculation: ["gross_cash_minus_adjustments"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "collection_date"]
+  },
+  // DNFB Management Metric Versions
+  {
+    metric_version_key: "discharged_not_final_billed_hc_v1",
+    metric_key: "discharged_not_final_billed_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Discharged Not Final Billed - Standard",
+    metric_version_description: "Total value of discharged patient accounts not yet final billed, excluding voided accounts",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "department": "string",
+      "discharge_disposition": "string"
+    },
+    grain_description: "Organization, facility, department, and discharge disposition level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "billing_workflow",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      exclude_accounts: ["voided", "combined", "error"],
+      billing_status: ["discharged_not_billed", "pending_final_review"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
+  },
+  {
+    metric_version_key: "days_discharged_dnfb_hc_v1",
+    metric_key: "days_discharged_dnfb_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Days Discharged DNFB - Turnaround",
+    metric_version_description: "Average days from discharge date to final bill submission for DNFB accounts",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "department": "string",
+      "financial_class": "string"
+    },
+    grain_description: "Organization, facility, department, and financial class level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "billing_workflow",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Billing Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      calculation_method: ["weighted_average_by_charges"],
+      exclude_same_day: [false]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
+  },
+  {
+    metric_version_key: "gross_dnfb_dollars_hc_v1",
+    metric_key: "gross_dnfb_dollars_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Gross DNFB Dollars - Working Capital",
+    metric_version_description: "Total gross dollar value of accounts in DNFB status representing working capital impact",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "service_line": "string",
+      "dnfb_age_bucket": "string"
+    },
+    grain_description: "Organization, facility, service line, and DNFB age bucket level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "billing_workflow",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "CFO",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      aging_buckets: ["0-3", "4-7", "8-14", "15+"],
+      include_charges: ["professional", "facility", "ancillary"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
   }
 ];
 
