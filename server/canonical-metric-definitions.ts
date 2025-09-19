@@ -278,6 +278,18 @@ export const CANONICAL_METRICS: InsertMetric[] = [
     metric: "Payment Rate by Payer",
     metric_description: "Payment success rate and timing by different payer categories and types",
     tags: ["financial", "payer_performance", "payment_rates", "payer_relations", "benchmarking"]
+  },
+  {
+    metric_key: "charge_lag_days_hc",
+    metric: "Charge Lag Days",
+    metric_description: "Average time in days from service delivery to charge capture in the billing system",
+    tags: ["billing_cycle", "charge_capture", "operational_efficiency", "revenue_timing", "process_metrics"]
+  },
+  {
+    metric_key: "final_bill_processing_time_hc",
+    metric: "Final Bill Processing Time", 
+    metric_description: "Time from patient discharge to completion of final bill processing and submission",
+    tags: ["billing_cycle", "discharge_processing", "final_billing", "operational_efficiency", "process_metrics"]
   }
 ];
 
@@ -1301,6 +1313,70 @@ export const CANONICAL_METRIC_VERSIONS: InsertMetricVersion[] = [
       contract_types: ["fee_for_service", "capitation", "bundled_payment", "value_based"]
     },
     required_metadata_fields: ["org_id", "entity_id", "contract_effective_date"]
+  },
+  {
+    metric_version_key: "charge_lag_days_hc_v1",
+    metric_key: "charge_lag_days_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Charge Lag Days - Service to Capture",
+    metric_version_description: "Average time from service delivery to charge capture in billing system, critical for revenue cycle efficiency",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "department": "string",
+      "service_category": "string"
+    },
+    grain_description: "Organization, facility, department, and service category level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "billing_transactions",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      service_categories: ["inpatient", "outpatient", "emergency", "surgical", "ancillary"],
+      lag_thresholds: ["1_day", "3_days", "7_days"],
+      exclude_weekends: [true]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "service_date", "charge_capture_date"]
+  },
+  {
+    metric_version_key: "final_bill_processing_time_hc_v1",
+    metric_key: "final_bill_processing_time_hc",
+    version_number: "v1.0", 
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Final Bill Processing Time - Discharge to Completion",
+    metric_version_description: "Time from patient discharge to completion of final bill processing and submission, measuring billing cycle efficiency",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string", 
+      "department": "string",
+      "patient_class": "string"
+    },
+    grain_description: "Organization, facility, department, and patient class level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "billing_transactions",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      patient_classes: ["inpatient", "outpatient", "emergency", "observation"],
+      processing_stages: ["coding_complete", "bill_review", "final_submission"],
+      exclude_holds: [true]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "discharge_date", "final_bill_date"]
   }
 ];
 
