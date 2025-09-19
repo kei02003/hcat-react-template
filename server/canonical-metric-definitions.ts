@@ -253,6 +253,31 @@ export const CANONICAL_METRICS: InsertMetric[] = [
     metric: "Appeal Volumes",
     metric_description: "Total number of appeals filed for denied claims",
     tags: ["operational", "appeals", "volumes", "workflow", "management"]
+  },
+  // Financial Performance Metrics
+  {
+    metric_key: "charity_care_amount_hc",
+    metric: "Charity Care Amount",
+    metric_description: "Total dollar value of care provided as charity care to qualifying patients",
+    tags: ["financial", "charity_care", "uncompensated", "community_benefit", "revenue_impact"]
+  },
+  {
+    metric_key: "uncompensated_care_rate_hc",
+    metric: "Uncompensated Care Rate",
+    metric_description: "Percentage of total care provided that is uncompensated (bad debt + charity care)",
+    tags: ["financial", "uncompensated_care", "charity_care", "bad_debt", "percentage"]
+  },
+  {
+    metric_key: "uninsured_collection_rate_hc",
+    metric: "Uninsured Collection Rate",
+    metric_description: "Collection success rate for uninsured and self-pay patients",
+    tags: ["financial", "uninsured", "self_pay", "collections", "patient_payments"]
+  },
+  {
+    metric_key: "payment_rate_by_payer_hc",
+    metric: "Payment Rate by Payer",
+    metric_description: "Payment success rate and timing by different payer categories and types",
+    tags: ["financial", "payer_performance", "payment_rates", "payer_relations", "benchmarking"]
   }
 ];
 
@@ -1152,6 +1177,130 @@ export const CANONICAL_METRIC_VERSIONS: InsertMetricVersion[] = [
       include_auto_appeals: [true, false]
     },
     required_metadata_fields: ["org_id", "entity_id", "filing_date"]
+  },
+  // Financial Performance Metric Versions
+  {
+    metric_version_key: "charity_care_amount_hc_v1",
+    metric_key: "charity_care_amount_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Charity Care Amount - Community Benefit",
+    metric_version_description: "Total dollar value of care provided as charity care to qualifying patients based on financial hardship criteria",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "department": "string",
+      "charity_care_category": "string"
+    },
+    grain_description: "Organization, facility, department, and charity care category level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.MONTHLY,
+    source_category: "financial_assistance",
+    is_regulatory: true,
+    regulatory_program: "IRS_990",
+    steward: "Chief Financial Officer",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      qualification_criteria: ["income_based", "hardship_based", "emergency_care"],
+      reporting_requirements: ["irs_990", "community_benefit"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "approval_date"]
+  },
+  {
+    metric_version_key: "uncompensated_care_rate_hc_v1",
+    metric_key: "uncompensated_care_rate_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Uncompensated Care Rate - Financial Impact",
+    metric_version_description: "Percentage of total care provided that is uncompensated including bad debt write-offs and charity care",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "service_line": "string"
+    },
+    grain_description: "Organization, facility, and service line level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.PERCENTAGE,
+    result_unit: "percent",
+    frequency: FREQUENCIES.MONTHLY,
+    source_category: "financial_reporting",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      components: ["charity_care", "bad_debt", "uninsured_discounts"],
+      calculation_method: ["uncompensated_over_gross_charges"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "reporting_period"]
+  },
+  {
+    metric_version_key: "uninsured_collection_rate_hc_v1",
+    metric_key: "uninsured_collection_rate_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Uninsured Collection Rate - Self-Pay Performance",
+    metric_version_description: "Collection success rate for uninsured and self-pay patients after financial assistance programs",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "patient_class": "string",
+      "collection_agency": "string"
+    },
+    grain_description: "Organization, facility, patient class, and collection agency level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.PERCENTAGE,
+    result_unit: "percent",
+    frequency: FREQUENCIES.MONTHLY,
+    source_category: "patient_collections",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Patient Financial Services Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      patient_classes: ["uninsured", "self_pay", "underinsured"],
+      collection_methods: ["internal", "external_agency", "payment_plans"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "discharge_date"]
+  },
+  {
+    metric_version_key: "payment_rate_by_payer_hc_v1",
+    metric_key: "payment_rate_by_payer_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Payment Rate by Payer - Performance Benchmarking",
+    metric_version_description: "Payment success rate and timing analysis by different payer categories for contract negotiation and performance monitoring",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer_category": "string",
+      "contract_type": "string"
+    },
+    grain_description: "Organization, facility, payer category, and contract type level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.PERCENTAGE,
+    result_unit: "percent",
+    frequency: FREQUENCIES.MONTHLY,
+    source_category: "payer_performance",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Payer Relations Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      payer_categories: ["commercial", "government", "managed_care", "workers_comp"],
+      contract_types: ["fee_for_service", "capitation", "bundled_payment", "value_based"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "contract_effective_date"]
   }
 ];
 

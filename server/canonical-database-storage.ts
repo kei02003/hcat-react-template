@@ -534,30 +534,43 @@ export class CanonicalDatabaseStorage {
   // Initialize canonical metrics and sample data
   async initializeCanonicalMetrics(): Promise<void> {
     try {
-      // Check if we already have canonical metrics initialized
+      // Check existing metrics for additive initialization (don't short-circuit)
       const existingMetrics = await this.getCanonicalMetrics();
-      if (existingMetrics.length > 0) {
-        console.log("✓ Canonical metrics already initialized");
-        // Still check and initialize billing data if needed
-        await this.initializeBillingData();
-        return;
-      }
-
-      console.log("Initializing canonical metrics...");
+      const existingVersions = await this.getMetricVersions();
+      
+      console.log(`Found ${existingMetrics.length} existing metrics, ${existingVersions.length} existing versions`);
+      console.log("Checking for new metrics to add...");
 
       // Load canonical metric definitions from our existing definitions
       const { CANONICAL_METRICS, CANONICAL_METRIC_VERSIONS, generateSampleCanonicalResults } = 
         await import("./canonical-metric-definitions");
 
-      // Insert base metrics
+      // Track existing metric keys for efficient lookup
+      const existingMetricKeys = new Set(existingMetrics.map(m => m.metric_key));
+      const existingVersionKeys = new Set(existingVersions.map(v => v.metric_version_key));
+
+      // Insert only missing base metrics
+      let newMetricsAdded = 0;
       for (const metric of CANONICAL_METRICS) {
-        await this.createCanonicalMetric(metric);
+        if (!existingMetricKeys.has(metric.metric_key)) {
+          await this.createCanonicalMetric(metric);
+          newMetricsAdded++;
+        }
       }
 
-      // Insert metric versions
+      // Insert only missing metric versions
+      let newVersionsAdded = 0;
       for (const version of CANONICAL_METRIC_VERSIONS) {
-        await this.createMetricVersion(version);
+        if (!existingVersionKeys.has(version.metric_version_key)) {
+          await this.createMetricVersion(version);
+          newVersionsAdded++;
+        }
       }
+
+      console.log(`✓ Added ${newMetricsAdded} new metrics, ${newVersionsAdded} new versions`);
+
+      // Only generate sample data for completely new installations
+      const isNewInstallation = existingMetrics.length === 0;
 
       // Generate and insert sample results with proper multi-tenant grain keys
       const sampleResults = generateSampleCanonicalResults();
