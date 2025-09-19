@@ -1454,7 +1454,40 @@ function getMetricVersionKeyByName(metricName: string): string {
     "Days to Final Bill": "days_to_final_bill_hc_v1",
     "Cash Posting Lag": "cash_posting_lag_hc_v1",
     "Documentation TAT": "documentation_tat_hc_v1",
-    "Electronic Filing Adoption": "electronic_filing_adoption_hc_v1"
+    "Electronic Filing Adoption": "electronic_filing_adoption_hc_v1",
+    
+    // Task 2: DNFB Management Metrics
+    "Discharged Not Final Billed": "discharged_not_final_billed_hc_v1",
+    "Days Discharged DNFB": "days_discharged_dnfb_hc_v1",
+    "Gross DNFB Amount": "gross_dnfb_dollars_hc_v1",
+    
+    // Task 4: Patient Payment Metrics
+    "Patient Cash Payments": "patient_cash_payments_hc_v1",
+    "Copay Collection Rate": "copay_collections_hc_v1",
+    "POS Collection Rate": "pos_collections_hc_v1",
+    
+    // Task 5: Detailed Denial Metrics
+    "Denial Amount Total": "total_denial_amounts_hc_v1",
+    "Denial Rate by Reason": "denial_rate_by_reason_hc_v1",
+    "Denial Aging Days": "denial_aging_days_hc_v1",
+    "Appeal Volume Monthly": "appeal_volumes_hc_v1",
+    
+    // Task 6: Financial Performance Metrics
+    "Charity Care Amount": "charity_care_amount_hc_v1",
+    "Uncompensated Care Rate": "uncompensated_care_rate_hc_v1",
+    "Uninsured Collection Rate": "uninsured_collection_rate_hc_v1",
+    "Payment Rate by Payer": "payment_rate_by_payer_hc_v1",
+    
+    // Task 7: Billing Cycle Metrics
+    "Charge Lag Days": "charge_lag_days_hc_v1",
+    "Final Bill Processing Time": "final_bill_processing_time_hc_v1",
+    
+    // Additional AR Aging and Cash Flow Metrics
+    "Aged A/R > 30 days": "aged_ar_30_days_hc_v1",
+    "Aged A/R > 120 days": "aged_ar_120_days_hc_v1", 
+    "Days Cash Dollars DRGs": "days_cash_drgs_hc_v1",
+    "Gross Cash Collection": "gross_cash_collection_hc_v1",
+    "Net Cash Collection": "net_cash_collection_hc_v1"
   };
   
   return nameMapping[metricName] || "unknown_metric_v1";
@@ -1729,12 +1762,47 @@ export function generateSampleCanonicalResults(orgId: string = "HC001", entityId
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   
   return [
+    // Original core metrics
     convertMetricToCanonicalResult("Total AR", "$8.2M", orgId, entityId, {}, monthStart, monthEnd),
     convertMetricToCanonicalResult("AR Days", "44.7", orgId, entityId, {}, monthStart, monthEnd),
     convertMetricToCanonicalResult("Denial Rate", "12.3%", orgId, entityId, { department: "Cardiology" }, monthStart, monthEnd),
     convertMetricToCanonicalResult("Appeal Success Rate", "87.5%", orgId, entityId, { appeal_level: "first_level" }, monthStart, monthEnd),
     convertMetricToCanonicalResult("Clean Claim Rate", "88%", orgId, entityId, { department: "Emergency" }, monthStart, monthEnd),
     convertMetricToCanonicalResult("Collection Rate", "94.2%", orgId, entityId, { payer: "Medicare" }, monthStart, monthEnd),
-    convertMetricToCanonicalResult("Timely Filing Rate", "94.7%", orgId, entityId, { payer: "BCBS", department: "Orthopedics" }, monthStart, monthEnd)
+    convertMetricToCanonicalResult("Timely Filing Rate", "94.7%", orgId, entityId, { payer: "BCBS", department: "Orthopedics" }, monthStart, monthEnd),
+
+    // Task 2: DNFB Management Metrics
+    convertMetricToCanonicalResult("Discharged Not Final Billed", "$1.8M", orgId, entityId, { department: "Surgery" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Days Discharged DNFB", "3.2", orgId, entityId, { department: "Emergency" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Gross DNFB Amount", "$2.1M", orgId, entityId, { bill_type: "inpatient" }, monthStart, monthEnd),
+
+    // Task 4: Patient Payment Metrics 
+    convertMetricToCanonicalResult("Patient Cash Payments", "$450K", orgId, entityId, { payment_type: "cash" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Copay Collection Rate", "82.5%", orgId, entityId, { payer: "Commercial" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("POS Collection Rate", "76.3%", orgId, entityId, { department: "Outpatient" }, monthStart, monthEnd),
+
+    // Task 5: Detailed Denial Metrics
+    convertMetricToCanonicalResult("Denial Amount Total", "$950K", orgId, entityId, { payer: "Medicare" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Denial Rate by Reason", "8.7%", orgId, entityId, { denial_reason: "Medical Necessity", department: "Cardiology" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Denial Aging Days", "28.4", orgId, entityId, { aging_bucket: "0-30_days" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Appeal Volume Monthly", "127", orgId, entityId, { appeal_level: "first_level" }, monthStart, monthEnd),
+
+    // Task 6: Financial Performance Metrics
+    convertMetricToCanonicalResult("Charity Care Amount", "$2.4M", orgId, entityId, { program_type: "charity_care" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Uncompensated Care Rate", "6.8%", orgId, entityId, { care_category: "uncompensated" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Uninsured Collection Rate", "31.2%", orgId, entityId, { patient_class: "uninsured" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Payment Rate by Payer", "89.3%", orgId, entityId, { payer_category: "commercial", contract_type: "fee_for_service" }, monthStart, monthEnd),
+
+    // Task 7: Billing Cycle Metrics
+    convertMetricToCanonicalResult("Charge Lag Days", "1.8", orgId, entityId, { department: "Emergency", service_category: "emergency" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Cash Posting Lag", "2.3", orgId, entityId, { payment_method: "eft" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Final Bill Processing Time", "4.1", orgId, entityId, { department: "Surgery", patient_class: "inpatient" }, monthStart, monthEnd),
+
+    // Additional sample variations for multi-dimensional analysis
+    convertMetricToCanonicalResult("Aged A/R > 30 days", "$3.1M", orgId, entityId, { aging_bucket: "30-60_days" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Aged A/R > 120 days", "$850K", orgId, entityId, { aging_bucket: "120+_days" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Days Cash Dollars DRGs", "$12.4M", orgId, entityId, { drg_category: "surgical" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Gross Cash Collection", "$18.7M", orgId, entityId, { collection_type: "gross" }, monthStart, monthEnd),
+    convertMetricToCanonicalResult("Net Cash Collection", "$17.2M", orgId, entityId, { collection_type: "net" }, monthStart, monthEnd)
   ];
 }
