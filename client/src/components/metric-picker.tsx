@@ -203,7 +203,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               className="pl-10"
-              data-testid="input-metric-search"
+              data-testid="input-search-metrics"
             />
           </div>
 
