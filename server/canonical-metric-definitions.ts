@@ -228,6 +228,31 @@ export const CANONICAL_METRICS: InsertMetric[] = [
     metric: "Patient Financial Responsibility",
     metric_description: "Total amount patients are financially responsible for after insurance",
     tags: ["financial", "patient_payments", "responsibility", "deductible", "coinsurance"]
+  },
+  // Denial Management Metrics
+  {
+    metric_key: "total_denial_amounts_hc",
+    metric: "Total Denial Amounts",
+    metric_description: "Total dollar value of claims denied by payers",
+    tags: ["operational", "denials", "claims", "payer_relations", "revenue_impact"]
+  },
+  {
+    metric_key: "denial_rate_by_reason_hc",
+    metric: "Denial Rate by Reason",
+    metric_description: "Percentage of claims denied by specific denial reasons and payer",
+    tags: ["quality", "denials", "reason_analysis", "prevention", "patterns"]
+  },
+  {
+    metric_key: "denial_aging_days_hc",
+    metric: "Denial Aging Days",
+    metric_description: "Average days that denied claims have been outstanding without resolution",
+    tags: ["operational", "denials", "aging", "cycle_time", "collections"]
+  },
+  {
+    metric_key: "appeal_volumes_hc",
+    metric: "Appeal Volumes",
+    metric_description: "Total number of appeals filed for denied claims",
+    tags: ["operational", "appeals", "volumes", "workflow", "management"]
   }
 ];
 
@@ -1002,6 +1027,131 @@ export const CANONICAL_METRIC_VERSIONS: InsertMetricVersion[] = [
       include_estimated: [true, false]
     },
     required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
+  },
+  // Denial Management Metric Versions
+  {
+    metric_version_key: "total_denial_amounts_hc_v1",
+    metric_key: "total_denial_amounts_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Total Denial Amounts - Revenue Impact",
+    metric_version_description: "Total dollar value of claims denied by payers with breakdown by denial category and payer type",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "denial_category": "string"
+    },
+    grain_description: "Organization, facility, payer, and denial category level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "claims_workflow",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Denial Management Specialist",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      denial_categories: ["clinical", "administrative", "authorization", "billing", "eligibility"],
+      include_pending_appeals: [true, false]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "denial_date"]
+  },
+  {
+    metric_version_key: "denial_rate_by_reason_hc_v1",
+    metric_key: "denial_rate_by_reason_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Denial Rate by Reason - Pattern Analysis",
+    metric_version_description: "Percentage of claims denied by specific denial reasons with payer and service line breakdown for prevention analysis",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "denial_reason_code": "string"
+    },
+    grain_description: "Organization, facility, payer, and denial reason code level",
+    domain: METRIC_DOMAINS.QUALITY,
+    result_type: RESULT_TYPES.PERCENTAGE,
+    result_unit: "percent",
+    frequency: FREQUENCIES.WEEKLY,
+    source_category: "claims_workflow",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Quality Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      reason_categories: ["medical_necessity", "authorization", "coding", "eligibility", "timely_filing"],
+      include_soft_denials: [true, false]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "analysis_period"]
+  },
+  {
+    metric_version_key: "denial_aging_days_hc_v1",
+    metric_key: "denial_aging_days_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Denial Aging Days - Collections Timing",
+    metric_version_description: "Average days that denied claims have been outstanding without resolution, critical for collections priority",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "denial_category": "string",
+      "aging_bucket": "string"
+    },
+    grain_description: "Organization, facility, denial category, and aging bucket level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "claims_workflow",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Collections Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      aging_buckets: ["0-30", "31-60", "61-90", "91-120", "120+"],
+      exclude_appeals_in_progress: [true, false]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
+  },
+  {
+    metric_version_key: "appeal_volumes_hc_v1",
+    metric_key: "appeal_volumes_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Appeal Volumes - Workflow Management",
+    metric_version_description: "Total number of appeals filed for denied claims with breakdown by appeal level and payer",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "appeal_level": "string"
+    },
+    grain_description: "Organization, facility, payer, and appeal level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "count",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "appeals_workflow",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Appeals Coordinator",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      appeal_levels: ["first_level", "second_level", "third_level", "external_review"],
+      include_auto_appeals: [true, false]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "filing_date"]
   }
 ];
 
