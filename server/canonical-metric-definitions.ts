@@ -203,6 +203,31 @@ export const CANONICAL_METRICS: InsertMetric[] = [
     metric: "Gross DNFB Dollars",
     metric_description: "Total gross dollar value of accounts in DNFB status",
     tags: ["financial", "billing", "dnfb", "gross_revenue", "working_capital"]
+  },
+  // Patient Payment Metrics
+  {
+    metric_key: "patient_cash_payments_hc",
+    metric: "Patient Cash Payments",
+    metric_description: "Total cash payments received directly from patients",
+    tags: ["financial", "patient_payments", "cash_flow", "self_pay", "collections"]
+  },
+  {
+    metric_key: "copay_collections_hc",
+    metric: "Copay Collections",
+    metric_description: "Insurance copayment amounts collected from patients",
+    tags: ["financial", "patient_payments", "copay", "insurance", "collections"]
+  },
+  {
+    metric_key: "pos_collections_hc",
+    metric: "Point of Service Collections",
+    metric_description: "Patient payments collected at the time of service delivery",
+    tags: ["operational", "patient_payments", "pos", "collections", "access"]
+  },
+  {
+    metric_key: "patient_financial_responsibility_hc",
+    metric: "Patient Financial Responsibility",
+    metric_description: "Total amount patients are financially responsible for after insurance",
+    tags: ["financial", "patient_payments", "responsibility", "deductible", "coinsurance"]
   }
 ];
 
@@ -850,6 +875,131 @@ export const CANONICAL_METRIC_VERSIONS: InsertMetricVersion[] = [
     metadata_schema: {
       aging_buckets: ["0-3", "4-7", "8-14", "15+"],
       include_charges: ["professional", "facility", "ancillary"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
+  },
+  // Patient Payment Metric Versions
+  {
+    metric_version_key: "patient_cash_payments_hc_v1",
+    metric_key: "patient_cash_payments_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Patient Cash Payments - Total",
+    metric_version_description: "Total cash payments received directly from patients including self-pay and patient responsibility portions",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "financial_class": "string",
+      "payment_method": "string"
+    },
+    grain_description: "Organization, facility, financial class, and payment method level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "payments",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      payment_types: ["cash", "check", "credit_card", "debit_card", "ach"],
+      exclude_refunds: [true]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "payment_date"]
+  },
+  {
+    metric_version_key: "copay_collections_hc_v1",
+    metric_key: "copay_collections_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Copay Collections - Insurance",
+    metric_version_description: "Insurance copayment amounts collected from patients at time of service or post-service",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer_type": "string",
+      "collection_timing": "string"
+    },
+    grain_description: "Organization, facility, payer type, and collection timing level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "payments",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      timing_options: ["pos", "post_service", "statement"],
+      payer_categories: ["commercial", "medicare", "medicaid", "other"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "payment_date"]
+  },
+  {
+    metric_version_key: "pos_collections_hc_v1",
+    metric_key: "pos_collections_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Point of Service Collections - Access",
+    metric_version_description: "Patient payments collected at the time of service delivery including copays, deductibles, and self-pay amounts",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "department": "string",
+      "encounter_type": "string"
+    },
+    grain_description: "Organization, facility, department, and encounter type level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "access_workflow",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Access Services Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      encounter_types: ["outpatient", "emergency", "inpatient", "observation"],
+      collection_components: ["copay", "deductible", "coinsurance", "self_pay"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "service_date"]
+  },
+  {
+    metric_version_key: "patient_financial_responsibility_hc_v1",
+    metric_key: "patient_financial_responsibility_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Patient Financial Responsibility - Total",
+    metric_version_description: "Total amount patients are financially responsible for including deductibles, coinsurance, copays, and self-pay portions",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "financial_class": "string",
+      "responsibility_type": "string"
+    },
+    grain_description: "Organization, facility, financial class, and responsibility type level",
+    domain: METRIC_DOMAINS.FINANCIAL,
+    result_type: RESULT_TYPES.CURRENCY,
+    result_unit: "dollars",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "billing_workflow",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      responsibility_components: ["deductible", "coinsurance", "copay", "self_pay", "non_covered"],
+      include_estimated: [true, false]
     },
     required_metadata_fields: ["org_id", "entity_id", "calculation_date"]
   }
