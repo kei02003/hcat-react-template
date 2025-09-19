@@ -7,7 +7,7 @@ export function CustomMetricsDashboard() {
         title="Custom Metrics Dashboard"
         subtitle="Build your personalized healthcare analytics dashboard with canonical metrics"
         allowCustomization={true}
-        maxMetrics={20}
+        maxMetrics={58}
         showGlobalFilters={true}
         className="w-full"
       />
