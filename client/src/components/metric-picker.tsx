@@ -103,15 +103,20 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
   const uniqueTags: string[] = []; // Simplified for now - tags not included in current data model
 
   const handleMetricToggle = (metricVersionKey: string) => {
+    console.log(`[DEBUG] handleMetricToggle called for ${metricVersionKey}, currently selected: ${selectedMetrics.includes(metricVersionKey)}`);
     const isCurrentlySelected = selectedMetrics.includes(metricVersionKey);
     
     if (isCurrentlySelected) {
       // Remove metric
+      console.log(`[DEBUG] Removing metric ${metricVersionKey}`);
       onMetricsChange(selectedMetrics.filter(key => key !== metricVersionKey));
     } else {
       // Add metric if under limit
       if (selectedMetrics.length < maxSelections) {
+        console.log(`[DEBUG] Adding metric ${metricVersionKey}`);
         onMetricsChange([...selectedMetrics, metricVersionKey]);
+      } else {
+        console.log(`[DEBUG] Cannot add metric ${metricVersionKey} - at max limit`);
       }
     }
   };
