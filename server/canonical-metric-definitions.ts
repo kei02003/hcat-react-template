@@ -5,12 +5,13 @@ import {
   type CanonicalResult,
   type CanonicalStagingResult,
   type CanonicalMetricLineage,
+  type InsertCanonicalResult,
   type InsertCanonicalStagingResult,
   type InsertCanonicalMetricLineage,
   canonicalMetric,
   canonicalMetricVersion,
   canonicalResult,
-  createGrainKey
+  createGrainKey as createSchemaGrainKey
 } from "@shared/schema";
 
 // Constants moved here to avoid duplication
@@ -115,6 +116,37 @@ export const CANONICAL_METRICS: InsertMetric[] = [
     metric: "Days Sales Outstanding", 
     metric_description: "Average number of days to collect receivables",
     tags: ["revenue_cycle", "financial", "cash_flow"]
+  },
+  // Operational Efficiency Metrics
+  {
+    metric_key: "clean_claim_first_pass_rate_hc",
+    metric: "Clean Claim First-Pass Rate",
+    metric_description: "Percentage of claims processed without errors or rework on first submission",
+    tags: ["operational", "efficiency", "quality", "claims_processing"]
+  },
+  {
+    metric_key: "days_to_final_bill_hc",
+    metric: "Days to Final Bill",
+    metric_description: "Average number of days from service date to final bill generation",
+    tags: ["operational", "efficiency", "billing_cycle", "dnfb"]
+  },
+  {
+    metric_key: "cash_posting_lag_hc",
+    metric: "Cash Posting Lag",
+    metric_description: "Average days between payment receipt and posting to patient accounts",
+    tags: ["operational", "efficiency", "cash_management", "posting"]
+  },
+  {
+    metric_key: "documentation_tat_hc",
+    metric: "Documentation Turnaround Time",
+    metric_description: "Average days to respond to payer documentation requests",
+    tags: ["operational", "efficiency", "documentation", "response_time"]
+  },
+  {
+    metric_key: "electronic_filing_adoption_hc",
+    metric: "Electronic Filing Adoption Rate",
+    metric_description: "Percentage of claims filed electronically versus paper/fax",
+    tags: ["operational", "efficiency", "automation", "edi"]
   }
 ];
 
@@ -330,6 +362,160 @@ export const CANONICAL_METRIC_VERSIONS: InsertMetricVersion[] = [
       exclude_resubmissions: [false]
     },
     required_metadata_fields: ["org_id", "entity_id", "measurement_period"]
+  },
+  // Operational Efficiency Metric Versions
+  {
+    metric_version_key: "clean_claim_first_pass_rate_hc_v1",
+    metric_key: "clean_claim_first_pass_rate_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Clean Claim First-Pass Rate - Standard",
+    metric_version_description: "Percentage of claims processed correctly on first submission without edits, rejections, or rework",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "department": "string"
+    },
+    grain_description: "Organization, facility, and department level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.PERCENTAGE,
+    result_unit: "percent",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "claims_processing",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Operations Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      clean_criteria: ["no_edits", "no_rejections", "first_pass_acceptance"],
+      exclusions: ["resubmissions", "appeals"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "measurement_period"]
+  },
+  {
+    metric_version_key: "days_to_final_bill_hc_v1", 
+    metric_key: "days_to_final_bill_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Days to Final Bill - DNFB",
+    metric_version_description: "Average days from service date to final bill generation (discharged not final billed reduction)",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "department": "string",
+      "bill_type": "string"
+    },
+    grain_description: "Organization, facility, department, and bill type level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "billing_cycle",
+    is_regulatory: true,
+    regulatory_program: "HFMA",
+    steward: "Revenue Cycle Manager",
+    developer: "Health Catalyst Platform", 
+    is_active: true,
+    metadata_schema: {
+      calculation_method: ["service_to_final_bill"],
+      exclude_holds: ["clinical_holds", "insurance_verification"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "measurement_period"]
+  },
+  {
+    metric_version_key: "cash_posting_lag_hc_v1",
+    metric_key: "cash_posting_lag_hc",
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Cash Posting Lag - Operations",
+    metric_version_description: "Average days between payment receipt and posting to patient accounts",
+    grain: {
+      "org_id": "string", 
+      "entity_id": "string",
+      "payment_method": "string"
+    },
+    grain_description: "Organization, facility, and payment method level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.DAILY,
+    source_category: "cash_management",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "Cash Posting Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      payment_types: ["check", "eft", "credit_card", "cash"],
+      business_days_only: [true]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "measurement_period"]
+  },
+  {
+    metric_version_key: "documentation_tat_hc_v1",
+    metric_key: "documentation_tat_hc", 
+    version_number: "v1.0",
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Documentation Turnaround Time - Response",
+    metric_version_description: "Average days to respond to payer documentation requests",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "document_type": "string"
+    },
+    grain_description: "Organization, facility, payer, and document type level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.NUMERIC,
+    result_unit: "days",
+    frequency: FREQUENCIES.WEEKLY,
+    source_category: "documentation_management",
+    is_regulatory: true,
+    regulatory_program: "CMS",
+    steward: "HIM Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      response_criteria: ["document_submitted", "request_fulfilled"],
+      exclude_redundant: [true]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "measurement_period"]
+  },
+  {
+    metric_version_key: "electronic_filing_adoption_hc_v1",
+    metric_key: "electronic_filing_adoption_hc",
+    version_number: "v1.0", 
+    valid_from_datetime: new Date("2024-01-01"),
+    valid_to_datetime: null,
+    metric_version_name: "Electronic Filing Adoption - EDI Rate",
+    metric_version_description: "Percentage of claims filed electronically vs. paper/fax/manual methods",
+    grain: {
+      "org_id": "string",
+      "entity_id": "string",
+      "payer": "string",
+      "submission_method": "string"
+    },
+    grain_description: "Organization, facility, payer, and submission method level",
+    domain: METRIC_DOMAINS.OPERATIONAL,
+    result_type: RESULT_TYPES.PERCENTAGE,
+    result_unit: "percent",
+    frequency: FREQUENCIES.MONTHLY,
+    source_category: "claims_submission",
+    is_regulatory: false,
+    regulatory_program: null,
+    steward: "EDI Manager",
+    developer: "Health Catalyst Platform",
+    is_active: true,
+    metadata_schema: {
+      electronic_methods: ["edi_837", "clearinghouse", "portal"],
+      manual_methods: ["paper", "fax", "manual_entry"]
+    },
+    required_metadata_fields: ["org_id", "entity_id", "measurement_period"]
   }
 ];
 
@@ -401,7 +587,13 @@ function getMetricVersionKeyByName(metricName: string): string {
     "Timely Filing Rate": "timely_filing_rate_hc_v1",
     "Documentation Requests": "documentation_request_volume_hc_v1",
     "Redundant Doc Requests": "redundant_documentation_rate_hc_v1",
-    "Doc Request Response Time": "documentation_response_time_hc_v1"
+    "Doc Request Response Time": "documentation_response_time_hc_v1",
+    // Operational Efficiency Metrics
+    "Clean Claim First-Pass Rate": "clean_claim_first_pass_rate_hc_v1",
+    "Days to Final Bill": "days_to_final_bill_hc_v1",
+    "Cash Posting Lag": "cash_posting_lag_hc_v1",
+    "Documentation TAT": "documentation_tat_hc_v1",
+    "Electronic Filing Adoption": "electronic_filing_adoption_hc_v1"
   };
   
   return nameMapping[metricName] || "unknown_metric_v1";
@@ -422,7 +614,7 @@ export function generateSampleStagingResults(): InsertCanonicalStagingResult[] {
       // Generate staging results for key metrics
       stagingResults.push({
         result_key: `staging-total_ar_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 1000 + entityIndex}`,
-        grain_keys: createGrainKey(orgId, entityId),
+        grain_keys: createSchemaGrainKey(orgId, entityId),
         metric_version_key: "total_ar_hc_v1",
         result_value_numeric: "2847291.75", // Higher values for staging (not yet validated)
         measurement_period_start_datetime: new Date(now.getTime() - 24 * oneHour),
@@ -440,7 +632,7 @@ export function generateSampleStagingResults(): InsertCanonicalStagingResult[] {
 
       stagingResults.push({
         result_key: `staging-denial_rate_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 2000 + entityIndex}`,
-        grain_keys: createGrainKey(orgId, entityId),
+        grain_keys: createSchemaGrainKey(orgId, entityId),
         metric_version_key: "denial_rate_hc_v1",
         result_value_numeric: "0.0847", // Slightly different from final results
         measurement_period_start_datetime: new Date(now.getTime() - 7 * 24 * oneHour),
@@ -458,7 +650,7 @@ export function generateSampleStagingResults(): InsertCanonicalStagingResult[] {
 
       stagingResults.push({
         result_key: `staging-clean_claim_rate_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 3000 + entityIndex}`,
-        grain_keys: createGrainKey(orgId, entityId),
+        grain_keys: createSchemaGrainKey(orgId, entityId),
         metric_version_key: "clean_claim_rate_hc_v1",
         result_value_numeric: "0.8934", // Raw calculation before adjustments
         measurement_period_start_datetime: new Date(now.getTime() - 24 * oneHour),
@@ -471,6 +663,100 @@ export function generateSampleStagingResults(): InsertCanonicalStagingResult[] {
           validation_status: ["in_progress"],
           business_rules_applied: ["pending"],
           processing_stage: ["raw_calculation", "business_rules_pending"]
+        }
+      });
+
+      // Operational Efficiency Metrics Staging Data
+      stagingResults.push({
+        result_key: `staging-clean_claim_first_pass_rate_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 4000 + entityIndex}`,
+        grain_keys: createSchemaGrainKey(orgId, entityId, { department: "surgery" }),
+        metric_version_key: "clean_claim_first_pass_rate_hc_v1",
+        result_value_numeric: "0.9234", // 92.34% first-pass rate
+        measurement_period_start_datetime: new Date(now.getTime() - 24 * oneHour),
+        measurement_period_end_datetime: new Date(now.getTime() - oneHour),
+        as_of_datetime: new Date(now.getTime() - oneHour),
+        calculated_at: new Date(now.getTime() - 15 * 60 * 1000), // 15 mins ago
+        calculation_version: "v1.0",
+        result_metadata: {
+          source: ["claims_processing_staging"],
+          validation_status: ["pending"],
+          processing_stage: ["calculation_complete", "validation_pending"],
+          department: ["surgery"]
+        }
+      });
+
+      stagingResults.push({
+        result_key: `staging-days_to_final_bill_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 5000 + entityIndex}`,
+        grain_keys: createSchemaGrainKey(orgId, entityId, { department: "emergency", bill_type: "inpatient" }),
+        metric_version_key: "days_to_final_bill_hc_v1",
+        result_value_numeric: "3.7", // 3.7 days average to final bill
+        measurement_period_start_datetime: new Date(now.getTime() - 24 * oneHour),
+        measurement_period_end_datetime: new Date(now.getTime() - oneHour),
+        as_of_datetime: new Date(now.getTime() - oneHour),
+        calculated_at: new Date(now.getTime() - 12 * 60 * 1000), // 12 mins ago
+        calculation_version: "v1.0",
+        result_metadata: {
+          source: ["billing_cycle_staging"],
+          validation_status: ["in_progress"],
+          processing_stage: ["calculation_complete", "business_rules_pending"],
+          department: ["emergency"],
+          bill_type: ["inpatient"]
+        }
+      });
+
+      stagingResults.push({
+        result_key: `staging-cash_posting_lag_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 6000 + entityIndex}`,
+        grain_keys: createSchemaGrainKey(orgId, entityId, { payment_method: "eft" }),
+        metric_version_key: "cash_posting_lag_hc_v1",
+        result_value_numeric: "1.2", // 1.2 days average posting lag
+        measurement_period_start_datetime: new Date(now.getTime() - 24 * oneHour),
+        measurement_period_end_datetime: new Date(now.getTime() - oneHour),
+        as_of_datetime: new Date(now.getTime() - oneHour),
+        calculated_at: new Date(now.getTime() - 8 * 60 * 1000), // 8 mins ago
+        calculation_version: "v1.0",
+        result_metadata: {
+          source: ["cash_management_staging"],
+          validation_status: ["pending"],
+          processing_stage: ["calculation_complete", "validation_pending"],
+          payment_method: ["eft"]
+        }
+      });
+
+      stagingResults.push({
+        result_key: `staging-documentation_tat_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 7000 + entityIndex}`,
+        grain_keys: createSchemaGrainKey(orgId, entityId, { payer: "Aetna", document_type: "medical_records" }),
+        metric_version_key: "documentation_tat_hc_v1",
+        result_value_numeric: "4.8", // 4.8 days average response time
+        measurement_period_start_datetime: new Date(now.getTime() - 7 * 24 * oneHour),
+        measurement_period_end_datetime: new Date(now.getTime() - oneHour),
+        as_of_datetime: new Date(now.getTime() - oneHour),
+        calculated_at: new Date(now.getTime() - 25 * 60 * 1000), // 25 mins ago
+        calculation_version: "v1.0",
+        result_metadata: {
+          source: ["documentation_staging"],
+          validation_status: ["pending"],
+          processing_stage: ["calculation_complete", "outlier_detection_pending"],
+          payer: ["Aetna"],
+          document_type: ["medical_records"]
+        }
+      });
+
+      stagingResults.push({
+        result_key: `staging-electronic_filing_adoption_hc_v1-${orgId}-${entityId}-${Date.now() + orgIndex * 8000 + entityIndex}`,
+        grain_keys: createSchemaGrainKey(orgId, entityId, { payer: "BCBS", submission_method: "edi_837" }),
+        metric_version_key: "electronic_filing_adoption_hc_v1",
+        result_value_numeric: "0.9567", // 95.67% electronic filing rate
+        measurement_period_start_datetime: new Date(now.getTime() - 30 * 24 * oneHour),
+        measurement_period_end_datetime: new Date(now.getTime() - oneHour),
+        as_of_datetime: new Date(now.getTime() - oneHour),
+        calculated_at: new Date(now.getTime() - 18 * 60 * 1000), // 18 mins ago
+        calculation_version: "v1.0",
+        result_metadata: {
+          source: ["edi_staging"],
+          validation_status: ["pending"],
+          processing_stage: ["calculation_complete", "trend_analysis_pending"],
+          payer: ["BCBS"],
+          submission_method: ["edi_837"]
         }
       });
     });

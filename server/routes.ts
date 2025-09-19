@@ -872,6 +872,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add operational efficiency metrics - specialized endpoint for inserting new metric definitions
+  app.post("/api/canonical-metrics/operational-efficiency", 
+    isAuthenticated,
+    requirePermission("admin"),
+    async (req: AuthenticatedRequest, res) => {
+    try {
+      const { CANONICAL_METRICS, CANONICAL_METRIC_VERSIONS, generateSampleStagingResults } = 
+        await import("./canonical-metric-definitions");
+
+      // Filter for operational efficiency metrics only
+      const operationalMetrics = CANONICAL_METRICS.filter(metric => 
+        metric.metric_key.includes('clean_claim_first_pass_rate_hc') ||
+        metric.metric_key.includes('days_to_final_bill_hc') ||
+        metric.metric_key.includes('cash_posting_lag_hc') ||
+        metric.metric_key.includes('documentation_tat_hc') ||
+        metric.metric_key.includes('electronic_filing_adoption_hc')
+      );
+
+      const operationalVersions = CANONICAL_METRIC_VERSIONS.filter(version =>
+        version.metric_version_key.includes('clean_claim_first_pass_rate_hc_v1') ||
+        version.metric_version_key.includes('days_to_final_bill_hc_v1') ||
+        version.metric_version_key.includes('cash_posting_lag_hc_v1') ||
+        version.metric_version_key.includes('documentation_tat_hc_v1') ||
+        version.metric_version_key.includes('electronic_filing_adoption_hc_v1')
+      );
+
+      let insertedMetrics = 0;
+      let insertedVersions = 0;
+      let insertedStaging = 0;
+
+      // Check and insert base metrics
+      for (const metric of operationalMetrics) {
+        try {
+          const existing = await canonicalDb.getCanonicalMetrics();
+          const exists = existing.find(m => m.metric_key === metric.metric_key);
+          if (!exists) {
+            await canonicalDb.createCanonicalMetric(metric);
+            insertedMetrics++;
+          }
+        } catch (error) {
+          // Metric might already exist, continue
+          console.log(`Metric ${metric.metric_key} already exists or insert failed`);
+        }
+      }
+
+      // Check and insert metric versions
+      for (const version of operationalVersions) {
+        try {
+          const existing = await canonicalDb.getMetricVersions();
+          const exists = existing.find(v => v.metric_version_key === version.metric_version_key);
+          if (!exists) {
+            await canonicalDb.createMetricVersion(version);
+            insertedVersions++;
+          }
+        } catch (error) {
+          // Version might already exist, continue
+          console.log(`Version ${version.metric_version_key} already exists or insert failed`);
+        }
+      }
+
+      // Generate and insert staging results for operational efficiency metrics
+      const stagingResults = generateSampleStagingResults();
+      const operationalStagingResults = stagingResults.filter(result =>
+        result.metric_version_key.includes('clean_claim_first_pass_rate_hc_v1') ||
+        result.metric_version_key.includes('days_to_final_bill_hc_v1') ||
+        result.metric_version_key.includes('cash_posting_lag_hc_v1') ||
+        result.metric_version_key.includes('documentation_tat_hc_v1') ||
+        result.metric_version_key.includes('electronic_filing_adoption_hc_v1')
+      );
+
+      for (const stagingResult of operationalStagingResults) {
+        try {
+          await canonicalDb.createStagingResult(stagingResult);
+          insertedStaging++;
+        } catch (error) {
+          // Staging result might already exist, continue
+          console.log(`Staging result ${stagingResult.result_key} already exists or insert failed`);
+        }
+      }
+
+      res.json({
+        message: "Operational efficiency metrics inserted successfully",
+        inserted: {
+          metrics: insertedMetrics,
+          versions: insertedVersions,
+          stagingResults: insertedStaging
+        }
+      });
+    } catch (error: any) {
+      console.error("Failed to insert operational efficiency metrics:", error);
+      res.status(500).json({ message: "Failed to insert operational efficiency metrics", error: error.message });
+    }
+  });
+
   // Canonical Billing API Routes (Protected)
   
   // Payers
@@ -1777,5 +1871,6 @@ function generateChallengeLetter(appealCase: any, template: any): string {
     .replace('[Contact Information]', 'medical.records@hospital.org | (555) 123-4567')
     .replace('[phone]', '(555) 123-4567');
 
-  return challengeLetter;
+  const server = createServer(app);
+  return server;
 }
