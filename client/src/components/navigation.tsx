@@ -69,7 +69,7 @@ export function Navigation() {
           <div className="flex items-center space-x-8">
             <div className="flex items-center">
               <span className="text-xl font-bold text-gray-900">
-                Healthcare RCM
+                Denials Analytics
               </span>
             </div>
 
