@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { TutorialOverlay, TutorialStep } from "./tutorial-overlay";
 
 interface TutorialContextType {
@@ -32,47 +32,47 @@ export function TutorialProvider({ children }: TutorialProviderProps) {
     setIsCompleted(completed === "true");
   }, []);
 
-  const startTutorial = (tutorialSteps: TutorialStep[]) => {
-    setSteps(tutorialSteps);
-    setCurrentStep(0);
-    setIsActive(true);
-  };
-
-  const stopTutorial = () => {
-    setIsActive(false);
-    setCurrentStep(0);
-    setSteps([]);
-  };
-
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      completeTutorial();
-    }
-  };
-
-  const previousStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const skipTutorial = () => {
-    completeTutorial();
-  };
-
-  const completeTutorial = () => {
+  const completeTutorial = useCallback(() => {
     setIsActive(false);
     setIsCompleted(true);
     localStorage.setItem(TUTORIAL_STORAGE_KEY, "true");
     setCurrentStep(0);
     setSteps([]);
-  };
+  }, []);
 
-  const handleStepChange = (step: number) => {
+  const startTutorial = useCallback((tutorialSteps: TutorialStep[]) => {
+    setSteps(tutorialSteps);
+    setCurrentStep(0);
+    setIsActive(true);
+  }, []);
+
+  const stopTutorial = useCallback(() => {
+    setIsActive(false);
+    setCurrentStep(0);
+    setSteps([]);
+  }, []);
+
+  const nextStep = useCallback(() => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      completeTutorial();
+    }
+  }, [currentStep, steps.length, completeTutorial]);
+
+  const previousStep = useCallback(() => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  }, [currentStep]);
+
+  const skipTutorial = useCallback(() => {
+    completeTutorial();
+  }, [completeTutorial]);
+
+  const handleStepChange = useCallback((step: number) => {
     setCurrentStep(step);
-  };
+  }, []);
 
   const value: TutorialContextType = {
     isActive,
