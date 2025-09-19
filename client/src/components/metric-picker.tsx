@@ -26,7 +26,7 @@ interface MetricFilters {
   tags: string[];
 }
 
-export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections = 20 }: MetricPickerProps) {
+export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections }: MetricPickerProps) {
   const [filters, setFilters] = useState<MetricFilters>({
     domain: "all",
     frequency: "all", 
@@ -46,6 +46,9 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
       return response.json();
     }
   });
+
+  // Calculate actual max selections based on available metrics
+  const actualMaxSelections = maxSelections || metricVersions.length;
 
   // Filter and search metrics
   const filteredMetrics = useMemo(() => {
@@ -110,7 +113,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
       onMetricsChange(selectedMetrics.filter(key => key !== metricVersionKey));
     } else {
       // Add metric if under limit
-      if (selectedMetrics.length < maxSelections) {
+      if (selectedMetrics.length < actualMaxSelections) {
         onMetricsChange([...selectedMetrics, metricVersionKey]);
       }
     }
@@ -176,7 +179,7 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
           <CardTitle className="text-lg font-semibold">Select Metrics</CardTitle>
           <div className="flex items-center space-x-2">
             <Badge variant="secondary" data-testid="selection-count">
-              {selectedMetrics.length} / {maxSelections} selected
+              {selectedMetrics.length} / {actualMaxSelections} selected
             </Badge>
             {selectedMetrics.length > 0 && (
               <Button 
