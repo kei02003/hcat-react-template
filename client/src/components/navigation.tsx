@@ -1,5 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { useTutorial } from "@/components/tutorial/tutorial-provider";
+import { dashboardTutorialSteps } from "@/components/tutorial/dashboard-tutorial-steps";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -13,11 +15,13 @@ import {
 import { getRoleDisplayInfo } from "@/lib/authUtils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { HelpCircle } from "lucide-react";
 
 export function Navigation() {
   const { user, isAuthenticated, getPrimaryRole } = useAuth();
   const [location] = useLocation();
   const { toast } = useToast();
+  const { startTutorial, isCompleted } = useTutorial();
 
   const handleDemoReset = async () => {
     try {
@@ -41,6 +45,10 @@ export function Navigation() {
     }
   };
 
+  const handleStartTutorial = () => {
+    startTutorial(dashboardTutorialSteps);
+  };
+
   if (!isAuthenticated || !user) {
     return null;
   }
@@ -54,7 +62,7 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-white shadow-sm border-b border-gray-200" data-testid="navigation-header">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Navigation */}
@@ -84,7 +92,7 @@ export function Navigation() {
                           ? "bg-[#006d9a] text-white" 
                           : "text-gray-600 hover:text-gray-900"
                       }`}
-                      data-testid={`nav-link-${item.path.replace('/', '') || 'home'}`}
+                      data-testid={item.devOnly ? "link-demo-users" : `nav-link-${item.path.replace('/', '') || 'home'}`}
                     >
                       <span>{item.label}</span>
                     </Button>
@@ -96,6 +104,18 @@ export function Navigation() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
+            {/* Tutorial Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleStartTutorial}
+              className="flex items-center space-x-1 text-blue-600 hover:text-blue-700"
+              data-testid="tutorial-trigger-button"
+            >
+              <HelpCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Tutorial</span>
+            </Button>
+
             {/* Role Badge */}
             {primaryRole && roleInfo && (
               <Badge className={`${roleInfo.color} hidden sm:inline-flex`}>
@@ -109,7 +129,7 @@ export function Navigation() {
                 <Button
                   variant="ghost"
                   className="flex items-center space-x-2 p-2"
-                  data-testid="user-menu-trigger"
+                  data-testid="user-dropdown-trigger"
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />

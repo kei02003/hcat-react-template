@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import { useTutorial } from "@/components/tutorial/tutorial-provider";
+import { dashboardTutorialSteps } from "@/components/tutorial/dashboard-tutorial-steps";
 import { DocumentationDashboard } from "@/components/documentation-dashboard";
 import { PredictiveDashboard } from "@/components/predictive-dashboard";
 import { ArManagementDashboard } from "@/components/ar-management-dashboard";
@@ -38,6 +40,18 @@ export default function Dashboard() {
     start: "2024-01-15",
     end: "2024-12-31",
   });
+  const { startTutorial, isCompleted } = useTutorial();
+
+  // Auto-start tutorial for new users
+  useEffect(() => {
+    if (!isCompleted) {
+      // Add a small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        startTutorial(dashboardTutorialSteps);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isCompleted, startTutorial]);
 
   const handleUserProfileClick = () => {
     setLocation("/profile");
