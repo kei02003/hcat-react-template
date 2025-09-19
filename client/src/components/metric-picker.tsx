@@ -103,20 +103,15 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
   const uniqueTags: string[] = []; // Simplified for now - tags not included in current data model
 
   const handleMetricToggle = (metricVersionKey: string) => {
-    console.log(`[DEBUG] handleMetricToggle called for ${metricVersionKey}, currently selected: ${selectedMetrics.includes(metricVersionKey)}`);
     const isCurrentlySelected = selectedMetrics.includes(metricVersionKey);
     
     if (isCurrentlySelected) {
       // Remove metric
-      console.log(`[DEBUG] Removing metric ${metricVersionKey}`);
       onMetricsChange(selectedMetrics.filter(key => key !== metricVersionKey));
     } else {
       // Add metric if under limit
       if (selectedMetrics.length < maxSelections) {
-        console.log(`[DEBUG] Adding metric ${metricVersionKey}`);
         onMetricsChange([...selectedMetrics, metricVersionKey]);
-      } else {
-        console.log(`[DEBUG] Cannot add metric ${metricVersionKey} - at max limit`);
       }
     }
   };
@@ -344,7 +339,10 @@ export function MetricPicker({ selectedMetrics, onMetricsChange, maxSelections =
                           <input
                             type="checkbox"
                             checked={isSelected}
-                            onChange={() => handleMetricToggle(metric.metric_version_key)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleMetricToggle(metric.metric_version_key);
+                            }}
                             className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                             data-testid={`checkbox-${metric.metric_version_key}`}
                           />
