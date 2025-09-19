@@ -1871,6 +1871,5 @@ function generateChallengeLetter(appealCase: any, template: any): string {
     .replace('[Contact Information]', 'medical.records@hospital.org | (555) 123-4567')
     .replace('[phone]', '(555) 123-4567');
 
-  const server = createServer(app);
-  return server;
+  return challengeLetter;
 }
