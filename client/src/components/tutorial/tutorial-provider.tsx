@@ -1,109 +1,62 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
-import { TutorialOverlay, TutorialStep } from "./tutorial-overlay";
+import { createContext, useContext, useState, useEffect } from "react";
+
+export interface TutorialStep {
+  id: string;
+  target?: string;
+  title: string;
+  content: string;
+}
 
 interface TutorialContextType {
-  isActive: boolean;
-  currentStep: number;
   startTutorial: (steps: TutorialStep[]) => void;
-  stopTutorial: () => void;
-  nextStep: () => void;
-  previousStep: () => void;
-  skipTutorial: () => void;
   isCompleted: boolean;
+  setCompleted: (completed: boolean) => void;
 }
 
-const TutorialContext = createContext<TutorialContextType | undefined>(undefined);
+const TutorialContext = createContext<TutorialContextType>({
+  startTutorial: () => {},
+  isCompleted: true,
+  setCompleted: () => {},
+});
 
-interface TutorialProviderProps {
-  children: ReactNode;
-}
+export function TutorialProvider({ children }: { children: React.ReactNode }) {
+  const [isCompleted, setIsCompleted] = useState(() => {
+    // Check localStorage for tutorial completion status
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('tutorial-completed') === 'true';
+    }
+    return false;
+  });
 
-const TUTORIAL_STORAGE_KEY = "healthcare-dashboard-tutorial-completed";
-
-export function TutorialProvider({ children }: TutorialProviderProps) {
-  const [isActive, setIsActive] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [steps, setSteps] = useState<TutorialStep[]>([]);
-  const [isCompleted, setIsCompleted] = useState(false);
-
-  // Check if tutorial was previously completed
   useEffect(() => {
-    const completed = localStorage.getItem(TUTORIAL_STORAGE_KEY);
-    setIsCompleted(completed === "true");
-  }, []);
+    // Save tutorial completion status to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tutorial-completed', isCompleted.toString());
+    }
+  }, [isCompleted]);
 
-  const completeTutorial = useCallback(() => {
-    setIsActive(false);
+  const startTutorial = (steps: TutorialStep[]) => {
+    // For now, just mark as completed immediately
+    // This can be enhanced later with actual tutorial logic
+    console.log('Tutorial started with steps:', steps);
     setIsCompleted(true);
-    localStorage.setItem(TUTORIAL_STORAGE_KEY, "true");
-    setCurrentStep(0);
-    setSteps([]);
-  }, []);
+  };
 
-  const startTutorial = useCallback((tutorialSteps: TutorialStep[]) => {
-    setSteps(tutorialSteps);
-    setCurrentStep(0);
-    setIsActive(true);
-  }, []);
-
-  const stopTutorial = useCallback(() => {
-    setIsActive(false);
-    setCurrentStep(0);
-    setSteps([]);
-  }, []);
-
-  const nextStep = useCallback(() => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      completeTutorial();
-    }
-  }, [currentStep, steps.length, completeTutorial]);
-
-  const previousStep = useCallback(() => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  }, [currentStep]);
-
-  const skipTutorial = useCallback(() => {
-    completeTutorial();
-  }, [completeTutorial]);
-
-  const handleStepChange = useCallback((step: number) => {
-    setCurrentStep(step);
-  }, []);
-
-  const value: TutorialContextType = {
-    isActive,
-    currentStep,
-    startTutorial,
-    stopTutorial,
-    nextStep,
-    previousStep,
-    skipTutorial,
-    isCompleted,
+  const setCompleted = (completed: boolean) => {
+    setIsCompleted(completed);
   };
 
   return (
-    <TutorialContext.Provider value={value}>
+    <TutorialContext.Provider value={{ startTutorial, isCompleted, setCompleted }}>
       {children}
-      <TutorialOverlay
-        steps={steps}
-        isVisible={isActive}
-        currentStep={currentStep}
-        onComplete={completeTutorial}
-        onSkip={skipTutorial}
-        onStepChange={handleStepChange}
-      />
     </TutorialContext.Provider>
   );
 }
 
 export function useTutorial() {
   const context = useContext(TutorialContext);
-  if (context === undefined) {
-    throw new Error("useTutorial must be used within a TutorialProvider");
+  if (!context) {
+    throw new Error('useTutorial must be used within a TutorialProvider');
   }
   return context;
 }

@@ -1,28 +1,13 @@
 # Overview
 
-This is a comprehensive healthcare revenue cycle management dashboard application featuring advanced analytics across multiple domains: documentation request analysis, denial management, accounts receivable management, AI-powered predictive analytics, and three critical RFP-required modules. The system provides complete tracking and automation for healthcare administrative processes, with particular emphasis on identifying redundant documentation requests, managing timely filing deadlines, optimizing payer interactions, advanced AR aging analysis with statistical process control, pre-authorization management, clinical decision support, and automated appeal generation. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, OpenAI-powered intelligent recommendations, and comprehensive role-based access control (RBAC) system with Replit authentication integration.
+This is a comprehensive healthcare dashboard application featuring advanced analytics across multiple domains. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, OpenAI-powered intelligent recommendations, and Replit authentication integration.
 
 # User Preferences
 
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language. Do not use icons or emojis.
 
-# Recent Changes
 
-## Health Catalyst Canonical Metric Model Integration (January 18, 2025)
-- Updated implementation plan to use official Health Catalyst EDC metric model for standardized KPI management
-- Replaced custom KPI registry with canonical Health Catalyst structures (metric, metric_version, result, staging_result, metric_lineage)
-- Aligned platform architecture with Health Catalyst Enterprise Data Catalog standards
-- Established metric versioning and lifecycle management for evolving KPI definitions
-- Enabled proper multi-tenant metric isolation through grain_keys structure
-
-## Strategic Implementation Plan (January 18, 2025)
-- Created comprehensive implementation plan document (IMPLEMENTATION_PLAN.md) for scaling platform
-- Defined strategic build path balancing standardization vs. client-specific requirements
-- Outlined phased approach for delivering 100+ KPIs across 5 specialized dashboards
-- Established architecture for configurable, multi-tenant KPI platform with canonical data model
-- Planned data ingestion framework for Peterson Health and Citizens Medical Center integration
-
-## Branding Implementation (January 14, 2025)
+## Branding Implementation
 - Integrated Health Catalyst TriFlame logo from https://cashmere.healthcatalyst.net/assets/TriFlame.svg
 - Logo positioned flush left with 40px x 40px dimensions and #00aeff blue background
 - Logo container extends full navbar height (60px) with no healthcare header background visible to the left
@@ -56,43 +41,8 @@ The backend follows a RESTful API design pattern:
 - **Database**: PostgreSQL with Neon serverless configuration
 - **Schema Management**: Centralized schema definitions with automated migration support
 - **Connection**: Environment-based database URL configuration with connection pooling
-- **RBAC Tables**: Complete role-based access control schema with users, roles, permissions, and audit logging
 - **Session Management**: PostgreSQL-backed session storage for authentication
 - **Demo Data**: Comprehensive demo user system with 12 healthcare staff accounts for testing
-
-## Core Data Models
-The application manages multiple comprehensive entities:
-1. **Metrics**: Dashboard KPIs with change tracking and status indicators
-2. **Documentation Requests**: Claims requiring additional documentation with redundancy detection
-3. **Payer Behavior**: Analytics on insurance company patterns and response rates
-4. **Redundancy Matrix**: Cross-tabulation of document types vs payers for pattern identification
-5. **Predictive Analytics**: AI-powered risk scoring and denial prediction models
-6. **AR Management**: Accounts receivable trends, aging analysis, and financial performance tracking
-7. **Statistical Process Control**: AR trend analysis with changepoint detection and control limits
-8. **Collections Management**: Discharge location analysis, payer class balances, aging subcategories, and high-priority account tracking
-9. **Timely Filing Management**: Claims deadline tracking, risk assessment, department performance monitoring, and automated alerts for filing deadlines
-10. **Clinical Denials Management**: Comprehensive denial review workflows, appeal tracking, clinical reviewer performance monitoring, and denial reason analysis
-11. **Pre-Authorization Management**: Complete workflow for flagging procedures requiring pre-auth, comparing against insurer criteria, tracking approval status, and ensuring 90% completion 3+ days prior to procedures
-12. **Clinical Decision Support**: Real-time patient status monitoring, medical record analysis, clinical indicators tracking, and AI-powered recommendations for status changes and documentation improvements
-13. **Automated Appeal Generation**: AI-powered challenge letter generation, clinical evidence extraction, success probability scoring (>70% target), and comprehensive appeal outcome tracking
-14. **User Management**: Complete RBAC system with 10 healthcare roles (System Admin, Clinical Director, Revenue Manager, Billing Manager, Clinical Reviewer, Denial Specialist, AR Specialist, Collections Specialist, Financial Analyst, Read Only User)
-15. **Authentication System**: Replit Auth integration with user profiles, role assignments, and permission-based access control
-
-## Component Architecture
-The dashboard implements a modular component structure:
-- **MetricsPanel**: Left sidebar with 11 key performance indicators
-- **DocumentationDashboard**: Main content area with tabbed interface for denial management
-- **PredictiveDashboard**: Advanced AI-powered analytics with risk scoring and recommendations
-- **ArManagementDashboard**: Comprehensive AR analysis with statistical process control
-- **CollectionsDashboard**: Collections management with discharge location performance and aging analysis
-- **TimelyFilingDashboard**: Claims filing deadline management with risk assessment and department performance tracking
-- **ClinicalDenialsDashboard**: Clinical denial management with review workflows, appeal tracking, and reason analysis
-- **Charts**: Specialized visualization components (volume charts, heat maps, trend analysis, SPC charts, discharge location performance, payer class breakdowns, filing trends, department performance, denial trends, reason analysis)
-- **DataTables**: Interactive tables with sorting, filtering, and action buttons
-- **AI Components**: OpenAI-powered recommendation engine and pattern analysis
-- **Authentication Components**: User profile management, navigation with role badges, demo user selector, and RBAC-aware component wrappers
-- **Navigation**: Role-based navigation menu with user dropdown, profile access, development tools, and dedicated RFP Modules tab
-- **RFP Module Components**: Pre-Authorization Dashboard, Clinical Decision Dashboard, and Appeal Generation Dashboard with comprehensive workflows and analytics
 
 ## Development and Build Process
 - **Development**: Concurrent client and server development with hot reloading
@@ -130,7 +80,6 @@ The dashboard implements a modular component structure:
 ## Authentication and Security
 - **Replit Auth**: OpenID Connect authentication with multi-domain support
 - **Session Management**: PostgreSQL-backed session storage with secure cookies
-- **RBAC System**: Complete role-based access control with permission middleware
 - **Audit Logging**: Comprehensive user action tracking with IP and user agent logging
 - **Demo Users**: 12 pre-configured healthcare staff accounts for testing role-based access
 

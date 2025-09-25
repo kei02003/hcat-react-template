@@ -1,20 +1,17 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, User, Users, Settings } from "lucide-react";
-import { getRoleDisplayInfo } from "@/lib/authUtils";
+import { Badge } from "@/components/ui/badge";
+import { ChevronDown } from "lucide-react";
 
-interface DemoUser {
+export interface DemoUser {
   id: string;
   email: string;
   firstName: string;
@@ -29,161 +26,83 @@ interface DemoUser {
 
 interface PersonaSwitcherProps {
   currentPersona?: DemoUser;
-  onPersonaChange?: (persona: DemoUser) => void;
+  onPersonaChange: (persona: DemoUser) => void;
 }
 
 export function PersonaSwitcher({ currentPersona, onPersonaChange }: PersonaSwitcherProps) {
-  const [selectedPersona, setSelectedPersona] = useState<DemoUser | null>(currentPersona || null);
-
-  // Fetch demo users
-  const { data: demoUsers = [], isLoading, error } = useQuery<DemoUser[]>({
+  const { data: demoUsers = [] } = useQuery<DemoUser[]>({
     queryKey: ['/api/demo-users'],
-    retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const handlePersonaSwitch = (persona: DemoUser) => {
-    setSelectedPersona(persona);
-    onPersonaChange?.(persona);
+  const handlePersonaSelect = (persona: DemoUser) => {
+    onPersonaChange(persona);
   };
 
-  const getPersonaInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
+  const displayUser = currentPersona || demoUsers[0];
 
-  const getPersonaRole = (roles: string[]) => {
-    if (roles.length === 0) return { label: "No Role", color: "bg-gray-100 text-gray-800" };
-    
-    const primaryRole = roles[0];
-    const roleInfo = getRoleDisplayInfo(primaryRole);
-    return {
-      label: roleInfo?.displayName || primaryRole,
-      color: roleInfo?.color || "bg-gray-100 text-gray-800"
-    };
-  };
-
-  // Handle production environment where demo users are not available
-  if (error || (demoUsers.length === 0 && !isLoading)) {
-    // In production, return a simple user indicator without the demo user functionality
+  if (!displayUser) {
     return (
-      <div className="flex items-center space-x-3 px-3 py-2">
-        <Avatar className="h-8 w-8">
-          <AvatarFallback className="bg-[#006d9a] text-white text-sm">
-            U
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col items-start">
-          <span className="text-sm font-medium text-white">
-            Healthcare User
-          </span>
-          <Badge 
-            className="text-xs px-2 py-0.5 bg-[#006d9a]/20 text-[#006d9a] border-0"
-          >
-            Staff
-          </Badge>
-        </div>
+      <div className="flex items-center space-x-2">
+        <div className="h-8 w-8 rounded-full bg-gray-300 animate-pulse"></div>
+        <div className="h-4 w-20 bg-gray-300 rounded animate-pulse"></div>
       </div>
     );
   }
-
-  // Default to first demo user if none selected
-  const currentUser = selectedPersona || demoUsers[0];
-  
-  if (isLoading || !currentUser) {
-    return (
-      <div className="flex items-center space-x-2 animate-pulse">
-        <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-        <div className="w-24 h-4 bg-gray-300 rounded"></div>
-      </div>
-    );
-  }
-
-  const currentRole = getPersonaRole(currentUser.roles);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          className="flex items-center space-x-3 px-3 py-2 h-auto text-white hover:bg-gray-700 rounded-md"
+        <Button
+          variant="ghost"
+          className="flex items-center space-x-3 text-white hover:text-white hover:bg-white/10"
           data-testid="persona-switcher"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src={currentUser.profileImageUrl} alt={`${currentUser.firstName} ${currentUser.lastName}`} />
-            <AvatarFallback className="bg-[#006d9a] text-white text-sm">
-              {getPersonaInitials(currentUser.firstName, currentUser.lastName)}
+            <AvatarImage src={displayUser.profileImageUrl} alt={`${displayUser.firstName} ${displayUser.lastName}`} />
+            <AvatarFallback className="text-sm bg-white/20 text-white">
+              {displayUser.firstName.charAt(0)}{displayUser.lastName.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col items-start">
-            <span className="text-sm font-medium text-white">
-              {currentUser.firstName} {currentUser.lastName}
+            <span className="text-sm font-medium">
+              {displayUser.firstName} {displayUser.lastName}
             </span>
-            <Badge 
-              className={`text-xs px-2 py-0.5 ${currentRole.color} border-0`}
-              data-testid="current-role-badge"
-            >
-              {currentRole.label}
-            </Badge>
+            <span className="text-xs opacity-80">{displayUser.jobTitle}</span>
           </div>
-          <ChevronDown className="h-4 w-4 text-gray-300" />
+          <ChevronDown className="h-4 w-4 opacity-70" />
         </Button>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent className="w-80 p-2" align="end">
-        <DropdownMenuLabel className="flex items-center space-x-2 px-3 py-2">
-          <Users className="h-4 w-4" />
-          <span>Switch Demo Persona</span>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        
-        <div className="max-h-96 overflow-y-auto">
-          {demoUsers.map((user) => {
-            const role = getPersonaRole(user.roles);
-            const isSelected = selectedPersona?.id === user.id;
-            
-            return (
-              <DropdownMenuItem
-                key={user.id}
-                onClick={() => handlePersonaSwitch(user)}
-                className={`flex items-center space-x-3 p-3 cursor-pointer hover:bg-gray-50 rounded-md ${
-                  isSelected ? 'bg-[#006d9a]/10 border-l-4 border-[#006d9a]/80' : ''
-                }`}
-                data-testid={`persona-option-${user.employeeId}`}
-              >
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
-                  <AvatarFallback className="bg-gray-100 text-gray-600">
-                    {getPersonaInitials(user.firstName, user.lastName)}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {user.firstName} {user.lastName}
-                    </p>
-                    {isSelected && (
-                      <Badge className="bg-[#006d9a]/20 text-[#006d9a] text-xs">Current</Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 truncate">{user.jobTitle}</p>
-                  <p className="text-xs text-gray-400 truncate">{user.department}</p>
-                  <div className="mt-1">
-                    <Badge className={`text-xs px-2 py-0.5 ${role.color} border-0`}>
-                      {role.label}
-                    </Badge>
-                  </div>
-                </div>
-              </DropdownMenuItem>
-            );
-          })}
-        </div>
-        
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="flex items-center space-x-2 p-3 text-gray-600">
-          <Settings className="h-4 w-4" />
-          <span className="text-sm">Manage Demo Users</span>
-        </DropdownMenuItem>
+      <DropdownMenuContent align="end" className="w-72">
+        {demoUsers.map((user) => (
+          <DropdownMenuItem
+            key={user.id}
+            onClick={() => handlePersonaSelect(user)}
+            className="flex items-center space-x-3 p-3"
+            data-testid={`persona-option-${user.id}`}
+          >
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={user.profileImageUrl} alt={`${user.firstName} ${user.lastName}`} />
+              <AvatarFallback className="text-sm">
+                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col items-start flex-1">
+              <div className="font-medium">
+                {user.firstName} {user.lastName}
+              </div>
+              <div className="text-sm text-gray-500">{user.jobTitle}</div>
+              <div className="text-xs text-gray-400">{user.department}</div>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {user.roles.map((role) => (
+                  <Badge key={role} variant="secondary" className="text-xs px-1 py-0">
+                    {role}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -143,8 +143,3 @@
   background-color: hsl(142, 71%, 90%);
   color: hsl(142, 71%, 25%);
 }
-
-.payer-card-worst {
-  border: 2px solid var(--healthcare-danger);
-  background-color: hsl(0, 84%, 98%);
-}
