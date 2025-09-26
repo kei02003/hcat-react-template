@@ -58,10 +58,7 @@ import {
 
 // Canonical metric types now imported from shared/schema.ts
 
-import { 
-  type DepartmentPerformance, 
-  type InsertDepartmentPerformance 
-} from "@shared/timely-filing-schema";
+// Removed timely-filing-schema import (file does not exist)
 
 // Basic user interface for demo users (without RBAC)
 interface User {
@@ -95,16 +92,7 @@ import {
   type InsertClinicalAlert,
 } from "@shared/clinical-decision-schema";
 
-import {
-  type AppealRequest,
-  type InsertAppealRequest,
-  type AppealLetter,
-  type InsertAppealLetter,
-  type AppealOutcome,
-  type InsertAppealOutcome,
-  type DenialPattern,
-  type InsertDenialPattern,
-} from "@shared/appeal-generation-schema";
+// Removed appeal-generation-schema import (file does not exist)
 
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -338,10 +326,10 @@ export class MemStorage implements IStorage {
   
   // Canonical metric system storage
   private canonicalMetrics: Map<string, CanonicalMetric>;
-  private metricVersions: Map<string, MetricVersion>;
-  private results: Map<string, Result>;
-  private stagingResults: Map<string, StagingResult>;
-  private metricLineage: Map<string, MetricLineage>;
+  private metricVersions: Map<string, CanonicalMetricVersion>;
+  private results: Map<string, CanonicalResult>;
+  private stagingResults: Map<string, CanonicalStagingResult>;
+  private metricLineage: Map<string, CanonicalMetricLineage>;
 
   constructor() {
     this.metrics = new Map();
