@@ -8,28 +8,23 @@ import { HelpCircle } from "lucide-react";
 const brandLogoUrl = "https://cashmere.healthcatalyst.net/assets/TriFlame.svg";
 
 // === TEMPLATE CONFIGURATION ===
-const APP_TITLE = "RevenueCycle"; // App name
+const APP_TITLE = "Ignite"; // App name
 
-const MAIN_TABS = [
-  "Summary",
-  "AR", 
-  "Denials",
-  "Metrics",
-];
+const MAIN_TABS = ["Home", "Reports"];
 
 // If no subtabs are needed, just leave this object empty or omit keys
 const SUB_TABS: Record<string, { name: string; warning?: boolean }[]> = {
-  Denials: [
-    { name: "Clinical Denials", warning: false },
-    { name: "Timely Filing", warning: false },
-    { name: "Write-Off Analytics", warning: false }
-  ]
+  SubNav: [
+    { name: "Subnav1", warning: false },
+    { name: "Subnav2", warning: false },
+    { name: "Subnav3", warning: false },
+  ],
 };
 // === END CONFIGURATION ===
 
 export default function Dashboard() {
   const [activeMainTab, setActiveMainTab] = useState(MAIN_TABS[0]);
-  const [activeSubTab, setActiveSubTab] = useState("Clinical Denials");
+  const [activeSubTab, setActiveSubTab] = useState("Home");
   const [currentPersona, setCurrentPersona] = useState<DemoUser | null>(null);
   const { startTutorial, isCompleted } = useTutorial();
 
@@ -52,7 +47,10 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="healthcare-header shadow-lg relative">
-        <div className="flex items-left justify-between pr-7" style={{ height: "60px" }}>
+        <div
+          className="flex items-left justify-between pr-7"
+          style={{ height: "60px" }}
+        >
           {/* Logo */}
           <div className="flex items-left">
             <div
@@ -118,8 +116,8 @@ export default function Dashboard() {
 
           {/* User Controls */}
           <div className="flex items-center space-x-6">
-            <HelpCircle 
-              className="h-5 w-5 text-white hover:text-white cursor-pointer" 
+            <HelpCircle
+              className="h-5 w-5 text-white hover:text-white cursor-pointer"
               data-testid="help-icon"
             />
             <div className="h-6 w-0.5 bg-white"></div>
@@ -182,7 +180,10 @@ export default function Dashboard() {
               {currentPersona && (
                 <div className="mt-4 p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-800">
-                    Currently viewing as: <strong>{currentPersona.firstName} {currentPersona.lastName}</strong> 
+                    Currently viewing as:{" "}
+                    <strong>
+                      {currentPersona.firstName} {currentPersona.lastName}
+                    </strong>
                     ({currentPersona.jobTitle})
                   </p>
                 </div>
