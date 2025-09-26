@@ -3,66 +3,70 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(210, 0%, 100%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  /* Health Catalyst Cashmere Theme Colors */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 20%); /* Health Catalyst text color #333 */
+  --muted: hsl(210, 29%, 95%); /* Health Catalyst slate-gray-100 #f0f3f6 */
+  --muted-foreground: hsl(230, 2%, 43%); /* Health Catalyst secondary #6d6e70 */
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --popover-foreground: hsl(0, 0%, 20%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
-  --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
+  --card-foreground: hsl(0, 0%, 20%);
+  --border: hsl(218, 16%, 85%); /* Health Catalyst slate-gray-200 #d7dde4 */
+  --input: hsl(218, 16%, 85%);
+  --primary: hsl(201, 100%, 50%); /* Health Catalyst primary #00aeff */
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 29%, 95%); /* Health Catalyst slate-gray-100 */
+  --secondary-foreground: hsl(0, 0%, 20%);
+  --accent: hsl(201, 100%, 50%); /* Health Catalyst primary */
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(356, 87%, 59%); /* Health Catalyst error #f13c45 */
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(201, 100%, 50%); /* Health Catalyst primary for focus rings */
   --radius: 0.5rem;
 
-  /* Healthcare Dashboard Colors */
-  --healthcare-primary: hsl(211, 21%, 28%);
+  /* Health Catalyst Healthcare Dashboard Colors */
+  --healthcare-primary: hsl(201, 100%, 50%); /* Health Catalyst primary #00aeff */
   --healthcare-secondary: hsl(0, 0%, 100%);
-  --healthcare-accent: hsl(207, 90%, 54%);
-  --healthcare-success: hsl(152, 100%, 33%);
-  --healthcare-warning: hsl(45, 93%, 47%);
-  --healthcare-danger: hsl(357, 87%, 59%);
-  --healthcare-gray-50: hsl(210, 40%, 98%);
-  --healthcare-gray-100: hsl(210, 40%, 95%);
-  --healthcare-gray-200: hsl(214, 32%, 91%);
-  --healthcare-gray-300: hsl(213, 27%, 84%);
-  --healthcare-gray-400: hsl(215, 20%, 65%);
-  --healthcare-gray-500: hsl(215, 16%, 47%);
-  --healthcare-gray-600: hsl(215, 19%, 35%);
-  --healthcare-gray-700: hsl(215, 25%, 27%);
-  --healthcare-gray-800: hsl(217, 33%, 17%);
-  --healthcare-gray-900: hsl(222, 47%, 11%);
+  --healthcare-accent: hsl(201, 100%, 50%); /* Health Catalyst primary */
+  --healthcare-success: hsl(153, 100%, 33%); /* Health Catalyst success #00a859 */
+  --healthcare-warning: hsl(36, 94%, 54%); /* Health Catalyst warning #f8961d */
+  --healthcare-danger: hsl(356, 87%, 59%); /* Health Catalyst error #f13c45 */
+  
+  /* Health Catalyst Slate Gray Palette */
+  --healthcare-gray-50: hsl(210, 29%, 95%); /* #f0f3f6 */
+  --healthcare-gray-100: hsl(210, 29%, 95%); /* #f0f3f6 */
+  --healthcare-gray-200: hsl(218, 16%, 85%); /* #d7dde4 */
+  --healthcare-gray-300: hsl(218, 11%, 76%); /* #c0c5cc */
+  --healthcare-gray-400: hsl(210, 13%, 50%); /* #708090 */
+  --healthcare-gray-500: hsl(216, 12%, 38%); /* #5e676f */
+  --healthcare-gray-600: hsl(213, 10%, 33%); /* #4f565c */
+  --healthcare-gray-700: hsl(213, 23%, 34%); /* #384655 */
+  --healthcare-gray-800: hsl(208, 21%, 20%); /* #262f34 */
+  --healthcare-gray-900: hsl(0, 0%, 20%); /* #333 */
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
+  /* Health Catalyst Dark Theme */
+  --background: hsl(208, 21%, 20%); /* Health Catalyst slate-blue #262f34 */
   --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
+  --muted: hsl(213, 23%, 34%); /* Health Catalyst charcoal-blue #384655 */
+  --muted-foreground: hsl(210, 13%, 50%); /* Health Catalyst slate-gray-400 */
+  --popover: hsl(208, 21%, 20%);
   --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
+  --card: hsl(208, 21%, 20%);
   --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
+  --border: hsl(213, 23%, 34%);
+  --input: hsl(213, 23%, 34%);
+  --primary: hsl(201, 100%, 50%); /* Health Catalyst primary #00aeff */
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(213, 23%, 34%);
   --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
+  --accent: hsl(213, 23%, 34%);
   --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive: hsl(356, 87%, 59%); /* Health Catalyst error */
   --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
+  --ring: hsl(201, 100%, 50%);
   --radius: 0.5rem;
 }
 
@@ -110,36 +114,36 @@
 }
 
 .status-indicator-green {
-  background-color: hsl(152, 71%, 94%);
-  color: hsl(152, 100%, 33%);
+  background-color: hsl(153, 71%, 90%);
+  color: hsl(153, 100%, 33%); /* Health Catalyst success */
 }
 
 .status-indicator-red {
-  background-color: hsl(357, 93%, 94%);
-  color: hsl(357, 87%, 59%);
+  background-color: hsl(356, 87%, 90%);
+  color: hsl(356, 87%, 59%); /* Health Catalyst error */
 }
 
 .status-indicator-yellow {
-  background-color: hsl(45, 93%, 94%);
-  color: hsl(45, 86%, 32%);
+  background-color: hsl(36, 94%, 90%);
+  color: hsl(36, 94%, 35%); /* Health Catalyst warning darker */
 }
 
 .status-indicator-blue {
-  background-color: hsl(207, 90%, 94%);
-  color: hsl(199, 100%, 50%);
+  background-color: hsl(201, 100%, 90%);
+  color: hsl(201, 100%, 50%); /* Health Catalyst primary */
 }
 
 .heat-map-cell-high {
-  background-color: hsl(0, 84%, 90%);
-  color: hsl(0, 84%, 20%);
+  background-color: hsl(356, 87%, 90%);
+  color: hsl(356, 87%, 25%); /* Health Catalyst error tones */
 }
 
 .heat-map-cell-medium {
-  background-color: hsl(45, 93%, 90%);
-  color: hsl(45, 93%, 25%);
+  background-color: hsl(36, 94%, 90%);
+  color: hsl(36, 94%, 25%); /* Health Catalyst warning tones */
 }
 
 .heat-map-cell-low {
-  background-color: hsl(142, 71%, 90%);
-  color: hsl(142, 71%, 25%);
+  background-color: hsl(153, 71%, 90%);
+  color: hsl(153, 71%, 25%); /* Health Catalyst success tones */
 }

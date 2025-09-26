@@ -1,0 +1,1309 @@
+ThemeProvider
+
+
+
+Show code
+Name	Description	Default	
+Control
+theme	
+A createCashmereTheme() generated theme object. Defaults to light theme.
+
+object
+createCashmereTheme()	
+onChange	
+Callback function whenever the theme is changed.
+func
+-	-
+children	
+The child components you want themed.
+any
+-	
+Stories
+useTheme() Hook
+const [theme, setTheme] = useTheme();
+
+Current Theme: Light
+
+Show code
+Colors
+theme.palette[key]['main', 'light', 'dark', 'contrastText'];
+
+Material Colors
+main
+light
+dark
+ primary
+ #00aeff
+main
+light
+dark
+ secondary
+ #6d6e70
+main
+light
+dark
+ success
+ #00a859
+main
+light
+dark
+ warning
+ #f8961d
+main
+light
+dark
+ error
+ #f13c45
+main
+light
+dark
+ info
+ #00aeff
+main
+light
+dark
+ default
+ #6d6e70
+Misc Colors
+main
+light
+dark
+ primary-brand
+ #00aeff
+main
+light
+dark
+ primary-action
+ #00a859
+main
+light
+dark
+ primary-alt
+ #6e53a3
+main
+light
+dark
+ primary-alt-action
+ #6e53a3
+main
+light
+dark
+ destructive-action
+ #f13c45
+main
+light
+dark
+ neutral-action
+ #6d6e70
+main
+light
+dark
+ text
+ #333
+main
+light
+dark
+ block-text-background
+ #f0f3f6
+main
+light
+dark
+ blue
+ #00aeff
+main
+light
+dark
+ green
+ #00a859
+main
+light
+dark
+ purple
+ #6e53a3
+main
+light
+dark
+ red
+ #f13c45
+main
+light
+dark
+ orange
+ #f8961d
+main
+light
+dark
+ white
+ #fff
+main
+light
+dark
+ black
+ #000
+main
+light
+dark
+ offblack
+ #333
+main
+light
+dark
+ shadow
+ rgba(0,0,0,.15)
+main
+light
+dark
+ dark-blue
+ #006d9a
+main
+light
+dark
+ charcoal-blue
+ #384655
+main
+light
+dark
+ slate-blue
+ #262f34
+main
+light
+dark
+ slate-gray-100
+ #f0f3f6
+main
+light
+dark
+ slate-gray-200
+ #d7dde4
+main
+light
+dark
+ slate-gray-300
+ #c0c5cc
+main
+light
+dark
+ slate-gray-400
+ #708090
+main
+light
+dark
+ slate-gray-500
+ #5e676f
+main
+light
+dark
+ slate-gray-600
+ #4f565c
+main
+light
+dark
+ gray-100
+ #f1f1f1
+main
+light
+dark
+ gray-200
+ #e0e0e0
+main
+light
+dark
+ gray-300
+ #ccc
+main
+light
+dark
+ gray-400
+ #a1a1a1
+main
+light
+dark
+ gray-500
+ #6d6e70
+main
+light
+dark
+ gray-600
+ #515353
+main
+light
+dark
+ ruby-red
+ #951c1e
+main
+light
+dark
+ deep-red
+ #cc2027
+main
+light
+dark
+ red-orange
+ #f05323
+main
+light
+dark
+ pink
+ #ef4767
+main
+light
+dark
+ light-pink
+ #f8c8db
+main
+light
+dark
+ brown
+ #553e36
+main
+light
+dark
+ magenta
+ #a94c9d
+main
+light
+dark
+ purple-gray
+ #776c7f
+main
+light
+dark
+ azure
+ #007bff
+main
+light
+dark
+ teal
+ #00acac
+main
+light
+dark
+ dark-green
+ #006c4e
+main
+light
+dark
+ light-green
+ #9fd4ae
+main
+light
+dark
+ tan
+ #ebba82
+main
+light
+dark
+ yellow
+ #f5ed56
+main
+light
+dark
+ yellow-orange
+ #e7c447
+main
+light
+dark
+ link
+ #00aeff
+main
+light
+dark
+ link-inline
+ #00aeff
+main
+light
+dark
+ minimal
+ #6d6e70
+main
+light
+dark
+ neutral
+ #6d6e70
+main
+light
+dark
+ destructive
+ #f13c45
+Hide code
+<>
+  <code>
+    theme.palette[
+    <Icon icon="fa-key" />
+    key]['main', 'light', 'dark', 'contrastText'];
+  </code>
+  <br />
+  <br />
+  <Typography
+    mb={2}
+    mt={2}
+    variant="h2"
+  >
+    Material Colors
+  </Typography>
+  <Grid
+    container
+    spacing={4}
+  >
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="primary"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 139, 204)',
+          light: 'rgb(51, 190, 255)',
+          main: '#00aeff'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="secondary"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(87, 88, 89)',
+          light: 'rgb(138, 139, 140)',
+          main: '#6d6e70'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="success"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 134, 71)',
+          light: 'rgb(51, 185, 122)',
+          main: '#00a859'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="warning"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(198, 120, 23)',
+          light: 'rgb(249, 171, 74)',
+          main: '#f8961d'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="error"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(192, 48, 55)',
+          light: 'rgb(243, 99, 106)',
+          main: '#f13c45'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="info"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 139, 204)',
+          light: 'rgb(51, 190, 255)',
+          main: '#00aeff'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="default"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(87, 88, 89)',
+          light: 'rgb(138, 139, 140)',
+          main: '#6d6e70'
+        }}
+      />
+    </Grid>
+  </Grid>
+  <Typography
+    mb={2}
+    mt={2}
+    variant="h2"
+  >
+    Misc Colors
+  </Typography>
+  <Grid
+    container
+    spacing={4}
+  >
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="primary-brand"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 139, 204)',
+          light: 'rgb(51, 190, 255)',
+          main: '#00aeff'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="primary-action"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 134, 71)',
+          light: 'rgb(51, 185, 122)',
+          main: '#00a859'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="primary-alt"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(88, 66, 130)',
+          light: 'rgb(139, 117, 181)',
+          main: '#6e53a3'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="primary-alt-action"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(88, 66, 130)',
+          light: 'rgb(139, 117, 181)',
+          main: '#6e53a3'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="destructive-action"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(192, 48, 55)',
+          light: 'rgb(243, 99, 106)',
+          main: '#f13c45'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="neutral-action"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(87, 88, 89)',
+          light: 'rgb(138, 139, 140)',
+          main: '#6d6e70'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="text"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(40, 40, 40)',
+          disabled: 'rgba(0, 0, 0, 0.38)',
+          light: 'rgb(91, 91, 91)',
+          main: '#333',
+          primary: 'rgba(0, 0, 0, 0.87)',
+          secondary: 'rgba(0, 0, 0, 0.6)'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="block-text-background"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(192, 194, 196)',
+          light: 'rgb(243, 245, 247)',
+          main: '#f0f3f6'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="blue"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 139, 204)',
+          light: 'rgb(51, 190, 255)',
+          main: '#00aeff'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="green"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 134, 71)',
+          light: 'rgb(51, 185, 122)',
+          main: '#00a859'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="purple"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(88, 66, 130)',
+          light: 'rgb(139, 117, 181)',
+          main: '#6e53a3'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="red"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(192, 48, 55)',
+          light: 'rgb(243, 99, 106)',
+          main: '#f13c45'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="orange"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(198, 120, 23)',
+          light: 'rgb(249, 171, 74)',
+          main: '#f8961d'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="white"
+        palette={{
+          contrastText: '#000',
+          dark: 'rgb(204, 204, 204)',
+          light: 'rgb(255, 255, 255)',
+          main: '#fff'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="black"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 0, 0)',
+          light: 'rgb(51, 51, 51)',
+          main: '#000'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="offblack"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(40, 40, 40)',
+          light: 'rgb(91, 91, 91)',
+          main: '#333'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="shadow"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgba(0, 0, 0, 0.15)',
+          light: 'rgba(51, 51, 51, 0.15)',
+          main: 'rgba(0,0,0,.15)'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="dark-blue"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 87, 123)',
+          light: 'rgb(51, 138, 174)',
+          main: '#006d9a'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="charcoal-blue"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(44, 56, 68)',
+          light: 'rgb(95, 107, 119)',
+          main: '#384655'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="slate-blue"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(30, 37, 41)',
+          light: 'rgb(81, 88, 92)',
+          main: '#262f34'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="slate-gray-100"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(192, 194, 196)',
+          light: 'rgb(243, 245, 247)',
+          main: '#f0f3f6'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="slate-gray-200"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(172, 176, 182)',
+          light: 'rgb(223, 227, 233)',
+          main: '#d7dde4'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="slate-gray-300"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(153, 157, 163)',
+          light: 'rgb(204, 208, 214)',
+          main: '#c0c5cc'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="slate-gray-400"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(89, 102, 115)',
+          light: 'rgb(140, 153, 166)',
+          main: '#708090'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="slate-gray-500"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(75, 82, 88)',
+          light: 'rgb(126, 133, 139)',
+          main: '#5e676f'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="slate-gray-600"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(63, 68, 73)',
+          light: 'rgb(114, 119, 124)',
+          main: '#4f565c'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="gray-100"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(192, 192, 192)',
+          light: 'rgb(243, 243, 243)',
+          main: '#f1f1f1'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="gray-200"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(179, 179, 179)',
+          light: 'rgb(230, 230, 230)',
+          main: '#e0e0e0'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="gray-300"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(163, 163, 163)',
+          light: 'rgb(214, 214, 214)',
+          main: '#ccc'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="gray-400"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(128, 128, 128)',
+          light: 'rgb(179, 179, 179)',
+          main: '#a1a1a1'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="gray-500"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(87, 88, 89)',
+          light: 'rgb(138, 139, 140)',
+          main: '#6d6e70'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="gray-600"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(64, 66, 66)',
+          light: 'rgb(115, 117, 117)',
+          main: '#515353'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="ruby-red"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(119, 22, 24)',
+          light: 'rgb(170, 73, 75)',
+          main: '#951c1e'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="deep-red"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(163, 25, 31)',
+          light: 'rgb(214, 76, 82)',
+          main: '#cc2027'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="red-orange"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(192, 66, 28)',
+          light: 'rgb(243, 117, 79)',
+          main: '#f05323'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="pink"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(191, 56, 82)',
+          light: 'rgb(242, 107, 133)',
+          main: '#ef4767'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="light-pink"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(198, 160, 175)',
+          light: 'rgb(249, 211, 226)',
+          main: '#f8c8db'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="brown"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(68, 49, 43)',
+          light: 'rgb(119, 100, 94)',
+          main: '#553e36'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="magenta"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(135, 60, 125)',
+          light: 'rgb(186, 111, 176)',
+          main: '#a94c9d'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="purple-gray"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(95, 86, 101)',
+          light: 'rgb(146, 137, 152)',
+          main: '#776c7f'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="azure"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 98, 204)',
+          light: 'rgb(51, 149, 255)',
+          main: '#007bff'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="teal"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 137, 137)',
+          light: 'rgb(51, 188, 188)',
+          main: '#00acac'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="dark-green"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 86, 62)',
+          light: 'rgb(51, 137, 113)',
+          main: '#006c4e'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="light-green"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(127, 169, 139)',
+          light: 'rgb(178, 220, 190)',
+          main: '#9fd4ae'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="tan"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(188, 148, 104)',
+          light: 'rgb(239, 199, 155)',
+          main: '#ebba82'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="yellow"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(196, 189, 68)',
+          light: 'rgb(247, 240, 119)',
+          main: '#f5ed56'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="yellow-orange"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(184, 156, 56)',
+          light: 'rgb(235, 207, 107)',
+          main: '#e7c447'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="link"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 139, 204)',
+          light: 'rgb(51, 190, 255)',
+          main: '#00aeff'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="link-inline"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(0, 139, 204)',
+          light: 'rgb(51, 190, 255)',
+          main: '#00aeff'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="minimal"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(87, 88, 89)',
+          light: 'rgb(138, 139, 140)',
+          main: '#6d6e70'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="neutral"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(87, 88, 89)',
+          light: 'rgb(138, 139, 140)',
+          main: '#6d6e70'
+        }}
+      />
+    </Grid>
+    <Grid
+      item
+      md={2}
+      sm={3}
+      xs={6}
+    >
+      <ColorCard
+        name="destructive"
+        palette={{
+          contrastText: '#fff',
+          dark: 'rgb(192, 48, 55)',
+          light: 'rgb(243, 99, 106)',
+          main: '#f13c45'
+        }}
+      />
+    </Grid>
+  </Grid>
+</>
+Copy

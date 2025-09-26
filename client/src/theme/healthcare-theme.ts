@@ -3,53 +3,53 @@ import { createTheme } from '@mui/material/styles';
 // Health Catalyst inspired color palette
 const healthCatalystColors = {
   primary: {
-    main: '#00A0AC', // Health Catalyst teal
-    light: '#4DCED6',
-    dark: '#00707A',
+    main: '#00aeff', // Health Catalyst primary-brand
+    light: '#33beff', // Lighter variant
+    dark: '#008bcc', // Darker variant 
     contrastText: '#ffffff',
   },
   secondary: {
-    main: '#F15A22', // Health Catalyst orange
-    light: '#F48B65',
-    dark: '#D4481B',
+    main: '#6d6e70', // Health Catalyst secondary/neutral
+    light: '#8a8b8c', // Lighter variant
+    dark: '#57585a', // Darker variant
     contrastText: '#ffffff',
   },
   tertiary: {
-    main: '#6C757D', // Professional gray
-    light: '#A8ADB3',
-    dark: '#495057',
+    main: '#708090', // Health Catalyst slate-gray-400
+    light: '#8a9199',
+    dark: '#5e676f', // Health Catalyst slate-gray-500
     contrastText: '#ffffff',
   },
   background: {
-    default: '#FAFBFC',
-    paper: '#FFFFFF',
-    surface: '#F8F9FA',
+    default: '#f0f3f6', // Health Catalyst slate-gray-100
+    paper: '#ffffff', // Health Catalyst white
+    surface: '#f0f3f6', // Health Catalyst slate-gray-100
   },
   text: {
-    primary: '#212529',
-    secondary: '#6C757D',
-    disabled: '#ADB5BD',
+    primary: '#333333', // Health Catalyst text/offblack
+    secondary: '#6d6e70', // Health Catalyst secondary
+    disabled: '#c0c5cc', // Health Catalyst slate-gray-300
   },
-  divider: '#DEE2E6',
+  divider: '#d7dde4', // Health Catalyst slate-gray-200
   success: {
-    main: '#28A745',
-    light: '#6BC46D',
-    dark: '#1E7E34',
+    main: '#00a859', // Health Catalyst success/primary-action
+    light: '#33ba73', // Lighter success
+    dark: '#008547', // Darker success
   },
   warning: {
-    main: '#FFC107',
-    light: '#FFD54F',
-    dark: '#FF8F00',
+    main: '#f8961d', // Health Catalyst warning/orange
+    light: '#f9a745', // Lighter warning
+    dark: '#e7841a', // Darker warning
   },
   error: {
-    main: '#DC3545',
-    light: '#E57373',
-    dark: '#C62828',
+    main: '#f13c45', // Health Catalyst error/destructive-action
+    light: '#f45f66', // Lighter error
+    dark: '#d12e35', // Darker error
   },
   info: {
-    main: '#17A2B8',
-    light: '#4FC3F7',
-    dark: '#0277BD',
+    main: '#00aeff', // Health Catalyst info (same as primary)
+    light: '#33beff', // Lighter info
+    dark: '#008bcc', // Darker info
   },
 };
 
