@@ -1,7 +1,4 @@
-import { db } from "./db";
-import { users, roles, permissions, userRoles, rolePermissions } from "@shared/auth-schema";
 import { eq, sql } from "drizzle-orm";
-import { rbacService } from "./auth/rbac";
 
 export interface DemoUser {
   id: string;
@@ -74,225 +71,126 @@ export const DEMO_USERS: DemoUser[] = [
     employeeId: "EMP005",
     department: "Clinical Review",
     jobTitle: "Clinical Reviewer",
-    phoneNumber: "+1-555-0105", 
+    phoneNumber: "+1-555-0105",
     roles: ["clinical_reviewer"]
   },
   {
-    id: "demo_denial_spec_006",
-    email: "denial.specialist@healthcare.demo",
-    firstName: "Amanda",
-    lastName: "Davis",
-    profileImageUrl: "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?w=150&h=150&fit=crop&crop=face",
-    employeeId: "EMP006",
-    department: "Denial Management",
-    jobTitle: "Denial Specialist",
-    phoneNumber: "+1-555-0106",
-    roles: ["denial_specialist"]
-  },
-  {
-    id: "demo_ar_spec_007", 
+    id: "demo_ar_specialist_006",
     email: "ar.specialist@healthcare.demo",
     firstName: "David",
     lastName: "Rodriguez",
     profileImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    employeeId: "EMP007",
+    employeeId: "EMP006",
     department: "Accounts Receivable",
     jobTitle: "AR Specialist",
-    phoneNumber: "+1-555-0107",
+    phoneNumber: "+1-555-0106", 
     roles: ["ar_specialist"]
   },
   {
-    id: "demo_collections_008",
+    id: "demo_collections_007",
     email: "collections@healthcare.demo",
     firstName: "Maria",
     lastName: "Garcia",
-    profileImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-    employeeId: "EMP008",
+    profileImageUrl: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    employeeId: "EMP007",
     department: "Collections",
-    jobTitle: "Collections Specialist", 
-    phoneNumber: "+1-555-0108",
+    jobTitle: "Collections Specialist",
+    phoneNumber: "+1-555-0107",
     roles: ["collections_specialist"]
   },
   {
-    id: "demo_financial_009",
-    email: "financial.analyst@healthcare.demo",
+    id: "demo_billing_spec_008",
+    email: "billing.specialist@healthcare.demo",
     firstName: "James",
+    lastName: "Taylor",
+    profileImageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    employeeId: "EMP008",
+    department: "Billing Operations",
+    jobTitle: "Billing Specialist",
+    phoneNumber: "+1-555-0108",
+    roles: ["billing_specialist"]
+  },
+  {
+    id: "demo_denials_spec_009",
+    email: "denials.specialist@healthcare.demo",
+    firstName: "Amanda",
+    lastName: "White",
+    profileImageUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face",
+    employeeId: "EMP009",
+    department: "Denials Management",
+    jobTitle: "Denials Specialist",
+    phoneNumber: "+1-555-0109",
+    roles: ["denials_specialist"]
+  },
+  {
+    id: "demo_coder_010",
+    email: "coder@healthcare.demo",
+    firstName: "Kevin",
     lastName: "Brown",
     profileImageUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face",
-    employeeId: "EMP009",
-    department: "Financial Analytics",
-    jobTitle: "Financial Analyst",
-    phoneNumber: "+1-555-0109",
-    roles: ["financial_analyst"]
-  },
-  {
-    id: "demo_readonly_010",
-    email: "readonly.user@healthcare.demo",
-    firstName: "Emily",
-    lastName: "Taylor",
-    profileImageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     employeeId: "EMP010",
-    department: "Quality Assurance",
-    jobTitle: "Quality Analyst",
+    department: "Health Information Management",
+    jobTitle: "Medical Coder",
     phoneNumber: "+1-555-0110",
-    roles: ["read_only_user"]
-  },
-  // Multi-role users for testing
-  {
-    id: "demo_multi_011",
-    email: "multi.role@healthcare.demo",
-    firstName: "Kevin",
-    lastName: "Johnson",
-    profileImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    employeeId: "EMP011",
-    department: "Revenue Cycle",
-    jobTitle: "Senior Revenue Analyst",
-    phoneNumber: "+1-555-0111",
-    roles: ["denial_specialist", "ar_specialist"] // Multiple roles
+    roles: ["medical_coder"]
   },
   {
-    id: "demo_supervisor_012",
-    email: "supervisor@healthcare.demo",
+    id: "demo_analyst_011",
+    email: "analyst@healthcare.demo",
     firstName: "Rachel",
-    lastName: "White",
-    profileImageUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
+    lastName: "Davis",
+    profileImageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face",
+    employeeId: "EMP011",
+    department: "Business Intelligence",
+    jobTitle: "Data Analyst",
+    phoneNumber: "+1-555-0111",
+    roles: ["data_analyst"]
+  },
+  {
+    id: "demo_viewer_012",
+    email: "viewer@healthcare.demo",
+    firstName: "Alex",
+    lastName: "Johnson",
+    profileImageUrl: "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=150&h=150&fit=crop&crop=face",
     employeeId: "EMP012",
-    department: "Revenue Cycle",
-    jobTitle: "Revenue Supervisor", 
+    department: "Operations",
+    jobTitle: "Operations Coordinator",
     phoneNumber: "+1-555-0112",
-    roles: ["revenue_cycle_manager", "clinical_reviewer"] // Manager with clinical access
+    roles: ["readonly_user"]
   }
 ];
 
 export class DemoUserService {
-  /**
-   * Create all demo users with their roles and permissions
-   */
+  async createDemoUser(userData: DemoUser): Promise<void> {
+    try {
+      // Simply log demo user creation (no database persistence)
+      console.log(`Demo user created: ${userData.firstName} ${userData.lastName} (${userData.email})`);
+    } catch (error) {
+      console.error(`Failed to create demo user ${userData.email}:`, error);
+      throw error;
+    }
+  }
+
   async createDemoUsers(): Promise<void> {
-    console.log('Creating demo users...');
-
     try {
-      // First ensure RBAC system is initialized
-      await rbacService.initializeRolesAndPermissions();
-      
-      // Create each demo user
-      for (const demoUser of DEMO_USERS) {
-        await this.createDemoUser(demoUser);
+      for (const userData of DEMO_USERS) {
+        await this.createDemoUser(userData);
       }
-
-      console.log(`✓ Created ${DEMO_USERS.length} demo users successfully`);
-      
-      // Log user summary
-      console.log('\n=== Demo Users Summary ===');
-      for (const user of DEMO_USERS) {
-        console.log(`${user.firstName} ${user.lastName} (${user.email}) - ${user.roles.join(', ')}`);
-      }
-      
+      console.log(`✓ Created ${DEMO_USERS.length} demo users`);
     } catch (error) {
-      console.error('Failed to create demo users:', error);
+      console.error("Failed to create demo users:", error);
       throw error;
     }
   }
 
-  /**
-   * Create a single demo user with roles
-   */
-  private async createDemoUser(demoUser: DemoUser): Promise<void> {
-    try {
-      // Insert or update user
-      await db
-        .insert(users)
-        .values({
-          id: demoUser.id,
-          email: demoUser.email,
-          firstName: demoUser.firstName,
-          lastName: demoUser.lastName,
-          profileImageUrl: demoUser.profileImageUrl,
-          employeeId: demoUser.employeeId,
-          department: demoUser.department,
-          jobTitle: demoUser.jobTitle,
-          phoneNumber: demoUser.phoneNumber,
-          isActive: true,
-          lastLoginAt: new Date()
-        })
-        .onConflictDoUpdate({
-          target: users.id,
-          set: {
-            email: demoUser.email,
-            firstName: demoUser.firstName,
-            lastName: demoUser.lastName,
-            profileImageUrl: demoUser.profileImageUrl,
-            employeeId: demoUser.employeeId,
-            department: demoUser.department,
-            jobTitle: demoUser.jobTitle,
-            phoneNumber: demoUser.phoneNumber,
-            updatedAt: new Date()
-          }
-        });
-
-      // Assign roles to user
-      for (const roleName of demoUser.roles) {
-        const [role] = await db
-          .select()
-          .from(roles)
-          .where(eq(roles.name, roleName))
-          .limit(1);
-
-        if (role) {
-          await db
-            .insert(userRoles)
-            .values({
-              userId: demoUser.id,
-              roleId: role.id,
-              isActive: true,
-              assignedAt: new Date()
-            })
-            .onConflictDoNothing();
-        } else {
-          console.warn(`Role '${roleName}' not found for user ${demoUser.email}`);
-        }
-      }
-
-      console.log(`✓ Created demo user: ${demoUser.firstName} ${demoUser.lastName} (${demoUser.email})`);
-
-    } catch (error) {
-      console.error(`Failed to create demo user ${demoUser.email}:`, error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get demo user by email (for easy testing)
-   */
-  async getDemoUserByEmail(email: string): Promise<DemoUser | null> {
-    return DEMO_USERS.find(user => user.email === email) || null;
-  }
-
-  /**
-   * List all demo users
-   */
   async listDemoUsers(): Promise<DemoUser[]> {
+    // Return static demo user list (no database query)
     return DEMO_USERS;
   }
 
-  /**
-   * Remove all demo users (for cleanup)
-   */
-  async removeDemoUsers(): Promise<void> {
-    try {
-      const demoUserIds = DEMO_USERS.map(user => user.id);
-      
-      // Remove user roles
-      await db.delete(userRoles).where(sql`${userRoles.userId} IN (${sql.join(demoUserIds.map(id => sql`${id}`), sql`, `)})`);
-      
-      // Remove users
-      await db.delete(users).where(sql`${users.id} IN (${sql.join(demoUserIds.map(id => sql`${id}`), sql`, `)})`);
-      
-      console.log(`✓ Removed ${demoUserIds.length} demo users`);
-    } catch (error) {
-      console.error('Failed to remove demo users:', error);
-      throw error;
-    }
+  async getUserById(userId: string): Promise<DemoUser | null> {
+    // Find user in static list
+    return DEMO_USERS.find(user => user.id === userId) || null;
   }
 }
 

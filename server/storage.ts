@@ -63,11 +63,26 @@ import {
   type InsertDepartmentPerformance 
 } from "@shared/timely-filing-schema";
 
-import { 
-  users, 
-  type User, 
-  type UpsertUser 
-} from "../shared/auth-schema";
+// Basic user interface for demo users (without RBAC)
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  profileImageUrl?: string;
+  employeeId?: string;
+  department?: string;
+  jobTitle?: string;
+  phoneNumber?: string;
+}
+
+interface UpsertUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  profileImageUrl?: string;
+}
 
 import {
   type PatientStatusMonitoring,

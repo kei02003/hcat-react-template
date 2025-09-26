@@ -3,8 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { canonicalDb } from "./canonical-database-storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { requirePermission, requireAnyPermission, requireRoleLevel, auditAction, type AuthenticatedRequest } from "./auth/middleware";
-import { rbacService } from "./auth/rbac";
 import { demoUserService } from "./demo-users";
 import { insertMetricsSchema, insertDocumentationRequestSchema, insertPayerBehaviorSchema, insertRedundancyMatrixSchema, insertPredictiveAnalyticsSchema, insertDenialPredictionsSchema, insertRiskFactorsSchema } from "@shared/schema";
 import { z } from "zod";
@@ -476,8 +474,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
   await setupAuth(app);
   
-  // Initialize RBAC system
-  await rbacService.initializeRolesAndPermissions();
+  // RBAC removed - no role initialization needed
   
   // Create demo users for testing (only in development)
   if (process.env.NODE_ENV === 'development') {
@@ -492,9 +489,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/user', isAuthenticated, async (req, res) => {
     try {
       const user = req.user as any;
-      const userId = user.claims.sub;
-      const userWithPermissions = await rbacService.getUserWithPermissions(userId);
-      res.json(userWithPermissions);
+      const basicUser = {
+        id: user.claims.sub,
+        email: user.claims.email,
+        firstName: user.claims.first_name,
+        lastName: user.claims.last_name,
+        profileImageUrl: user.claims.profile_image_url
+      };
+      res.json(basicUser);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -625,7 +627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Base Metrics
   app.get("/api/canonical-metrics", 
     isAuthenticated,
-    requirePermission("view_metrics"),
+
     async (_req, res) => {
     try {
       const metrics = await canonicalDb.getCanonicalMetrics();
@@ -638,7 +640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Metric Versions
   app.get("/api/canonical-metric-versions", 
     isAuthenticated,
-    requirePermission("view_metrics"),
+
     async (req, res) => {
     try {
       const metricKey = req.query.metricKey as string;
@@ -662,8 +664,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Results
   app.get("/api/canonical-results", 
     isAuthenticated,
-    requirePermission("view_metrics"),
-    async (req: AuthenticatedRequest, res) => {
+
+    async (req, res) => {
     try {
       // Validate query parameters
       const queryValidation = canonicalResultsQuerySchema.safeParse(req.query);
@@ -681,13 +683,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const results = await canonicalDb.getResults(userOrg, entityId, metricVersionKey);
       
-      // Audit canonical data access
-      await auditAction(req as AuthenticatedRequest, "view_canonical_results", "canonical_result", {
-        organization: userOrg,
-        entity_id: entityId,
-        metric_version_key: metricVersionKey,
-        results_count: results.length
-      });
+      // Audit canonical data access - RBAC removed
       
       res.json(results);
     } catch (error) {
@@ -731,8 +727,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/canonical-results/by-grain", 
     isAuthenticated,
-    requirePermission("view_metrics"),
-    async (req: AuthenticatedRequest, res) => {
+
+    async (req, res) => {
     try {
       // Validate request body
       const bodyValidation = canonicalResultsByGrainBodySchema.safeParse(req.body);
@@ -757,12 +753,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const secureGrainKeys = { ...grainKeys, org_id: userOrg };
       const results = await canonicalDb.getResultsByGrain(secureGrainKeys);
       
-      // Audit canonical data access
-      await auditAction(req as AuthenticatedRequest, "view_canonical_results_by_grain", "canonical_result", {
-        organization: userOrg,
-        grain_keys: secureGrainKeys,
-        results_count: results.length
-      });
+      // Audit canonical data access - RBAC removed
       
       res.json(results);
     } catch (error) {
@@ -773,8 +764,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard-friendly endpoint for canonical metrics summary
   app.get("/api/canonical-metrics-summary", 
     isAuthenticated,
-    requirePermission("view_metrics"),
-    async (req: AuthenticatedRequest, res) => {
+
+    async (req, res) => {
     try {
       // Strictly require org from authenticated user - no fallback
       const userOrg = req.user?.organization;
@@ -810,11 +801,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
       );
       
-      // Audit canonical metrics summary access
-      await auditAction(req as AuthenticatedRequest, "view_canonical_metrics_summary", "canonical_metric", {
-        organization: userOrg,
-        metrics_count: summaryData.length
-      });
+      // Audit canonical metrics summary access - RBAC removed
       
       res.json(summaryData);
     } catch (error) {
@@ -826,8 +813,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Staging Results API Routes
   app.get("/api/canonical-staging-results", 
     isAuthenticated,
-    requirePermission("view_metrics"),
-    async (req: AuthenticatedRequest, res) => {
+
+    async (req, res) => {
     try {
       // Strictly require org from authenticated user - no fallback
       const userOrg = req.user?.organization;
@@ -838,12 +825,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const metricVersionKey = req.query.metricVersionKey as string;
       const stagingResults = await canonicalDb.getStagingResults(userOrg, metricVersionKey);
       
-      // Audit staging data access
-      await auditAction(req as AuthenticatedRequest, "view_canonical_staging_results", "canonical_staging_result", {
-        organization: userOrg,
-        metric_version_key: metricVersionKey,
-        results_count: stagingResults.length
-      });
+      // Audit staging data access - RBAC removed
       
       res.json(stagingResults);
     } catch (error) {
@@ -854,17 +836,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Metric Lineage API Routes
   app.get("/api/canonical-metric-lineage", 
     isAuthenticated,
-    requirePermission("view_metrics"),
-    async (req: AuthenticatedRequest, res) => {
+
+    async (req, res) => {
     try {
       const parentResultKey = req.query.parentResultKey as string;
       const lineageData = await canonicalDb.getMetricLineage(parentResultKey);
       
-      // Audit lineage data access
-      await auditAction(req as AuthenticatedRequest, "view_canonical_metric_lineage", "canonical_metric_lineage", {
-        parent_result_key: parentResultKey,
-        lineage_count: lineageData.length
-      });
+      // Audit lineage data access - RBAC removed
       
       res.json(lineageData);
     } catch (error) {
@@ -875,8 +853,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add operational efficiency metrics - specialized endpoint for inserting new metric definitions
   app.post("/api/canonical-metrics/operational-efficiency", 
     isAuthenticated,
-    requirePermission("admin"),
-    async (req: AuthenticatedRequest, res) => {
+    async (req, res) => {
     try {
       const { CANONICAL_METRICS, CANONICAL_METRIC_VERSIONS, generateSampleStagingResults } = 
         await import("./canonical-metric-definitions");
