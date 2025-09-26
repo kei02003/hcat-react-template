@@ -1,89 +1,55 @@
 # Overview
 
-This is a comprehensive healthcare dashboard application featuring advanced analytics across multiple domains. The application features a modern React frontend with a Node.js/Express backend, PostgreSQL database integration, OpenAI-powered intelligent recommendations, and Replit authentication integration.
+This project is a comprehensive healthcare dashboard application designed for advanced analytics across multiple domains. It features a modern React frontend, a Node.js/Express backend, PostgreSQL integration, and intelligent recommendations powered by OpenAI. The application aims to provide a robust platform for healthcare revenue cycle management, clinical data analysis, and overall healthcare analytics.
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language. Do not use icons or emojis.
 
-
-## Branding Implementation
-- Integrated Health Catalyst TriFlame logo from https://cashmere.healthcatalyst.net/assets/TriFlame.svg
-- Logo positioned flush left with 40px x 40px dimensions and #00aeff blue background
-- Logo container extends full navbar height (60px) with no healthcare header background visible to the left
-- Maintains centered TriFlame icon within blue background rectangle
-
 # System Architecture
 
 ## Frontend Architecture
-The frontend is built using React with TypeScript and follows a component-based architecture:
-- **UI Framework**: Utilizes Radix UI primitives with custom styling through shadcn/ui components
-- **Styling**: Tailwind CSS with custom healthcare-themed color variables and responsive design
-- **State Management**: React Query (TanStack Query) for server state management with optimistic updates
-- **Routing**: Wouter for lightweight client-side routing
-- **Charts and Visualizations**: Recharts library for data visualization including bar charts, heat maps, and trend analysis
-- **Build Tool**: Vite for fast development and optimized production builds
+The frontend is built with React and TypeScript, using Radix UI primitives and shadcn/ui components, styled with Tailwind CSS for a custom healthcare theme. It uses React Query for server state management, Wouter for routing, and Recharts for data visualizations. Vite is used for development and optimized production builds.
 
 ## Backend Architecture
-The backend follows a RESTful API design pattern:
-- **Runtime**: Node.js with Express.js framework
-- **Language**: TypeScript with ES modules
-- **API Routes**: Organized around core entities (metrics, documentation requests, payer behavior, redundancy matrix)
-- **Data Validation**: Zod schemas for request/response validation
-- **Storage Interface**: Abstracted storage layer with DatabaseStorage implementation using PostgreSQL
-- **Authentication**: Replit Auth integration with OpenID Connect and Passport.js
-- **Authorization**: Comprehensive RBAC system with 10 healthcare-specific roles
-- **Security**: Permission-based middleware protection with audit logging
-- **Development**: Hot module replacement and error handling for development experience
+The backend is a Node.js Express.js application written in TypeScript. It follows a RESTful API design, organized by core entities, and uses Zod for data validation. Drizzle ORM interfaces with PostgreSQL, and authentication is handled via Replit Auth (OpenID Connect) with Passport.js. A comprehensive RBAC system with 10 healthcare-specific roles provides authorization and security, including permission-based middleware and audit logging.
 
 ## Database and Data Management
-- **ORM**: Drizzle ORM with PostgreSQL dialect for type-safe database operations
-- **Database**: PostgreSQL with Neon serverless configuration
-- **Schema Management**: Centralized schema definitions with automated migration support
-- **Connection**: Environment-based database URL configuration with connection pooling
-- **Session Management**: PostgreSQL-backed session storage for authentication
-- **Demo Data**: Comprehensive demo user system with 12 healthcare staff accounts for testing
+The project utilizes PostgreSQL with Neon serverless configuration and Drizzle ORM for type-safe database operations and schema management. It includes centralized schema definitions, automated migration support, and environment-based database connection pooling. Session management is PostgreSQL-backed, and a demo user system with 12 healthcare staff accounts is provided for testing.
+
+## UI/UX Decisions
+The application integrates the Health Catalyst TriFlame logo, positioned flush left in the navbar with specific dimensions and background styling to maintain brand consistency.
 
 ## Development and Build Process
-- **Development**: Concurrent client and server development with hot reloading
-- **Build**: Separate client (Vite) and server (esbuild) build processes
-- **Database**: Push-based schema deployment with Drizzle Kit
-- **Environment**: Development/production environment detection with appropriate tooling
+Development supports concurrent client and server hot reloading. Separate build processes (Vite for client, esbuild for server) are used, with Drizzle Kit handling push-based schema deployment. The system detects development/production environments for appropriate tooling.
 
 # External Dependencies
 
 ## AI and Analytics Services
-- **OpenAI GPT-4o**: Advanced language model for predictive analytics and intelligent recommendations
-- **Statistical Analysis**: SPC charting with changepoint detection algorithms
+- **OpenAI GPT-4o**: Used for predictive analytics and intelligent recommendations.
+- **Statistical Analysis**: SPC charting with changepoint detection algorithms.
 
 ## Database Services
-- **Neon Database**: Serverless PostgreSQL hosting with connection pooling
-- **Drizzle ORM**: Type-safe database toolkit with migration management
+- **Neon Database**: Serverless PostgreSQL hosting.
+- **Drizzle ORM**: Type-safe database toolkit and migration management.
 
 ## UI and Styling Libraries
-- **Radix UI**: Headless component primitives for accessibility and interaction patterns
-- **Tailwind CSS**: Utility-first CSS framework with custom healthcare theme
-- **Lucide React**: Icon library for consistent iconography
-- **Recharts**: Data visualization library for charts and graphs
+- **Radix UI**: Headless component primitives for accessibility.
+- **Tailwind CSS**: Utility-first CSS framework with a custom healthcare theme.
+- **Lucide React**: Icon library.
+- **Recharts**: Data visualization library.
 
 ## Development and Build Tools
-- **Vite**: Frontend build tool with development server and HMR
-- **TypeScript**: Static type checking across the entire application
-- **ESBuild**: Fast JavaScript bundler for server-side code
-- **Wouter**: Minimalist routing library for single-page application navigation
+- **Vite**: Frontend build tool.
+- **TypeScript**: Static type checking.
+- **ESBuild**: Fast JavaScript bundler for server-side code.
+- **Wouter**: Minimalist routing library.
 
 ## Data Management
-- **TanStack Query**: Server state management with caching and synchronization
-- **Zod**: Schema validation for API requests and responses
-- **Date-fns**: Date utility library for time-based calculations
+- **TanStack Query**: Server state management.
+- **Zod**: Schema validation.
+- **Date-fns**: Date utility library.
 
 ## Authentication and Security
-- **Replit Auth**: OpenID Connect authentication with multi-domain support
-- **Session Management**: PostgreSQL-backed session storage with secure cookies
-- **Audit Logging**: Comprehensive user action tracking with IP and user agent logging
-- **Demo Users**: 12 pre-configured healthcare staff accounts for testing role-based access
-
-## Session and Development
-- **Express Session**: Session management with PostgreSQL store integration
-- **Replit Integration**: Development environment integration with error overlays and debugging tools
-- **Demo Environment**: Automatic demo user creation and RBAC initialization in development mode
+- **Replit Auth**: OpenID Connect authentication.
+- **Express Session**: Session management with PostgreSQL store.
