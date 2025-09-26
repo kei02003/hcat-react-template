@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { useTutorial } from "@/components/tutorial/tutorial-provider";
-import { dashboardTutorialSteps } from "@/components/tutorial/dashboard-tutorial-steps";
 import { PersonaSwitcher, type DemoUser } from "@/components/persona-switcher";
 import { HelpCircle } from "lucide-react";
 
@@ -26,16 +24,6 @@ export default function Dashboard() {
   const [activeMainTab, setActiveMainTab] = useState(MAIN_TABS[0]);
   const [activeSubTab, setActiveSubTab] = useState("Home");
   const [currentPersona, setCurrentPersona] = useState<DemoUser | null>(null);
-  const { startTutorial, isCompleted } = useTutorial();
-
-  useEffect(() => {
-    if (!isCompleted) {
-      const timer = setTimeout(() => {
-        startTutorial(dashboardTutorialSteps);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [isCompleted, startTutorial]);
 
   const handlePersonaChange = (persona: DemoUser) => {
     setCurrentPersona(persona);
